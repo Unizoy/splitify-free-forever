@@ -9,6 +9,7 @@ analyzer:
     - android/**
     - '**/*.g.dart'
     - '**/*.freezed.dart'
+    - test/data/local/generated/**
     - lib/l10n/app_localizations*.dart
   errors:
     avoid_print: error
