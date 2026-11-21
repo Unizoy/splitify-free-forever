@@ -410,7 +410,7 @@ class _Row extends StatelessWidget {
       case MemberRow(:final members, :final showFrom):
         final none = l.histNoValue;
         return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             label,
             for (final m in members)

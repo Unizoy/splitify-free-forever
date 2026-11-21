@@ -114,7 +114,7 @@ class _DeletedItemRow extends StatelessWidget {
         : MoneyFormatter.detail.format(p!.amount, p.currency);
     final at = DateTime.tryParse(item.deletedAt)?.toLocal();
     final date = at == null ? '' : shortDate(context, at);
-    final who = item.deletedByMe ? l.you : (item.deletedByName ?? l.histFormerMember);
+    final who = item.deletedByMe ? l.expYouLower : (item.deletedByName ?? l.histFormerMember);
     final caption = l.delBy(who, date);
     final large = MediaQuery.textScalerOf(context).scale(1) > 1.4;
     final icon = e != null
