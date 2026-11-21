@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:splitify/data/local/app_database.dart';
+import 'package:splitify/features/comments/application/comments_providers.dart';
 import 'package:splitify/features/expenses/application/expense_providers.dart';
 import 'package:splitify/features/expenses/presentation/expense_detail_screen.dart';
 import 'package:splitify/features/expenses/presentation/expense_list.dart';
@@ -141,6 +142,8 @@ void main() {
     List<Override> viewOverrides(AsyncValue<ExpenseView?> view, {String id = 'e1'}) => [
       expenseViewProvider(id).overrideWithValue(view),
       expenseGroupProvider(gid).overrideWith((ref) => Stream.value(sampleGroup())),
+      commentThreadProvider((groupId: gid, targetType: 'expense', targetId: id))
+          .overrideWithValue(const AsyncData([])),
     ];
 
     Future<_RecordingActions> pumpDetail(
@@ -161,6 +164,7 @@ void main() {
                 builder: (_, _) => PushHost(ExpenseDetailScreen(expenseId: id)),
               ),
               stubRoute('/expense/:id/edit'),
+              stubRoute('/expense/:id/history'),
             ],
           );
       await t.pumpWidget(
@@ -194,7 +198,8 @@ void main() {
       expect(find.text('20 Nov 2026'), findsOneWidget);
       expect(find.text('Table by the window, paid by card.'), findsOneWidget);
       expect(find.text('Added by Mohit Bindal on 20 Nov 2026'), findsOneWidget);
-      expect(find.text('Comments arrive in a later update.'), findsOneWidget);
+      expect(find.text('No comments yet'), findsOneWidget);
+      expect(find.byKey(const Key('expense-edited-line')), findsNothing);
       expect(find.byType(SyncMarker), findsNothing);
     });
 
@@ -225,10 +230,10 @@ void main() {
     });
 
     // TC-13-01
-    testWidgets('the history row says coming soon', (t) async {
+    testWidgets('the history row opens the expense history route', (t) async {
       await pumpDetail(t, AsyncData(sampleView(sampleExpense())));
       await tapKey(t, 'expense-history');
-      expect(find.text('Coming soon'), findsOneWidget);
+      expect(find.text('at /expense/e1/history'), findsOneWidget);
     });
 
     // TC-13-01

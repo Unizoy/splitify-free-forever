@@ -12,6 +12,7 @@ import 'package:splitify/data/local/app_database.dart' show LocalPayment;
 import 'package:splitify/features/balances/application/balance_views.dart';
 import 'package:splitify/features/balances/application/balances_providers.dart';
 import 'package:splitify/features/balances/presentation/balances_tab.dart' show TransferRow;
+import 'package:splitify/features/comments/application/comments_providers.dart';
 import 'package:splitify/features/expenses/application/expense_providers.dart';
 import 'package:splitify/features/expenses/presentation/expense_list.dart';
 import 'package:splitify/features/payments/application/payment_providers.dart';
@@ -416,6 +417,7 @@ void main() {
             builder: (_, _) => PushHost(PaymentDetailScreen(paymentId: id)),
           ),
           stubRoute('/payment/:id/edit'),
+          stubRoute('/payment/:id/history'),
         ],
       );
       await t.pumpWidget(
@@ -425,6 +427,9 @@ void main() {
             paymentViewProvider(id).overrideWithValue(view),
             expenseGroupProvider(gid).overrideWith((ref) => Stream.value(sampleGroup())),
             paymentActionsProvider.overrideWith(_RecordingActions.new),
+            // Phase 12 comment thread on the detail screen.
+            commentThreadProvider((groupId: gid, targetType: 'payment', targetId: id))
+                .overrideWithValue(const AsyncData([])),
           ],
         ),
       );
@@ -457,10 +462,10 @@ void main() {
     });
 
     // TC-25-02
-    testWidgets('history says coming soon', (t) async {
+    testWidgets('history opens the payment history route (phase 12)', (t) async {
       await pumpDetail(t, AsyncData(paymentView()));
       await tapKey(t, 'payment-history');
-      expect(find.text('Coming soon'), findsOneWidget);
+      expect(find.text('at /payment/p1/history'), findsOneWidget);
     });
 
     // TC-25-02
