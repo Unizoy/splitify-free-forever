@@ -16,3 +16,9 @@
 ## Tests
 
 TC-20-01…04, TC-13-03, TC-13-04.
+
+Pre-built (branch prep/history-diff): T1 diff builder only, no UI — `lib/features/history/domain/version_diff.dart`
+(`buildHistory(kind, versions)` → `HistoryEntry` per version: op create/update/delete/restore/conflictLost, who/when,
+`deleted`, `muted` for `conflict_lost`, `FieldChange`s with `Money`/UTC date/member-id values and per-member changes
+for payers/shares/split values), tests `test/features/history/domain/version_diff_test.dart` (TC-20-02, 100 % lines).
+Still to do for T1: pull + Drift cache of `record_versions` (no Drift mirror exists yet), the screen. Decisions S-096..S-098.
