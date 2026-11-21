@@ -39,3 +39,6 @@ export function requireMethod(
   res.headers.set("Allow", methods.join(", "));
   return res;
 }
+
+/** The `fetch` signature, injected into function logic so tests can mock every network call. */
+export type FetchFn = typeof fetch;
