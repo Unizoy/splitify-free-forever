@@ -93,7 +93,9 @@ select throws_ok($$select public.rotate_invite_code('50000000-0000-4000-8000-000
   'P0001', 'NOT_MEMBER', 'a non-member cannot rotate the code');
 
 -- Rate limit: 10 wrong codes per hour.
-select is((select count(*)::int from generate_series(1, 10) s, lateral (select public.preview_join('ZZZZZZZZ')) x),
+-- (the dashes tie each call to its row, so the planner runs it ten times)
+select is((select count(*)::int from generate_series(1, 10) s,
+             lateral (select public.preview_join('ZZZZZZZZ' || repeat('-', s))) x),
   10, 'ten wrong tries run');
 select is((select count(*)::int from public.join_attempts where user_id = '00000000-0000-4000-8000-0000000000d1'),
   10, 'wrong tries are recorded');
