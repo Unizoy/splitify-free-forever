@@ -30,8 +30,8 @@ Total: 114 test ids.
 | 04 | TC-B2-05 | sql | co-member can read | pass (CI db job; MCP run needs-owner BLK-001) |
 | 05 | TC-B1-01 | widget | onboarding shows both buttons and dev login only in debug | pass (`test/features/auth/presentation/auth_screens_test.dart`) |
 | 05 | TC-B1-02 | unit | auth controller | pass (`sign_in_controller_test.dart`) |
-| 05 | TC-B1-03 | integ | dev sign-in → home | SKIPPED (BLK-001: no dev project sign-in); flow covered by widget test with fake auth |
-| 05 | TC-B1-04 | integ | sign-out wipes local DB and token | SKIPPED (BLK-001); wipe covered by unit + widget tests (`LocalWipe`, sign-out sheet) |
+| 05 | TC-B1-03 | integ | dev sign-in → home | SKIPPED (not run yet; dev project ready since 2026-11-21); flow covered by widget test with fake auth |
+| 05 | TC-B1-04 | integ | sign-out wipes local DB and token | SKIPPED (not run yet; dev ready 2026-11-21); wipe covered by unit + widget tests (`LocalWipe`, sign-out sheet) |
 | 05 | TC-B1-05 | edge | delete-account converts memberships to name-only and deletes user | pass (deno `delete-account/handler_test.ts`, CI functions job); deploy SKIPPED (BLK-001) |
 | 05 | TC-B1-06 | sql | deleted | pass (`supabase/tests/024_auth_profile.test.sql`, CI db job) |
 | 05 | TC-B1-07 | integ | Google sign-in (only if emulator has Google account) | needs-owner (D-020: no Google client id) |
@@ -40,10 +40,10 @@ Total: 114 test ids.
 | 05 | TC-B2-01 | unit | UPI regex accepts/rejects table | pass (`test/domain/profile_test.dart`) |
 | 05 | TC-B2-02 | unit | UPI QR parser | pass (`test/domain/profile_test.dart`) |
 | 05 | TC-B2-03 | widget | profile form | pass (`auth_screens_test.dart`) |
-| 05 | TC-B2-04 | integ | edit profile persists after restart and syncs | SKIPPED (BLK-001: needs dev project); save/cache covered by unit tests |
-| 06 | TC-1-02 | sql | create via apply_mutations makes creator owner member | todo |
-| 06 | TC-18-01 | sql | every mutation type writes activity | todo |
-| 06 | TC-27-01..10 | unit | sync engine suite (`04-sync-engine.md` §10) | todo |
+| 05 | TC-B2-04 | integ | edit profile persists after restart and syncs | SKIPPED (not run yet; dev ready 2026-11-21); save/cache covered by unit tests |
+| 06 | TC-1-02 | sql | create via apply_mutations makes creator owner member | pass (CI db, `040_apply_mutations`) |
+| 06 | TC-18-01 | sql | every mutation type writes activity | partial: group + expense ops asserted in `040_apply_mutations`; member/payment/comment activity written but not yet asserted |
+| 06 | TC-27-01..10 | unit | sync engine suite (`04-sync-engine.md` §10) | pass (`test/data/sync/sync_engine_test.dart`) |
 | 07 | TC-1-01 | unit | group form validation | todo |
 | 07 | TC-1-03 | sql | archived group rejects new expenses (`GROUP_ARCHIVED`) | todo |
 | 07 | TC-1-04 | widget | groups grid states | todo |

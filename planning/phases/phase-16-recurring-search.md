@@ -19,3 +19,5 @@
 ## Tests
 
 TC-12-01…05, TC-34-01…02.
+
+Pre-built (phase 06 session, branch prep/upi-recurrence): `lib/domain/rules/recurrence.dart`, `test/fixtures/recurring_vectors.json`, `test/domain/rules/recurrence_test.dart` (T1 Dart side; pgTAP from the same vectors in T2).

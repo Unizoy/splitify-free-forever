@@ -64,7 +64,17 @@ _Add entries here._
 - [phase 04] Postgres regex repeat counts stop at 255 (`{0,255}` errors) → split the quantifier (e.g. `{2}{0,254}`).
 - [phase 04] Without the Supabase MCP, migrations + pgTAP can still be proven in GitHub Actions (`supabase start` on the runner, `supabase test db`); dev-project steps stay blocked.
 - [phase 03/04] Two phases in parallel: `git worktree add ../splitify-p04 -b phase/04-… phase/03-…`, one agent per worktree, then merge the earlier phase branch into the later one (conflicts only in 00-decisions / 10-test-catalog — keep both sides).
+- [phase 06] Drift: a typed `db.into(table)` on a `TableInfo<Table, Object?>` fails at runtime (`RawValuesInsertable<Object?>` is not `Insertable<LocalGroup>`) → generic writes use `customInsert`/`customUpdate` with `updates: {table}` so `watch()` streams still fire (`customStatement` does NOT notify streams).
+- [phase 06] Drift tables declared in a `.drift` file avoid uncovered getter lines in coverage; FTS5 needs `sql: {dialect: sqlite, options: {modules: [fts5]}}` in build.yaml; `package:sqlite3` 3.x bundles SQLite (with FTS5), so `NativeDatabase.memory()` works in `flutter test` on Windows.
+- [phase 06] `drift_dev schema generate` output trips `strict_raw_type` → exclude `test/data/local/generated/**` in analysis_options. `drift/drift.dart` clashes with matcher's `isNull`/`isNotNull` in tests.
+- [phase 06] `dart run build_runner build` rewrote unrelated riverpod `*.g.dart` files (generator drift) → `git checkout` them unless the source changed.
+- [phase 06] Dart records compare collection fields by identity: `expect((map, list), ({..}, [..]))` fails even when equal → assert collections separately.
 - [phase 05] Riverpod 3 pauses providers nobody listens to: `container.read(streamProvider.future)` can hang → `container.listen(...)` first in tests.
 - [phase 05] `flutter_test` answers every HTTP request with 400, so a real `SupabaseClient('https://x.example', 'k')` is enough to cover thin PostgREST/Storage glue (calls fail fast).
 - [phase 05] PowerShell `Get-Content -Raw | Set-Content` re-encodes UTF-8 files (mojibake / `?` for `→`, BOM) → edit Dart files with Python (`io.open(..., encoding='utf-8')`) or the Edit tool.
 - [phase 05] Golden tests need a valid image for `MemoryImage` (use a base64 1×1 PNG), fake bytes throw "Invalid image data".
+- [prep 16] Postgres `date + make_interval(months => n)` clamps to month end (2024-01-31 + 1 month = 2024-02-29), so the T2 SQL generator matches `recurrence.dart` if it always adds n months/years to the anchor, never to the last `next_date`.
+- [prep 11] Dart `Uri.queryParameters` decodes `+` as a space and `Uri.encodeComponent` leaves `!*'()` alone, so the UPI builder has its own encoder (`+` -> `%2B`, space -> `%20`).
+- [04 dev apply] The guard hook's `truncate` regex also matches privilege lists (`revoke … truncate, references …`) in migrations → write `revoke all … ; grant select …` instead.
+- [04 dev apply] MCP `execute_sql` returns only the last result set → for pgTAP add `select num_failed(), _get('curr_test'), _get('plan');` before `rollback`; strip leading `--` comments so the SQL starts with `begin` (guard treats only that as a test).
+- [04 dev apply] Other worktrees share the dev DB: phase 07 applied `0010_groups_members` while 0001–0009 were going in — always check `list_migrations` before applying.

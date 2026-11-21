@@ -21,3 +21,5 @@
 ## Tests
 
 TC-14-02, TC-32-02, TC-32-04, TC-32-05 (+ re-run TC-32-01/03 parity).
+
+Pre-built (phase 06 session, branch prep/edge-functions): `supabase/functions/fetch-rates/{index,rates,rates_test}.ts`, `supabase/functions/_shared/admin_client.ts`; deploy + table DDL still in this phase.

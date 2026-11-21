@@ -1,0 +1,214 @@
+-- Local mirror of the server tables (planning/04-sync-engine.md §2). Columns as on the server: money as INT
+-- minor units, jsonb as TEXT JSON, timestamps as TEXT ISO-8601 (as the server sent them), numeric fx rates as
+-- TEXT (never floating point). sync_state: 'synced' | 'pending' | 'failed'.
+
+CREATE TABLE profiles (
+  id TEXT NOT NULL PRIMARY KEY,
+  display_name TEXT NOT NULL,
+  avatar_path TEXT,
+  upi_id TEXT,
+  default_currency TEXT NOT NULL DEFAULT 'INR',
+  updated_at TEXT,
+  deleted_at TEXT,
+  seq INT NOT NULL DEFAULT 0
+) AS LocalProfile;
+
+CREATE TABLE "groups" (
+  id TEXT NOT NULL PRIMARY KEY,
+  name TEXT NOT NULL,
+  type TEXT NOT NULL DEFAULT 'other',
+  main_currency TEXT NOT NULL DEFAULT 'INR',
+  cover_kind TEXT NOT NULL DEFAULT 'generated',
+  cover_path TEXT,
+  simplify_debts BOOLEAN NOT NULL DEFAULT FALSE,
+  default_split TEXT,
+  invite_code TEXT,
+  archived_at TEXT,
+  direct_key TEXT,
+  created_at TEXT,
+  created_by TEXT,
+  updated_at TEXT,
+  updated_by TEXT,
+  client_updated_at TEXT,
+  deleted_at TEXT,
+  deleted_by TEXT,
+  seq INT NOT NULL DEFAULT 0,
+  sync_state TEXT NOT NULL DEFAULT 'synced'
+) AS LocalGroup;
+
+CREATE TABLE group_members (
+  id TEXT NOT NULL PRIMARY KEY,
+  group_id TEXT NOT NULL,
+  user_id TEXT,
+  display_name TEXT NOT NULL,
+  position INT NOT NULL DEFAULT 0,
+  role TEXT NOT NULL DEFAULT 'member',
+  status TEXT NOT NULL DEFAULT 'active',
+  claimed_at TEXT,
+  tint INT,
+  created_at TEXT,
+  created_by TEXT,
+  updated_at TEXT,
+  updated_by TEXT,
+  client_updated_at TEXT,
+  deleted_at TEXT,
+  deleted_by TEXT,
+  seq INT NOT NULL DEFAULT 0,
+  sync_state TEXT NOT NULL DEFAULT 'synced'
+) AS LocalMember;
+
+CREATE INDEX group_members_group ON group_members (group_id);
+
+CREATE TABLE expenses (
+  id TEXT NOT NULL PRIMARY KEY,
+  group_id TEXT NOT NULL,
+  kind TEXT NOT NULL DEFAULT 'expense',
+  description TEXT NOT NULL,
+  notes TEXT,
+  category TEXT NOT NULL DEFAULT 'other.general',
+  date TEXT NOT NULL,
+  currency TEXT NOT NULL,
+  total INT NOT NULL,
+  payers TEXT NOT NULL,
+  shares TEXT NOT NULL,
+  split_kind TEXT NOT NULL DEFAULT 'equal',
+  split_values TEXT,
+  fx_rate TEXT,
+  fx_rate_date TEXT,
+  fx_source TEXT,
+  fx_currency TEXT,
+  fx_total INT,
+  fx_payers TEXT,
+  fx_shares TEXT,
+  receipt_path TEXT,
+  recurring_id TEXT,
+  source TEXT NOT NULL DEFAULT 'app',
+  created_at TEXT,
+  created_by TEXT,
+  updated_at TEXT,
+  updated_by TEXT,
+  client_updated_at TEXT,
+  deleted_at TEXT,
+  deleted_by TEXT,
+  seq INT NOT NULL DEFAULT 0,
+  sync_state TEXT NOT NULL DEFAULT 'synced'
+) AS LocalExpense;
+
+CREATE INDEX expenses_group_date ON expenses (group_id, date);
+
+CREATE TABLE payments (
+  id TEXT NOT NULL PRIMARY KEY,
+  group_id TEXT NOT NULL,
+  from_member TEXT NOT NULL,
+  to_member TEXT NOT NULL,
+  amount INT NOT NULL,
+  currency TEXT NOT NULL,
+  date TEXT NOT NULL,
+  method TEXT NOT NULL DEFAULT 'cash',
+  note TEXT,
+  fx_rate TEXT,
+  fx_rate_date TEXT,
+  fx_source TEXT,
+  fx_currency TEXT,
+  fx_amount INT,
+  created_at TEXT,
+  created_by TEXT,
+  updated_at TEXT,
+  updated_by TEXT,
+  client_updated_at TEXT,
+  deleted_at TEXT,
+  deleted_by TEXT,
+  seq INT NOT NULL DEFAULT 0,
+  sync_state TEXT NOT NULL DEFAULT 'synced'
+) AS LocalPayment;
+
+CREATE INDEX payments_group ON payments (group_id);
+
+CREATE TABLE comments (
+  id TEXT NOT NULL PRIMARY KEY,
+  group_id TEXT NOT NULL,
+  target_type TEXT NOT NULL,
+  target_id TEXT NOT NULL,
+  body TEXT NOT NULL,
+  created_at TEXT,
+  created_by TEXT,
+  updated_at TEXT,
+  updated_by TEXT,
+  client_updated_at TEXT,
+  deleted_at TEXT,
+  deleted_by TEXT,
+  seq INT NOT NULL DEFAULT 0,
+  sync_state TEXT NOT NULL DEFAULT 'synced'
+) AS LocalComment;
+
+CREATE INDEX comments_target ON comments (target_id);
+
+CREATE TABLE activity (
+  id TEXT NOT NULL PRIMARY KEY,
+  group_id TEXT NOT NULL,
+  actor_user_id TEXT,
+  actor_member_id TEXT,
+  type TEXT NOT NULL,
+  target_type TEXT,
+  target_id TEXT,
+  data TEXT NOT NULL DEFAULT '{}',
+  created_at TEXT,
+  seq INT NOT NULL DEFAULT 0
+) AS LocalActivity;
+
+CREATE INDEX activity_group_seq ON activity (group_id, seq);
+
+-- Derived per-member parts of each expense, rebuilt with every expense write or pull (§2).
+CREATE TABLE expense_parts (
+  expense_id TEXT NOT NULL,
+  group_id TEXT NOT NULL,
+  member_id TEXT NOT NULL,
+  currency TEXT NOT NULL,
+  paid INT NOT NULL DEFAULT 0,
+  owed INT NOT NULL DEFAULT 0,
+  fx_currency TEXT,
+  fx_paid INT,
+  fx_owed INT,
+  PRIMARY KEY (expense_id, member_id)
+) AS ExpensePart;
+
+CREATE INDEX expense_parts_group ON expense_parts (group_id, currency);
+
+CREATE TABLE outbox (
+  seq INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+  mutation_id TEXT NOT NULL UNIQUE,
+  entity TEXT NOT NULL,
+  op TEXT NOT NULL,
+  record_id TEXT NOT NULL,
+  group_id TEXT NOT NULL,
+  payload TEXT NOT NULL,
+  client_updated_at TEXT NOT NULL,
+  created_at TEXT NOT NULL,
+  attempts INT NOT NULL DEFAULT 0,
+  last_error TEXT,
+  status TEXT NOT NULL DEFAULT 'queued'
+) AS OutboxItem;
+
+CREATE INDEX outbox_record ON outbox (record_id);
+
+CREATE TABLE sync_cursors (
+  scope TEXT NOT NULL PRIMARY KEY,
+  seq INT NOT NULL DEFAULT 0
+) AS SyncCursor;
+
+CREATE TABLE sync_meta (
+  "key" TEXT NOT NULL PRIMARY KEY,
+  value TEXT NOT NULL
+) AS SyncMetaEntry;
+
+CREATE TABLE pending_uploads (
+  id TEXT NOT NULL PRIMARY KEY,
+  bucket TEXT NOT NULL,
+  local_path TEXT NOT NULL,
+  remote_path TEXT NOT NULL,
+  record_id TEXT NOT NULL,
+  attempts INT NOT NULL DEFAULT 0
+) AS PendingUpload;
+
+-- Offline search (#34); filled from phase 16.
+CREATE VIRTUAL TABLE expense_search USING fts5(description, notes, member_names, amount_text);

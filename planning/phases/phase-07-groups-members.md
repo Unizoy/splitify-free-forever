@@ -30,3 +30,6 @@ TC-1-01, 1-03, 1-04, 1-06, 1-07, TC-3-01…05, TC-4-01…04; goldens for new scr
 
 A creates "e2e-Goa" (trip) offline → online sync → shares code → harness B previews and claims name-only "Rahul"
 → A's member list shows Rahul linked.
+
+> **Amendment (S-040, 2026-11-21):** phase 06 used `0009_sync.sql` because phase 05 took `0008`. This phase's
+> migration is `0010_group_rpcs.sql`, and later migration numbers in `03-backend.md` §8 shift by one.
