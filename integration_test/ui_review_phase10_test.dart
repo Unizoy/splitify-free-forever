@@ -13,6 +13,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:splitify/data/local/app_database.dart';
+import 'package:splitify/features/comments/application/comments_providers.dart';
 import 'package:splitify/features/expenses/application/expense_draft.dart';
 import 'package:splitify/features/expenses/application/expense_editor_controller.dart';
 import 'package:splitify/features/expenses/application/expense_providers.dart';
@@ -145,6 +146,8 @@ List<(String, Widget, List<Override>)> _screens(File photo) {
       'detail-loan',
       const ExpenseDetailScreen(expenseId: 'l1'),
       [
+        commentThreadProvider((groupId: gid, targetType: 'expense', targetId: 'l1'))
+            .overrideWithValue(const AsyncData([])),
         expenseViewProvider('l1').overrideWithValue(AsyncData(sampleView(_loanRow()))),
         expenseGroupProvider(gid).overrideWith((ref) => Stream.value(sampleGroup())),
       ],
@@ -153,6 +156,8 @@ List<(String, Widget, List<Override>)> _screens(File photo) {
       'detail-receipt',
       const ExpenseDetailScreen(expenseId: 'e1'),
       [
+        commentThreadProvider((groupId: gid, targetType: 'expense', targetId: 'e1'))
+            .overrideWithValue(const AsyncData([])),
         expenseViewProvider('e1').overrideWithValue(AsyncData(sampleView(withReceipt))),
         expenseGroupProvider(gid).overrideWith((ref) => Stream.value(sampleGroup())),
         ...storedReceipt(_receiptPath, photo, pending: true),
