@@ -20,7 +20,8 @@ project. Spec: [`planning/03-backend.md`](../planning/03-backend.md).
    The migrations also create the storage buckets (`receipts`, `group-covers`, `avatars`) and their policies, and
    enable the extensions (`pgcrypto`, `pg_net`, `pg_cron`, `pgtap`).
 3. **Deploy the Edge Functions** (from later phases) with `supabase functions deploy <name>`; `send-push` and
-   `fetch-rates` use `--no-verify-jwt` (see `03-backend.md` §7).
+   `fetch-rates` use `--no-verify-jwt` (see `03-backend.md` §7). `delete-account` keeps JWT verification on; it
+   uses only the built-in `SUPABASE_URL`, `SUPABASE_ANON_KEY` and `SUPABASE_SERVICE_ROLE_KEY`.
 4. **Set the one secret**: Dashboard → Edge Functions → Secrets → `FCM_SERVICE_ACCOUNT_JSON` = the full Firebase
    service-account JSON. Never commit it; no other secret exists.
 5. **Auth**: enable Google (web client id first, then the Android client id) and Email OTP as described in
