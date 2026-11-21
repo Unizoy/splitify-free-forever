@@ -15,7 +15,7 @@ Current phase: _none in progress_ (04-06 done-with-blockers BLK-001; 06 T5 open;
 | 05 | [Auth, profile, account](phases/phase-05-auth-profile.md) | 02, 04 | 00 (Google OAuth, Resend) | done-with-blockers (BLK-001) | phase/05-auth-profile | 2026-11-21 | 09bad43 | [report](reports/phase-05.md) |
 | 06 | [Local database and sync engine](phases/phase-06-sync-engine.md) | 04, 05 | 00 | done-with-blockers (BLK-001), T5 open | phase/06-sync-engine | 2026-11-21 | b57b60c | [report](reports/phase-06.md) |
 | 07 | [Groups, members, invites](phases/phase-07-groups-members.md) | 06 | 00 | todo | phase/07-groups-members | | | |
-| 08 | [Expenses and split types](phases/phase-08-expenses-splits.md) | 07 | 00 | in-progress (logic layer only; screens open) | phase/08-expenses-splits | 2026-11-21 | 4c0d8f0+ | [report](reports/phase-08.md) |
+| 08 | [Expenses and split types](phases/phase-08-expenses-splits.md) | 07 | 00 | in-progress (logic layer only; screens open) | phase/08-expenses-splits | 2026-11-21 | f7292c8 | [report](reports/phase-08.md) |
 | 09 | [Balances, payments, activity, totals](phases/phase-09-balances-payments.md) | 08 | 00 | todo | phase/09-balances-payments | | | |
 | 10 | [Multiple payers, IOU, receipt photos](phases/phase-10-payers-iou-receipts.md) | 09 | 00 | todo | phase/10-payers-iou-receipts | | | |
 | 11 | [Friends, simplify debts, Pay via UPI](phases/phase-11-friends-simplify-upi.md) | 09 | 00 | todo | phase/11-friends-simplify-upi | | | |
