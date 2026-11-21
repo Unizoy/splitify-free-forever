@@ -215,7 +215,14 @@ void main() {
       expect(find.textContaining('covered'), findsOneWidget);
       await _tap(t, find.byKey(const Key('expense-next'))); // → Split
       await _tap(t, find.byKey(const Key('expense-next'))); // → Details
+      // The receipt tile is at the bottom of a lazy list: scroll until it is built.
+      await t.scrollUntilVisible(
+        find.byKey(const Key('receipt-add')),
+        300,
+        scrollable: find.byType(Scrollable).last,
+      );
       await _tap(t, find.byKey(const Key('receipt-add')));
+      await _pumpFor(t, const Duration(milliseconds: 1500)); // the sheet slides up
       await _tap(t, find.byKey(const Key('photo-gallery')));
       await _pumpFor(t, const Duration(seconds: 1));
       expect(find.byKey(const Key('receipt-photo')), findsOneWidget);

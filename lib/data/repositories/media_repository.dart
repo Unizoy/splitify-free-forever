@@ -44,9 +44,14 @@ class MediaRepository {
     required PreparedImage image,
   }) async {
     final rel = await files.stage(bucket, path, image);
-    await db.transaction(() async {
-      await writer.write(entity, SyncOp.upsert, recordId, groupId, data);
-      await db
+    // One transaction (row + outbox + queue), opened by the writer so its sync nudge runs outside it.
+    await writer.write(
+      entity,
+      SyncOp.upsert,
+      recordId,
+      groupId,
+      data,
+      () => db
           .into(db.pendingUploads)
           .insert(
             PendingUploadsCompanion.insert(
@@ -56,8 +61,8 @@ class MediaRepository {
               remotePath: path,
               recordId: recordId,
             ),
-          );
-    });
+          ),
+    );
   }
 
   /// Saves an expense (snake_case [row]) with a new receipt photo; returns the photo's storage path.

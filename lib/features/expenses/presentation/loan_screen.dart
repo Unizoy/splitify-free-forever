@@ -15,6 +15,7 @@ import 'package:splitify/features/expenses/presentation/editor/amount_step.dart'
 import 'package:splitify/features/expenses/presentation/editor/details_step.dart';
 import 'package:splitify/features/expenses/presentation/editor/step_body.dart';
 import 'package:splitify/features/expenses/presentation/expense_copy.dart';
+import 'package:splitify/features/groups/presentation/invite_sheet.dart';
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/components/components.dart';
 import 'package:splitify/ui/theme/theme.dart';
@@ -119,7 +120,21 @@ class _LoanScreenState extends ConsumerState<LoanScreen> {
                 ? Center(
                     child: Padding(
                       padding: const EdgeInsets.all(AppSpacing.screen),
-                      child: EmptyState(icon: AppIcons.loan, title: title, message: l.loanNoOthers),
+                      child: EmptyState(
+                        icon: AppIcons.loan,
+                        title: title,
+                        message: l.loanNoOthers,
+                        actions: [
+                          PillButton(
+                            key: const Key('loan-invite'),
+                            label: l.invitePeople,
+                            icon: AppIcons.userPlus,
+                            variant: PillVariant.outline,
+                            expand: false,
+                            onPressed: () => unawaited(showInviteSheet(context, d.groupId)),
+                          ),
+                        ],
+                      ),
                     ),
                   )
                 : _Form(

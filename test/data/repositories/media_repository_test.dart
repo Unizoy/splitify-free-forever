@@ -111,6 +111,20 @@ void main() {
   });
 
   // TC-29-01
+  test(
+    'the sync nudge after saving a photo runs outside the save transaction (device e2e bug)',
+    () async {
+      // The writer's onWrite schedules work later; it must not inherit a closed transaction's zone.
+      Future<void>? later;
+      final writer = LocalWriter(db, clock, engine.serverClock)
+        ..onWrite = () =>
+            later = Future<void>.delayed(Duration.zero, () => db.select(db.outbox).get());
+      final r = MediaRepository(db: db, writer: writer, files: files, remote: remote, clock: clock);
+      await r.saveExpenseWithReceipt(gid, eid, row(), image);
+      await expectLater(later, completes);
+    },
+  );
+
   test('saveGroupCover sets cover_kind photo and queues the cover upload', () async {
     await db.customStatement(
       'INSERT INTO groups (id, name, type, main_currency, cover_kind, simplify_debts, '
