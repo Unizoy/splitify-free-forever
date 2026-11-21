@@ -55,3 +55,12 @@ _Add entries here._
 - [phase 02] alchemist: `CoverCache.warm` completes on the real event loop → golden tests clear the cache in `setUp` and pump inside `runAsync`; repeating animations (DotsPulse, sheen, spin, loader) need fixed pumps, never `pumpAndSettle`.
 - [phase 02] `OverflowBoxFit` is not exported by `material.dart` → `import 'package:flutter/rendering.dart' show OverflowBoxFit;`.
 - [phase 02] UI review tool: `.claude/skills/ui-review/scripts/capture_shell.ps1` (tap by accessibility label via uiautomator; light/dark/200 % passes).
+- [phase 03] Coverage: a constructor only ever called as `const` shows as an uncovered line in lcov → add one runtime (non-const) call in a test.
+- [phase 03] Two agents in one checkout on disjoint files worked (money core vs currencies/formatter); I wrote the shared contract (`currency.dart`, `Currencies.exponentOf/of`) first so neither blocked the other. Run only targeted `flutter test <file>` in parallel agents.
+- [phase 03] Python oracle runs leave `planning/reference/__pycache__/` — delete it, never commit it.
+- [phase 03] For Postgres cross rates, default `numeric` division keeps ~16 significant digits and can double-round → use explicit high scale or integer math (see S-016).
+- [phase 04] Deno 2.9.8 installed per-user at `%USERPROFILE%\.deno\bin` (dev-env §4 steps worked as written).
+- [phase 04] Supabase CLI v2 rejects an `[inbucket]` section in `supabase/config.toml` and the `inbucket` name in `supabase start -x` → leave both out.
+- [phase 04] Postgres regex repeat counts stop at 255 (`{0,255}` errors) → split the quantifier (e.g. `{2}{0,254}`).
+- [phase 04] Without the Supabase MCP, migrations + pgTAP can still be proven in GitHub Actions (`supabase start` on the runner, `supabase test db`); dev-project steps stay blocked.
+- [phase 03/04] Two phases in parallel: `git worktree add ../splitify-p04 -b phase/04-… phase/03-…`, one agent per worktree, then merge the earlier phase branch into the later one (conflicts only in 00-decisions / 10-test-catalog — keep both sides).
