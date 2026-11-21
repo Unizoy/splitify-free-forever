@@ -22,3 +22,5 @@
 ## Tests
 
 TC-X1-01…04, TC-X2-01…02, TC-X3-01…02, TC-22-02 (export → import round trip).
+
+Pre-built (phase 06 session, branch prep/splitwise-import): parser + reconstruction (T1, T2 core); UI/mapping still T3
