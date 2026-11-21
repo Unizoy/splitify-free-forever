@@ -138,9 +138,10 @@ class _JoinScreenState extends ConsumerState<JoinScreen> {
       }
     } on GroupFailure catch (e) {
       if (!mounted) return;
-      setState(() => _error = _failureText(l, e.code));
-      // Someone else took the spot: refresh the list of free spots.
-      if (e.code == GroupFailureCode.alreadyClaimed) unawaited(_lookup(_code!));
+      final message = _failureText(l, e.code);
+      // Someone else took the spot: refresh the list of free spots, then keep the message on screen.
+      if (e.code == GroupFailureCode.alreadyClaimed) await _lookup(_code!);
+      if (mounted) setState(() => _error = message);
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -277,6 +278,8 @@ class _JoinScreenState extends ConsumerState<JoinScreen> {
         type: p.type,
         name: p.name,
         caption: groupTypeLabel(l, p.type),
+        showName: false,
+        height: 136,
       ),
       if (p.archived) ...[
         const SizedBox(height: AppSpacing.s4),

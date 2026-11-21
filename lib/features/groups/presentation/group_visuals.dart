@@ -111,6 +111,7 @@ class CoverBanner extends StatelessWidget {
     required this.name,
     this.caption,
     this.height = 168,
+    this.showName = true,
     super.key,
   });
 
@@ -119,6 +120,9 @@ class CoverBanner extends StatelessWidget {
   final String name;
   final String? caption;
   final double height;
+
+  /// False when the page title already shows the name (join preview).
+  final bool showName;
 
   @override
   Widget build(BuildContext context) {
@@ -137,7 +141,8 @@ class CoverBanner extends StatelessWidget {
               Positioned.fill(
                 child: CoverArt(seed: seed, family: family),
               ),
-              Padding(
+              Container(
+                width: double.infinity,
                 padding: const EdgeInsets.all(AppSpacing.s5),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -156,18 +161,20 @@ class CoverBanner extends StatelessWidget {
                         color: AppPalette.black,
                       ),
                     ),
-                    const SizedBox(height: AppSpacing.s3),
-                    Center(
-                      child: Text(
-                        name.toUpperCase(),
-                        textAlign: TextAlign.center,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: context.text.cardTitle.copyWith(color: c.onHero),
+                    if (showName) ...[
+                      const SizedBox(height: AppSpacing.s3),
+                      Center(
+                        child: Text(
+                          name.toUpperCase(),
+                          textAlign: TextAlign.center,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: context.text.cardTitle.copyWith(color: c.onHero),
+                        ),
                       ),
-                    ),
+                    ],
                     if (caption != null) ...[
-                      const SizedBox(height: AppSpacing.s1),
+                      SizedBox(height: showName ? AppSpacing.s1 : AppSpacing.s3),
                       Text(
                         caption!.toUpperCase(),
                         textAlign: TextAlign.center,

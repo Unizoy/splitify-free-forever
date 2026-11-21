@@ -199,6 +199,17 @@ class _TypePicker extends StatelessWidget {
         onTap: () => onChanged(type),
       ),
     );
+    if (MediaQuery.textScalerOf(context).scale(1) > 1.4) {
+      // Large text: one type per row so no label is cut.
+      return Column(
+        children: [
+          for (final t in GroupRules.types) ...[
+            Row(children: [tile(t)]),
+            if (t != GroupRules.types.last) const SizedBox(height: AppSpacing.s3),
+          ],
+        ],
+      );
+    }
     return Column(
       children: [
         Row(

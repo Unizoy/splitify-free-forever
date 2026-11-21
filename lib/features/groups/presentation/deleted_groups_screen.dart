@@ -15,7 +15,6 @@ class DeletedGroupsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context);
-    final c = context.colors;
     final groups = ref.watch(deletedGroupsProvider).value ?? const [];
     final now = ref.watch(groupActionsProvider).clock.now();
     return Scaffold(
@@ -43,47 +42,15 @@ class DeletedGroupsScreen extends ConsumerWidget {
               message: l.deletedGroupsEmptyBody,
             ),
           for (final g in groups) ...[
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: AppSpacing.s3),
-              child: Row(
-                children: [
-                  ClipRRect(
-                    borderRadius: AppRadii.all16,
-                    child: SizedBox.square(
-                      dimension: 48,
-                      child: CoverArt(seed: g.id, family: coverFamilyFor(g.type)),
-                    ),
-                  ),
-                  const SizedBox(width: AppSpacing.s3),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(g.name, style: context.text.body.w(600)),
-                        Text(
-                          _daysText(l, restoreDaysLeft(g.deletedAt!, now)),
-                          style: context.text.bodySmall.copyWith(color: c.textSecondary),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: AppSpacing.s3),
-                  PillButton(
-                    key: Key('restore-${g.id}'),
-                    label: l.restore,
-                    icon: AppIcons.restore,
-                    variant: PillVariant.outline,
-                    size: PillSize.medium,
-                    expand: false,
-                    onPressed: restoreDaysLeft(g.deletedAt!, now) < 0
-                        ? null
-                        : () async {
-                            await ref.read(groupActionsProvider).restore(g.id);
-                            if (context.mounted) showGroupMessage(context, l.groupRestoredDone);
-                          },
-                  ),
-                ],
-              ),
+            _DeletedRow(
+              name: g.name,
+              id: g.id,
+              type: g.type,
+              daysLeft: restoreDaysLeft(g.deletedAt!, now),
+              onRestore: () async {
+                await ref.read(groupActionsProvider).restore(g.id);
+                if (context.mounted) showGroupMessage(context, l.groupRestoredDone);
+              },
             ),
             const DashedDivider(),
           ],
@@ -91,7 +58,81 @@ class DeletedGroupsScreen extends ConsumerWidget {
       ),
     );
   }
+}
 
-  static String _daysText(AppLocalizations l, int days) =>
-      days < 0 ? l.restoreExpired : l.restoreDaysLeft(days);
+/// One deleted group: cover, name, days left, Restore (below the text at large sizes).
+class _DeletedRow extends StatelessWidget {
+  const _DeletedRow({
+    required this.name,
+    required this.id,
+    required this.type,
+    required this.daysLeft,
+    required this.onRestore,
+  });
+
+  final String name;
+  final String id;
+  final String type;
+  final int daysLeft;
+  final VoidCallback onRestore;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final c = context.colors;
+    final large = MediaQuery.textScalerOf(context).scale(1) > 1.4;
+    final button = PillButton(
+      key: Key('restore-$id'),
+      label: l.restore,
+      icon: AppIcons.restore,
+      variant: PillVariant.outline,
+      size: PillSize.medium,
+      expand: false,
+      onPressed: daysLeft < 0 ? null : onRestore,
+    );
+    final text = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(name, style: context.text.body.w(600)),
+        Text(
+          daysLeft < 0 ? l.restoreExpired : l.restoreDaysLeft(daysLeft),
+          style: context.text.bodySmall.copyWith(color: c.textSecondary),
+        ),
+      ],
+    );
+    final cover = ClipRRect(
+      borderRadius: AppRadii.all16,
+      child: SizedBox.square(
+        dimension: 48,
+        child: CoverArt(seed: id, family: coverFamilyFor(type)),
+      ),
+    );
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.s3),
+      child: large
+          ? Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    cover,
+                    const SizedBox(width: AppSpacing.s3),
+                    Expanded(child: text),
+                  ],
+                ),
+                const SizedBox(height: AppSpacing.s3),
+                button,
+              ],
+            )
+          : Row(
+              children: [
+                cover,
+                const SizedBox(width: AppSpacing.s3),
+                Expanded(child: text),
+                const SizedBox(width: AppSpacing.s3),
+                button,
+              ],
+            ),
+    );
+  }
 }

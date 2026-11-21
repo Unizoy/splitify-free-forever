@@ -87,23 +87,7 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen> {
           ),
         ),
       ),
-      bottomNavigationBar: archived
-          ? null
-          : StickyActionBar(
-              secondary: PillButton(
-                key: const Key('group-settle'),
-                label: l.settleUp,
-                variant: PillVariant.outline,
-                onPressed: () => showComingSoon(context),
-              ),
-              primary: PillButton(
-                key: const Key('group-add-expense'),
-                label: l.addExpense,
-                icon: AppIcons.add,
-                variant: PillVariant.money,
-                onPressed: () => showComingSoon(context),
-              ),
-            ),
+      bottomNavigationBar: archived ? null : const _ActionBar(),
     );
   }
 
@@ -113,6 +97,50 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen> {
     } else {
       context.go('/groups');
     }
+  }
+}
+
+/// Add expense (amber, phase 08 wires it) + Settle up (phase 09). Settle up keeps its natural width so
+/// its label never wraps; at large text the two stack.
+class _ActionBar extends StatelessWidget {
+  const _ActionBar();
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final settle = PillButton(
+      key: const Key('group-settle'),
+      label: l.settleUp,
+      variant: PillVariant.outline,
+      expand: false,
+      onPressed: () => showComingSoon(context),
+    );
+    final add = PillButton(
+      key: const Key('group-add-expense'),
+      label: l.addExpense,
+      icon: AppIcons.add,
+      variant: PillVariant.money,
+      onPressed: () => showComingSoon(context),
+    );
+    final large = MediaQuery.textScalerOf(context).scale(1) > 1.4;
+    return StickyActionBar(
+      primary: large
+          ? Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                add,
+                const SizedBox(height: AppSpacing.s2),
+                settle,
+              ],
+            )
+          : Row(
+              children: [
+                settle,
+                const SizedBox(width: AppSpacing.s3),
+                Expanded(child: add),
+              ],
+            ),
+    );
   }
 }
 
