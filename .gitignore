@@ -124,3 +124,4 @@ desktop.ini
 *.tmp
 *.bak
 .claude/settings.local.json
+.claude/state/
