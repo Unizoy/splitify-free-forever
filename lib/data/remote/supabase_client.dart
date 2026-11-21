@@ -1,5 +1,6 @@
 import 'package:splitify/core/config/env.dart';
 import 'package:splitify/data/remote/groups_remote.dart';
+import 'package:splitify/data/remote/media_remote.dart';
 import 'package:splitify/data/remote/remote_api.dart';
 import 'package:splitify/data/remote/supabase_auth_repository.dart';
 import 'package:splitify/data/remote/supabase_profile_remote.dart';
@@ -15,6 +16,7 @@ class RemoteServices {
     required this.profiles,
     this.api = const UnconfiguredRemoteApi(),
     this.groups = const UnconfiguredGroupsRemote(),
+    this.media = const UnconfiguredMediaRemote(),
   });
 
   final AuthRepository auth;
@@ -25,6 +27,9 @@ class RemoteServices {
 
   /// Online-only group RPCs (join, invite code, leave/remove/unlink).
   final GroupsRemote groups;
+
+  /// Storage for receipt photos and group covers (phase 10).
+  final MediaRemote media;
 }
 
 /// Starts Supabase from the build settings (02 §2). With placeholder values
@@ -44,5 +49,6 @@ Future<RemoteServices> initRemote(Env env) async {
     profiles: SupabaseProfileRemote.fromClient(client),
     api: SupabaseRemoteApi.client(client),
     groups: SupabaseGroupsRemote.fromClient(client),
+    media: SupabaseMediaRemote.fromClient(client),
   );
 }

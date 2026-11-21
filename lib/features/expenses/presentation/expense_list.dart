@@ -114,10 +114,6 @@ class ExpenseRow extends StatelessWidget {
     final l = AppLocalizations.of(context);
     final e = view.expense;
     String money(int v) => MoneyFormatter.list.format(v, e.currency);
-    final payer = view.singlePayer;
-    final paidBy = payer == null
-        ? l.expSeveralPaidCaption(view.paid.length, money(e.total))
-        : l.expPaidCaption(payer == view.meId ? l.you : view.nameOf(payer), money(e.total));
     final net = view.myNet;
     final (tone, amount, side) = switch (net) {
       > 0 => (MoneyTone.owed, money(net), l.expYouLent),
@@ -127,16 +123,47 @@ class ExpenseRow extends StatelessWidget {
     return AmountRow(
       key: ValueKey('expense-${e.id}'),
       title: e.description,
-      caption: '$paidBy · ${dayMonth(context, parseIsoDate(e.date))}',
+      caption: '${paidCaption(l, view)} · ${dayMonth(context, parseIsoDate(e.date))}',
       amountText: amount,
       amountCaption: side,
       tone: tone,
       unsynced: view.unsynced,
       showDivider: showDivider,
-      leading: TintedIcon.category(categoryOf(e.category), size: 44),
+      badge: view.isLoan
+          ? TagChip(key: ValueKey('loan-chip-${e.id}'), label: l.loanChip)
+          : (e.receiptPath == null
+                ? null
+                : Semantics(
+                    label: l.receiptOnList,
+                    child: Icon(AppIcons.image, size: 16, color: context.colors.textTertiary),
+                  )),
+      leading: view.isLoan
+          ? TintedIcon(icon: AppIcons.loanFill, color: context.colors.primary, size: 44)
+          : TintedIcon.category(categoryOf(e.category), size: 44),
       onTap: () => unawaited(context.push(ExpenseRoutes.detail(e.id))),
     );
   }
+}
+
+/// "Rahul paid ₹1,200", "You and Asha paid ₹1,200", "3 people paid ₹1,200"; loans read
+/// "You lent Asha ₹500" (#10, #11).
+String paidCaption(AppLocalizations l, ExpenseView view) {
+  final e = view.expense;
+  final amount = MoneyFormatter.list.format(e.total, e.currency);
+  String name(String id, {bool capital = true}) =>
+      id == view.meId ? (capital ? l.you : l.expYouLower) : view.nameOf(id);
+  if (view.isLoan && view.lender != null && view.borrower != null) {
+    return l.loanCaption(name(view.lender!), name(view.borrower!, capital: false), amount);
+  }
+  final payers = [
+    ...view.paid.keys.where((id) => id == view.meId),
+    ...view.paid.keys.where((id) => id != view.meId),
+  ];
+  return switch (payers.length) {
+    1 => l.expPaidCaption(name(payers.first), amount),
+    2 => l.payersCaption(l.payersTwo(name(payers[0]), name(payers[1], capital: false)), amount),
+    _ => l.expSeveralPaidCaption(payers.length, amount),
+  };
 }
 
 /// Loading placeholder: three quiet rows in the list's shape.

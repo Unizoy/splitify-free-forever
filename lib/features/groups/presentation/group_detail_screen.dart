@@ -167,6 +167,13 @@ class _Hero extends StatelessWidget {
         onPressed: () => _GroupDetailScreenState._close(context),
       ),
       actions: [
+        if (group.archivedAt == null)
+          HeroIconButton(
+            key: const Key('group-loan'),
+            icon: AppIcons.loan,
+            tooltip: l.loanAction,
+            onPressed: () => unawaited(context.push(ExpenseRoutes.addLoan(group.id))),
+          ),
         HeroIconButton(
           key: const Key('group-invite'),
           icon: AppIcons.userPlus,

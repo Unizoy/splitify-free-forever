@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:splitify/core/config/preferences.dart';
 import 'package:splitify/data/data_providers.dart';
+import 'package:splitify/data/media_providers.dart';
 import 'package:splitify/data/repositories/auth_repository.dart';
 import 'package:splitify/data/repositories/local_wipe.dart';
 import 'package:splitify/data/repositories/profile_repository.dart';
@@ -37,7 +38,10 @@ final profileRepositoryProvider = Provider<ProfileRepository>(
 final localWipeProvider = Provider<LocalWipe>(
   (ref) => LocalWipe(
     prefs: ref.watch(sharedPreferencesProvider),
-    clearDatabase: () => ref.read(syncRepositoryProvider).wipeLocal(),
+    clearDatabase: () async {
+      await ref.read(syncRepositoryProvider).wipeLocal();
+      await ref.read(mediaFilesProvider).wipe();
+    },
   ),
 );
 

@@ -8,6 +8,7 @@ import 'package:splitify/app/app.dart';
 import 'package:splitify/core/config/env.dart';
 import 'package:splitify/core/config/preferences.dart';
 import 'package:splitify/core/logging/logger.dart';
+import 'package:splitify/data/media_providers.dart';
 import 'package:splitify/data/remote/remote_providers.dart';
 import 'package:splitify/data/remote/supabase_client.dart';
 import 'package:splitify/features/auth/application/auth_providers.dart';
@@ -48,6 +49,7 @@ List<Override> appOverrides({
   profileRemoteProvider.overrideWithValue(remote.profiles),
   remoteApiProvider.overrideWithValue(remote.api),
   groupsRemoteProvider.overrideWithValue(remote.groups),
+  mediaRemoteProvider.overrideWithValue(remote.media),
   googleConfiguredProvider.overrideWithValue(env.hasGoogle),
   devLoginProvider.overrideWithValue(devLogin ?? env.devLoginAvailable(releaseMode: kReleaseMode)),
   e2ePasswordProvider.overrideWithValue(kReleaseMode ? '' : env.e2ePassword),

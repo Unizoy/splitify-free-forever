@@ -45,6 +45,13 @@ final class ExpenseView {
   bool get involved => meId != null && ((paid[meId] ?? 0) != 0 || (owed[meId] ?? 0) != 0);
 
   bool get unsynced => expense.syncState != SyncState.synced;
+
+  /// A loan (`kind = 'iou'`, #11): one lender, one borrower, not spending.
+  bool get isLoan => expense.kind == 'iou';
+
+  /// Lender and borrower of a loan (null for other expenses).
+  String? get lender => isLoan ? paid.keys.firstOrNull : null;
+  String? get borrower => isLoan ? owed.keys.firstOrNull : null;
 }
 
 Map<String, int> _ints(String? json) {
