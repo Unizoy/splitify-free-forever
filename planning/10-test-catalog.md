@@ -4,7 +4,7 @@ Generated from `08-feature-specs.md` (2026-11-21); sessions update **Status** (`
 `needs-owner (BLK-xxx)` / `manual-opt`). New tests a session adds get the next number in the same feature and a row here.
 Cross-cutting suites (sync engine, a11y, goldens of every component, migration tests) are listed in each phase file.
 
-Total: 116 test ids.
+Total: 117 test ids (TC-18-03 golden added in phase 09).
 
 | Phase | ID | Type | Description | Status |
 | --- | --- | --- | --- | --- |
@@ -42,7 +42,7 @@ Total: 116 test ids.
 | 05 | TC-B2-03 | widget | profile form | pass (`auth_screens_test.dart`) |
 | 05 | TC-B2-04 | integ | edit profile persists after restart and syncs | pass (2026-11-22, `auth_profile_test.dart`: server row checked, session restored after restart, S-214) |
 | 06 | TC-1-02 | sql | create via apply_mutations makes creator owner member | pass (CI db, `040_apply_mutations`) |
-| 06 | TC-18-01 | sql | every mutation type writes activity | partial: group + expense ops asserted in `040_apply_mutations`; member/payment/comment activity written but not yet asserted |
+| 06 | TC-18-01 | sql | every mutation type writes activity | partial: group + expense ops in `040_apply_mutations`; payment add/edit/delete/restore asserted in `090_payments_activity` (phase 09, 12/12 on dev); member/comment activity not yet asserted |
 | 06 | TC-27-01..10 | unit | sync engine suite (`04-sync-engine.md` §10) | pass (`test/data/sync/sync_engine_test.dart`) |
 | 06 | TC-27-14 | widget+golden | "Sync & storage": status card states, Sync now, Retry/Discard, export log, settings row, Account marker; goldens light/dark × text 1.0/2.0 (synced + issues) | pass (`test/features/sync/**`, `test/data/sync/sync_repository_test.dart`, `screens_golden_test.dart`) |
 | 06 | TC-27-15 | integ | A offline-creates a group + expense, reconnects; harness B joins and sees both via `pull_changes` (T7) | pass (2026-11-22, dev project, `integration_test/sync_offline_test.dart`) |
@@ -68,13 +68,14 @@ Total: 116 test ids.
 | 08 | TC-5..9-03 | widget | editor per type: live remaining, error copy, Save disabled | pass (`split_editor_test.dart`) |
 | 08 | TC-5..9-04 | golden | editor per | pass (`expense_screens_golden_test.dart`, light/dark/200 %) |
 | 08 | TC-5..9-06 | integ | one expense of each split type offline → sync; server rows, server balances and a second member equal the phone | pass (`integration_test/expenses_offline_sync_test.dart` on emulator-5554, dev project, 2026-11-22) |
-| 09 | TC-15-03 | widget | balances tab states | todo |
-| 09 | TC-15-04 | integ | local vs server checksum equal after sync. | todo |
-| 09 | TC-18-02 | widget | feed grouping/filters | todo |
-| 09 | TC-21-01 | unit | totals exclude IOU/payments | todo |
-| 09 | TC-21-02 | widget | totals tab. | todo |
-| 09 | TC-25-02 | widget | settle-up form | todo |
-| 09 | TC-25-03 | integ | settle a week | todo |
+| 09 | TC-15-03 | widget | balances tab states | pass (`test/features/balances/presentation/balances_tab_test.dart`, goldens `balances_tab_*`) |
+| 09 | TC-15-04 | integ | local vs server checksum equal after sync. | pass (unit `balances_providers_test.dart` + device `integration_test/balances_week_test.dart` 2026-11-22) |
+| 09 | TC-18-02 | widget | feed grouping/filters | pass (`activity_feed_test.dart`, `activity_providers_test.dart`) |
+| 09 | TC-18-03 | golden | activity feed | pass (`test/goldens/balances_golden_test.dart` `balances_activity_feed_*`) |
+| 09 | TC-21-01 | unit | totals exclude IOU/payments | pass (`group_totals_test.dart`, `totals_account_stats_test.dart`) |
+| 09 | TC-21-02 | widget | totals tab. | pass (`totals_tab_test.dart`) |
+| 09 | TC-25-02 | widget | settle-up form | pass (`settle_up_screen_test.dart`, `settle_controller_test.dart`) |
+| 09 | TC-25-03 | integ | settle a week | pass (device `integration_test/balances_week_test.dart` 2026-11-22: week in Goa, 3 people, 2 payments, oracle = phone = server, all settle → 0) |
 | 10 | TC-10-02 | widget | multi-payer sheet | pass |
 | 10 | TC-11-02 | widget | direction toggle copy. | pass |
 | 10 | TC-29-01 | unit | compression bounds (+ real compression on the device) | pass |
@@ -103,7 +104,7 @@ Total: 116 test ids.
 | 13 | TC-19-05 | unit | settings model. | todo |
 | 13 | TC-23-01 | sql | throttle + recipient | todo |
 | 13 | TC-23-02 | widget | remind button states. | todo |
-| 14 | TC-14-02 | widget | multi-currency balance sections | todo |
+| 14 | TC-14-02 | widget | multi-currency balance sections | pass (phase 09: `balances_tab_test.dart` two-currency sections; currency picker still phase 14) |
 | 14 | TC-32-02 | edge | fetch-rates upsert/throttle/backfill | todo |
 | 14 | TC-32-04 | widget | conversion sheet manual/auto | todo |
 | 14 | TC-32-05 | unit | missing date uses previous rate. | todo |

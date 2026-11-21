@@ -228,6 +228,8 @@
   "balSettledUp": "settled up",
   "balPairOwes": "{from} owes {to}",
   "@balPairOwes": {"placeholders": {"from": {"type": "String"}, "to": {"type": "String"}}},
+  "balYouOwePerson": "You owe {name}",
+  "@balYouOwePerson": {"placeholders": {"name": {"type": "String"}}},
   "balSettle": "Settle",
   "balEveryoneSettled": "Everyone is settled up",
   "balCurrencySection": "{code} balances",

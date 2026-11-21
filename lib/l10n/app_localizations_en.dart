@@ -623,6 +623,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String balYouOwePerson(String name) {
+    return 'You owe $name';
+  }
+
+  @override
   String get balSettle => 'Settle';
 
   @override

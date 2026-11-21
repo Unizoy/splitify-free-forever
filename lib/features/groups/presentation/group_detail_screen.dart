@@ -197,7 +197,14 @@ class _Hero extends ConsumerWidget {
       title: group.name,
       child: Column(
         children: [
-          _StatusPill(archived: group.archivedAt != null, mine: balances?.myNets ?? const {}),
+          // The pill keeps its shape at 200 % text (like the serif titles, 06 §4).
+          MediaQuery.withClampedTextScaling(
+            maxScaleFactor: AppText.maxSerifScale,
+            child: _StatusPill(
+              archived: group.archivedAt != null,
+              mine: balances?.myNets ?? const {},
+            ),
+          ),
           const SizedBox(height: AppSpacing.s4),
           Wrap(
             alignment: WrapAlignment.center,

@@ -138,7 +138,16 @@ class _SpentCard extends StatelessWidget {
         children: [
           Text(caption, style: context.text.bodySmall.copyWith(color: c.textSecondary)),
           const SizedBox(height: 2),
-          Text(listMoney(value, totals.currency), style: context.text.title.w(700)),
+          // Long amounts shrink instead of breaking mid-number at large text sizes.
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: AlignmentDirectional.centerStart,
+            child: Text(
+              listMoney(value, totals.currency),
+              maxLines: 1,
+              style: context.text.title.w(700),
+            ),
+          ),
         ],
       ),
     );
@@ -168,6 +177,7 @@ class _SpentCard extends StatelessWidget {
             Divider(height: 1, thickness: 1, color: c.divider),
             const SizedBox(height: AppSpacing.s4),
             Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 stat(l.totYourShare, totals.shares[me] ?? 0, const Key('totals-my-share')),
                 const SizedBox(width: AppSpacing.s4),

@@ -92,6 +92,11 @@ class _SettleUpScreenState extends ConsumerState<SettleUpScreen> {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
+    // Changing the people re-derives the amount from what is owed: keep the visible field in step.
+    ref.listen(settleProvider(widget.args), (_, next) {
+      final text = next.value?.amountText;
+      if (_filled && text != null && _amount.text != text) _amount.text = text;
+    });
     final async = ref.watch(settleProvider(widget.args));
     final d = async.value;
     if (d == null) {

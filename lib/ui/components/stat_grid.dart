@@ -38,24 +38,36 @@ class StatGrid extends StatelessWidget {
               for (var i = 0; i < columns; i++)
                 Expanded(
                   child: i < rows[r].length
-                      ? MergeSemantics(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                rows[r][i].value,
-                                style: context.text.amountHero.copyWith(
-                                  color: valueColor,
-                                  fontSize: 32,
-                                  height: 1.15,
+                      ? Padding(
+                          // A gap between columns, so a shrunk amount never touches its neighbour.
+                          padding: EdgeInsetsDirectional.only(
+                            end: i < columns - 1 ? AppSpacing.s3 : 0,
+                          ),
+                          child: MergeSemantics(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Long amounts ("₹12,345.50") shrink instead of breaking mid-number.
+                                FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  alignment: AlignmentDirectional.centerStart,
+                                  child: Text(
+                                    rows[r][i].value,
+                                    maxLines: 1,
+                                    style: context.text.amountHero.copyWith(
+                                      color: valueColor,
+                                      fontSize: 32,
+                                      height: 1.15,
+                                    ),
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(height: AppSpacing.s1),
-                              Text(
-                                rows[r][i].label,
-                                style: context.text.body.w(500).copyWith(color: labelColor),
-                              ),
-                            ],
+                                const SizedBox(height: AppSpacing.s1),
+                                Text(
+                                  rows[r][i].label,
+                                  style: context.text.body.w(500).copyWith(color: labelColor),
+                                ),
+                              ],
+                            ),
                           ),
                         )
                       : const SizedBox.shrink(),
