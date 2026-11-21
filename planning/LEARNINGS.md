@@ -69,3 +69,7 @@ _Add entries here._
 - [phase 06] `drift_dev schema generate` output trips `strict_raw_type` → exclude `test/data/local/generated/**` in analysis_options. `drift/drift.dart` clashes with matcher's `isNull`/`isNotNull` in tests.
 - [phase 06] `dart run build_runner build` rewrote unrelated riverpod `*.g.dart` files (generator drift) → `git checkout` them unless the source changed.
 - [phase 06] Dart records compare collection fields by identity: `expect((map, list), ({..}, [..]))` fails even when equal → assert collections separately.
+- [phase 05] Riverpod 3 pauses providers nobody listens to: `container.read(streamProvider.future)` can hang → `container.listen(...)` first in tests.
+- [phase 05] `flutter_test` answers every HTTP request with 400, so a real `SupabaseClient('https://x.example', 'k')` is enough to cover thin PostgREST/Storage glue (calls fail fast).
+- [phase 05] PowerShell `Get-Content -Raw | Set-Content` re-encodes UTF-8 files (mojibake / `?` for `→`, BOM) → edit Dart files with Python (`io.open(..., encoding='utf-8')`) or the Edit tool.
+- [phase 05] Golden tests need a valid image for `MemoryImage` (use a base64 1×1 PNG), fake bytes throw "Invalid image data".

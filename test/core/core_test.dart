@@ -21,12 +21,7 @@ void main() {
           devLogin: 'true',
           e2ePassword: '',
         ),
-        throwsA(
-          isA<EnvException>().having((e) => e.missingKeys, 'missingKeys', [
-            'SUPABASE_URL',
-            'GOOGLE_WEB_CLIENT_ID',
-          ]),
-        ),
+        throwsA(isA<EnvException>().having((e) => e.missingKeys, 'missingKeys', ['SUPABASE_URL'])),
       );
     });
 
@@ -40,6 +35,24 @@ void main() {
       );
       expect(env.devLogin, isTrue);
       expect(env.e2ePassword, isEmpty);
+      expect(env.hasGoogle, isTrue);
+      // TC-B1-08: release builds never offer the developer sign-in.
+      expect(env.devLoginAvailable(releaseMode: true), isFalse);
+      expect(env.devLoginAvailable(releaseMode: false), isTrue);
+    });
+
+    test('D-020: missing or placeholder Google client id means not configured', () {
+      expect(isConfiguredValue(''), isFalse);
+      expect(isConfiguredValue('your-web-client-id.apps.googleusercontent.com'), isFalse);
+      final env = Env.fromValues(
+        supabaseUrl: 'https://x.example',
+        supabasePublishableKey: 'k',
+        googleWebClientId: '',
+        devLogin: 'false',
+        e2ePassword: '',
+      );
+      expect(env.hasGoogle, isFalse);
+      expect(env.devLoginAvailable(releaseMode: false), isFalse);
     });
 
     test('Env.load throws when no dart-defines are given', () {

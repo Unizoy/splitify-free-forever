@@ -7,6 +7,8 @@ import 'package:splitify/app/app.dart';
 import 'package:splitify/core/config/env.dart';
 import 'package:splitify/core/config/preferences.dart';
 import 'package:splitify/core/logging/logger.dart';
+import 'package:splitify/data/remote/supabase_client.dart';
+import 'package:splitify/features/auth/application/auth_providers.dart';
 
 /// Starts logging and error handlers, validates the build settings, loads
 /// local preferences (theme mode) and returns the root widget. Later phases
@@ -20,10 +22,16 @@ Future<Widget> bootstrap() async {
   try {
     final env = Env.load();
     final prefs = await SharedPreferences.getInstance();
+    final remote = await initRemote(env);
     return ProviderScope(
       overrides: [
         envProvider.overrideWithValue(env),
         sharedPreferencesProvider.overrideWithValue(prefs),
+        authRepositoryProvider.overrideWithValue(remote.auth),
+        profileRemoteProvider.overrideWithValue(remote.profiles),
+        googleConfiguredProvider.overrideWithValue(env.hasGoogle),
+        devLoginProvider.overrideWithValue(env.devLoginAvailable(releaseMode: kReleaseMode)),
+        e2ePasswordProvider.overrideWithValue(kReleaseMode ? '' : env.e2ePassword),
       ],
       child: const App(),
     );

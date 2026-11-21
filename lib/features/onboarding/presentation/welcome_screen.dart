@@ -117,7 +117,7 @@ class WelcomeScreen extends StatelessWidget {
                           const SizedBox(height: AppSpacing.s12),
                           DashedCircleButton(
                             label: l.getStarted,
-                            onPressed: () => context.go('/groups'),
+                            onPressed: () => context.go('/sign-in'),
                           ),
                           const SizedBox(height: AppSpacing.s12),
                           Text(
