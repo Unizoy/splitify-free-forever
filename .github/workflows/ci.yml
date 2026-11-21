@@ -34,3 +34,45 @@ jobs:
       - run: flutter test --coverage --exclude-tags device,needs-owner,quarantine
       - run: dart run tool/coverage_check.dart
       - run: flutter build apk --debug --dart-define-from-file=secrets/env.example.json
+
+  # SQL schema + pgTAP tests against a throwaway local Supabase (planning/09-testing-strategy.md §6).
+  db:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dart-lang/setup-dart@v1
+        with:
+          sdk: stable
+      - name: Stale SQL vector check
+        # Copied outside the Flutter package so plain Dart can run it without `flutter pub get`.
+        run: |
+          cp tool/gen_sql_vectors.dart "$RUNNER_TEMP/gen_sql_vectors.dart"
+          dart run "$RUNNER_TEMP/gen_sql_vectors.dart"
+          git diff --exit-code supabase/tests
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - name: Start local Supabase (applies supabase/migrations)
+        run: supabase start -x studio,imgproxy,mailpit,edge-runtime,logflare,vector,supavisor,realtime,postgres-meta
+      - name: pgTAP tests
+        run: supabase test db
+      - name: Stop
+        if: always()
+        run: supabase stop --no-backup
+
+  # Edge Functions: format, lint, unit tests with mocked fetch.
+  functions:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: supabase/functions
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - run: deno fmt --check .
+      - run: deno lint .
+      - run: deno test .
