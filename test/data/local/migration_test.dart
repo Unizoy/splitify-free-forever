@@ -12,11 +12,19 @@ void main() {
 
   setUpAll(() => verifier = SchemaVerifier(GeneratedHelper()));
 
-  test('schema v1 matches the dumped schema', () async {
+  test('schema v3 matches the dumped schema', () async {
+    final connection = await verifier.startAt(3);
+    final db = AppDatabase(connection);
+    addTearDown(db.close);
+    await verifier.migrateAndValidate(db, 3);
+    expect(db.schemaVersion, 3);
+  });
+
+  test('v1 -> v3 adds the exchange-rate cache (phase 14)', () async {
     final connection = await verifier.startAt(1);
     final db = AppDatabase(connection);
     addTearDown(db.close);
-    await verifier.migrateAndValidate(db, 1);
-    expect(db.schemaVersion, 1);
+    await verifier.migrateAndValidate(db, 3);
+    expect(await db.select(db.fxRates).get(), isEmpty);
   });
 }

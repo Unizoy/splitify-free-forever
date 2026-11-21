@@ -1,5 +1,6 @@
 import 'package:splitify/core/config/env.dart';
 import 'package:splitify/data/remote/balances_remote.dart';
+import 'package:splitify/data/remote/fx_rates_remote.dart';
 import 'package:splitify/data/remote/groups_remote.dart';
 import 'package:splitify/data/remote/remote_api.dart';
 import 'package:splitify/data/remote/supabase_auth_repository.dart';
@@ -17,6 +18,7 @@ class RemoteServices {
     this.api = const UnconfiguredRemoteApi(),
     this.groups = const UnconfiguredGroupsRemote(),
     this.balances = const UnconfiguredBalancesRemote(),
+    this.fxRates = const UnconfiguredFxRatesRemote(),
   });
 
   final AuthRepository auth;
@@ -30,6 +32,9 @@ class RemoteServices {
 
   /// Read-only balance RPCs (`group_balances`, `my_overview`).
   final BalancesRemote balances;
+
+  /// Read-only exchange rates (`fx_rates`, phase 14).
+  final FxRatesRemote fxRates;
 }
 
 /// Starts Supabase from the build settings (02 §2). With placeholder values
@@ -50,5 +55,6 @@ Future<RemoteServices> initRemote(Env env) async {
     api: SupabaseRemoteApi.client(client),
     groups: SupabaseGroupsRemote.fromClient(client),
     balances: SupabaseBalancesRemote.fromClient(client),
+    fxRates: SupabaseFxRatesRemote(client),
   );
 }

@@ -10,11 +10,18 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
     onCreate: (m) => m.createAll(),
+    onUpgrade: (m, from, to) async {
+      // v3 (phase 14): exchange-rate cache. (v2 is phase 12's edit-history cache.)
+      if (from < 3) {
+        await m.createTable(fxRates);
+        await m.createIndex(fxRatesCurrencyDate);
+      }
+    },
     beforeOpen: (details) async {
       await customStatement('PRAGMA foreign_keys = ON');
     },
