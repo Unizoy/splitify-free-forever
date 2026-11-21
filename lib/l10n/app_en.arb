@@ -1,0 +1,9 @@
+{
+  "@@locale": "en",
+  "appTitle": "Splitify Free Forever",
+  "@appTitle": {"description": "App name shown in the task switcher and app bar."},
+  "homePlaceholder": "Splitify is getting ready",
+  "@homePlaceholder": {"description": "Temporary text on the placeholder home screen."},
+  "envErrorTitle": "App is not configured",
+  "@envErrorTitle": {"description": "Shown when a required build setting is missing."}
+}

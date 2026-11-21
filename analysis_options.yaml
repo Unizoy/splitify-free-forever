@@ -1,0 +1,21 @@
+include: package:very_good_analysis/analysis_options.yaml
+
+formatter:
+  page_width: 100
+
+analyzer:
+  exclude:
+    - build/**
+    - android/**
+    - '**/*.g.dart'
+    - '**/*.freezed.dart'
+    - lib/l10n/app_localizations*.dart
+  errors:
+    avoid_print: error
+
+linter:
+  rules:
+    prefer_final_locals: true
+    avoid_print: true
+    public_member_api_docs: false
+    lines_longer_than_80_chars: false

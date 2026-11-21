@@ -37,6 +37,8 @@ reason and the alternatives it rejected. It never asks the owner.
 | D-018 | UI priority (2026-11-21) | **Good UI is the top priority.** Every screen must closely match the Atlys reference look (layout rhythm, typography, radii, colour, imagery, motion) and pass the `ui-review` rubric (≥ 8/10 on every criterion) before its phase can ship. When time or tokens are short, cut elsewhere — never UI quality. | |
 | D-019 | Token economy (2026-11-21) | Save tokens: the main session (Opus) plans, writes app/UI code and does UI review; **test writing goes to the `test-writer` sub-agent (Sonnet)**, **test running/log triage to `test-runner` (Haiku)**, file searches to Explore. Read only the spec sections a task needs; no re-reading files already in context; short reports. | `.claude/agents/` |
 
+| D-020 | Dummy mode for deferred services (2026-11-21) | Owner set up **Supabase only**. Google OAuth, Resend, Firebase/FCM and the release key stay **dummy until the owner likes the app**. Build everything behind config checks, never block: no `GOOGLE_WEB_CLIENT_ID` → Google button shows "Coming soon" (debug) and sign-in uses email code via Supabase's built-in mailer (delivers only to project team members, ~2/hour — fine for the owner) + dev password login for tests; no `secrets/google-services.json` → Firebase not initialised, push disabled, in-app bell + `send-push` function still built and tested with fakes (`push_status = skipped`); no release key → debug signing. When the owner later adds a service, the next session enables it and re-runs the affected tests. These are **not** blockers. | |
+
 ## Technical decisions
 
 Filled in from the research in `planning/research/` (see each row's source).
@@ -71,3 +73,7 @@ Added by execution sessions (format: `S-0xx | date | phase | decision | reason |
 
 | ID | Date | Phase | Decision | Reason | Rejected alternatives |
 | --- | --- | --- | --- | --- | --- |
+| S-001 | 2026-11-21 | 01 | Keep `package:flutter/material.dart` (deprecated in 3.50 in favour of `material_ui`, info-level only); do not add `material_ui` | Not in the §5 package table; deprecation is non-fatal (`--no-fatal-infos`) | Add `material_ui` now (revisit when the lint becomes a warning) |
+| S-002 | 2026-11-21 | 01 | `dart format` and CI format check cover `lib test integration_test tool` only | `dart format .` crashes on transient Gradle dirs under `build/` | Format `.` |
+| S-003 | 2026-11-21 | 01 | Generated l10n Dart files (`lib/l10n/app_localizations*.dart`) are committed; `l10n.yaml` has no `synthetic-package` | Flutter 3.50 ignores that key; CI needs them without extra steps | Git-ignore and generate in CI |
+| S-004 | 2026-11-21 | 01 | `very_good_analysis` info lints are not fatal (`--no-fatal-infos`); warnings/errors are | Matches the verify skill; new 3.50 lints are noisy | Fix all infos now |

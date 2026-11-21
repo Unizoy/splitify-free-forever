@@ -23,11 +23,10 @@ For bigger changes, please discuss in an issue before writing code.
    `git checkout -b fix/short-description`
 2. Make your change. Keep pull requests small and focused on one thing.
 3. Before pushing, run:
-   ```sh
-   dart format .
-   flutter analyze
-   flutter test
+   ```powershell
+   .\tool\verify.ps1
    ```
+   It runs format, analyze, guard scripts, tests with coverage and a debug build.
 4. Write clear, short commit messages in the imperative mood, e.g. `Fix balance rounding`.
 5. Open a pull request against `main` and fill in the template.
 

@@ -5,7 +5,8 @@
 .env.*
 !.env.example
 *.env
-secrets/
+secrets/*
+!secrets/*.example.json
 secrets.json
 config/secrets.*
 lib/**/secrets.dart
