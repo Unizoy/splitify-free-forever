@@ -32,6 +32,7 @@ void main() {
   }
   final found = <String, int>{};
   final hit = <String, int>{};
+  final missed = <String, List<int>>{};
   String? current;
   for (final line in file.readAsLinesSync()) {
     if (line.startsWith('SF:')) {
@@ -41,15 +42,21 @@ void main() {
     } else if (line.startsWith('DA:') && current != null) {
       final parts = line.substring(3).split(',');
       found[current] = found[current]! + 1;
-      if (int.parse(parts[1]) > 0) hit[current] = hit[current]! + 1;
+      if (int.parse(parts[1]) > 0) {
+        hit[current] = hit[current]! + 1;
+      } else {
+        (missed[current] ??= []).add(int.parse(parts[0]));
+      }
     }
   }
 
   final groups = <String, List<int>>{}; // name -> [found, hit, floor*10]
+  final members = <String, List<String>>{}; // name -> files
   var totalFound = 0;
   var totalHit = 0;
   void add(String name, double floor, String p) {
     final g = groups.putIfAbsent(name, () => [0, 0, (floor * 10).round()]);
+    (members[name] ??= []).add(p);
     g[0] += found[p]!;
     g[1] += hit[p]!;
   }
@@ -85,6 +92,13 @@ void main() {
       '${ok ? 'PASS' : 'FAIL'} ${e.key.padRight(13)} '
       '${p.toStringAsFixed(1)}% (floor $floor%)',
     );
+    if (!ok) {
+      // Show where the missing lines are, so CI logs are actionable.
+      for (final f in members[e.key]!) {
+        final lines = missed[f];
+        if (lines != null) print('     uncovered $f: ${lines.take(20).join(', ')}');
+      }
+    }
   }
   final o = pct(totalHit, totalFound);
   final okAll = o >= _overall;
