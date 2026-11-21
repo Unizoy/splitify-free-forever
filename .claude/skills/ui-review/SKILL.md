@@ -25,6 +25,13 @@ screens. Debug-only screens (`/debug/gallery`) are not in release builds: review
 (`$env:PLATFORM_GOLDENS='1'; flutter test --update-goldens test/goldens/gallery_golden_test.dart`, then open
 `test/goldens/goldens/windows/*.png`, which is git-ignored).
 
+Signed-in screens (phase 05+): a release build cannot sign in (dev login is debug-only). Write a debug
+integration test that pumps each screen with sample data/provider overrides and logs `UIREVIEW SHOT <name>`
+(then waits ~4 s), finishing with `UIREVIEW DONE` (example: `integration_test/ui_review_expenses_test.dart`),
+and run it under the emulator lock with
+`powershell -File .claude\skills\ui-review\scripts\capture_marked.ps1 -Phase NN -Test integration_test/<file>`;
+it screencaps per marker into the phase folder.
+
 For every screen the phase touched, using `emulator-e2e` §6, capture into
 `C:\Users\mohit\OneDrive\Desktop\theCode\splitify-artifacts\phase-NN\`:
 `<screen>-light.png`, `<screen>-dark.png`, `<screen>-text200.png`, plus empty, loading, error and offline states

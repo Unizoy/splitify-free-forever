@@ -81,3 +81,9 @@ _Add entries here._
 - [04 dev apply] The guard hook's `truncate` regex also matches privilege lists (`revoke … truncate, references …`) in migrations → write `revoke all … ; grant select …` instead.
 - [04 dev apply] MCP `execute_sql` returns only the last result set → for pgTAP add `select num_failed(), _get('curr_test'), _get('plan');` before `rollback`; strip leading `--` comments so the SQL starts with `begin` (guard treats only that as a test).
 - [04 dev apply] Other worktrees share the dev DB: phase 07 applied `0010_groups_members` while 0001–0009 were going in — always check `list_migrations` before applying.
+- [phase 08] Instrument Serif has no ₹ glyph (tofu box in real-font goldens; CI goldens obscure text and miss it) → serif money text needs `fontFamilyFallback: const [AppFonts.sans]`.
+- [phase 08] Riverpod 3 family overrides are per instance: `provider(arg).overrideWith(() => Notifier(arg))`; the family-level `overrideWith` gets no arg. AsyncNotifier errors are retried by default → `.future` hangs and screens stay loading; pass `retry: (_, _) => null` for local-DB loads.
+- [phase 08] `PopScope(canPop: false)` also swallows your own `Navigator.maybePop()` → after a save close with `navigator.pop()` (ignores PopScope), `context.go(...)` when nothing is below.
+- [phase 08] `Row[Expanded(name), Flexible(Text(amount, textAlign: end))]` leaves the amount mid-row (a loose Flexible child sits at the start of its share) → put the amount as a plain `Text` after the `Expanded`.
+- [phase 08] Signed-in screens cannot be shot from a release build (dev login is debug-only) → `.claude/skills/ui-review/scripts/capture_marked.ps1` runs a debug integration test with sample data that logs `UIREVIEW SHOT <name>` and screencaps per marker.
+- [phase 08] Two test agents in one worktree: `flutter test` sometimes fails with "failed to delete build\native_assets\…\sqlite3.dll" → rerun after ~10 s.

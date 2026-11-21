@@ -58,12 +58,13 @@ Total: 114 test ids.
 | 07 | TC-4-02 | sql | cannot claim a linked member | pass (sql 050) |
 | 07 | TC-4-03 | widget | claim picker | todo |
 | 07 | TC-4-04 | integ | claimed spot keeps balances. | todo |
-| 08 | TC-13-01 | widget | form validation | todo |
-| 08 | TC-13-02 | widget | category picker | todo |
-| 08 | TC-35-01 | unit | fallback rules | todo |
-| 08 | TC-35-02 | widget | prefill. | todo |
-| 08 | TC-5..9-03 | widget | editor per type: live remaining, error copy, Save disabled | todo |
-| 08 | TC-5..9-04 | golden | editor per | todo |
+| 08 | TC-13-01 | widget | form validation | pass (`expense_editor_test.dart`, `expense_editor_controller_test.dart`) |
+| 08 | TC-13-02 | widget | category picker | pass (`expense_editor_test.dart`) |
+| 08 | TC-35-01 | unit | fallback rules | pass (`expense_editor_controller_test.dart`, `default_split_controller_test.dart`) |
+| 08 | TC-35-02 | widget | prefill. | pass (`default_split_routes_test.dart`) |
+| 08 | TC-5..9-03 | widget | editor per type: live remaining, error copy, Save disabled | pass (`split_editor_test.dart`) |
+| 08 | TC-5..9-04 | golden | editor per | pass (`expense_screens_golden_test.dart`, light/dark/200 %) |
+| 08 | TC-5..9-06 | integ | one expense of each split type offline → sync; server rows, server balances and a second member equal the phone | todo |
 | 09 | TC-15-03 | widget | balances tab states | todo |
 | 09 | TC-15-04 | integ | local vs server checksum equal after sync. | todo |
 | 09 | TC-18-02 | widget | feed grouping/filters | todo |
