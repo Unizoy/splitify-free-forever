@@ -16,6 +16,8 @@ import 'package:splitify/features/history/application/deleted_items_providers.da
 import 'package:splitify/features/history/application/history_providers.dart';
 import 'package:splitify/features/history/presentation/deleted_items_screen.dart';
 import 'package:splitify/features/history/presentation/history_screen.dart';
+import 'package:splitify/features/payments/application/payment_providers.dart';
+import 'package:splitify/features/payments/presentation/payment_detail_screen.dart';
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/theme/theme.dart';
 
@@ -73,6 +75,18 @@ List<(String, Widget, List<Override>)> _screens() => [
       ),
       expenseGroupProvider(gid).overrideWith((ref) => Stream.value(sampleGroup())),
       commentThreadProvider((groupId: gid, targetType: 'expense', targetId: 'e1'))
+          .overrideWithValue(AsyncData(sampleThread())),
+    ],
+  ),
+  (
+    'payment-comments',
+    const PaymentDetailScreen(paymentId: 'p1'),
+    [
+      paymentViewProvider('p1').overrideWithValue(
+        AsyncData(PaymentView(payment: samplePayment(), names: memberNames, meId: me)),
+      ),
+      expenseGroupProvider(gid).overrideWith((ref) => Stream.value(sampleGroup())),
+      commentThreadProvider((groupId: gid, targetType: 'payment', targetId: 'p1'))
           .overrideWithValue(AsyncData(sampleThread())),
     ],
   ),
