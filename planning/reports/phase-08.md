@@ -1,6 +1,6 @@
 # Phase 08 report — Expenses and split types (#5–#9, #13, #35)
 
-- Date: 2026-11-22 · Branch: `phase/08-expenses-splits` · Base: `origin/phase/06-sync-engine` (stacked); `origin/phase/07-groups-members` merged in (a064050)
+- Date: 2026-11-22 · Branch: `phase/08-expenses-splits` · Base: `origin/phase/06-sync-engine` (stacked); `origin/phase/07-groups-members` merged in (a064050), then `origin/main` with phase 07 final (8fd7bef)
 - Commits: `f7292c8..HEAD` · Status: done
 
 ## Summary
@@ -45,7 +45,7 @@ split. Everything works offline and syncs.
 | Gate | Result | Evidence |
 | --- | --- | --- |
 | G1 Static | PASS | after the merge: `dart format` 0 changed; `flutter analyze --no-fatal-infos` 0 errors / 0 warnings (infos only, repo-wide style); guards OK |
-| G2 Tests | PASS | `flutter test --coverage --exclude-tags device,needs-owner,quarantine`: 1041 pass; `coverage_check` all floors pass |
+| G2 Tests | PASS | `flutter test --coverage --exclude-tags device,needs-owner,quarantine`: 1043 pass (after the main merge); `coverage_check` all floors pass |
 | G3 Backend | PASS (no migration needed) | 0001–0010 on dev (`list_migrations`); `031_validation.test.sql` 20/20 on dev in BEGIN…ROLLBACK |
 | G4 Build | PASS | `flutter build apk --debug --dart-define-from-file=secrets/env.dev.json` (before and after the merge) |
 | G5 Device | PASS | `expenses_offline_sync_test.dart` 1/1 on emulator-5554 (before and after the phase 07 merge, `PIN_HOST_IP`); UI review `ui_review_expenses_test.dart` 15 screens × light/dark/200 %, scores below; screenshots: `C:\Users\mohit\OneDrive\Desktop\theCode\splitify-artifacts\phase-08\` |
@@ -91,7 +91,10 @@ Merged `origin/phase/07-groups-members` (also carrying the 05/06 follow-ups): th
 hosts `ExpenseList`, its amber "Add expense" opens the stepper, group settings got a "Default split" row. Kept
 phase 07's `syncOfflineProvider` and `AppIcons.edit` (dropped my duplicates), switched my device tests to the merged
 `net_pin.dart` and `capture_markers.ps1`. Removed `test/goldens/failures/*` that the phase 07 commit had added and
-git-ignored that folder.
+git-ignored that folder. Then merged `origin/main` (phase 07 final, PR #9): the restructured group settings screen
+got the "Default split" row again; `GroupExpensesTab` hosts `ExpenseList`, `_ActionBar` "Add expense" opens the
+stepper. Gates re-run after that merge: format 0 changed, analyze 0 errors/warnings, guards OK, 1043 tests pass,
+coverage floors pass, debug APK builds.
 
 ## Learnings and skills added or changed
 
