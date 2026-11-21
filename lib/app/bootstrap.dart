@@ -48,6 +48,7 @@ List<Override> appOverrides({
   profileRemoteProvider.overrideWithValue(remote.profiles),
   remoteApiProvider.overrideWithValue(remote.api),
   groupsRemoteProvider.overrideWithValue(remote.groups),
+  balancesRemoteProvider.overrideWithValue(remote.balances),
   googleConfiguredProvider.overrideWithValue(env.hasGoogle),
   devLoginProvider.overrideWithValue(devLogin ?? env.devLoginAvailable(releaseMode: kReleaseMode)),
   e2ePasswordProvider.overrideWithValue(kReleaseMode ? '' : env.e2ePassword),

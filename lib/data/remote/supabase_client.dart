@@ -1,4 +1,5 @@
 import 'package:splitify/core/config/env.dart';
+import 'package:splitify/data/remote/balances_remote.dart';
 import 'package:splitify/data/remote/groups_remote.dart';
 import 'package:splitify/data/remote/remote_api.dart';
 import 'package:splitify/data/remote/supabase_auth_repository.dart';
@@ -15,6 +16,7 @@ class RemoteServices {
     required this.profiles,
     this.api = const UnconfiguredRemoteApi(),
     this.groups = const UnconfiguredGroupsRemote(),
+    this.balances = const UnconfiguredBalancesRemote(),
   });
 
   final AuthRepository auth;
@@ -25,6 +27,9 @@ class RemoteServices {
 
   /// Online-only group RPCs (join, invite code, leave/remove/unlink).
   final GroupsRemote groups;
+
+  /// Read-only balance RPCs (`group_balances`, `my_overview`).
+  final BalancesRemote balances;
 }
 
 /// Starts Supabase from the build settings (02 §2). With placeholder values
@@ -44,5 +49,6 @@ Future<RemoteServices> initRemote(Env env) async {
     profiles: SupabaseProfileRemote.fromClient(client),
     api: SupabaseRemoteApi.client(client),
     groups: SupabaseGroupsRemote.fromClient(client),
+    balances: SupabaseBalancesRemote.fromClient(client),
   );
 }

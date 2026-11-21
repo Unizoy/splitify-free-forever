@@ -1076,6 +1076,750 @@ abstract class AppLocalizations {
   /// **'Expenses, payments and comments show up here.'**
   String get emptyActivityBody;
 
+  /// 'You' in the middle of a sentence.
+  ///
+  /// In en, this message translates to:
+  /// **'you'**
+  String get youLower;
+
+  /// No description provided for @someone.
+  ///
+  /// In en, this message translates to:
+  /// **'Someone'**
+  String get someone;
+
+  /// No description provided for @statusOwedAndOwe.
+  ///
+  /// In en, this message translates to:
+  /// **'Owed and owing'**
+  String get statusOwedAndOwe;
+
+  /// No description provided for @balPillOwed.
+  ///
+  /// In en, this message translates to:
+  /// **'You are owed {amount}'**
+  String balPillOwed(String amount);
+
+  /// No description provided for @balPillOwe.
+  ///
+  /// In en, this message translates to:
+  /// **'You owe {amount}'**
+  String balPillOwe(String amount);
+
+  /// No description provided for @balBannerOwed.
+  ///
+  /// In en, this message translates to:
+  /// **'You are owed here'**
+  String get balBannerOwed;
+
+  /// No description provided for @balBannerOwe.
+  ///
+  /// In en, this message translates to:
+  /// **'You owe here'**
+  String get balBannerOwe;
+
+  /// No description provided for @balBannerMixed.
+  ///
+  /// In en, this message translates to:
+  /// **'You are owed and owe here'**
+  String get balBannerMixed;
+
+  /// No description provided for @balBannerSettled.
+  ///
+  /// In en, this message translates to:
+  /// **'In this group'**
+  String get balBannerSettled;
+
+  /// No description provided for @balBannerSettledLine2.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re all settled'**
+  String get balBannerSettledLine2;
+
+  /// No description provided for @balEveryone.
+  ///
+  /// In en, this message translates to:
+  /// **'Everyone'**
+  String get balEveryone;
+
+  /// No description provided for @balWhoOwesWhom.
+  ///
+  /// In en, this message translates to:
+  /// **'Who owes whom'**
+  String get balWhoOwesWhom;
+
+  /// No description provided for @balSuggestedPayments.
+  ///
+  /// In en, this message translates to:
+  /// **'Suggested payments'**
+  String get balSuggestedPayments;
+
+  /// No description provided for @balShowOriginal.
+  ///
+  /// In en, this message translates to:
+  /// **'Show original debts'**
+  String get balShowOriginal;
+
+  /// No description provided for @balShowSimplified.
+  ///
+  /// In en, this message translates to:
+  /// **'Show suggested payments'**
+  String get balShowSimplified;
+
+  /// No description provided for @balGetsBack.
+  ///
+  /// In en, this message translates to:
+  /// **'gets back'**
+  String get balGetsBack;
+
+  /// No description provided for @balOwes.
+  ///
+  /// In en, this message translates to:
+  /// **'owes'**
+  String get balOwes;
+
+  /// No description provided for @balSettledUp.
+  ///
+  /// In en, this message translates to:
+  /// **'settled up'**
+  String get balSettledUp;
+
+  /// No description provided for @balPairOwes.
+  ///
+  /// In en, this message translates to:
+  /// **'{from} owes {to}'**
+  String balPairOwes(String from, String to);
+
+  /// No description provided for @balSettle.
+  ///
+  /// In en, this message translates to:
+  /// **'Settle'**
+  String get balSettle;
+
+  /// No description provided for @balEveryoneSettled.
+  ///
+  /// In en, this message translates to:
+  /// **'Everyone is settled up'**
+  String get balEveryoneSettled;
+
+  /// No description provided for @balCurrencySection.
+  ///
+  /// In en, this message translates to:
+  /// **'{code} balances'**
+  String balCurrencySection(String code);
+
+  /// No description provided for @balLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Balances could not be loaded'**
+  String get balLoadError;
+
+  /// No description provided for @totThisMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'This month'**
+  String get totThisMonth;
+
+  /// No description provided for @totAllTime.
+  ///
+  /// In en, this message translates to:
+  /// **'All time'**
+  String get totAllTime;
+
+  /// No description provided for @totSpent.
+  ///
+  /// In en, this message translates to:
+  /// **'Total spent'**
+  String get totSpent;
+
+  /// No description provided for @totExpenseCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 expense} other{{count} expenses}}'**
+  String totExpenseCount(int count);
+
+  /// No description provided for @totYourShare.
+  ///
+  /// In en, this message translates to:
+  /// **'Your share'**
+  String get totYourShare;
+
+  /// No description provided for @totYouPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'You paid'**
+  String get totYouPaid;
+
+  /// No description provided for @totEachPerson.
+  ///
+  /// In en, this message translates to:
+  /// **'Each person'**
+  String get totEachPerson;
+
+  /// No description provided for @totPaidShare.
+  ///
+  /// In en, this message translates to:
+  /// **'paid {paid} · share {share}'**
+  String totPaidShare(String paid, String share);
+
+  /// No description provided for @totEmptyMonthTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing spent this month'**
+  String get totEmptyMonthTitle;
+
+  /// No description provided for @totEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No spending yet'**
+  String get totEmptyTitle;
+
+  /// No description provided for @totEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Add an expense and the totals show up here.'**
+  String get totEmptyBody;
+
+  /// No description provided for @totFootnote.
+  ///
+  /// In en, this message translates to:
+  /// **'Payments and loans are not counted as spending.'**
+  String get totFootnote;
+
+  /// No description provided for @totCharts.
+  ///
+  /// In en, this message translates to:
+  /// **'See charts'**
+  String get totCharts;
+
+  /// No description provided for @settleEditTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit payment'**
+  String get settleEditTitle;
+
+  /// No description provided for @settlePaidSentence.
+  ///
+  /// In en, this message translates to:
+  /// **'{from} paid {to}'**
+  String settlePaidSentence(String from, String to);
+
+  /// No description provided for @settleSwap.
+  ///
+  /// In en, this message translates to:
+  /// **'Swap who paid'**
+  String get settleSwap;
+
+  /// No description provided for @settleWhoPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Who paid?'**
+  String get settleWhoPaid;
+
+  /// No description provided for @settleWhoReceived.
+  ///
+  /// In en, this message translates to:
+  /// **'Who got the money?'**
+  String get settleWhoReceived;
+
+  /// No description provided for @settleChangePerson.
+  ///
+  /// In en, this message translates to:
+  /// **'Change {name}'**
+  String settleChangePerson(String name);
+
+  /// No description provided for @settleAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get settleAmount;
+
+  /// No description provided for @settleGaugeOf.
+  ///
+  /// In en, this message translates to:
+  /// **'of {owed} owed'**
+  String settleGaugeOf(String owed);
+
+  /// No description provided for @settleGaugeAll.
+  ///
+  /// In en, this message translates to:
+  /// **'settles all of {owed}'**
+  String settleGaugeAll(String owed);
+
+  /// No description provided for @settleGaugeOver.
+  ///
+  /// In en, this message translates to:
+  /// **'more than the {owed} owed'**
+  String settleGaugeOver(String owed);
+
+  /// No description provided for @settleGaugeNone.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing is owed between them. You can still record it.'**
+  String get settleGaugeNone;
+
+  /// No description provided for @settleUseOwed.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay all {owed}'**
+  String settleUseOwed(String owed);
+
+  /// No description provided for @settleMethod.
+  ///
+  /// In en, this message translates to:
+  /// **'Method'**
+  String get settleMethod;
+
+  /// No description provided for @methodCash.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash'**
+  String get methodCash;
+
+  /// No description provided for @methodUpi.
+  ///
+  /// In en, this message translates to:
+  /// **'UPI'**
+  String get methodUpi;
+
+  /// No description provided for @methodBank.
+  ///
+  /// In en, this message translates to:
+  /// **'Bank'**
+  String get methodBank;
+
+  /// No description provided for @methodOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get methodOther;
+
+  /// No description provided for @settleDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get settleDate;
+
+  /// No description provided for @settleNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Note'**
+  String get settleNote;
+
+  /// No description provided for @settleNoteHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional'**
+  String get settleNoteHint;
+
+  /// No description provided for @settleNoteTooLong.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep the note under {max} characters'**
+  String settleNoteTooLong(int max);
+
+  /// No description provided for @settleRecord.
+  ///
+  /// In en, this message translates to:
+  /// **'Record payment'**
+  String get settleRecord;
+
+  /// No description provided for @settleSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save payment'**
+  String get settleSave;
+
+  /// No description provided for @settleRecorded.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment recorded'**
+  String get settleRecorded;
+
+  /// No description provided for @settleSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment saved'**
+  String get settleSaved;
+
+  /// No description provided for @settleNotFoundTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing to settle here'**
+  String get settleNotFoundTitle;
+
+  /// No description provided for @settleNotFoundBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This group or payment is not on this phone.'**
+  String get settleNotFoundBody;
+
+  /// No description provided for @settleSuggested.
+  ///
+  /// In en, this message translates to:
+  /// **'Suggested'**
+  String get settleSuggested;
+
+  /// No description provided for @settleOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Record a different payment'**
+  String get settleOther;
+
+  /// No description provided for @settleGroupSettled.
+  ///
+  /// In en, this message translates to:
+  /// **'Everyone in this group is settled up.'**
+  String get settleGroupSettled;
+
+  /// No description provided for @settleWithTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Settle up with'**
+  String get settleWithTitle;
+
+  /// No description provided for @allSettledSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re all settled up'**
+  String get allSettledSnack;
+
+  /// No description provided for @payTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment'**
+  String get payTitle;
+
+  /// No description provided for @payEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit payment'**
+  String get payEdit;
+
+  /// No description provided for @payDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete payment'**
+  String get payDelete;
+
+  /// No description provided for @payDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment deleted'**
+  String get payDeleted;
+
+  /// No description provided for @payNotFoundTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment not found'**
+  String get payNotFoundTitle;
+
+  /// No description provided for @payNotFoundBody.
+  ///
+  /// In en, this message translates to:
+  /// **'It may have been deleted, or it has not reached this phone yet.'**
+  String get payNotFoundBody;
+
+  /// No description provided for @payMethodLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Method'**
+  String get payMethodLabel;
+
+  /// No description provided for @payNoteLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Note'**
+  String get payNoteLabel;
+
+  /// No description provided for @payDetailsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Details'**
+  String get payDetailsLabel;
+
+  /// No description provided for @payRowCaption.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment · {date}'**
+  String payRowCaption(String date);
+
+  /// No description provided for @payYouPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'you paid'**
+  String get payYouPaid;
+
+  /// No description provided for @payYouReceived.
+  ///
+  /// In en, this message translates to:
+  /// **'you received'**
+  String get payYouReceived;
+
+  /// No description provided for @actFilterAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get actFilterAll;
+
+  /// No description provided for @actFilterExpenses.
+  ///
+  /// In en, this message translates to:
+  /// **'Expenses'**
+  String get actFilterExpenses;
+
+  /// No description provided for @actFilterPayments.
+  ///
+  /// In en, this message translates to:
+  /// **'Payments'**
+  String get actFilterPayments;
+
+  /// No description provided for @actFilterComments.
+  ///
+  /// In en, this message translates to:
+  /// **'Comments'**
+  String get actFilterComments;
+
+  /// No description provided for @actFilterGroups.
+  ///
+  /// In en, this message translates to:
+  /// **'Groups'**
+  String get actFilterGroups;
+
+  /// No description provided for @actEmptyFilteredTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing here yet'**
+  String get actEmptyFilteredTitle;
+
+  /// No description provided for @actEmptyFilteredBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Try another filter, or check back after the next change.'**
+  String get actEmptyFilteredBody;
+
+  /// No description provided for @actTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Activity'**
+  String get actTitle;
+
+  /// No description provided for @actRecent.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent activity'**
+  String get actRecent;
+
+  /// No description provided for @actSeeAll.
+  ///
+  /// In en, this message translates to:
+  /// **'See all activity'**
+  String get actSeeAll;
+
+  /// No description provided for @actGroupCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'{actor} created the group'**
+  String actGroupCreated(String actor);
+
+  /// No description provided for @actGroupUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'{actor} updated the group'**
+  String actGroupUpdated(String actor);
+
+  /// No description provided for @actGroupArchived.
+  ///
+  /// In en, this message translates to:
+  /// **'{actor} archived the group'**
+  String actGroupArchived(String actor);
+
+  /// No description provided for @actGroupUnarchived.
+  ///
+  /// In en, this message translates to:
+  /// **'{actor} brought the group back'**
+  String actGroupUnarchived(String actor);
+
+  /// No description provided for @actGroupDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'{actor} deleted the group'**
+  String actGroupDeleted(String actor);
+
+  /// No description provided for @actGroupRestored.
+  ///
+  /// In en, this message translates to:
+  /// **'{actor} restored the group'**
+  String actGroupRestored(String actor);
+
+  /// No description provided for @actMemberAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'{actor} added {member}'**
+  String actMemberAdded(String actor, String member);
+
+  /// No description provided for @actMemberJoined.
+  ///
+  /// In en, this message translates to:
+  /// **'{actor} joined the group'**
+  String actMemberJoined(String actor);
+
+  /// No description provided for @actMemberClaimed.
+  ///
+  /// In en, this message translates to:
+  /// **'{actor} joined as {member}'**
+  String actMemberClaimed(String actor, String member);
+
+  /// No description provided for @actMemberLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'{member} left the group'**
+  String actMemberLeft(String member);
+
+  /// No description provided for @actMemberRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'{actor} removed {member}'**
+  String actMemberRemoved(String actor, String member);
+
+  /// No description provided for @actExpenseAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'{actor} added “{description}”'**
+  String actExpenseAdded(String actor, String description);
+
+  /// No description provided for @actExpenseEdited.
+  ///
+  /// In en, this message translates to:
+  /// **'{actor} edited “{description}”'**
+  String actExpenseEdited(String actor, String description);
+
+  /// No description provided for @actExpenseDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'{actor} deleted “{description}”'**
+  String actExpenseDeleted(String actor, String description);
+
+  /// No description provided for @actExpenseRestored.
+  ///
+  /// In en, this message translates to:
+  /// **'{actor} restored “{description}”'**
+  String actExpenseRestored(String actor, String description);
+
+  /// No description provided for @actPaymentAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'{actor} recorded a payment from {from} to {to}'**
+  String actPaymentAdded(String actor, String from, String to);
+
+  /// No description provided for @actPaymentEdited.
+  ///
+  /// In en, this message translates to:
+  /// **'{actor} edited a payment from {from} to {to}'**
+  String actPaymentEdited(String actor, String from, String to);
+
+  /// No description provided for @actPaymentDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'{actor} deleted a payment from {from} to {to}'**
+  String actPaymentDeleted(String actor, String from, String to);
+
+  /// No description provided for @actPaymentRestored.
+  ///
+  /// In en, this message translates to:
+  /// **'{actor} restored a payment from {from} to {to}'**
+  String actPaymentRestored(String actor, String from, String to);
+
+  /// No description provided for @actCommentOn.
+  ///
+  /// In en, this message translates to:
+  /// **'{actor} commented on “{description}”'**
+  String actCommentOn(String actor, String description);
+
+  /// No description provided for @actCommentAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'{actor} added a comment'**
+  String actCommentAdded(String actor);
+
+  /// No description provided for @actCommentDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'{actor} deleted a comment'**
+  String actCommentDeleted(String actor);
+
+  /// No description provided for @actReminderSent.
+  ///
+  /// In en, this message translates to:
+  /// **'{actor} sent a payment reminder'**
+  String actReminderSent(String actor);
+
+  /// No description provided for @actSettingsChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'{actor} changed the group settings'**
+  String actSettingsChanged(String actor);
+
+  /// No description provided for @actRecurringCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'{actor} set up a recurring bill'**
+  String actRecurringCreated(String actor);
+
+  /// No description provided for @actRecurringUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'{actor} changed a recurring bill'**
+  String actRecurringUpdated(String actor);
+
+  /// No description provided for @actRecurringStopped.
+  ///
+  /// In en, this message translates to:
+  /// **'{actor} stopped a recurring bill'**
+  String actRecurringStopped(String actor);
+
+  /// No description provided for @actImportCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'{actor} imported expenses from Splitwise'**
+  String actImportCompleted(String actor);
+
+  /// No description provided for @actUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'{actor} made a change'**
+  String actUnknown(String actor);
+
+  /// No description provided for @homeGroupsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No groups yet} =1{1 group} other{{count} groups}}'**
+  String homeGroupsCount(int count);
+
+  /// No description provided for @homePeopleOweYou.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 person owes you} other{{count} people owe you}}'**
+  String homePeopleOweYou(int count);
+
+  /// No description provided for @homeYouOwePeople.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{you owe 1 person} other{you owe {count} people}}'**
+  String homeYouOwePeople(int count);
+
+  /// No description provided for @walletBreakdownTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Balances by group'**
+  String get walletBreakdownTitle;
+
+  /// No description provided for @walletBreakdownEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re all settled up in every group.'**
+  String get walletBreakdownEmpty;
+
   /// No description provided for @you.
   ///
   /// In en, this message translates to:
