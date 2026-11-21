@@ -46,6 +46,21 @@ composer; comments work offline and only their author can delete them (enforced 
 
 ## UI review (≥ 8/10 every line)
 
+Device captures (light / dark / text 200 %) in `splitify-artifacts\phase-12\` for history-timeline, history-offline,
+deleted-items, deleted-items-empty, expense-comments; real-font goldens (`PLATFORM_GOLDENS=1`) for the same plus
+history-payment, history-pending-empty and payment-detail-comments. Compared with Atlys 646 (history rows: caps
+label, value right, dashed dividers, muted card) and 636 (comments: blob empty state, pill field, round send).
+
+| Screen | Atlys feel | Type | Layout | Colour | Signature | Polish | States |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Edit history | 8 | 9 | 9 | 9 | 8 | 8 | 9 |
+| Deleted items | 8 | 9 | 8 | 9 | 8 | 8 | 9 |
+| Comments (expense + payment detail) | 9 | 9 | 9 | 9 | 9 | 8 | 9 |
+
+Fixed during review: per-member diffs right-aligned (Wrap needed full width), "Deleted by you" lower-case.
+Accepted: the conflict dot is low-contrast on purpose (muted version); the dark-mode status-bar icons in the device
+captures follow the system bar timing of the capture script, not the screen (AppBar overlay style is per theme).
+
 ## Decisions made (S-0xx)
 
 - S-130 history fetched per record + Drift cache (no `pull_changes` change) · S-131 comment author trigger ·

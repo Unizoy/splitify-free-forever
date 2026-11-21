@@ -5,13 +5,13 @@
 
 ## Tasks
 
-- [ ] T1 History screen for expenses and payments: timeline from `record_versions` (pulled + cached), field diff
+- [x] T1 History screen for expenses and payments: timeline from `record_versions` (pulled + cached), field diff
       builder (description, amount, currency, date, category, payers, shares, split type, notes, receipt),
       conflict versions labelled "Not applied (a newer edit won)".
-- [ ] T2 Deleted items view per group + restore (op `restore`), activity `*_restored`.
-- [ ] T3 Comments on expense/payment detail: thread, composer (636 style), offline queue, author-only delete,
+- [x] T2 Deleted items view per group + restore (op `restore`), activity `*_restored`.
+- [x] T3 Comments on expense/payment detail: thread, composer (636 style), offline queue, author-only delete,
       BlobBackground empty state; activity `comment_added`.
-- [ ] T4 pgTAP: versions for every op incl. `conflict_lost`; comment delete only by author.
+- [x] T4 pgTAP: versions for every op incl. `conflict_lost`; comment delete only by author.
 
 ## Tests
 
