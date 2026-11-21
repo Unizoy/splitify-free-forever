@@ -36,13 +36,12 @@ body:
       label: Platform
       options:
         - Android
-        - Web
     validations:
       required: true
   - type: input
     id: environment
     attributes:
-      label: Device / browser and app version
+      label: Device and app version
       placeholder: e.g. Pixel 9, Android 16, app v0.1.0
   - type: textarea
     id: extra
