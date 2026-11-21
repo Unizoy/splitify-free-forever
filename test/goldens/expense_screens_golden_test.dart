@@ -117,12 +117,10 @@ List<_Case> _cases() {
             DefaultSplitState(
               groupName: 'Goa trip',
               members: people,
-              split: SplitDraft.initial(ids, 2).withValues(SplitKind.percent, {
-                'm1': 4000,
-                'm2': 4000,
-                'm3': 1000,
-                'm4': 500,
-              }),
+              split: SplitDraft.initial(
+                ids,
+                2,
+              ).withValues(SplitKind.percent, {'m1': 4000, 'm2': 4000, 'm3': 1000, 'm4': 500}),
             ),
           ),
         ),
