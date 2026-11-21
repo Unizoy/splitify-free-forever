@@ -18,11 +18,12 @@
       flight), `MutationQueue`, `PullApplier`, connectivity watcher, Realtime subscriber, `workmanager` callback. (connectivity + workmanager glue open, S-046)
 - [x] T4 Repositories (read streams + write-with-outbox) for groups, members, expenses, payments, comments; Riverpod
       providers.
-- [ ] T5 (open, S-046) Sync status providers + `SyncMarker` wiring + basic "Sync & storage" screen (§9).
+- [x] T5 Sync status providers + `SyncMarker` wiring + basic "Sync & storage" screen (§9). (2026-11-22, S-212/S-213)
 - [x] T6 Unit suite TC-27-01…10 with `FakeRemoteApi`/`FakeClock`: ordering, idempotent retry, LWW both ways, clock
       offset, paging, tombstones, kill mid-page, rejected/poison, 401 handling, lost group access.
-- [ ] T7 SKIPPED (BLK-001) Integration (dev project): user A (app) offline-creates a group + expense, reconnects; harness user B
-      edits the same expense earlier/later → expected winner, both versions in `record_versions`.
+- [x] T7 Integration (dev project): user A (app) offline-creates a group + expense, reconnects; harness user B
+      edits the same expense earlier/later → expected winner, both versions in `record_versions`. (2026-11-22,
+      `integration_test/sync_offline_test.dart`, S-211)
 
 ## Tests
 
@@ -31,3 +32,8 @@ TC-27-01…10, TC-1-02, TC-18-01 + SQL files above.
 ## Done when
 
 Sync suite green, integration test green, coverage `lib/data/sync` ≥ 95 %.
+
+> **Status note (2026-11-22, S-210..S-214):** T5 and T7 done; sign-out now pushes the outbox first and wipes the
+> Drift DB. Still open from T3 (S-046): the platform glue that starts a sync by itself — connectivity watcher,
+> app-resume trigger, Realtime subscription for the user's groups, `workmanager` task. Writes already sync
+> (debounced), and "Sync now" works; see the Amendment in phase 15.

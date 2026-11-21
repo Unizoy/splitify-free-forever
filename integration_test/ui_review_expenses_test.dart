@@ -1,7 +1,7 @@
-// Emulator UI review for phase 08 (gate G5): shows every expense screen in light, dark and 200 %
-// text on the device and logs `UIREVIEW SHOT <name>` while each one is on screen, so the host
-// script `.claude/skills/ui-review/scripts/capture_marked.ps1` can take adb screenshots.
-// Uses sample data only (no sign-in, no network).
+// Emulator UI review for phase 08 (gate G5): shows every expense screen with sample data (no sign-in,
+// no network), prints `UI-CAPTURE <name>` and holds it for `UI_HOLD` seconds while
+// `.claude/skills/ui-review/scripts/capture_markers.ps1` takes light, dark and 200 % text screenshots
+// (it flips the emulator's dark mode and font scale; the app follows both).
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -22,6 +22,9 @@ import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/theme/theme.dart';
 
 import '../test/features/expenses/expense_fixtures.dart';
+
+/// Seconds each screen stays up for the host captures (`UI_HOLD`, 0 = no hold).
+const _hold = int.fromEnvironment('UI_HOLD');
 
 const ExpenseEditorArgs _editArgs = (groupId: null, expenseId: 'e1');
 const ExpenseEditorArgs _newArgs = (groupId: gid, expenseId: null);
@@ -136,46 +139,37 @@ List<(String, Widget, List<Override>)> _screens() {
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  testWidgets('UI review: expense screens light, dark, text 200 %', (t) async {
-    for (final (pass, mode, scale) in const [
-      ('light', ThemeMode.light, 1.0),
-      ('dark', ThemeMode.dark, 1.0),
-      ('text200', ThemeMode.light, 2.0),
-    ]) {
-      for (final (name, screen, overrides) in _screens()) {
-        await t.pumpWidget(
-          ProviderScope(
-            key: UniqueKey(),
-            overrides: [...baseOverrides(), ...overrides],
-            child: MaterialApp(
-              localizationsDelegates: const [
-                AppLocalizations.delegate,
-                GlobalMaterialLocalizations.delegate,
-                GlobalWidgetsLocalizations.delegate,
-                GlobalCupertinoLocalizations.delegate,
-              ],
-              supportedLocales: AppLocalizations.supportedLocales,
-              theme: AppTheme.light(),
-              darkTheme: AppTheme.dark(),
-              themeMode: mode,
-              debugShowCheckedModeBanner: false,
-              builder: (context, child) => MediaQuery(
-                data: MediaQuery.of(context).copyWith(textScaler: TextScaler.linear(scale)),
-                child: child!,
-              ),
-              home: screen,
-            ),
+  testWidgets('UI review: expense screens', (t) async {
+    for (final (name, screen, overrides) in _screens()) {
+      await t.pumpWidget(
+        ProviderScope(
+          key: UniqueKey(),
+          overrides: [...baseOverrides(), ...overrides],
+          child: MaterialApp(
+            localizationsDelegates: const [
+              AppLocalizations.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: AppLocalizations.supportedLocales,
+            theme: AppTheme.light(),
+            darkTheme: AppTheme.dark(),
+            debugShowCheckedModeBanner: false,
+            home: screen,
           ),
-        );
-        for (var i = 0; i < 15; i++) {
-          await t.pump(const Duration(milliseconds: 100));
-        }
-        await Future<void>.delayed(const Duration(milliseconds: 800));
+        ),
+      );
+      for (var i = 0; i < 15; i++) {
+        await t.pump(const Duration(milliseconds: 100));
+      }
+      debugPrint('UI-CAPTURE $name');
+      // Keep pumping while the host flips dark mode and font scale.
+      final end = DateTime.now().add(const Duration(seconds: _hold));
+      while (DateTime.now().isBefore(end)) {
+        await Future<void>.delayed(const Duration(milliseconds: 200));
         await t.pump();
-        debugPrint('UIREVIEW SHOT $name-$pass');
-        await Future<void>.delayed(const Duration(seconds: 4));
       }
     }
-    debugPrint('UIREVIEW DONE');
   });
 }

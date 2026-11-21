@@ -8,7 +8,6 @@ import 'package:splitify/core/money/money_formatter.dart';
 import 'package:splitify/data/data_providers.dart';
 import 'package:splitify/features/expenses/application/expense_draft.dart';
 import 'package:splitify/features/expenses/application/expense_editor_controller.dart';
-import 'package:splitify/features/expenses/application/expense_providers.dart';
 import 'package:splitify/features/expenses/application/split_draft.dart';
 import 'package:splitify/features/expenses/presentation/editor/amount_step.dart';
 import 'package:splitify/features/expenses/presentation/editor/details_step.dart';
@@ -19,6 +18,8 @@ import 'package:splitify/features/expenses/presentation/split_editor.dart';
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/components/components.dart';
 import 'package:splitify/ui/theme/theme.dart';
+import 'package:splitify/features/groups/application/groups_providers.dart'
+    show syncOfflineProvider;
 
 /// The stepper's steps (07 §2 Add expense).
 enum EditorStep { amount, paidBy, split, details, review }

@@ -21,3 +21,7 @@ TC-10-02, TC-11-02, TC-29-01…03.
 ## E2E scenario
 
 Airplane mode → add expense with receipt photo → back online → photo uploads → harness B can fetch it via signed URL.
+
+> **Amendment (S-073, phase 07):** the same uploader also handles group cover photos: `group-covers/<group_id>/<uuid>.jpg`,
+> group `cover_kind = 'photo'` + `cover_path`; add a "Photo" option to the cover on `GroupFormScreen`
+> (`lib/features/groups/presentation/group_form_screen.dart`) and pass the image to `GroupCoverCard.photo`/the detail hero.

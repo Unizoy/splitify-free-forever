@@ -98,6 +98,31 @@ abstract class GroupsRemote {
   Future<void> unlinkMember(String groupId, String memberId);
 }
 
+/// No server configured (D-020 dummy builds, widget tests): every action fails like being offline.
+class UnconfiguredGroupsRemote implements GroupsRemote {
+  const UnconfiguredGroupsRemote();
+
+  static Future<T> _offline<T>() => Future.error(const GroupFailure(GroupFailureCode.offline));
+
+  @override
+  Future<JoinPreview> preview(String code) => _offline();
+
+  @override
+  Future<String> join(String code, {String? claimMemberId}) => _offline();
+
+  @override
+  Future<String> rotateCode(String groupId) => _offline();
+
+  @override
+  Future<void> leave(String groupId) => _offline();
+
+  @override
+  Future<void> removeMember(String groupId, String memberId) => _offline();
+
+  @override
+  Future<void> unlinkMember(String groupId, String memberId) => _offline();
+}
+
 typedef GroupsRpc = Future<Object?> Function(String name, Map<String, Object?> params);
 
 /// [GroupsRemote] over PostgREST RPCs.

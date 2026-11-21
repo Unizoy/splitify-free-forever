@@ -9,11 +9,12 @@ import 'package:splitify/core/money/split.dart';
 import 'package:splitify/domain/rules/expense_categories.dart';
 import 'package:splitify/features/expenses/application/expense_draft.dart';
 import 'package:splitify/features/expenses/application/expense_editor_controller.dart';
-import 'package:splitify/features/expenses/application/expense_providers.dart';
 import 'package:splitify/features/expenses/application/split_draft.dart';
 import 'package:splitify/features/expenses/presentation/editor/details_step.dart';
 import 'package:splitify/features/expenses/presentation/editor/expense_editor_screen.dart';
 import 'package:splitify/ui/components/components.dart';
+import 'package:splitify/features/groups/application/groups_providers.dart'
+    show syncOfflineProvider;
 
 import '../expense_fixtures.dart';
 import 'presentation_harness.dart';

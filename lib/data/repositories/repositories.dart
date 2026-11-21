@@ -40,15 +40,17 @@ class GroupsRepository extends _Repo {
   Stream<LocalGroup?> watchOne(String id) =>
       (db.select(db.groups)..where((g) => g.id.equals(id))).watchSingleOrNull();
 
-  /// New group with the creator as owner member (the server creates the same member, TC-1-02).
+  /// New group with the creator as owner member (the server creates the same member, TC-1-02). [id] lets
+  /// the form preview the generated cover before saving.
   Future<String> create({
     required String name,
     required String ownerName,
     String type = 'other',
     String mainCurrency = 'INR',
     String? ownerUserId,
+    String? id,
   }) async {
-    final id = newId();
+    id ??= newId();
     final ownerId = newId();
     final createdAt = writer.clock.now().toUtc().toIso8601String();
     await writer.write(SyncEntity.group, SyncOp.upsert, id, id, {

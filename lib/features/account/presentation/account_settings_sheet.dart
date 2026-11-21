@@ -3,8 +3,11 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:splitify/core/config/app_info.dart';
+import 'package:splitify/data/data_providers.dart';
 import 'package:splitify/features/account/application/theme_mode_controller.dart';
 import 'package:splitify/features/auth/application/auth_providers.dart';
+import 'package:splitify/features/sync/application/sync_texts.dart';
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/components/components.dart';
 import 'package:splitify/ui/theme/theme.dart';
@@ -53,8 +56,8 @@ Future<void> confirmSignOut(BuildContext context, WidgetRef ref) async {
 }
 
 /// Settings sheet content (07 §2): Profile and Preferences accordions, then
-/// About & licences, Sign out, Delete account and the version. Later phases
-/// add Security, Sync & storage, Deleted groups and Import.
+/// Sync & storage, Deleted groups, About & licences, Sign out, Delete account and the version.
+/// Later phases add Security and Import.
 class AccountSettingsBody extends ConsumerWidget {
   const AccountSettingsBody({super.key});
 
@@ -64,6 +67,7 @@ class AccountSettingsBody extends ConsumerWidget {
     final c = context.colors;
     final mode = ref.watch(themeModeControllerProvider);
     final profile = ref.watch(profileProvider).value;
+    final sync = ref.watch(syncStatusProvider).value;
     void openProfile() {
       Navigator.of(context).pop();
       unawaited(context.push('/account/profile'));
@@ -110,6 +114,26 @@ class AccountSettingsBody extends ConsumerWidget {
         ),
         const SizedBox(height: AppSpacing.s4),
         DashedListRow(
+          key: const Key('settings-sync'),
+          icon: AppIcons.sync,
+          label: l.syncStorage,
+          value: syncRowValue(l, sync),
+          valueColor: sync == null || sync.allSynced ? c.textSecondary : c.unsynced,
+          onTap: () {
+            Navigator.of(context).pop();
+            unawaited(context.push('/account/sync'));
+          },
+        ),
+        DashedListRow(
+          key: const Key('settings-deleted-groups'),
+          icon: AppIcons.restore,
+          label: l.deletedGroups,
+          onTap: () {
+            Navigator.of(context).pop();
+            unawaited(context.push('/account/deleted-groups'));
+          },
+        ),
+        DashedListRow(
           icon: AppIcons.licence,
           label: l.aboutLicences,
           onTap: () => showLicensePage(context: context, applicationName: l.appTitle),
@@ -132,7 +156,7 @@ class AccountSettingsBody extends ConsumerWidget {
           },
         ),
         const SizedBox(height: AppSpacing.s6),
-        Text(l.version('0.1.0'), style: context.text.bodySmall.copyWith(color: c.textSecondary)),
+        Text(l.version(appVersion), style: context.text.bodySmall.copyWith(color: c.textSecondary)),
       ],
     );
   }

@@ -374,6 +374,666 @@ abstract class AppLocalizations {
   /// **'Trips, flatmates, couples — add the people you split with.'**
   String get emptyGroupsBody;
 
+  /// No description provided for @archivedGroups.
+  ///
+  /// In en, this message translates to:
+  /// **'Archived groups'**
+  String get archivedGroups;
+
+  /// No description provided for @groupsOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re offline. Changes sync when you\'re back.'**
+  String get groupsOffline;
+
+  /// No description provided for @groupsLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading your groups'**
+  String get groupsLoading;
+
+  /// No description provided for @editGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit group'**
+  String get editGroup;
+
+  /// No description provided for @groupFormSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Give it a name and pick what it is for.'**
+  String get groupFormSubtitle;
+
+  /// No description provided for @groupNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Group name'**
+  String get groupNameLabel;
+
+  /// No description provided for @groupNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Goa trip, Flat 4B…'**
+  String get groupNameHint;
+
+  /// No description provided for @groupNameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a group name'**
+  String get groupNameRequired;
+
+  /// No description provided for @groupNameTooLong.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep the name under 60 letters'**
+  String get groupNameTooLong;
+
+  /// No description provided for @groupTypeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Type'**
+  String get groupTypeLabel;
+
+  /// No description provided for @groupTypeTrip.
+  ///
+  /// In en, this message translates to:
+  /// **'Trip'**
+  String get groupTypeTrip;
+
+  /// No description provided for @groupTypeHome.
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get groupTypeHome;
+
+  /// No description provided for @groupTypeCouple.
+  ///
+  /// In en, this message translates to:
+  /// **'Couple'**
+  String get groupTypeCouple;
+
+  /// No description provided for @groupTypeOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get groupTypeOther;
+
+  /// No description provided for @mainCurrency.
+  ///
+  /// In en, this message translates to:
+  /// **'Main currency'**
+  String get mainCurrency;
+
+  /// No description provided for @mainCurrencyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Default for new expenses. Expenses already added keep their currency.'**
+  String get mainCurrencyHint;
+
+  /// No description provided for @coverHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Every group gets its own generated cover.'**
+  String get coverHint;
+
+  /// No description provided for @createGroupButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Create group'**
+  String get createGroupButton;
+
+  /// No description provided for @groupSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Group saved'**
+  String get groupSaved;
+
+  /// No description provided for @groupMembersCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 member} other{{count} members}}'**
+  String groupMembersCount(int count);
+
+  /// No description provided for @groupTabExpenses.
+  ///
+  /// In en, this message translates to:
+  /// **'Expenses'**
+  String get groupTabExpenses;
+
+  /// No description provided for @groupTabBalances.
+  ///
+  /// In en, this message translates to:
+  /// **'Balances'**
+  String get groupTabBalances;
+
+  /// No description provided for @groupTabTotals.
+  ///
+  /// In en, this message translates to:
+  /// **'Totals'**
+  String get groupTabTotals;
+
+  /// No description provided for @groupNoExpensesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No expenses yet'**
+  String get groupNoExpensesTitle;
+
+  /// No description provided for @groupNoExpensesBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Add the first bill and Splitify splits it for you.'**
+  String get groupNoExpensesBody;
+
+  /// No description provided for @groupBalancesEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Balances show up here'**
+  String get groupBalancesEmptyTitle;
+
+  /// No description provided for @groupBalancesEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Once the group has expenses, you see who owes whom.'**
+  String get groupBalancesEmptyBody;
+
+  /// No description provided for @groupTotalsEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Totals show up here'**
+  String get groupTotalsEmptyTitle;
+
+  /// No description provided for @groupTotalsEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Total spent and each person\'s share, once there are expenses.'**
+  String get groupTotalsEmptyBody;
+
+  /// No description provided for @groupArchivedBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'This group is archived. Unarchive it to add expenses.'**
+  String get groupArchivedBanner;
+
+  /// No description provided for @groupNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'This group is not on this phone.'**
+  String get groupNotFound;
+
+  /// No description provided for @archiveGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Archive group'**
+  String get archiveGroup;
+
+  /// No description provided for @unarchiveGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Unarchive'**
+  String get unarchiveGroup;
+
+  /// No description provided for @groupArchivedDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Group archived'**
+  String get groupArchivedDone;
+
+  /// No description provided for @groupUnarchivedDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Group is active again'**
+  String get groupUnarchivedDone;
+
+  /// No description provided for @groupSettingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Group settings'**
+  String get groupSettingsTitle;
+
+  /// No description provided for @membersSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Members'**
+  String get membersSection;
+
+  /// No description provided for @addMember.
+  ///
+  /// In en, this message translates to:
+  /// **'Add member'**
+  String get addMember;
+
+  /// No description provided for @addMemberHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Add someone by name. They can join later and claim this spot.'**
+  String get addMemberHint;
+
+  /// No description provided for @memberNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get memberNameLabel;
+
+  /// No description provided for @memberNameInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a name (1 to 50 letters)'**
+  String get memberNameInvalid;
+
+  /// No description provided for @memberColour.
+  ///
+  /// In en, this message translates to:
+  /// **'Colour'**
+  String get memberColour;
+
+  /// No description provided for @memberColourOption.
+  ///
+  /// In en, this message translates to:
+  /// **'Colour {index}'**
+  String memberColourOption(int index);
+
+  /// No description provided for @memberOwner.
+  ///
+  /// In en, this message translates to:
+  /// **'Owner'**
+  String get memberOwner;
+
+  /// No description provided for @memberNameOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Not joined yet'**
+  String get memberNameOnly;
+
+  /// No description provided for @memberClaimed.
+  ///
+  /// In en, this message translates to:
+  /// **'Claimed this spot'**
+  String get memberClaimed;
+
+  /// No description provided for @memberYouSuffix.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} (you)'**
+  String memberYouSuffix(String name);
+
+  /// No description provided for @renameMember.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename'**
+  String get renameMember;
+
+  /// No description provided for @unlinkMember.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlink account'**
+  String get unlinkMember;
+
+  /// No description provided for @unlinkMemberTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlink {name}?'**
+  String unlinkMemberTitle(String name);
+
+  /// No description provided for @unlinkMemberBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This spot becomes name-only again and keeps all its expenses. Use it when the wrong person claimed it.'**
+  String get unlinkMemberBody;
+
+  /// No description provided for @removeMember.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from group'**
+  String get removeMember;
+
+  /// No description provided for @removeMemberTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove {name}?'**
+  String removeMemberTitle(String name);
+
+  /// No description provided for @removeMemberBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This works only when they are settled up in every currency.'**
+  String get removeMemberBody;
+
+  /// No description provided for @leaveGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave group'**
+  String get leaveGroup;
+
+  /// No description provided for @leaveGroupTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave this group?'**
+  String get leaveGroupTitle;
+
+  /// No description provided for @leaveGroupBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You can leave once you are settled up. Join again any time with the invite code.'**
+  String get leaveGroupBody;
+
+  /// No description provided for @deleteGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete group'**
+  String get deleteGroup;
+
+  /// No description provided for @deleteGroupTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this group?'**
+  String get deleteGroupTitle;
+
+  /// No description provided for @deleteGroupBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Everyone loses access. You can restore it for 30 days from Account → Deleted groups.'**
+  String get deleteGroupBody;
+
+  /// No description provided for @groupDeletedDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Group deleted'**
+  String get groupDeletedDone;
+
+  /// No description provided for @groupErrorNonzeroBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Settle up first. This person still has a balance in this group.'**
+  String get groupErrorNonzeroBalance;
+
+  /// No description provided for @groupErrorNotMember.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re not a member of this group any more.'**
+  String get groupErrorNotMember;
+
+  /// No description provided for @groupErrorGroupFull.
+  ///
+  /// In en, this message translates to:
+  /// **'This group already has 100 members.'**
+  String get groupErrorGroupFull;
+
+  /// No description provided for @groupErrorAlreadyClaimed.
+  ///
+  /// In en, this message translates to:
+  /// **'Someone already claimed that spot. Pick another one.'**
+  String get groupErrorAlreadyClaimed;
+
+  /// No description provided for @groupErrorMemberNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'That person is no longer in this group.'**
+  String get groupErrorMemberNotFound;
+
+  /// No description provided for @groupErrorNotClaimed.
+  ///
+  /// In en, this message translates to:
+  /// **'That spot is not linked to an account.'**
+  String get groupErrorNotClaimed;
+
+  /// No description provided for @groupErrorClaimRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick your name to join this group.'**
+  String get groupErrorClaimRequired;
+
+  /// No description provided for @deletedGroups.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleted groups'**
+  String get deletedGroups;
+
+  /// No description provided for @deletedGroupsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Groups you deleted. Restore one within 30 days.'**
+  String get deletedGroupsBody;
+
+  /// No description provided for @deletedGroupsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No deleted groups'**
+  String get deletedGroupsEmpty;
+
+  /// No description provided for @deletedGroupsEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Groups you delete show up here for 30 days.'**
+  String get deletedGroupsEmptyBody;
+
+  /// No description provided for @restore.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore'**
+  String get restore;
+
+  /// No description provided for @restoreDaysLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'{days, plural, =0{Last day to restore} =1{1 day left} other{{days} days left}}'**
+  String restoreDaysLeft(int days);
+
+  /// No description provided for @groupRestoredDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Group restored'**
+  String get groupRestoredDone;
+
+  /// No description provided for @restoreExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'Too late to restore'**
+  String get restoreExpired;
+
+  /// No description provided for @invitePeople.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite people'**
+  String get invitePeople;
+
+  /// No description provided for @inviteBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Friends scan this QR or type the code in Groups → Join.'**
+  String get inviteBody;
+
+  /// No description provided for @inviteQrLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'QR code for invite code {code}'**
+  String inviteQrLabel(String code);
+
+  /// No description provided for @copyCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy code'**
+  String get copyCode;
+
+  /// No description provided for @codeCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Code copied'**
+  String get codeCopied;
+
+  /// No description provided for @shareInvite.
+  ///
+  /// In en, this message translates to:
+  /// **'Share invite'**
+  String get shareInvite;
+
+  /// No description provided for @shareInviteText.
+  ///
+  /// In en, this message translates to:
+  /// **'Join my group “{name}” on Splitify Free Forever: code {code}'**
+  String shareInviteText(String name, String code);
+
+  /// No description provided for @resetCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset code'**
+  String get resetCode;
+
+  /// No description provided for @resetCodeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset the invite code?'**
+  String get resetCodeTitle;
+
+  /// No description provided for @resetCodeBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The old code and QR stop working at once.'**
+  String get resetCodeBody;
+
+  /// No description provided for @codeResetDone.
+  ///
+  /// In en, this message translates to:
+  /// **'New code ready'**
+  String get codeResetDone;
+
+  /// No description provided for @inviteNoCode.
+  ///
+  /// In en, this message translates to:
+  /// **'This group is not on the server yet. Connect to the internet to get its invite code.'**
+  String get inviteNoCode;
+
+  /// No description provided for @joinSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Type the invite code or scan the QR a friend shows you.'**
+  String get joinSubtitle;
+
+  /// No description provided for @enterCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter code'**
+  String get enterCode;
+
+  /// No description provided for @scanQr.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan QR'**
+  String get scanQr;
+
+  /// No description provided for @inviteCodeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite code'**
+  String get inviteCodeLabel;
+
+  /// No description provided for @inviteCodeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'ABCD-EFGH'**
+  String get inviteCodeHint;
+
+  /// No description provided for @findGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Find group'**
+  String get findGroup;
+
+  /// No description provided for @joinInvalidCode.
+  ///
+  /// In en, this message translates to:
+  /// **'That code doesn\'t match any group'**
+  String get joinInvalidCode;
+
+  /// No description provided for @joinRateLimited.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many tries, wait a bit'**
+  String get joinRateLimited;
+
+  /// No description provided for @joinNeedsInternet.
+  ///
+  /// In en, this message translates to:
+  /// **'Joining needs internet'**
+  String get joinNeedsInternet;
+
+  /// No description provided for @joinArchivedNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'This group is archived. You can join, but it is read-only.'**
+  String get joinArchivedNotice;
+
+  /// No description provided for @joinAlreadyMember.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re already in this group.'**
+  String get joinAlreadyMember;
+
+  /// No description provided for @joinWhoAreYou.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you one of these people?'**
+  String get joinWhoAreYou;
+
+  /// No description provided for @joinWhoAreYouBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick your name to keep the expenses already added for you.'**
+  String get joinWhoAreYouBody;
+
+  /// No description provided for @joinAsName.
+  ///
+  /// In en, this message translates to:
+  /// **'I\'m {name}'**
+  String joinAsName(String name);
+
+  /// No description provided for @joinNewHere.
+  ///
+  /// In en, this message translates to:
+  /// **'I\'m new here'**
+  String get joinNewHere;
+
+  /// No description provided for @joinAsCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Join as {name}'**
+  String joinAsCta(String name);
+
+  /// No description provided for @openGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Open group'**
+  String get openGroup;
+
+  /// No description provided for @joinOtherCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Use another code'**
+  String get joinOtherCode;
+
+  /// No description provided for @joinScanTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan invite QR'**
+  String get joinScanTitle;
+
+  /// No description provided for @joinScanHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Point the camera at the invite QR on your friend\'s phone.'**
+  String get joinScanHint;
+
+  /// No description provided for @joinQrInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'That QR is not a Splitify invite'**
+  String get joinQrInvalid;
+
+  /// No description provided for @joinedGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'You joined {name}'**
+  String joinedGroup(String name);
+
   /// No description provided for @friendsHero.
   ///
   /// In en, this message translates to:
@@ -1933,6 +2593,216 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Could not delete your account. Check your connection and try again.'**
   String get deleteAccountFailed;
+
+  /// Account settings row and screen title (04 §9).
+  ///
+  /// In en, this message translates to:
+  /// **'Sync & storage'**
+  String get syncStorage;
+
+  /// No description provided for @syncStorageHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Changes are saved on this phone first, then sent to your groups.'**
+  String get syncStorageHint;
+
+  /// No description provided for @syncStateSynced.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything is synced'**
+  String get syncStateSynced;
+
+  /// No description provided for @syncStateWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 change waiting to sync} other{{count} changes waiting to sync}}'**
+  String syncStateWaiting(int count);
+
+  /// No description provided for @syncStateOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'You are offline'**
+  String get syncStateOffline;
+
+  /// No description provided for @syncStateOfflineHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Changes stay on this phone and sync when you are back online.'**
+  String get syncStateOfflineHint;
+
+  /// No description provided for @syncStateFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 change needs attention} other{{count} changes need attention}}'**
+  String syncStateFailed(int count);
+
+  /// No description provided for @syncStateError.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync did not finish. It tries again soon.'**
+  String get syncStateError;
+
+  /// No description provided for @syncStateSignedOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in again to sync'**
+  String get syncStateSignedOut;
+
+  /// No description provided for @lastSyncLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Last sync {when}'**
+  String lastSyncLine(String when);
+
+  /// No description provided for @lastSyncNever.
+  ///
+  /// In en, this message translates to:
+  /// **'never'**
+  String get lastSyncNever;
+
+  /// No description provided for @lastSyncJustNow.
+  ///
+  /// In en, this message translates to:
+  /// **'just now'**
+  String get lastSyncJustNow;
+
+  /// No description provided for @lastSyncMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min ago'**
+  String lastSyncMinutes(int minutes);
+
+  /// No description provided for @lastSyncHours.
+  ///
+  /// In en, this message translates to:
+  /// **'{hours, plural, =1{1 hour ago} other{{hours} hours ago}}'**
+  String lastSyncHours(int hours);
+
+  /// No description provided for @lastSyncOn.
+  ///
+  /// In en, this message translates to:
+  /// **'on {date}'**
+  String lastSyncOn(String date);
+
+  /// No description provided for @syncWaitingLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting'**
+  String get syncWaitingLabel;
+
+  /// No description provided for @syncFailedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Need attention'**
+  String get syncFailedLabel;
+
+  /// No description provided for @syncNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync now'**
+  String get syncNow;
+
+  /// No description provided for @syncIssuesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs attention'**
+  String get syncIssuesTitle;
+
+  /// No description provided for @syncIssueEntity.
+  ///
+  /// In en, this message translates to:
+  /// **'{entity, select, group{Group} member{Member} expense{Expense} payment{Payment} comment{Comment} other{Change}}'**
+  String syncIssueEntity(String entity);
+
+  /// No description provided for @syncIssueOp.
+  ///
+  /// In en, this message translates to:
+  /// **'{op, select, delete{Delete} restore{Restore} other{Edit}}'**
+  String syncIssueOp(String op);
+
+  /// No description provided for @syncIssueTries.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Tried once} other{Tried {count} times}}'**
+  String syncIssueTries(int count);
+
+  /// No description provided for @syncErrorNotMember.
+  ///
+  /// In en, this message translates to:
+  /// **'You are no longer in this group.'**
+  String get syncErrorNotMember;
+
+  /// No description provided for @syncErrorRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'The server did not accept this change.'**
+  String get syncErrorRejected;
+
+  /// No description provided for @syncErrorCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Code {code}'**
+  String syncErrorCode(String code);
+
+  /// No description provided for @retryLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get retryLabel;
+
+  /// No description provided for @discardLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard'**
+  String get discardLabel;
+
+  /// No description provided for @discardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard this change?'**
+  String get discardTitle;
+
+  /// No description provided for @discardBody.
+  ///
+  /// In en, this message translates to:
+  /// **'It is removed from this phone and the copy on the server comes back.'**
+  String get discardBody;
+
+  /// No description provided for @onThisPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'On this phone'**
+  String get onThisPhone;
+
+  /// No description provided for @exportDebugLog.
+  ///
+  /// In en, this message translates to:
+  /// **'Export debug log'**
+  String get exportDebugLog;
+
+  /// No description provided for @debugLogSubject.
+  ///
+  /// In en, this message translates to:
+  /// **'Splitify debug log'**
+  String get debugLogSubject;
+
+  /// No description provided for @syncRowSynced.
+  ///
+  /// In en, this message translates to:
+  /// **'Synced'**
+  String get syncRowSynced;
+
+  /// No description provided for @syncRowWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} waiting'**
+  String syncRowWaiting(int count);
+
+  /// No description provided for @syncRowProblems.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 problem} other{{count} problems}}'**
+  String syncRowProblems(int count);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

@@ -10,6 +10,7 @@ import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:splitify/app/router.dart';
 import 'package:splitify/core/config/preferences.dart';
+import 'package:splitify/data/data_providers.dart';
 import 'package:splitify/data/repositories/auth_repository.dart';
 import 'package:splitify/data/repositories/profile_repository.dart';
 import 'package:splitify/features/account/presentation/profile_edit_screen.dart';
@@ -45,6 +46,8 @@ Future<_Harness> _pump(
   final prefs = await SharedPreferences.getInstance();
   final auth = FakeAuthRepository(user: user);
   final remote = FakeProfileRemote(sampleProfile);
+  final db = testDb();
+  addTearDown(db.close);
   tester.view.physicalSize = const Size(412 * 3, 915 * 3);
   tester.view.devicePixelRatio = 3;
   addTearDown(tester.view.reset);
@@ -59,12 +62,14 @@ Future<_Harness> _pump(
     ProviderScope(
       overrides: [
         sharedPreferencesProvider.overrideWithValue(prefs),
+        appDatabaseProvider.overrideWithValue(db),
         authRepositoryProvider.overrideWithValue(auth),
         profileRemoteProvider.overrideWithValue(remote),
         devLoginProvider.overrideWithValue(dev),
         googleConfiguredProvider.overrideWithValue(google),
         e2ePasswordProvider.overrideWithValue('pw'),
         photoPickerProvider.overrideWithValue(() async => photo),
+        ...emptyGroupsOverrides(),
       ],
       child: MaterialApp.router(
         routerConfig: router,

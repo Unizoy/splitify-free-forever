@@ -136,13 +136,6 @@ class ExpenseActions {
       _ref.read(expensesRepositoryProvider).restore(e.id, e.groupId);
 }
 
-/// True while the last sync attempt found no network (editor header shows "saved offline").
-final syncOfflineProvider = StreamProvider.autoDispose<bool>((ref) async* {
-  final engine = ref.watch(syncEngineProvider);
-  yield engine.phase == SyncPhase.offline;
-  yield* engine.phases.map((p) => p == SyncPhase.offline);
-});
-
 /// The group an expense belongs to (detail hero cover, editor header).
 final expenseGroupProvider = StreamProvider.autoDispose.family<LocalGroup?, String>(
   (ref, id) => ref.watch(groupsRepositoryProvider).watchOne(id),

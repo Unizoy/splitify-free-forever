@@ -18,8 +18,14 @@ import 'package:splitify/features/activity/presentation/activity_screen.dart';
 import 'package:splitify/features/debug/presentation/gallery_screen.dart';
 import 'package:splitify/features/expenses/presentation/expense_routes.dart';
 import 'package:splitify/features/friends/presentation/friends_screen.dart';
+import 'package:splitify/features/groups/presentation/deleted_groups_screen.dart';
+import 'package:splitify/features/groups/presentation/group_detail_screen.dart';
+import 'package:splitify/features/groups/presentation/group_form_screen.dart';
+import 'package:splitify/features/groups/presentation/group_settings_screen.dart';
 import 'package:splitify/features/groups/presentation/groups_home_screen.dart';
+import 'package:splitify/features/groups/presentation/join_screen.dart';
 import 'package:splitify/features/onboarding/presentation/welcome_screen.dart';
+import 'package:splitify/features/sync/presentation/sync_storage_screen.dart';
 
 /// Route paths (planning/07-screens-and-flows.md §1).
 abstract final class Routes {
@@ -28,13 +34,21 @@ abstract final class Routes {
   static const signInCode = '/sign-in/code';
   static const signInProfile = '/sign-in/profile';
   static const groups = '/groups';
+  static const newGroup = '/groups/new';
+  static const join = '/join';
+  static const deletedGroups = '/account/deleted-groups';
   static const friends = '/friends';
   static const activity = '/activity';
   static const account = '/account';
   static const appearance = '/account/appearance';
   static const profile = '/account/profile';
   static const deleteAccount = '/account/delete';
+  static const syncStorage = '/account/sync';
   static const gallery = '/debug/gallery';
+
+  static String group(String id) => '/groups/$id';
+  static String groupSettings(String id) => '/groups/$id/settings';
+  static String editGroup(String id) => '/groups/$id/edit';
   static const devLogin = '/debug/login';
 }
 
@@ -44,6 +58,10 @@ abstract final class Routes {
 /// link `splitify://dev/login?user=e2e-a` opens the developer sign-in (T4).
 String? authRedirect(Uri uri, {required bool signedIn, bool debug = kDebugMode}) {
   final path = uri.path;
+  // Invite QR / share link `splitify://join?code=…` (host `join`) → the join screen.
+  if (uri.host == 'join' && path != Routes.join) {
+    return Uri(path: Routes.join, queryParameters: _code(uri)).toString();
+  }
   if (debug && (path == '/login' || path == '/dev/login')) {
     return Uri(
       path: Routes.devLogin,
@@ -56,6 +74,11 @@ String? authRedirect(Uri uri, {required bool signedIn, bool debug = kDebugMode})
   if (path == Routes.signInCode) return Routes.signInProfile;
   if (path == Routes.welcome || path == Routes.signIn) return Routes.groups;
   return null;
+}
+
+Map<String, String>? _code(Uri uri) {
+  final code = uri.queryParameters['code'];
+  return code == null ? null : {'code': code};
 }
 
 /// Auth state for the router: the current answer plus a change signal.
@@ -104,12 +127,52 @@ GoRouter buildRouter({String initialLocation = Routes.welcome, AuthGate? gate}) 
         GoRoute(path: 'profile', builder: (context, state) => const ProfileConfirmScreen()),
       ],
     ),
+    GoRoute(
+      path: Routes.join,
+      builder: (context, state) => JoinScreen(code: state.uri.queryParameters['code']),
+      routes: [
+        GoRoute(
+          path: ':code',
+          builder: (context, state) => JoinScreen(code: state.pathParameters['code']),
+        ),
+      ],
+    ),
     StatefulShellRoute.indexedStack(
       builder: (context, state, shell) => AppShell(shell: shell),
       branches: [
         StatefulShellBranch(
           routes: [
-            GoRoute(path: Routes.groups, builder: (context, state) => const GroupsHomeScreen()),
+            GoRoute(
+              path: Routes.groups,
+              builder: (context, state) => const GroupsHomeScreen(),
+              routes: [
+                GoRoute(
+                  path: 'new',
+                  parentNavigatorKey: _rootKey,
+                  builder: (context, state) => const GroupFormScreen(),
+                ),
+                GoRoute(
+                  path: ':id',
+                  parentNavigatorKey: _rootKey,
+                  builder: (context, state) =>
+                      GroupDetailScreen(groupId: state.pathParameters['id']!),
+                  routes: [
+                    GoRoute(
+                      path: 'edit',
+                      parentNavigatorKey: _rootKey,
+                      builder: (context, state) =>
+                          GroupFormScreen(groupId: state.pathParameters['id']),
+                    ),
+                    GoRoute(
+                      path: 'settings',
+                      parentNavigatorKey: _rootKey,
+                      builder: (context, state) =>
+                          GroupSettingsScreen(groupId: state.pathParameters['id']!),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ],
         ),
         StatefulShellBranch(
@@ -142,6 +205,16 @@ GoRouter buildRouter({String initialLocation = Routes.welcome, AuthGate? gate}) 
                   path: 'delete',
                   parentNavigatorKey: _rootKey,
                   builder: (context, state) => const DeleteAccountScreen(),
+                ),
+                GoRoute(
+                  path: 'sync',
+                  parentNavigatorKey: _rootKey,
+                  builder: (context, state) => const SyncStorageScreen(),
+                ),
+                GoRoute(
+                  path: 'deleted-groups',
+                  parentNavigatorKey: _rootKey,
+                  builder: (context, state) => const DeletedGroupsScreen(),
                 ),
               ],
             ),

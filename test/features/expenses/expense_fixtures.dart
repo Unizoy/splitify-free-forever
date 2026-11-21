@@ -16,6 +16,8 @@ import 'package:splitify/features/expenses/application/expense_providers.dart';
 import 'package:splitify/features/expenses/application/split_draft.dart';
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/theme/theme.dart';
+import 'package:splitify/features/groups/application/groups_providers.dart'
+    show syncOfflineProvider;
 
 import '../../support/fakes.dart';
 

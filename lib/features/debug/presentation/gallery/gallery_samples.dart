@@ -106,12 +106,12 @@ abstract final class Samples {
   static const glassCaption = '3 groups · 2 people owe you';
 
   static const people6 = [
-    (name: 'Asha Kulkarni', seed: 'm1'),
-    (name: 'Rahul Mehta', seed: 'm2'),
-    (name: 'Priya Nair', seed: 'm3'),
-    (name: 'Vikram Singh', seed: 'm4'),
-    (name: 'Neha Gupta', seed: 'm5'),
-    (name: 'Arjun Rao', seed: 'm6'),
+    (name: 'Asha Kulkarni', seed: 'm1', tint: null),
+    (name: 'Rahul Mehta', seed: 'm2', tint: null),
+    (name: 'Priya Nair', seed: 'm3', tint: null),
+    (name: 'Vikram Singh', seed: 'm4', tint: null),
+    (name: 'Neha Gupta', seed: 'm5', tint: null),
+    (name: 'Arjun Rao', seed: 'm6', tint: null),
   ];
 
   static const loaderCaptions = ['Goa, India', 'Flat 4B', 'Manali', 'Office lunch', 'Anniversary'];

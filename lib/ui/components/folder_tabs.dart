@@ -62,13 +62,16 @@ class FolderTabs extends StatelessWidget {
                     },
                   ),
                 ),
-              // Sizing child: tallest label decides the strip height.
-              Opacity(
-                opacity: 0,
-                child: ExcludeSemantics(
-                  child: SizedBox(
-                    width: tabWidth,
-                    child: _TabLabel(tab: tabs[index], active: true),
+              // Sizing child: tallest label decides the strip height. It sits on top, so it must not take
+              // the taps meant for the tab below it.
+              IgnorePointer(
+                child: Opacity(
+                  opacity: 0,
+                  child: ExcludeSemantics(
+                    child: SizedBox(
+                      width: tabWidth,
+                      child: _TabLabel(tab: tabs[index], active: true),
+                    ),
                   ),
                 ),
               ),

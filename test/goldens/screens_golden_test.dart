@@ -6,7 +6,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:splitify/app/router.dart';
 import 'package:splitify/core/config/preferences.dart';
+import 'package:splitify/data/data_providers.dart';
 import 'package:splitify/data/repositories/auth_repository.dart';
+import 'package:splitify/data/repositories/sync_repository.dart';
+import 'package:splitify/data/sync/sync_types.dart';
 import 'package:splitify/features/auth/application/auth_providers.dart';
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/theme/theme.dart';
@@ -15,6 +18,28 @@ import '../support/fakes.dart';
 import 'golden_support.dart';
 
 const _frame = Size(goldenWidth, 915);
+final _now = DateTime.utc(2026, 11, 21, 12);
+
+/// Sync states per screen: synced 5 min ago by default; "issues" = offline with refused changes.
+FakeSyncRepository _syncFor(String name) => switch (name) {
+  'sync_storage_issues' => FakeSyncRepository(
+    status: SyncStatus(
+      phase: SyncPhase.offline,
+      waiting: 3,
+      failed: 2,
+      lastSync: _now.subtract(const Duration(hours: 2)),
+      lastError: 'offline',
+    ),
+    issues: [
+      sampleIssue(),
+      sampleIssue(seq: 9, entity: SyncEntity.payment, code: 'INVALID_AMOUNT'),
+    ],
+    unsynced: true,
+  ),
+  _ => FakeSyncRepository(
+    status: SyncStatus(phase: SyncPhase.idle, lastSync: _now.subtract(const Duration(minutes: 5))),
+  ),
+};
 
 /// A whole app (router, themes) in a phone-sized frame with system-bar padding.
 class _PhoneApp extends StatelessWidget {
@@ -23,12 +48,14 @@ class _PhoneApp extends StatelessWidget {
     required this.mode,
     required this.scale,
     required this.prefs,
+    required this.sync,
   });
 
   final String location;
   final ThemeMode mode;
   final double scale;
   final SharedPreferences prefs;
+  final FakeSyncRepository sync;
 
   @override
   Widget build(BuildContext context) {
@@ -42,6 +69,10 @@ class _PhoneApp extends StatelessWidget {
             FakeAuthRepository(user: const AuthUser(id: 'u1')),
           ),
           profileRemoteProvider.overrideWithValue(FakeProfileRemote(sampleProfile)),
+          syncRepositoryProvider.overrideWithValue(sync),
+          clockProvider.overrideWithValue(FakeClock(_now)),
+          // No database or server in goldens: the Groups tab shows its empty state.
+          ...emptyGroupsOverrides(),
         ],
         child: MediaQuery(
           data: MediaQueryData(
@@ -89,6 +120,8 @@ void main() {
     ('sign_in_profile', Routes.signInProfile),
     ('profile', Routes.profile),
     ('delete_account', Routes.deleteAccount),
+    ('sync_storage', Routes.syncStorage),
+    ('sync_storage_issues', Routes.syncStorage),
   ];
 
   // One golden per mode: the router uses a shared navigator key, so two apps cannot
@@ -101,7 +134,13 @@ void main() {
           'TC-B3-03 screen $name ${mode.name} $suffix',
           fileName: 'screen_${name}_${mode.name}_$suffix',
           pumpBeforeTest: pumpFixedFrames,
-          builder: () => _PhoneApp(location: route, mode: mode, scale: scale, prefs: prefs),
+          builder: () => _PhoneApp(
+            location: route,
+            mode: mode,
+            scale: scale,
+            prefs: prefs,
+            sync: _syncFor(name),
+          ),
         );
       }
     }

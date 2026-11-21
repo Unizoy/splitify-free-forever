@@ -29,6 +29,18 @@ abstract final class AppIcons {
   static const IconData bell = IconData(0xe0ce, fontFamily: _regular);
   static const IconData share = IconData(0xe408, fontFamily: _regular);
   static const IconData qr = IconData(0xe3e6, fontFamily: _regular);
+  static const IconData edit = IconData(0xe3b4, fontFamily: _regular);
+  static const IconData more = IconData(0xe208, fontFamily: _bold);
+  static const IconData copy = IconData(0xe1ca, fontFamily: _regular);
+  static const IconData scan = IconData(0xebb6, fontFamily: _regular);
+  static const IconData camera = IconData(0xe10e, fontFamily: _regular);
+  static const IconData userPlus = IconData(0xe4d0, fontFamily: _regular);
+  static const IconData link = IconData(0xe2e2, fontFamily: _regular);
+  static const IconData unlink = IconData(0xe2e4, fontFamily: _regular);
+  static const IconData archive = IconData(0xe00c, fontFamily: _regular);
+  static const IconData restore = IconData(0xe038, fontFamily: _regular);
+  static const IconData leave = IconData(0xe7e6, fontFamily: _regular);
+  static const IconData refresh = IconData(0xe094, fontFamily: _bold);
 
   // Status
   static const IconData check = IconData(0xe182, fontFamily: _bold);
@@ -54,7 +66,6 @@ abstract final class AppIcons {
   static const IconData wallet = IconData(0xe68a, fontFamily: _regular);
   static const IconData receipt = IconData(0xe3ec, fontFamily: _regular);
   static const IconData backspace = IconData(0xe0ae, fontFamily: _regular);
-  static const IconData edit = IconData(0xe3b4, fontFamily: _regular);
   static const IconData history = IconData(0xe1a0, fontFamily: _regular);
   static const IconData notes = IconData(0xe34c, fontFamily: _regular);
   static const IconData calendar = IconData(0xe10a, fontFamily: _regular);

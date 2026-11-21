@@ -524,10 +524,5 @@ void main() {
       final g = await env.container.read(p.future);
       expect(g!.name, 'Goa trip');
     });
-
-    test('syncOfflineProvider starts false with an idle engine', () async {
-      env.container.listen(syncOfflineProvider, (_, _) {});
-      expect(await env.container.read(syncOfflineProvider.future), isFalse);
-    });
   });
 }
