@@ -177,3 +177,17 @@ cover. Users may upload a photo instead (compressed, stored in Storage).
 - Every component: semantics label, focus/pressed states, RTL-safe paddings (`EdgeInsetsDirectional`).
 - Debug-only **Component gallery** route (`/debug/gallery`) shows every component in all variants; golden tests
   render the same gallery sections.
+
+## Amendments (phase 02)
+
+- Amendment (S-005): extra tokens added in `AppColors`: `primaryFill`/`onPrimaryFill` (#5057EA + white in both
+  modes, for filled indigo surfaces), `moneyPressed`, `owedOnDark`/`oweOnDark` (money on covers/navy),
+  `infoContainer`, `onHero`/`onHeroMuted`, `glassFill`/`glassFallback`/`glassBorder`, `onMetal`, leather
+  (`leatherTop`, `leatherBottom`, `stitch`), gold card (`goldLight`, `goldMid`, `goldDark`, `onGold`),
+  `chipDarkRed`/`onChipDarkRed`, `sheetHandle`, `shadow`; dark avatar tints. All AA-checked in `contrast_test`.
+- Amendment (S-006): secondary buttons are 48 dp tall (touch target rule wins over the 44 dp in §4).
+- Amendment (S-008): Phosphor icons are vendored fonts (`AppIcons`), MIT licence in `assets/fonts/LICENSES/`.
+- Amendment (S-009): covers' 2 % grain is drawn from a cached 128 px tile (image shader); the Celebration sits on
+  a navy panel so the lime highlight keeps 3:1+.
+- Amendment (S-015): capsule-nav labels scale at most 1.15× (they must fit the active pill); everything else
+  scales to 2.0×.

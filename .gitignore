@@ -126,3 +126,6 @@ desktop.ini
 *.bak
 .claude/settings.local.json
 .claude/state/
+
+# Real-font goldens for local visual review only (S-007)
+test/goldens/goldens/windows/

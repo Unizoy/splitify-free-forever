@@ -9,28 +9,28 @@
 
 ## Tasks
 
-- [ ] T1 Fonts: download **Instrument Serif** (Regular, Italic) and **Inter** (variable) TTFs from the official
+- [x] T1 Fonts: download **Instrument Serif** (Regular, Italic) and **Inter** (variable) TTFs from the official
       Google Fonts GitHub repo (`github.com/google/fonts`, `ofl/…`) with `curl -L`; save to `assets/fonts/` with
       `OFL.txt` files in `assets/fonts/LICENSES/`; register in pubspec; add to `LicenseRegistry`.
-- [ ] T2 Theme: `lib/ui/theme/` → `app_colors.dart` (ThemeExtension, light+dark tokens), `app_text.dart`,
+- [x] T2 Theme: `lib/ui/theme/` → `app_colors.dart` (ThemeExtension, light+dark tokens), `app_text.dart`,
       `app_spacing.dart`, `app_radii.dart`, `app_motion.dart`, `app_theme.dart` (ThemeData/ColorScheme from tokens),
       `context_ext.dart` (`context.colors`, `context.text`).
-- [ ] T3 B3: `ThemeModeController` (Riverpod) persisted with shared_preferences, read before `runApp`.
-- [ ] T4 Components (`lib/ui/components/`), each in its own file with doc comment + semantics:
+- [x] T3 B3: `ThemeModeController` (Riverpod) persisted with shared_preferences, read before `runApp`.
+- [x] T4 Components (`lib/ui/components/`), each in its own file with doc comment + semantics:
       CapsuleNavBar, HeroHeader, GlassCard, OverlapSheet, GroupCoverCard, PillButton, OptionTile, SegmentedPill,
       StepHeader, StatusPill, IconChip, UnderlineField, Avatar (+ AvatarStack, AvatarCarousel), AccordionCard,
       DashedListRow, AppSheet, ArcGauge, AmountRow, FolderTabs, OverlapBanner, QuantityStepper, StickyActionBar,
       EmptyState, BlobBackground, StackedCardsLoader, WalletCard, MetalCard, DotMatrixCard, DashedCircleButton,
       Celebration, SyncMarker, plus painters (dashed border/line, noise, dot matrix).
-- [ ] T5 `CoverPainter` + `CoverCache` (§7 of the design doc) with deterministic seeds; golden for each family.
-- [ ] T6 Brand: `assets/brand/icon.svg` (split-circle mark), `flutter_launcher_icons` + `flutter_native_splash`
+- [x] T5 `CoverPainter` + `CoverCache` (§7 of the design doc) with deterministic seeds; golden for each family.
+- [x] T6 Brand: `assets/brand/icon.svg` (split-circle mark), `flutter_launcher_icons` + `flutter_native_splash`
       configs (dev deps), generate Android icons (adaptive + monochrome) and splash.
-- [ ] T7 Shell: `StatefulShellRoute` with Groups / Friends / Activity / Account placeholder screens using
+- [x] T7 Shell: `StatefulShellRoute` with Groups / Friends / Activity / Account placeholder screens using
       HeroHeader + OverlapSheet layouts; amber add button (no action yet); welcome screen visual (`/welcome`).
-- [ ] T8 Debug gallery `/debug/gallery` (only `kDebugMode`) showing every component variant.
-- [ ] T9 Goldens (`alchemist`): every component × light/dark × text 1.0/2.0; shell tabs; welcome. Contrast helper
+- [x] T8 Debug gallery `/debug/gallery` (only `kDebugMode`) showing every component variant.
+- [x] T9 Goldens (`alchemist`): every component × light/dark × text 1.0/2.0; shell tabs; welcome. Contrast helper
       `expectContrast()` over the token pairs; a11y guideline matchers on gallery sections.
-- [ ] T10 `ui-review`: screenshots of gallery + shell (light/dark/200 %) vs Atlys refs; fix; document deviations.
+- [x] T10 `ui-review`: screenshots of gallery + shell (light/dark/200 %) vs Atlys refs; fix; document deviations.
 
 ## Tests
 
@@ -40,3 +40,10 @@ TC-B3-01, TC-B3-02, TC-B3-03, TC-1-05 (card goldens with fake data).
 
 All goldens committed and passing; gallery and shell reviewed with the `ui-review` checklist; no literal colours or
 text styles outside `lib/ui/theme/` (guard).
+
+## Amendments
+
+- Amendment (S-006): secondary `PillButton` height is 48 dp (not 44) so every button meets the 48 dp target.
+- Amendment (S-008): Phosphor icons come from vendored fonts (`assets/fonts/Phosphor-*.ttf`), not the
+  `phosphor_flutter` package (does not compile on Flutter 3.50).
+- Amendment (S-009): grain/noise is painted from a cached tile image shader, never thousands of points per frame.

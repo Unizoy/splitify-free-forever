@@ -22,6 +22,10 @@ final _literalString = RegExp(
   r'''\bText\(\s*['"]|\b(labelText|hintText|tooltip|semanticsLabel|helperText|errorText):\s*['"]''',
 );
 
+// Design tokens only (planning/06-design-system.md §9): no literal colours or
+// text styles outside lib/ui/theme/.
+final _literalStyle = RegExp(r'\bColor\(0x|\bColor\.from(ARGB|RGBO)\(|\bColors\.|\bTextStyle\(');
+
 String _norm(String p) => p.replaceAll('\\', '/');
 
 Iterable<File> _files(String dir, {String ext = '.dart'}) sync* {
@@ -49,6 +53,7 @@ void main() {
         path.startsWith('lib/features/') ||
         path.startsWith('lib/ui/') ||
         path.startsWith('lib/app/');
+    final inTheme = path.startsWith('lib/ui/theme/');
     for (var i = 0; i < lines.length; i++) {
       final l = lines[i];
       if (l.trimLeft().startsWith('//')) continue;
@@ -60,6 +65,9 @@ void main() {
       }
       if (_printCall.hasMatch(l)) {
         out.add(Violation('no-print', path, i + 1, l));
+      }
+      if (!inTheme && _literalStyle.hasMatch(l)) {
+        out.add(Violation('ui-tokens-only', path, i + 1, l));
       }
       if (inWidgets && _literalString.hasMatch(l)) {
         out.add(Violation('l10n-no-literal', path, i + 1, l));

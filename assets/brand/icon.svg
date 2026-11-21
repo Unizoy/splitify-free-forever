@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Splitify Free Forever app icon: a circle split into two halves that slide
+     apart, on an indigo to lavender tile. Source of truth for the geometry is
+     lib/ui/painters/brand_mark_painter.dart (same 1024 grid); PNGs are
+     rendered by tool/brand/render_brand_test.dart. MIT, Unizoy. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <linearGradient id="tile" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#5057EA"/>
+      <stop offset="1" stop-color="#9B9CE0"/>
+    </linearGradient>
+  </defs>
+  <rect width="1024" height="1024" rx="232" fill="url(#tile)"/>
+  <path d="M492 222 A250 250 0 0 0 492 722 Z" fill="#FFFFFF"/>
+  <path d="M532 302 A250 250 0 0 1 532 802 Z" fill="#FFFFFF"/>
+</svg>
