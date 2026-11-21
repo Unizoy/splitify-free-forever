@@ -421,9 +421,13 @@ void main() {
       await _tap(t, find.byKey(const Key('group-settle')));
       await _waitFor(t, find.byKey(const Key('settle-picker')));
       await _capture(t, 'settle-picker');
-      router.go(PaymentRoutes.settle(gid, from: a, to: mb, currency: 'INR'));
-      await _waitFor(t, find.byKey(const Key('settle-save')));
+      // B owes A: the form opens prefilled with the gauge at 100 %; one with nothing owed too.
+      router.go(PaymentRoutes.settle(gid, from: mb, to: a, currency: 'INR'));
+      await _waitFor(t, find.byKey(const Key('settle-gauge')));
       await _capture(t, 'settle-up');
+      router.go(PaymentRoutes.settle(gid, from: a, to: mb, currency: 'INR'));
+      await _waitFor(t, find.byKey(const Key('settle-gauge-none')));
+      await _capture(t, 'settle-up-nothing-owed');
       final paid = pending.firstWhere((p) => p.fromMember == a);
       router.go(PaymentRoutes.detail(paid.id));
       await _waitFor(t, find.byKey(const Key('payment-detail-amount')));

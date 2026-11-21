@@ -42,6 +42,11 @@ String activitySentence(AppLocalizations l, ActivityItem i) {
     'expense_edited' => l.actExpenseEdited(a, d),
     'expense_deleted' => l.actExpenseDeleted(a, d),
     'expense_restored' => l.actExpenseRestored(a, d),
+    // "You paid Asha" when the payer recorded it, else who recorded it.
+    'payment_added' when i.from != null && i.from!.seed == i.actor.seed => l.settlePaidSentence(
+      who(i.from, start: true),
+      to,
+    ),
     'payment_added' => l.actPaymentAdded(a, from, to),
     'payment_edited' => l.actPaymentEdited(a, from, to),
     'payment_deleted' => l.actPaymentDeleted(a, from, to),

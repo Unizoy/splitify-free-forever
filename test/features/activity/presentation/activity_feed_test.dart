@@ -127,6 +127,12 @@ void main() {
         s('payment_added', from: activityAsha, to: activityMe),
         'You recorded a payment from Asha Rao to you',
       );
+      // The payer recorded it: just "who paid whom" (S-104).
+      expect(s('payment_added', from: activityMe, to: activityRahul), 'You paid Rahul Mehta');
+      expect(
+        s('payment_added', actor: activityAsha, from: activityAsha, to: activityMe),
+        'Asha Rao paid you',
+      );
       expect(
         s('payment_edited', from: activityMe, to: activityRahul),
         'You edited a payment from you to Rahul Mehta',
