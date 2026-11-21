@@ -24,10 +24,12 @@ Widget _covers(Brightness brightness, double scale) {
               HeroIconButton(icon: AppIcons.loan, tooltip: 'Record a loan', onPressed: () {}),
               HeroIconButton(icon: AppIcons.settings, tooltip: 'Settings', onPressed: () {}),
             ],
-            child: const StatusPill(
-              label: 'All settled',
-              icon: AppIcons.checkCircle,
-              tone: StatusPillTone.glass,
+            child: const Center(
+              child: StatusPill(
+                label: 'All settled',
+                icon: AppIcons.checkCircle,
+                tone: StatusPillTone.glass,
+              ),
             ),
           ),
           Padding(
