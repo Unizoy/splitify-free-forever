@@ -4,6 +4,7 @@
 //   flutter test integration_test/expenses_offline_sync_test.dart -d emulator-5554 \
 //     --dart-define-from-file=secrets/env.dev.json
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
@@ -26,6 +27,36 @@ import 'package:splitify/features/expenses/presentation/expense_routes.dart';
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/theme/theme.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
+/// Optional IP for the Supabase host, resolved on the PC and passed with
+/// `--dart-define=SUPABASE_PINNED_IP=<ip>`: on this network the emulator's DNS answers `*.supabase.co`
+/// with an ISP block address. Test-only; the app itself never pins.
+const _pinnedIp = String.fromEnvironment('SUPABASE_PINNED_IP');
+
+class _PinnedHost extends HttpOverrides {
+  _PinnedHost(this.host, this.ip);
+
+  final String host;
+  final String ip;
+
+  @override
+  HttpClient createHttpClient(SecurityContext? context) {
+    final client = super.createHttpClient(context)
+      ..connectionFactory = (uri, proxyHost, proxyPort) async {
+        final secure = uri.scheme == 'https' || uri.scheme == 'wss';
+        final port = uri.hasPort ? uri.port : (secure ? 443 : 80);
+        final target = uri.host == host ? ip : uri.host;
+        final task = await Socket.startConnect(target, port);
+        return ConnectionTask.fromSocket(
+          task.socket.then<Socket>(
+            (s) => secure ? SecureSocket.secure(s, host: uri.host, context: context) : s,
+          ),
+          task.cancel,
+        );
+      };
+    return client;
+  }
+}
 
 /// The real server, switched off while "offline" (every call fails like a dropped network).
 class SwitchableRemote implements RemoteApi {
@@ -91,6 +122,9 @@ void main() {
     t,
   ) async {
     final env = Env.load();
+    if (_pinnedIp.isNotEmpty) {
+      HttpOverrides.global = _PinnedHost(Uri.parse(env.supabaseUrl).host, _pinnedIp);
+    }
     final remote = await initRemote(env);
     await remote.auth.signInWithPassword(email: 'e2e-a@splitify.test', password: env.e2ePassword);
     final uid = remote.auth.currentUser!.id;
