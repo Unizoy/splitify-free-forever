@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:splitify/core/money/currencies.dart';
 import 'package:splitify/core/money/money_formatter.dart';
@@ -61,7 +63,7 @@ class PaidByStep extends StatelessWidget {
 }
 
 /// "Multiple people": an amount per person on a card, with what each typed amount means below.
-class PayerAmounts extends StatelessWidget {
+class PayerAmounts extends StatefulWidget {
   const PayerAmounts({
     required this.draft,
     required this.people,
@@ -74,7 +76,25 @@ class PayerAmounts extends StatelessWidget {
   final void Function(String memberId, String text) onChanged;
 
   @override
+  State<PayerAmounts> createState() => _PayerAmountsState();
+}
+
+class _PayerAmountsState extends State<PayerAmounts> {
+  @override
+  void initState() {
+    super.initState();
+    // The card opens below the person list: bring it into view once.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      unawaited(Scrollable.ensureVisible(context, duration: context.motion.base, alignment: 0.1));
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final draft = widget.draft;
+    final people = widget.people;
+    final onChanged = widget.onChanged;
     final l = AppLocalizations.of(context);
     final c = context.colors;
     final inputs = draft.payerInputs;

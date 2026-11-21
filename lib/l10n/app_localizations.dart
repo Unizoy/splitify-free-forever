@@ -3925,6 +3925,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{name} borrowed'**
   String loanNameBorrowed(String name);
+
+  /// No description provided for @loanAmountDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get loanAmountDone;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

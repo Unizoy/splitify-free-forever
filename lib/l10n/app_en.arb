@@ -800,5 +800,6 @@
   "loanNameLent": "{name} lent",
   "@loanNameLent": {"placeholders": {"name": {"type": "String"}}},
   "loanNameBorrowed": "{name} borrowed",
-  "@loanNameBorrowed": {"placeholders": {"name": {"type": "String"}}}
+  "@loanNameBorrowed": {"placeholders": {"name": {"type": "String"}}},
+  "loanAmountDone": "Done"
 }

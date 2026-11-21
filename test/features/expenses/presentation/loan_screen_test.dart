@@ -1,6 +1,7 @@
 // TC-11-02 [widget]: the "Record a loan" screen (direction copy, validation, save, empty and edit states).
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:splitify/features/expenses/presentation/editor/amount_step.dart';
 import 'package:splitify/features/expenses/application/expense_draft.dart';
 import 'package:splitify/features/expenses/application/loan_draft.dart';
 import 'package:splitify/features/expenses/application/loan_editor_controller.dart';
@@ -91,6 +92,24 @@ String? _text(String key) => textOf(find.byKey(Key(key)));
 
 void main() {
   group('Loan screen', () {
+    testWidgets('the keypad starts closed with an amount; the amount opens it; Done or a person '
+        'closes it', (t) async {
+      await pumpLoan(t, sampleLoan(person: 'm2', amount: '500'));
+      expect(find.byType(AmountKeypad), findsNothing);
+      await t.tap(find.byKey(const Key('loan-amount-tap')));
+      await t.pump();
+      expect(find.byType(AmountKeypad), findsOneWidget);
+      await t.tap(find.byKey(const Key('loan-keypad-done')));
+      await t.pump();
+      expect(find.byType(AmountKeypad), findsNothing);
+      await t.tap(find.byKey(const Key('loan-amount-tap')));
+      await t.pump();
+      expect(find.byType(AmountKeypad), findsOneWidget);
+      // Picking a person closes it too.
+      await tapKey(t, 'loan-person-m3');
+      expect(find.byType(AmountKeypad), findsNothing);
+    });
+
     // TC-11-02
     testWidgets('lent: sentence and result name the person and the amount', (t) async {
       await pumpLoan(t, sampleLoan(person: 'm2', amount: '500'));

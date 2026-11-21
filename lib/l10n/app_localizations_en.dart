@@ -2331,4 +2331,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String loanNameBorrowed(String name) {
     return '$name borrowed';
   }
+
+  @override
+  String get loanAmountDone => 'Done';
 }

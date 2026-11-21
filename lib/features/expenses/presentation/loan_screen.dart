@@ -34,6 +34,10 @@ class LoanScreen extends ConsumerStatefulWidget {
 
 class _LoanScreenState extends ConsumerState<LoanScreen> {
   TextEditingController? _note;
+
+  /// Keypad shown (starts open when there is no amount yet). Tapping the amount opens it; picking a
+  /// person or "Done" closes it so the rest of the form has room (large text especially).
+  bool? _keypad;
   bool _showErrors = false;
   bool _saving = false;
 
@@ -104,6 +108,7 @@ class _LoanScreenState extends ConsumerState<LoanScreen> {
     }
     final note = _note ??= TextEditingController(text: d.note);
     final keyboardOpen = MediaQuery.viewInsetsOf(context).bottom > 0;
+    final keypad = (_keypad ??= d.amountText.isEmpty) && !keyboardOpen && d.others.isNotEmpty;
     final now = ref.read(clockProvider).now();
     return Scaffold(
       appBar: _bar(l),
@@ -123,10 +128,17 @@ class _LoanScreenState extends ConsumerState<LoanScreen> {
                     note: note,
                     showErrors: _showErrors,
                     today: DateTime(now.year, now.month, now.day),
+                    keypadOpen: keypad,
                     onEdit: _edit,
+                    onAmountTap: () {
+                      FocusManager.instance.primaryFocus?.unfocus();
+                      setState(() => _keypad = true);
+                    },
+                    onPicked: () => setState(() => _keypad = false),
                   ),
           ),
-          if (!keyboardOpen && d.others.isNotEmpty)
+          if (keypad) ...[
+            _KeypadBar(onDone: () => setState(() => _keypad = false)),
             AmountKeypad(
               onKey: (k) {
                 FocusManager.instance.primaryFocus?.unfocus();
@@ -143,6 +155,7 @@ class _LoanScreenState extends ConsumerState<LoanScreen> {
               onClear: () => _edit((x) => x.copyWith(amountText: '')),
               allowDot: Currencies.exponentOf(d.currency) > 0,
             ),
+          ],
         ],
       ),
       bottomNavigationBar: d.others.isEmpty
@@ -172,7 +185,10 @@ class _Form extends StatelessWidget {
     required this.note,
     required this.showErrors,
     required this.today,
+    required this.keypadOpen,
     required this.onEdit,
+    required this.onAmountTap,
+    required this.onPicked,
   });
 
   final LoanDraft draft;
@@ -180,7 +196,10 @@ class _Form extends StatelessWidget {
   final TextEditingController note;
   final bool showErrors;
   final DateTime today;
+  final bool keypadOpen;
   final void Function(LoanDraft Function(LoanDraft d) change) onEdit;
+  final VoidCallback onAmountTap;
+  final VoidCallback onPicked;
 
   @override
   Widget build(BuildContext context) {
@@ -193,6 +212,7 @@ class _Form extends StatelessWidget {
     final error = l.amountError(d.amount, d.currency);
     final symbol = Currencies.of(d.currency).symbol;
     final lent = d.direction == LoanDirection.lent;
+    final large = MediaQuery.textScalerOf(context).scale(1) > 1.4;
     return ListView(
       padding: const EdgeInsets.fromLTRB(
         AppSpacing.screen,
@@ -215,39 +235,62 @@ class _Form extends StatelessWidget {
           style: context.text.bodySmall.copyWith(color: c.textSecondary),
         ),
         const SizedBox(height: AppSpacing.s5),
-        SegmentedPill<LoanDirection>(
-          key: const Key('loan-direction'),
-          value: d.direction,
-          onChanged: (v) => onEdit((x) => x.copyWith(direction: v)),
-          items: [
-            SegmentedPillItem(
-              value: LoanDirection.lent,
-              label: d.selfIsMe ? l.loanILent : l.loanNameLent(selfName),
-              icon: AppIcons.loan,
-            ),
-            SegmentedPillItem(
-              value: LoanDirection.borrowed,
-              label: d.selfIsMe ? l.loanIBorrowed : l.loanNameBorrowed(selfName),
-              icon: AppIcons.wallet,
-            ),
-          ],
+        // Two short labels: clamped so they never break inside a word at large text sizes.
+        MediaQuery.withClampedTextScaling(
+          maxScaleFactor: 1.3,
+          child: SegmentedPill<LoanDirection>(
+            key: const Key('loan-direction'),
+            value: d.direction,
+            onChanged: (v) => onEdit((x) => x.copyWith(direction: v)),
+            items: [
+              SegmentedPillItem(
+                value: LoanDirection.lent,
+                label: d.selfIsMe ? l.loanILent : l.loanNameLent(selfName),
+                icon: large ? null : AppIcons.loan,
+              ),
+              SegmentedPillItem(
+                value: LoanDirection.borrowed,
+                label: d.selfIsMe ? l.loanIBorrowed : l.loanNameBorrowed(selfName),
+                icon: large ? null : AppIcons.wallet,
+              ),
+            ],
+          ),
         ),
         const SizedBox(height: AppSpacing.s5),
         Semantics(
+          button: !keypadOpen,
           label: l.loanAmountLabel,
           value: d.total == null ? text : MoneyFormatter.detail.format(d.total!, d.currency),
           liveRegion: true,
           excludeSemantics: true,
-          child: FittedBox(
-            fit: BoxFit.scaleDown,
-            child: Text(
-              '$symbol${text.isEmpty ? '0' : KeypadInput.display(text)}',
-              key: const Key('loan-amount'),
-              maxLines: 1,
-              textAlign: TextAlign.center,
-              style: context.text.amountHero.copyWith(
-                color: text.isEmpty ? c.textTertiary : c.textPrimary,
-              ),
+          child: InkWell(
+            key: const Key('loan-amount-tap'),
+            onTap: keypadOpen ? null : onAmountTap,
+            borderRadius: AppRadii.all16,
+            child: Column(
+              children: [
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    '$symbol${text.isEmpty ? '0' : KeypadInput.display(text)}',
+                    key: const Key('loan-amount'),
+                    maxLines: 1,
+                    textAlign: TextAlign.center,
+                    style: context.text.amountHero.copyWith(
+                      color: text.isEmpty ? c.textTertiary : c.textPrimary,
+                    ),
+                  ),
+                ),
+                AnimatedContainer(
+                  duration: context.motion.fast,
+                  width: keypadOpen ? 56 : 32,
+                  height: 3,
+                  decoration: BoxDecoration(
+                    color: keypadOpen ? c.primary : c.divider,
+                    borderRadius: AppRadii.allPill,
+                  ),
+                ),
+              ],
             ),
           ),
         ),
@@ -267,7 +310,10 @@ class _Form extends StatelessWidget {
         SectionLabel(lent ? l.loanToWhom : l.loanFromWhom),
         _People(
           draft: d,
-          onPick: (id) => onEdit((x) => x.copyWith(personId: id)),
+          onPick: (id) {
+            onEdit((x) => x.copyWith(personId: id));
+            onPicked();
+          },
         ),
         if (showErrors && d.personId == null) ...[
           const SizedBox(height: AppSpacing.s2),
@@ -395,6 +441,36 @@ class _Result extends StatelessWidget {
               style: context.text.bodySmall.w(600).copyWith(color: lent ? c.owedText : c.oweText),
             ),
         ],
+      ),
+    );
+  }
+}
+
+/// Slim bar over the keypad with "Done" (hides it so the person list and details have room).
+class _KeypadBar extends StatelessWidget {
+  const _KeypadBar({required this.onDone});
+
+  final VoidCallback onDone;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final c = context.colors;
+    return ColoredBox(
+      color: c.bgSubtle,
+      child: Align(
+        alignment: AlignmentDirectional.centerEnd,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(AppSpacing.s3, AppSpacing.s1, AppSpacing.s3, 0),
+          child: TextButton(
+            key: const Key('loan-keypad-done'),
+            onPressed: onDone,
+            child: Text(
+              l.loanAmountDone,
+              style: context.text.body.w(700).copyWith(color: c.primary),
+            ),
+          ),
+        ),
       ),
     );
   }
