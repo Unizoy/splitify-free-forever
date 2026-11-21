@@ -21,6 +21,8 @@ class StatGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final large = MediaQuery.textScalerOf(context).scale(1) >= 1.6;
+    final columns = large ? 1 : this.columns;
     final rows = <List<StatItem>>[];
     for (var i = 0; i < stats.length; i += columns) {
       rows.add(stats.sublist(i, (i + columns).clamp(0, stats.length)));

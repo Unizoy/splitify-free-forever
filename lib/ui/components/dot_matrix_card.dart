@@ -47,8 +47,10 @@ class DotMatrixCard extends StatelessWidget {
                     width: 260,
                     height: 260,
                     child: ExcludeSemantics(
-                      child: CustomPaint(
-                        painter: DotMatrixPainter(color: c.onHero.withValues(alpha: 0.7)),
+                      child: RepaintBoundary(
+                        child: CustomPaint(
+                          painter: DotMatrixPainter(color: c.onHero.withValues(alpha: 0.7)),
+                        ),
                       ),
                     ),
                   ),
@@ -70,7 +72,7 @@ class DotMatrixCard extends StatelessWidget {
                           showChevron: onTap != null,
                         ),
                         FractionallySizedBox(
-                          widthFactor: 0.72,
+                          widthFactor: MediaQuery.textScalerOf(context).scale(1) >= 1.6 ? 1 : 0.72,
                           child: StatGrid(
                             stats: stats,
                             valueColor: c.onHero,

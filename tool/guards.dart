@@ -24,9 +24,7 @@ final _literalString = RegExp(
 
 // Design tokens only (planning/06-design-system.md §9): no literal colours or
 // text styles outside lib/ui/theme/.
-final _literalStyle = RegExp(
-  r'\bColor\(0x|\bColor\.from(ARGB|RGBO)\(|\bColors\.|\bTextStyle\(',
-);
+final _literalStyle = RegExp(r'\bColor\(0x|\bColor\.from(ARGB|RGBO)\(|\bColors\.|\bTextStyle\(');
 
 String _norm(String p) => p.replaceAll('\\', '/');
 

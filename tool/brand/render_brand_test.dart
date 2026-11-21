@@ -37,7 +37,11 @@ void main() {
     await _render('$dir/icon_foreground.png', 1024, const BrandMarkPainter(markScale: 0.62));
     await _render('$dir/icon_monochrome.png', 1024, const BrandMarkPainter(markScale: 0.62));
     // Splash: tile centred (legacy) and inside the Android 12 icon circle.
-    await _render('$dir/splash.png', 768, const BrandMarkPainter(background: true, markScale: 0.86));
+    await _render(
+      '$dir/splash.png',
+      768,
+      const BrandMarkPainter(background: true, markScale: 0.86),
+    );
     await _render(
       '$dir/splash_android12.png',
       1152,

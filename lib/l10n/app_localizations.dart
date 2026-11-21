@@ -338,6 +338,18 @@ abstract class AppLocalizations {
   /// **'New'**
   String get newShort;
 
+  /// No description provided for @newGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'New group'**
+  String get newGroup;
+
+  /// No description provided for @joinGroupShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Join group'**
+  String get joinGroupShort;
+
   /// No description provided for @joinShort.
   ///
   /// In en, this message translates to:

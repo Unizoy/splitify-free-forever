@@ -139,6 +139,7 @@ class _StepCell extends StatelessWidget {
             children: [
               Expanded(
                 child: _Line(
+                  beforeIcon: true,
                   color: index == 0 ? AppPalette.clear : (index <= current ? c.primary : c.divider),
                 ),
               ),
@@ -160,14 +161,19 @@ class _StepCell extends StatelessWidget {
   }
 }
 
+/// Half of a connector: runs from the cell edge to the icon, so the halves
+/// of neighbouring cells join into one continuous 2 dp line.
 class _Line extends StatelessWidget {
-  const _Line({required this.color});
+  const _Line({required this.color, this.beforeIcon = false});
 
   final Color color;
+  final bool beforeIcon;
 
   @override
   Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 6),
+    padding: beforeIcon
+        ? const EdgeInsetsDirectional.only(end: 6)
+        : const EdgeInsetsDirectional.only(start: 6),
     child: Container(
       height: 2,
       decoration: BoxDecoration(color: color, borderRadius: AppRadii.allPill),

@@ -132,10 +132,7 @@ class _NavButton extends StatelessWidget {
               onTap: onTap,
               borderRadius: AppRadii.allPill,
               child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.s3,
-                  vertical: AppSpacing.s2,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: AppSpacing.s2),
                 child: ClipRect(
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -145,7 +142,7 @@ class _NavButton extends StatelessWidget {
                         const SizedBox(width: AppSpacing.s2),
                         Flexible(
                           child: MediaQuery.withClampedTextScaling(
-                            maxScaleFactor: 1.5,
+                            maxScaleFactor: 1.15,
                             child: Text(
                               item.label,
                               maxLines: 1,

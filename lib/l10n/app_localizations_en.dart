@@ -147,6 +147,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get newShort => 'New';
 
   @override
+  String get newGroup => 'New group';
+
+  @override
+  String get joinGroupShort => 'Join group';
+
+  @override
   String get joinShort => 'Join';
 
   @override

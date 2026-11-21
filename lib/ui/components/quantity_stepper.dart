@@ -85,20 +85,25 @@ class _Circle extends StatelessWidget {
     return Tooltip(
       message: tooltip,
       excludeFromSemantics: true,
-      child: InkResponse(
-        onTap: onTap,
-        radius: 24,
-        child: SizedBox.square(
-          dimension: AppSpacing.minTouch,
-          child: Center(
-            child: Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(color: color, width: 1.5),
+      child: Semantics(
+        button: true,
+        enabled: onTap != null,
+        label: tooltip,
+        child: InkResponse(
+          onTap: onTap,
+          radius: 24,
+          child: SizedBox.square(
+            dimension: AppSpacing.minTouch,
+            child: Center(
+              child: Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: color, width: 1.5),
+                ),
+                child: Icon(icon, size: 18, color: color),
               ),
-              child: Icon(icon, size: 18, color: color),
             ),
           ),
         ),

@@ -114,34 +114,22 @@ class GroupCoverCard extends StatelessWidget {
                       const SizedBox(height: AppSpacing.s3),
                       Divider(height: 1, thickness: 1, color: c.onHero.withValues(alpha: 0.22)),
                       const SizedBox(height: AppSpacing.s3),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              statusLabel.toUpperCase(),
-                              maxLines: 2,
-                              style: context.text.labelCaps.copyWith(
-                                color: c.onHero.withValues(alpha: 0.7),
-                                letterSpacing: 1.2,
-                                fontSize: 11,
-                              ),
-                            ),
+                      _Footer(
+                        label: Text(
+                          statusLabel.toUpperCase(),
+                          maxLines: 1,
+                          style: context.text.labelCaps.copyWith(
+                            color: c.onHero.withValues(alpha: 0.7),
+                            letterSpacing: 1.2,
+                            fontSize: 11,
                           ),
-                          if (amountText != null) ...[
-                            const SizedBox(width: AppSpacing.s2),
-                            Flexible(
-                              flex: 2,
-                              child: FittedBox(
-                                fit: BoxFit.scaleDown,
-                                alignment: AlignmentDirectional.centerEnd,
-                                child: Text(
-                                  amountText!,
-                                  style: context.text.amount.w(700).copyWith(color: amountColor),
-                                ),
+                        ),
+                        amount: amountText == null
+                            ? null
+                            : Text(
+                                amountText!,
+                                style: context.text.amount.w(700).copyWith(color: amountColor),
                               ),
-                            ),
-                          ],
-                        ],
                       ),
                     ],
                   ),
@@ -180,4 +168,56 @@ class _UnsyncedDot extends StatelessWidget {
     decoration: BoxDecoration(color: context.colors.bg, borderRadius: AppRadii.allPill),
     child: const SyncMarker(compact: true),
   );
+}
+
+/// Balance label + amount: side by side, stacked when the text is large.
+class _Footer extends StatelessWidget {
+  const _Footer({required this.label, required this.amount});
+
+  final Widget label;
+  final Widget? amount;
+
+  @override
+  Widget build(BuildContext context) {
+    final stacked = MediaQuery.textScalerOf(context).scale(1) >= 1.3;
+    if (stacked) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          label,
+          if (amount != null) ...[
+            const SizedBox(height: AppSpacing.s1),
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: AlignmentDirectional.centerStart,
+              child: amount,
+            ),
+          ],
+        ],
+      );
+    }
+    return Row(
+      children: [
+        Expanded(
+          flex: 3,
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: AlignmentDirectional.centerStart,
+            child: label,
+          ),
+        ),
+        if (amount != null) ...[
+          const SizedBox(width: AppSpacing.s2),
+          Flexible(
+            flex: 2,
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: AlignmentDirectional.centerEnd,
+              child: amount,
+            ),
+          ),
+        ],
+      ],
+    );
+  }
 }

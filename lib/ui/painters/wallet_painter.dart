@@ -61,7 +61,7 @@ class SleevePainter extends CustomPainter {
         Offset.zero & size,
         Paint()..shader = ui.Gradient.linear(Offset.zero, Offset(0, size.height), [top, bottom]),
       );
-    paintNoise(canvas, size, seed: 42, light: lip, dark: bottom, density: 30, opacity: 0.18);
+    paintNoise(canvas, size, seed: 42, light: lip, dark: bottom, density: 16, opacity: 0.1);
     // Soft inner shadow under the pocket mouth.
     canvas
       ..drawRect(

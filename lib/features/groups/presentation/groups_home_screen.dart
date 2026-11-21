@@ -34,17 +34,24 @@ class GroupsHomeScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
+                  Wrap(
+                    spacing: AppSpacing.s3,
+                    runSpacing: AppSpacing.s3,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    alignment: WrapAlignment.spaceBetween,
                     children: [
-                      Container(
-                        width: 36,
-                        height: 36,
-                        decoration: BoxDecoration(color: c.onHero, shape: BoxShape.circle),
-                        child: Icon(AppIcons.wallet, size: 18, color: c.primaryFill),
-                      ),
-                      const SizedBox(width: AppSpacing.s3),
-                      Expanded(
-                        child: Text(l.overall, style: context.text.title.copyWith(color: c.onHero)),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            width: 36,
+                            height: 36,
+                            decoration: BoxDecoration(color: c.onHero, shape: BoxShape.circle),
+                            child: Icon(AppIcons.wallet, size: 18, color: c.primaryFill),
+                          ),
+                          const SizedBox(width: AppSpacing.s3),
+                          Text(l.overall, style: context.text.title.copyWith(color: c.onHero)),
+                        ],
                       ),
                       StatusPill(
                         label: l.allSettled,
@@ -77,13 +84,9 @@ class GroupsHomeScreen extends StatelessWidget {
                   title: l.emptyGroupsTitle,
                   message: l.emptyGroupsBody,
                   actions: [
+                    PillButton(label: l.newGroup, onPressed: () => showComingSoon(context)),
                     PillButton(
-                      label: l.createGroup,
-                      icon: AppIcons.add,
-                      onPressed: () => showComingSoon(context),
-                    ),
-                    PillButton(
-                      label: l.joinGroup,
+                      label: l.joinGroupShort,
                       variant: PillVariant.outline,
                       onPressed: () => showComingSoon(context),
                     ),

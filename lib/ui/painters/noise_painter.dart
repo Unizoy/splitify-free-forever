@@ -1,13 +1,60 @@
 import 'dart:math';
 import 'dart:typed_data';
-import 'dart:ui' show PointMode;
+import 'dart:ui' as ui;
 
 import 'package:flutter/rendering.dart';
 
-/// Deterministic monochrome grain: tiny light and dark specks.
+/// Side of the grain tile in logical pixels.
+const _tileSize = 128;
+
+final _tiles = <String, ui.Image>{};
+
+/// A small seamless tile of light and dark specks, drawn once and reused.
+///
+/// Thousands of points per frame stall Impeller's GLES backend (seen on the
+/// emulator: the first frame never finished), so grain is painted as a
+/// repeating image shader instead of individual points.
+ui.Image _tile({
+  required int seed,
+  required Color light,
+  required Color dark,
+  required double density,
+  required double opacity,
+}) {
+  final key = '$seed|${light.toARGB32()}|${dark.toARGB32()}|$density|$opacity';
+  final cached = _tiles[key];
+  if (cached != null) return cached;
+  const buckets = 4;
+  final random = Random(seed);
+  final count = (_tileSize * _tileSize / 100 * density).round();
+  final points = List.generate(buckets * 2, (_) => <double>[]);
+  for (var i = 0; i < count; i++) {
+    final bucket = random.nextInt(buckets) + (random.nextBool() ? buckets : 0);
+    points[bucket]
+      ..add(random.nextDouble() * _tileSize)
+      ..add(random.nextDouble() * _tileSize);
+  }
+  final recorder = ui.PictureRecorder();
+  final canvas = Canvas(recorder);
+  for (var b = 0; b < points.length; b++) {
+    if (points[b].isEmpty) continue;
+    final isLight = b >= buckets;
+    final alpha = opacity * ((b % buckets) + 1) / buckets;
+    final paint = Paint()
+      ..color = (isLight ? light : dark).withValues(alpha: alpha)
+      ..strokeWidth = 1
+      ..strokeCap = StrokeCap.square;
+    canvas.drawRawPoints(ui.PointMode.points, Float32List.fromList(points[b]), paint);
+  }
+  final picture = recorder.endRecording();
+  final image = picture.toImageSync(_tileSize, _tileSize);
+  picture.dispose();
+  return _tiles[key] = image;
+}
+
+/// Deterministic monochrome grain over [size]: tiny light and dark specks.
 ///
 /// [density] is specks per 100 dp²; [opacity] the strongest speck alpha.
-/// Specks are batched into a few alpha buckets so painting stays cheap.
 void paintNoise(
   Canvas canvas,
   Size size, {
@@ -17,26 +64,25 @@ void paintNoise(
   double density = 6,
   double opacity = 0.06,
 }) {
-  const buckets = 4;
-  final random = Random(seed);
-  final count = (size.width * size.height / 100 * density).round().clamp(0, 40000);
-  final points = List.generate(buckets * 2, (_) => <double>[]);
-  for (var i = 0; i < count; i++) {
-    final bucket = random.nextInt(buckets) + (random.nextBool() ? buckets : 0);
-    points[bucket]
-      ..add(random.nextDouble() * size.width)
-      ..add(random.nextDouble() * size.height);
-  }
-  for (var b = 0; b < points.length; b++) {
-    if (points[b].isEmpty) continue;
-    final isLight = b >= buckets;
-    final alpha = opacity * ((b % buckets) + 1) / buckets;
-    final paint = Paint()
-      ..color = (isLight ? light : dark).withValues(alpha: alpha)
-      ..strokeWidth = 1
-      ..strokeCap = StrokeCap.square;
-    canvas.drawRawPoints(PointMode.points, Float32List.fromList(points[b]), paint);
-  }
+  final tile = _tile(
+    seed: seed % 997,
+    light: light,
+    dark: dark,
+    density: density,
+    opacity: opacity,
+  );
+  final shift = (seed % _tileSize).toDouble();
+  final matrix = Float64List(16)
+    ..[0] = 1
+    ..[5] = 1
+    ..[10] = 1
+    ..[15] = 1
+    ..[12] = shift
+    ..[13] = shift / 2;
+  canvas.drawRect(
+    Offset.zero & size,
+    Paint()..shader = ui.ImageShader(tile, TileMode.repeated, TileMode.repeated, matrix),
+  );
 }
 
 /// [CustomPainter] wrapper around [paintNoise].

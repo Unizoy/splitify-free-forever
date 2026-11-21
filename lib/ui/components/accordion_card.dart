@@ -128,6 +128,15 @@ class _Row extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
+    final large = MediaQuery.textScalerOf(context).scale(1) >= 1.4;
+    final label = Text(row.label, style: context.text.body.w(600));
+    final value = row.value == null
+        ? null
+        : Text(
+            row.value!,
+            textAlign: large ? TextAlign.start : TextAlign.end,
+            style: context.text.body.w(500).copyWith(color: c.textSecondary),
+          );
     return Semantics(
       button: row.onTap != null,
       child: InkWell(
@@ -143,16 +152,19 @@ class _Row extends StatelessWidget {
             ),
             child: Row(
               children: [
-                Expanded(child: Text(row.label, style: context.text.body.w(600))),
-                if (row.value != null) ...[
-                  const SizedBox(width: AppSpacing.s3),
-                  Flexible(
-                    child: Text(
-                      row.value!,
-                      textAlign: TextAlign.end,
-                      style: context.text.body.w(500).copyWith(color: c.textSecondary),
+                if (large)
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [label, ?value],
                     ),
-                  ),
+                  )
+                else ...[
+                  Expanded(flex: 3, child: label),
+                  if (value != null) ...[
+                    const SizedBox(width: AppSpacing.s3),
+                    Flexible(flex: 2, fit: FlexFit.tight, child: value),
+                  ],
                 ],
                 const SizedBox(width: AppSpacing.s2),
                 Icon(AppIcons.chevronRight, size: 18, color: c.textPrimary),

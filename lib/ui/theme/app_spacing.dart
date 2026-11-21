@@ -22,9 +22,10 @@ abstract final class AppSpacing {
   /// Minimum touch target.
   static const double minTouch = 48;
 
-  /// Primary and secondary button heights.
+  /// Primary and secondary button heights. Secondary is 48, not the spec's
+  /// 44, so every button meets the 48 dp touch target (S-006).
   static const double buttonLarge = 56;
-  static const double buttonMedium = 44;
+  static const double buttonMedium = 48;
 
   /// Capsule nav: height, side margin, bottom margin and the amber add button.
   static const double navHeight = 64;

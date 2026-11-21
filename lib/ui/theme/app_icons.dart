@@ -2,7 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:splitify/ui/theme/app_colors.dart';
 
 /// Every icon the app uses, in one place (§8): Phosphor icons (MIT), from the
-/// bundled `assets/fonts/Phosphor-*.ttf` (S-005: the phosphor_flutter package
+/// bundled `assets/fonts/Phosphor-*.ttf` (S-008: the phosphor_flutter package
 /// does not compile on Flutter 3.50, so the fonts are vendored).
 abstract final class AppIcons {
   static const _regular = 'PhosphorRegular';

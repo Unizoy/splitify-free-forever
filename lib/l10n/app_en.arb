@@ -62,6 +62,8 @@
   "createGroup": "Create a group",
   "joinGroup": "Join a group",
   "newShort": "New",
+  "newGroup": "New group",
+  "joinGroupShort": "Join group",
   "joinShort": "Join",
   "activeGroups": "Active groups · {count}",
   "@activeGroups": {"placeholders": {"count": {"type": "int"}}},

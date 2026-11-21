@@ -39,10 +39,11 @@ class DotMatrixPainter extends CustomPainter {
         final lon = atan2(x / radius, z);
         final lat = asin((y / radius).clamp(-1.0, 1.0));
         final land = _land(lon, lat, seed) > -0.05;
-        if (!land) continue;
         final light = (0.35 + 0.65 * z) * (0.6 + 0.4 * ((-x / radius + 1) / 2));
-        paint.color = color.withValues(alpha: (0.25 + 0.6 * light).clamp(0.0, 1.0));
-        canvas.drawCircle(center + Offset(x, y), 0.8 + 1.4 * z, paint);
+        // Ocean dots stay faint so the sphere reads as a globe.
+        final alpha = land ? 0.25 + 0.6 * light : 0.06 + 0.1 * light;
+        paint.color = color.withValues(alpha: alpha.clamp(0.0, 1.0));
+        canvas.drawCircle(center + Offset(x, y), land ? 0.8 + 1.4 * z : 0.6 + 0.8 * z, paint);
       }
     }
   }
