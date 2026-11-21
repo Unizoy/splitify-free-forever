@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'dart:typed_data';
 
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:splitify/core/time/clock.dart';
 import 'package:splitify/data/repositories/auth_repository.dart';
 import 'package:splitify/data/repositories/profile_repository.dart';
 import 'package:splitify/domain/entities/profile.dart';
+import 'package:splitify/features/groups/application/groups_providers.dart';
 
 /// Clock that only moves when the test says so.
 class FakeClock implements Clock {
@@ -133,3 +135,11 @@ const sampleProfile = Profile(
   displayName: 'Asha Rao',
   upiId: 'asha.rao@okaxis',
 );
+
+/// Groups screens without a database or server: no groups, online, sync does nothing.
+List<Override> emptyGroupsOverrides() => [
+  groupsListProvider.overrideWith((ref) => Stream.value(const [])),
+  deletedGroupsProvider.overrideWith((ref) => Stream.value(const [])),
+  syncOfflineProvider.overrideWith((ref) => Stream.value(false)),
+  syncNowProvider.overrideWithValue(() async {}),
+];

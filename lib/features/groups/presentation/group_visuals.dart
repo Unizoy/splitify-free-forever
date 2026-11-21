@@ -1,0 +1,224 @@
+import 'package:flutter/material.dart';
+import 'package:splitify/data/local/app_database.dart';
+import 'package:splitify/data/remote/groups_remote.dart';
+import 'package:splitify/l10n/app_localizations.dart';
+import 'package:splitify/ui/components/components.dart';
+import 'package:splitify/ui/painters/cover_cache.dart';
+import 'package:splitify/ui/theme/theme.dart';
+
+/// Cover family for a group `type` (trip/home/couple/other/direct).
+CoverFamily coverFamilyFor(String type) => switch (type) {
+  'trip' => CoverFamily.trip,
+  'home' => CoverFamily.home,
+  'couple' => CoverFamily.couple,
+  'direct' => CoverFamily.direct,
+  _ => CoverFamily.other,
+};
+
+String groupTypeLabel(AppLocalizations l, String type) => switch (type) {
+  'trip' => l.groupTypeTrip,
+  'home' => l.groupTypeHome,
+  'couple' => l.groupTypeCouple,
+  _ => l.groupTypeOther,
+};
+
+/// Friendly copy for an online-only group action that failed (08 cross-cutting "Errors").
+String groupFailureText(AppLocalizations l, GroupFailureCode code) => switch (code) {
+  GroupFailureCode.offline => l.needsInternet,
+  GroupFailureCode.invalidCode => l.joinInvalidCode,
+  GroupFailureCode.rateLimited => l.joinRateLimited,
+  GroupFailureCode.alreadyClaimed => l.groupErrorAlreadyClaimed,
+  GroupFailureCode.memberNotFound => l.groupErrorMemberNotFound,
+  GroupFailureCode.nonzeroBalance => l.groupErrorNonzeroBalance,
+  GroupFailureCode.notMember => l.groupErrorNotMember,
+  GroupFailureCode.notClaimed => l.groupErrorNotClaimed,
+  GroupFailureCode.groupFull => l.groupErrorGroupFull,
+  GroupFailureCode.claimRequired => l.groupErrorClaimRequired,
+  GroupFailureCode.unknown => l.authErrorUnknown,
+};
+
+/// Shows [message] in a snackbar.
+void showGroupMessage(BuildContext context, String message) {
+  ScaffoldMessenger.of(context)
+    ..hideCurrentSnackBar()
+    ..showSnackBar(SnackBar(content: Text(message)));
+}
+
+/// Display name of a member, "You" when it is the viewer's own spot with no name yet.
+String memberName(AppLocalizations l, LocalMember m, String? me) =>
+    m.displayName.trim().isEmpty && m.userId != null && m.userId == me ? l.you : m.displayName;
+
+AvatarPerson memberPerson(AppLocalizations l, LocalMember m, String? me) =>
+    (name: memberName(l, m, me), seed: m.id, tint: m.tint);
+
+/// Serif page title with an optional subtitle, used by the group pages.
+class PageTitle extends StatelessWidget {
+  const PageTitle({required this.title, this.subtitle, super.key});
+
+  final String title;
+  final String? subtitle;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Semantics(
+          header: true,
+          child: MediaQuery.withClampedTextScaling(
+            maxScaleFactor: AppText.maxSerifScale,
+            child: Text(title, style: context.text.sheetTitle),
+          ),
+        ),
+        if (subtitle != null) ...[
+          const SizedBox(height: AppSpacing.s2),
+          Text(subtitle!, style: context.text.body.copyWith(color: c.textSecondary)),
+        ],
+      ],
+    );
+  }
+}
+
+/// Section label in letter-spaced caps.
+class SectionLabel extends StatelessWidget {
+  const SectionLabel(this.text, {this.trailing, super.key});
+
+  final String text;
+  final Widget? trailing;
+
+  @override
+  Widget build(BuildContext context) {
+    final label = Text(
+      text.toUpperCase(),
+      style: context.text.labelCaps.copyWith(color: context.colors.textSecondary),
+    );
+    if (trailing == null) return Semantics(header: true, child: label);
+    return Row(
+      children: [
+        Expanded(child: Semantics(header: true, child: label)),
+        trailing!,
+      ],
+    );
+  }
+}
+
+/// Wide generated cover with the type icon and the group name (create/edit preview, join preview).
+class CoverBanner extends StatelessWidget {
+  const CoverBanner({
+    required this.seed,
+    required this.type,
+    required this.name,
+    this.caption,
+    this.height = 168,
+    super.key,
+  });
+
+  final String seed;
+  final String type;
+  final String name;
+  final String? caption;
+  final double height;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final family = coverFamilyFor(type);
+    return Semantics(
+      container: true,
+      label: [name, ?caption].join(', '),
+      excludeSemantics: true,
+      child: ClipRRect(
+        borderRadius: AppRadii.all28,
+        child: ConstrainedBox(
+          constraints: BoxConstraints(minHeight: height),
+          child: Stack(
+            children: [
+              Positioned.fill(
+                child: CoverArt(seed: seed, family: family),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(AppSpacing.s5),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SizedBox(height: height * 0.18),
+                    Container(
+                      width: 36,
+                      height: 36,
+                      decoration: BoxDecoration(
+                        color: c.onHero.withValues(alpha: 0.92),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        GroupCoverCard.iconFor(family),
+                        size: 18,
+                        color: AppPalette.black,
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.s3),
+                    Center(
+                      child: Text(
+                        name.toUpperCase(),
+                        textAlign: TextAlign.center,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: context.text.cardTitle.copyWith(color: c.onHero),
+                      ),
+                    ),
+                    if (caption != null) ...[
+                      const SizedBox(height: AppSpacing.s1),
+                      Text(
+                        caption!.toUpperCase(),
+                        textAlign: TextAlign.center,
+                        style: context.text.labelCaps.copyWith(
+                          color: c.onHero.withValues(alpha: 0.78),
+                          letterSpacing: 1.2,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Confirm sheet (same pattern as sign-out); true when confirmed.
+Future<bool> confirmAction(
+  BuildContext context, {
+  required String title,
+  required String body,
+  required String confirm,
+  IconData? icon,
+}) async {
+  final l = AppLocalizations.of(context);
+  final yes = await showAppSheet<bool>(
+    context,
+    title: title,
+    builder: (context) => Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(body, style: context.text.body.copyWith(color: context.colors.textSecondary)),
+        const SizedBox(height: AppSpacing.s6),
+        PillButton(
+          key: const Key('confirm-action'),
+          label: confirm,
+          icon: icon,
+          onPressed: () => Navigator.of(context).pop(true),
+        ),
+        const SizedBox(height: AppSpacing.s2),
+        PillButton(
+          label: l.cancelLabel,
+          variant: PillVariant.ghost,
+          onPressed: () => Navigator.of(context).pop(false),
+        ),
+      ],
+    ),
+  );
+  return yes ?? false;
+}

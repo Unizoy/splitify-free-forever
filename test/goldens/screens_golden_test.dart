@@ -42,6 +42,8 @@ class _PhoneApp extends StatelessWidget {
             FakeAuthRepository(user: const AuthUser(id: 'u1')),
           ),
           profileRemoteProvider.overrideWithValue(FakeProfileRemote(sampleProfile)),
+          // No database or server in goldens: the Groups tab shows its empty state.
+          ...emptyGroupsOverrides(),
         ],
         child: MediaQuery(
           data: MediaQueryData(

@@ -65,6 +65,7 @@ Future<_Harness> _pump(
         googleConfiguredProvider.overrideWithValue(google),
         e2ePasswordProvider.overrideWithValue('pw'),
         photoPickerProvider.overrideWithValue(() async => photo),
+        ...emptyGroupsOverrides(),
       ],
       child: MaterialApp.router(
         routerConfig: router,

@@ -53,8 +53,8 @@ Future<void> confirmSignOut(BuildContext context, WidgetRef ref) async {
 }
 
 /// Settings sheet content (07 §2): Profile and Preferences accordions, then
-/// About & licences, Sign out, Delete account and the version. Later phases
-/// add Security, Sync & storage, Deleted groups and Import.
+/// Deleted groups, About & licences, Sign out, Delete account and the version. Later phases
+/// add Security, Sync & storage and Import.
 class AccountSettingsBody extends ConsumerWidget {
   const AccountSettingsBody({super.key});
 
@@ -109,6 +109,15 @@ class AccountSettingsBody extends ConsumerWidget {
           ],
         ),
         const SizedBox(height: AppSpacing.s4),
+        DashedListRow(
+          key: const Key('settings-deleted-groups'),
+          icon: AppIcons.restore,
+          label: l.deletedGroups,
+          onTap: () {
+            Navigator.of(context).pop();
+            unawaited(context.push('/account/deleted-groups'));
+          },
+        ),
         DashedListRow(
           icon: AppIcons.licence,
           label: l.aboutLicences,
