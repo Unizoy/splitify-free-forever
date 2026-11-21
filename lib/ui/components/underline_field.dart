@@ -22,6 +22,8 @@ class UnderlineField extends StatefulWidget {
     this.suffix,
     this.focusNode,
     this.autofocus = false,
+    this.maxLines = 1,
+    this.textCapitalization = TextCapitalization.sentences,
     super.key,
   });
 
@@ -40,6 +42,10 @@ class UnderlineField extends StatefulWidget {
   final Widget? suffix;
   final FocusNode? focusNode;
   final bool autofocus;
+
+  /// Lines before the field scrolls; null grows with the text (notes).
+  final int? maxLines;
+  final TextCapitalization textCapitalization;
 
   @override
   State<UnderlineField> createState() => _UnderlineFieldState();
@@ -108,7 +114,9 @@ class _UnderlineFieldState extends State<UnderlineField> {
                       onChanged: widget.onChanged,
                       onSubmitted: widget.onSubmitted,
                       style: inputStyle,
-                      textCapitalization: TextCapitalization.sentences,
+                      maxLines: widget.maxLines,
+                      minLines: 1,
+                      textCapitalization: widget.textCapitalization,
                       decoration: InputDecoration(
                         isDense: true,
                         border: InputBorder.none,

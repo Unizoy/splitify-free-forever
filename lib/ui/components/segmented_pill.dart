@@ -4,11 +4,19 @@ import 'package:splitify/ui/theme/theme.dart';
 
 /// One choice in a [SegmentedPill].
 class SegmentedPillItem<T> {
-  const SegmentedPillItem({required this.value, required this.label, this.icon});
+  const SegmentedPillItem({
+    required this.value,
+    required this.label,
+    this.icon,
+    this.semanticLabel,
+  });
 
   final T value;
   final String label;
   final IconData? icon;
+
+  /// What screen readers say when [label] is a symbol ("=" → "Equally").
+  final String? semanticLabel;
 }
 
 /// Segmented control (534 Fixed/Flexible): `surfaceMuted` track, the selected
@@ -90,6 +98,8 @@ class _Segment<T> extends StatelessWidget {
       button: true,
       selected: selected,
       inMutuallyExclusiveGroup: true,
+      label: item.semanticLabel,
+      excludeSemantics: item.semanticLabel != null,
       child: InkWell(
         onTap: onTap,
         borderRadius: AppRadii.allPill,

@@ -602,6 +602,972 @@ abstract class AppLocalizations {
   /// **'{label}, current step'**
   String stepCurrent(String label);
 
+  /// No description provided for @expEditPill.
+  ///
+  /// In en, this message translates to:
+  /// **'Editing · {group}'**
+  String expEditPill(String group);
+
+  /// No description provided for @expOfflinePill.
+  ///
+  /// In en, this message translates to:
+  /// **'{group} · saved offline'**
+  String expOfflinePill(String group);
+
+  /// No description provided for @expAmountQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'How much was it?'**
+  String get expAmountQuestion;
+
+  /// No description provided for @expDescriptionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Description'**
+  String get expDescriptionLabel;
+
+  /// No description provided for @expDescriptionHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Dinner, cab, groceries…'**
+  String get expDescriptionHint;
+
+  /// No description provided for @expDescriptionMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a short description'**
+  String get expDescriptionMissing;
+
+  /// No description provided for @expDescriptionTooLong.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep it under 120 characters'**
+  String get expDescriptionTooLong;
+
+  /// No description provided for @expCurrencyLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Currency {code}'**
+  String expCurrencyLabel(String code);
+
+  /// No description provided for @expAmountLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get expAmountLabel;
+
+  /// No description provided for @expAmountErrorDecimals.
+  ///
+  /// In en, this message translates to:
+  /// **'{currency} allows {count, plural, =0{no decimals} =1{1 decimal} other{{count} decimals}}'**
+  String expAmountErrorDecimals(String currency, int count);
+
+  /// No description provided for @expAmountErrorDivide.
+  ///
+  /// In en, this message translates to:
+  /// **'You can\'t divide by 0'**
+  String get expAmountErrorDivide;
+
+  /// No description provided for @expAmountErrorNotPositive.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter an amount above zero'**
+  String get expAmountErrorNotPositive;
+
+  /// No description provided for @expAmountErrorTooLarge.
+  ///
+  /// In en, this message translates to:
+  /// **'That amount is too large'**
+  String get expAmountErrorTooLarge;
+
+  /// No description provided for @expAmountErrorInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Check the amount'**
+  String get expAmountErrorInvalid;
+
+  /// No description provided for @expAmountEquals.
+  ///
+  /// In en, this message translates to:
+  /// **'= {amount}'**
+  String expAmountEquals(String amount);
+
+  /// No description provided for @expKeyDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get expKeyDelete;
+
+  /// No description provided for @expKeyPlus.
+  ///
+  /// In en, this message translates to:
+  /// **'Plus'**
+  String get expKeyPlus;
+
+  /// No description provided for @expKeyMinus.
+  ///
+  /// In en, this message translates to:
+  /// **'Minus'**
+  String get expKeyMinus;
+
+  /// No description provided for @expKeyTimes.
+  ///
+  /// In en, this message translates to:
+  /// **'Times'**
+  String get expKeyTimes;
+
+  /// No description provided for @expKeyDivide.
+  ///
+  /// In en, this message translates to:
+  /// **'Divided by'**
+  String get expKeyDivide;
+
+  /// No description provided for @expKeyDot.
+  ///
+  /// In en, this message translates to:
+  /// **'Decimal point'**
+  String get expKeyDot;
+
+  /// No description provided for @expNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get expNext;
+
+  /// No description provided for @expSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get expSave;
+
+  /// No description provided for @expSaveExpense.
+  ///
+  /// In en, this message translates to:
+  /// **'Save expense'**
+  String get expSaveExpense;
+
+  /// No description provided for @expSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Expense saved'**
+  String get expSaved;
+
+  /// No description provided for @expPaidByQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Who paid?'**
+  String get expPaidByQuestion;
+
+  /// No description provided for @expMultiplePeople.
+  ///
+  /// In en, this message translates to:
+  /// **'Multiple people'**
+  String get expMultiplePeople;
+
+  /// No description provided for @expMultiplePaidNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Several people paid for this one. Changing who paid what arrives in a later update.'**
+  String get expMultiplePaidNote;
+
+  /// No description provided for @expSplitQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'How should it be split?'**
+  String get expSplitQuestion;
+
+  /// No description provided for @expSplitEqual.
+  ///
+  /// In en, this message translates to:
+  /// **'Equally'**
+  String get expSplitEqual;
+
+  /// No description provided for @expSplitExact.
+  ///
+  /// In en, this message translates to:
+  /// **'Exact amounts'**
+  String get expSplitExact;
+
+  /// No description provided for @expSplitPercent.
+  ///
+  /// In en, this message translates to:
+  /// **'Percentages'**
+  String get expSplitPercent;
+
+  /// No description provided for @expSplitShares.
+  ///
+  /// In en, this message translates to:
+  /// **'Shares'**
+  String get expSplitShares;
+
+  /// No description provided for @expSplitAdjust.
+  ///
+  /// In en, this message translates to:
+  /// **'Adjustment'**
+  String get expSplitAdjust;
+
+  /// No description provided for @expSplitEqualHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Everyone ticked pays the same.'**
+  String get expSplitEqualHint;
+
+  /// No description provided for @expSplitExactHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Type what each person owes.'**
+  String get expSplitExactHint;
+
+  /// No description provided for @expSplitPercentHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Give each person a percentage.'**
+  String get expSplitPercentHint;
+
+  /// No description provided for @expSplitSharesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Give each person shares, like 2 for a couple.'**
+  String get expSplitSharesHint;
+
+  /// No description provided for @expSplitAdjustHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Add or take away for someone; the rest is split equally.'**
+  String get expSplitAdjustHint;
+
+  /// No description provided for @expNotIncluded.
+  ///
+  /// In en, this message translates to:
+  /// **'Not included'**
+  String get expNotIncluded;
+
+  /// No description provided for @expIncludeMember.
+  ///
+  /// In en, this message translates to:
+  /// **'Include {name}'**
+  String expIncludeMember(String name);
+
+  /// No description provided for @expMemberAmountLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount for {name}'**
+  String expMemberAmountLabel(String name);
+
+  /// No description provided for @expMemberPercentLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Percentage for {name}'**
+  String expMemberPercentLabel(String name);
+
+  /// No description provided for @expMemberSharesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Shares for {name}'**
+  String expMemberSharesLabel(String name);
+
+  /// No description provided for @expMemberAdjustLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Adjustment for {name}'**
+  String expMemberAdjustLabel(String name);
+
+  /// No description provided for @expFooterEqual.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 person} other{{count} people}} · {amount} each'**
+  String expFooterEqual(int count, String amount);
+
+  /// No description provided for @expFooterPeople.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 person} other{{count} people}}'**
+  String expFooterPeople(int count);
+
+  /// No description provided for @expFooterLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'{sum} of {total} · {left} left'**
+  String expFooterLeft(String sum, String total, String left);
+
+  /// No description provided for @expFooterOver.
+  ///
+  /// In en, this message translates to:
+  /// **'{sum} of {total} · {over} over'**
+  String expFooterOver(String sum, String total, String over);
+
+  /// No description provided for @expFooterDone.
+  ///
+  /// In en, this message translates to:
+  /// **'{total} · done'**
+  String expFooterDone(String total);
+
+  /// No description provided for @expFooterPercentLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'{sum} % of 100 % · {left} % left'**
+  String expFooterPercentLeft(String sum, String left);
+
+  /// No description provided for @expFooterPercentOver.
+  ///
+  /// In en, this message translates to:
+  /// **'{sum} % of 100 % · {over} % over'**
+  String expFooterPercentOver(String sum, String over);
+
+  /// No description provided for @expFooterPercentDone.
+  ///
+  /// In en, this message translates to:
+  /// **'100 % · done'**
+  String get expFooterPercentDone;
+
+  /// No description provided for @expFooterShares.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} shares in total'**
+  String expFooterShares(String count);
+
+  /// No description provided for @expFooterAdjust.
+  ///
+  /// In en, this message translates to:
+  /// **'{rest} split equally after adjustments'**
+  String expFooterAdjust(String rest);
+
+  /// No description provided for @expErrNoParticipants.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick at least one person'**
+  String get expErrNoParticipants;
+
+  /// No description provided for @expErrNoShares.
+  ///
+  /// In en, this message translates to:
+  /// **'Give someone at least one share'**
+  String get expErrNoShares;
+
+  /// No description provided for @expErrNegativeShare.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}\'s share can\'t go below {zero}'**
+  String expErrNegativeShare(String name, String zero);
+
+  /// No description provided for @expErrNegativeShareAny.
+  ///
+  /// In en, this message translates to:
+  /// **'A share can\'t go below {zero}'**
+  String expErrNegativeShareAny(String zero);
+
+  /// No description provided for @expErrPercentRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Percentages go from 0 to 100'**
+  String get expErrPercentRange;
+
+  /// No description provided for @expErrAdjustOver.
+  ///
+  /// In en, this message translates to:
+  /// **'Adjustments are {over} more than the total'**
+  String expErrAdjustOver(String over);
+
+  /// No description provided for @expErrInvalidInput.
+  ///
+  /// In en, this message translates to:
+  /// **'Check the numbers you typed'**
+  String get expErrInvalidInput;
+
+  /// No description provided for @expErrNeedAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the amount first'**
+  String get expErrNeedAmount;
+
+  /// No description provided for @expErrGeneric.
+  ///
+  /// In en, this message translates to:
+  /// **'This split doesn\'t add up yet'**
+  String get expErrGeneric;
+
+  /// No description provided for @expDetailsQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'A few details'**
+  String get expDetailsQuestion;
+
+  /// No description provided for @expCategoryLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get expCategoryLabel;
+
+  /// No description provided for @expDateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get expDateLabel;
+
+  /// No description provided for @expNotesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes'**
+  String get expNotesLabel;
+
+  /// No description provided for @expNotesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Anything worth remembering'**
+  String get expNotesHint;
+
+  /// No description provided for @expNotesTooLong.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes can be up to 1000 characters'**
+  String get expNotesTooLong;
+
+  /// No description provided for @expToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get expToday;
+
+  /// No description provided for @expYesterday.
+  ///
+  /// In en, this message translates to:
+  /// **'Yesterday'**
+  String get expYesterday;
+
+  /// No description provided for @expPickDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a date'**
+  String get expPickDate;
+
+  /// No description provided for @expPrevMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous month'**
+  String get expPrevMonth;
+
+  /// No description provided for @expNextMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Next month'**
+  String get expNextMonth;
+
+  /// No description provided for @expReviewQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'All good?'**
+  String get expReviewQuestion;
+
+  /// No description provided for @expReviewPaidBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid by '**
+  String get expReviewPaidBy;
+
+  /// No description provided for @expReviewAndSplit.
+  ///
+  /// In en, this message translates to:
+  /// **' and split '**
+  String get expReviewAndSplit;
+
+  /// No description provided for @expHowEqual.
+  ///
+  /// In en, this message translates to:
+  /// **'equally between {count, plural, =1{1 person} other{{count} people}}'**
+  String expHowEqual(int count);
+
+  /// No description provided for @expHowExact.
+  ///
+  /// In en, this message translates to:
+  /// **'by exact amounts'**
+  String get expHowExact;
+
+  /// No description provided for @expHowPercent.
+  ///
+  /// In en, this message translates to:
+  /// **'by percentages'**
+  String get expHowPercent;
+
+  /// No description provided for @expHowShares.
+  ///
+  /// In en, this message translates to:
+  /// **'by shares'**
+  String get expHowShares;
+
+  /// No description provided for @expHowAdjust.
+  ///
+  /// In en, this message translates to:
+  /// **'with adjustments'**
+  String get expHowAdjust;
+
+  /// No description provided for @expSeveralPeople.
+  ///
+  /// In en, this message translates to:
+  /// **'several people'**
+  String get expSeveralPeople;
+
+  /// No description provided for @expYouLower.
+  ///
+  /// In en, this message translates to:
+  /// **'you'**
+  String get expYouLower;
+
+  /// No description provided for @expOwes.
+  ///
+  /// In en, this message translates to:
+  /// **'owes {amount}'**
+  String expOwes(String amount);
+
+  /// No description provided for @expPaidAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'paid {amount}'**
+  String expPaidAmount(String amount);
+
+  /// No description provided for @expOwesNothing.
+  ///
+  /// In en, this message translates to:
+  /// **'owes nothing'**
+  String get expOwesNothing;
+
+  /// No description provided for @expReviewSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} · {count, plural, =1{1 person} other{{count} people}}'**
+  String expReviewSummary(String amount, int count);
+
+  /// No description provided for @expNoExpensesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No expenses yet'**
+  String get expNoExpensesTitle;
+
+  /// No description provided for @expNoExpensesBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Add the first one. It takes a few seconds.'**
+  String get expNoExpensesBody;
+
+  /// No description provided for @expLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load expenses'**
+  String get expLoadError;
+
+  /// No description provided for @expLoadErrorBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your data is safe on this phone. Try again in a moment.'**
+  String get expLoadErrorBody;
+
+  /// No description provided for @expPaidCaption.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} paid {amount}'**
+  String expPaidCaption(String name, String amount);
+
+  /// No description provided for @expSeveralPaidCaption.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} people paid {amount}'**
+  String expSeveralPaidCaption(int count, String amount);
+
+  /// No description provided for @expYouLent.
+  ///
+  /// In en, this message translates to:
+  /// **'you lent'**
+  String get expYouLent;
+
+  /// No description provided for @expYouBorrowed.
+  ///
+  /// In en, this message translates to:
+  /// **'you borrowed'**
+  String get expYouBorrowed;
+
+  /// No description provided for @expNotInvolved.
+  ///
+  /// In en, this message translates to:
+  /// **'not involved'**
+  String get expNotInvolved;
+
+  /// No description provided for @expNoBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'no balance'**
+  String get expNoBalance;
+
+  /// No description provided for @expPaidByLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid by'**
+  String get expPaidByLabel;
+
+  /// No description provided for @expSplitLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Split · {kind}'**
+  String expSplitLabel(String kind);
+
+  /// No description provided for @expDetailsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Details'**
+  String get expDetailsLabel;
+
+  /// No description provided for @expAddedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Added by {name} on {date}'**
+  String expAddedBy(String name, String date);
+
+  /// No description provided for @expAddedOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Added on {date}'**
+  String expAddedOn(String date);
+
+  /// No description provided for @expEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit expense'**
+  String get expEdit;
+
+  /// No description provided for @expDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete expense'**
+  String get expDelete;
+
+  /// No description provided for @expDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Expense deleted'**
+  String get expDeleted;
+
+  /// No description provided for @expUndo.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get expUndo;
+
+  /// No description provided for @expHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit history'**
+  String get expHistory;
+
+  /// No description provided for @expComments.
+  ///
+  /// In en, this message translates to:
+  /// **'Comments'**
+  String get expComments;
+
+  /// No description provided for @expCommentsSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Comments arrive in a later update.'**
+  String get expCommentsSoon;
+
+  /// No description provided for @expNotFoundTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'This expense isn\'t here'**
+  String get expNotFoundTitle;
+
+  /// No description provided for @expNotFoundBody.
+  ///
+  /// In en, this message translates to:
+  /// **'It may have been deleted on another phone.'**
+  String get expNotFoundBody;
+
+  /// No description provided for @expYouLentAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'You lent {amount}'**
+  String expYouLentAmount(String amount);
+
+  /// No description provided for @expYouBorrowedAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'You borrowed {amount}'**
+  String expYouBorrowedAmount(String amount);
+
+  /// No description provided for @expNotInvolvedLong.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re not involved'**
+  String get expNotInvolvedLong;
+
+  /// No description provided for @expNoBalanceLong.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re even on this one'**
+  String get expNoBalanceLong;
+
+  /// No description provided for @expDefaultSplitTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Default split'**
+  String get expDefaultSplitTitle;
+
+  /// No description provided for @expDefaultSplitBody.
+  ///
+  /// In en, this message translates to:
+  /// **'New expenses in {group} start with this split. If the members change, they go back to equal.'**
+  String expDefaultSplitBody(String group);
+
+  /// No description provided for @expDefaultSplitEqualNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Everyone pays the same share.'**
+  String get expDefaultSplitEqualNote;
+
+  /// No description provided for @expDefaultSplitSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Default split saved'**
+  String get expDefaultSplitSaved;
+
+  /// No description provided for @expPickGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to which group?'**
+  String get expPickGroup;
+
+  /// No description provided for @expNoGroupFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a group first, then add expenses to it.'**
+  String get expNoGroupFirst;
+
+  /// No description provided for @catFood.
+  ///
+  /// In en, this message translates to:
+  /// **'Food'**
+  String get catFood;
+
+  /// No description provided for @catGroceries.
+  ///
+  /// In en, this message translates to:
+  /// **'Groceries'**
+  String get catGroceries;
+
+  /// No description provided for @catTravel.
+  ///
+  /// In en, this message translates to:
+  /// **'Travel'**
+  String get catTravel;
+
+  /// No description provided for @catRent.
+  ///
+  /// In en, this message translates to:
+  /// **'Rent'**
+  String get catRent;
+
+  /// No description provided for @catUtilities.
+  ///
+  /// In en, this message translates to:
+  /// **'Utilities'**
+  String get catUtilities;
+
+  /// No description provided for @catShopping.
+  ///
+  /// In en, this message translates to:
+  /// **'Shopping'**
+  String get catShopping;
+
+  /// No description provided for @catEntertainment.
+  ///
+  /// In en, this message translates to:
+  /// **'Entertainment'**
+  String get catEntertainment;
+
+  /// No description provided for @catOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get catOther;
+
+  /// No description provided for @catFoodDiningOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Dining out'**
+  String get catFoodDiningOut;
+
+  /// No description provided for @catFoodTakeaway.
+  ///
+  /// In en, this message translates to:
+  /// **'Takeaway'**
+  String get catFoodTakeaway;
+
+  /// No description provided for @catFoodSnacks.
+  ///
+  /// In en, this message translates to:
+  /// **'Snacks'**
+  String get catFoodSnacks;
+
+  /// No description provided for @catGroceriesGroceries.
+  ///
+  /// In en, this message translates to:
+  /// **'Groceries'**
+  String get catGroceriesGroceries;
+
+  /// No description provided for @catGroceriesHousehold.
+  ///
+  /// In en, this message translates to:
+  /// **'Household'**
+  String get catGroceriesHousehold;
+
+  /// No description provided for @catTravelFlights.
+  ///
+  /// In en, this message translates to:
+  /// **'Flights'**
+  String get catTravelFlights;
+
+  /// No description provided for @catTravelTrainBus.
+  ///
+  /// In en, this message translates to:
+  /// **'Train & bus'**
+  String get catTravelTrainBus;
+
+  /// No description provided for @catTravelCabAuto.
+  ///
+  /// In en, this message translates to:
+  /// **'Cab & auto'**
+  String get catTravelCabAuto;
+
+  /// No description provided for @catTravelFuel.
+  ///
+  /// In en, this message translates to:
+  /// **'Fuel'**
+  String get catTravelFuel;
+
+  /// No description provided for @catTravelHotel.
+  ///
+  /// In en, this message translates to:
+  /// **'Hotel'**
+  String get catTravelHotel;
+
+  /// No description provided for @catTravelParkingTolls.
+  ///
+  /// In en, this message translates to:
+  /// **'Parking & tolls'**
+  String get catTravelParkingTolls;
+
+  /// No description provided for @catRentRent.
+  ///
+  /// In en, this message translates to:
+  /// **'Rent'**
+  String get catRentRent;
+
+  /// No description provided for @catRentMaintenance.
+  ///
+  /// In en, this message translates to:
+  /// **'Maintenance'**
+  String get catRentMaintenance;
+
+  /// No description provided for @catUtilitiesElectricity.
+  ///
+  /// In en, this message translates to:
+  /// **'Electricity'**
+  String get catUtilitiesElectricity;
+
+  /// No description provided for @catUtilitiesWater.
+  ///
+  /// In en, this message translates to:
+  /// **'Water'**
+  String get catUtilitiesWater;
+
+  /// No description provided for @catUtilitiesGas.
+  ///
+  /// In en, this message translates to:
+  /// **'Gas'**
+  String get catUtilitiesGas;
+
+  /// No description provided for @catUtilitiesInternetPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Internet & phone'**
+  String get catUtilitiesInternetPhone;
+
+  /// No description provided for @catUtilitiesSubscriptions.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscriptions'**
+  String get catUtilitiesSubscriptions;
+
+  /// No description provided for @catShoppingClothing.
+  ///
+  /// In en, this message translates to:
+  /// **'Clothing'**
+  String get catShoppingClothing;
+
+  /// No description provided for @catShoppingElectronics.
+  ///
+  /// In en, this message translates to:
+  /// **'Electronics'**
+  String get catShoppingElectronics;
+
+  /// No description provided for @catShoppingGifts.
+  ///
+  /// In en, this message translates to:
+  /// **'Gifts'**
+  String get catShoppingGifts;
+
+  /// No description provided for @catShoppingOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other shopping'**
+  String get catShoppingOther;
+
+  /// No description provided for @catEntertainmentMovies.
+  ///
+  /// In en, this message translates to:
+  /// **'Movies'**
+  String get catEntertainmentMovies;
+
+  /// No description provided for @catEntertainmentEvents.
+  ///
+  /// In en, this message translates to:
+  /// **'Events'**
+  String get catEntertainmentEvents;
+
+  /// No description provided for @catEntertainmentGames.
+  ///
+  /// In en, this message translates to:
+  /// **'Games'**
+  String get catEntertainmentGames;
+
+  /// No description provided for @catEntertainmentSports.
+  ///
+  /// In en, this message translates to:
+  /// **'Sports'**
+  String get catEntertainmentSports;
+
+  /// No description provided for @catOtherGeneral.
+  ///
+  /// In en, this message translates to:
+  /// **'General'**
+  String get catOtherGeneral;
+
+  /// No description provided for @catOtherMedical.
+  ///
+  /// In en, this message translates to:
+  /// **'Medical'**
+  String get catOtherMedical;
+
+  /// No description provided for @catOtherEducation.
+  ///
+  /// In en, this message translates to:
+  /// **'Education'**
+  String get catOtherEducation;
+
+  /// No description provided for @catOtherServices.
+  ///
+  /// In en, this message translates to:
+  /// **'Services'**
+  String get catOtherServices;
+
   /// No description provided for @signInTitle.
   ///
   /// In en, this message translates to:

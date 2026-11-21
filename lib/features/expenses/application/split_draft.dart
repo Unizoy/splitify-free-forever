@@ -177,6 +177,21 @@ final class SplitDraft {
     }
   }
 
+  /// For an adjust split of [total] whose result is `NEGATIVE_SHARE`: the first participant (fixed
+  /// order) whose share would go below 0, so the error can name them. Null otherwise.
+  String? negativeMember(int total) {
+    final v = values;
+    if (kind != SplitKind.adjust || v == null) return null;
+    final people = participants;
+    final rest = total - v.values.fold<int>(0, (a, b) => a + b);
+    if (people.isEmpty || rest < 0) return null;
+    final base = allocateEqual(rest, people.length);
+    for (var i = 0; i < people.length; i++) {
+      if (base[i] + (v[people[i]] ?? 0) < 0) return people[i];
+    }
+    return null;
+  }
+
   /// Switches to [next], keeping the chosen people; values reset sensibly (05 §4, #5–9): exact gets the
   /// equal amounts of [total], percent equal percentages, shares one each, adjust no adjustments.
   SplitDraft switchTo(SplitKind next, {int? total}) {

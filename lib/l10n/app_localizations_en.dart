@@ -296,6 +296,589 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String expEditPill(String group) {
+    return 'Editing · $group';
+  }
+
+  @override
+  String expOfflinePill(String group) {
+    return '$group · saved offline';
+  }
+
+  @override
+  String get expAmountQuestion => 'How much was it?';
+
+  @override
+  String get expDescriptionLabel => 'Description';
+
+  @override
+  String get expDescriptionHint => 'Dinner, cab, groceries…';
+
+  @override
+  String get expDescriptionMissing => 'Add a short description';
+
+  @override
+  String get expDescriptionTooLong => 'Keep it under 120 characters';
+
+  @override
+  String expCurrencyLabel(String code) {
+    return 'Currency $code';
+  }
+
+  @override
+  String get expAmountLabel => 'Amount';
+
+  @override
+  String expAmountErrorDecimals(String currency, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count decimals',
+      one: '1 decimal',
+      zero: 'no decimals',
+    );
+    return '$currency allows $_temp0';
+  }
+
+  @override
+  String get expAmountErrorDivide => 'You can\'t divide by 0';
+
+  @override
+  String get expAmountErrorNotPositive => 'Enter an amount above zero';
+
+  @override
+  String get expAmountErrorTooLarge => 'That amount is too large';
+
+  @override
+  String get expAmountErrorInvalid => 'Check the amount';
+
+  @override
+  String expAmountEquals(String amount) {
+    return '= $amount';
+  }
+
+  @override
+  String get expKeyDelete => 'Delete';
+
+  @override
+  String get expKeyPlus => 'Plus';
+
+  @override
+  String get expKeyMinus => 'Minus';
+
+  @override
+  String get expKeyTimes => 'Times';
+
+  @override
+  String get expKeyDivide => 'Divided by';
+
+  @override
+  String get expKeyDot => 'Decimal point';
+
+  @override
+  String get expNext => 'Next';
+
+  @override
+  String get expSave => 'Save';
+
+  @override
+  String get expSaveExpense => 'Save expense';
+
+  @override
+  String get expSaved => 'Expense saved';
+
+  @override
+  String get expPaidByQuestion => 'Who paid?';
+
+  @override
+  String get expMultiplePeople => 'Multiple people';
+
+  @override
+  String get expMultiplePaidNote =>
+      'Several people paid for this one. Changing who paid what arrives in a later update.';
+
+  @override
+  String get expSplitQuestion => 'How should it be split?';
+
+  @override
+  String get expSplitEqual => 'Equally';
+
+  @override
+  String get expSplitExact => 'Exact amounts';
+
+  @override
+  String get expSplitPercent => 'Percentages';
+
+  @override
+  String get expSplitShares => 'Shares';
+
+  @override
+  String get expSplitAdjust => 'Adjustment';
+
+  @override
+  String get expSplitEqualHint => 'Everyone ticked pays the same.';
+
+  @override
+  String get expSplitExactHint => 'Type what each person owes.';
+
+  @override
+  String get expSplitPercentHint => 'Give each person a percentage.';
+
+  @override
+  String get expSplitSharesHint => 'Give each person shares, like 2 for a couple.';
+
+  @override
+  String get expSplitAdjustHint => 'Add or take away for someone; the rest is split equally.';
+
+  @override
+  String get expNotIncluded => 'Not included';
+
+  @override
+  String expIncludeMember(String name) {
+    return 'Include $name';
+  }
+
+  @override
+  String expMemberAmountLabel(String name) {
+    return 'Amount for $name';
+  }
+
+  @override
+  String expMemberPercentLabel(String name) {
+    return 'Percentage for $name';
+  }
+
+  @override
+  String expMemberSharesLabel(String name) {
+    return 'Shares for $name';
+  }
+
+  @override
+  String expMemberAdjustLabel(String name) {
+    return 'Adjustment for $name';
+  }
+
+  @override
+  String expFooterEqual(int count, String amount) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count people',
+      one: '1 person',
+    );
+    return '$_temp0 · $amount each';
+  }
+
+  @override
+  String expFooterPeople(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count people',
+      one: '1 person',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String expFooterLeft(String sum, String total, String left) {
+    return '$sum of $total · $left left';
+  }
+
+  @override
+  String expFooterOver(String sum, String total, String over) {
+    return '$sum of $total · $over over';
+  }
+
+  @override
+  String expFooterDone(String total) {
+    return '$total · done';
+  }
+
+  @override
+  String expFooterPercentLeft(String sum, String left) {
+    return '$sum % of 100 % · $left % left';
+  }
+
+  @override
+  String expFooterPercentOver(String sum, String over) {
+    return '$sum % of 100 % · $over % over';
+  }
+
+  @override
+  String get expFooterPercentDone => '100 % · done';
+
+  @override
+  String expFooterShares(String count) {
+    return '$count shares in total';
+  }
+
+  @override
+  String expFooterAdjust(String rest) {
+    return '$rest split equally after adjustments';
+  }
+
+  @override
+  String get expErrNoParticipants => 'Pick at least one person';
+
+  @override
+  String get expErrNoShares => 'Give someone at least one share';
+
+  @override
+  String expErrNegativeShare(String name, String zero) {
+    return '$name\'s share can\'t go below $zero';
+  }
+
+  @override
+  String expErrNegativeShareAny(String zero) {
+    return 'A share can\'t go below $zero';
+  }
+
+  @override
+  String get expErrPercentRange => 'Percentages go from 0 to 100';
+
+  @override
+  String expErrAdjustOver(String over) {
+    return 'Adjustments are $over more than the total';
+  }
+
+  @override
+  String get expErrInvalidInput => 'Check the numbers you typed';
+
+  @override
+  String get expErrNeedAmount => 'Enter the amount first';
+
+  @override
+  String get expErrGeneric => 'This split doesn\'t add up yet';
+
+  @override
+  String get expDetailsQuestion => 'A few details';
+
+  @override
+  String get expCategoryLabel => 'Category';
+
+  @override
+  String get expDateLabel => 'Date';
+
+  @override
+  String get expNotesLabel => 'Notes';
+
+  @override
+  String get expNotesHint => 'Anything worth remembering';
+
+  @override
+  String get expNotesTooLong => 'Notes can be up to 1000 characters';
+
+  @override
+  String get expToday => 'Today';
+
+  @override
+  String get expYesterday => 'Yesterday';
+
+  @override
+  String get expPickDate => 'Pick a date';
+
+  @override
+  String get expPrevMonth => 'Previous month';
+
+  @override
+  String get expNextMonth => 'Next month';
+
+  @override
+  String get expReviewQuestion => 'All good?';
+
+  @override
+  String get expReviewPaidBy => 'Paid by ';
+
+  @override
+  String get expReviewAndSplit => ' and split ';
+
+  @override
+  String expHowEqual(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count people',
+      one: '1 person',
+    );
+    return 'equally between $_temp0';
+  }
+
+  @override
+  String get expHowExact => 'by exact amounts';
+
+  @override
+  String get expHowPercent => 'by percentages';
+
+  @override
+  String get expHowShares => 'by shares';
+
+  @override
+  String get expHowAdjust => 'with adjustments';
+
+  @override
+  String get expSeveralPeople => 'several people';
+
+  @override
+  String get expYouLower => 'you';
+
+  @override
+  String expOwes(String amount) {
+    return 'owes $amount';
+  }
+
+  @override
+  String expPaidAmount(String amount) {
+    return 'paid $amount';
+  }
+
+  @override
+  String get expOwesNothing => 'owes nothing';
+
+  @override
+  String expReviewSummary(String amount, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count people',
+      one: '1 person',
+    );
+    return '$amount · $_temp0';
+  }
+
+  @override
+  String get expNoExpensesTitle => 'No expenses yet';
+
+  @override
+  String get expNoExpensesBody => 'Add the first one. It takes a few seconds.';
+
+  @override
+  String get expLoadError => 'Couldn\'t load expenses';
+
+  @override
+  String get expLoadErrorBody => 'Your data is safe on this phone. Try again in a moment.';
+
+  @override
+  String expPaidCaption(String name, String amount) {
+    return '$name paid $amount';
+  }
+
+  @override
+  String expSeveralPaidCaption(int count, String amount) {
+    return '$count people paid $amount';
+  }
+
+  @override
+  String get expYouLent => 'you lent';
+
+  @override
+  String get expYouBorrowed => 'you borrowed';
+
+  @override
+  String get expNotInvolved => 'not involved';
+
+  @override
+  String get expNoBalance => 'no balance';
+
+  @override
+  String get expPaidByLabel => 'Paid by';
+
+  @override
+  String expSplitLabel(String kind) {
+    return 'Split · $kind';
+  }
+
+  @override
+  String get expDetailsLabel => 'Details';
+
+  @override
+  String expAddedBy(String name, String date) {
+    return 'Added by $name on $date';
+  }
+
+  @override
+  String expAddedOn(String date) {
+    return 'Added on $date';
+  }
+
+  @override
+  String get expEdit => 'Edit expense';
+
+  @override
+  String get expDelete => 'Delete expense';
+
+  @override
+  String get expDeleted => 'Expense deleted';
+
+  @override
+  String get expUndo => 'Undo';
+
+  @override
+  String get expHistory => 'Edit history';
+
+  @override
+  String get expComments => 'Comments';
+
+  @override
+  String get expCommentsSoon => 'Comments arrive in a later update.';
+
+  @override
+  String get expNotFoundTitle => 'This expense isn\'t here';
+
+  @override
+  String get expNotFoundBody => 'It may have been deleted on another phone.';
+
+  @override
+  String expYouLentAmount(String amount) {
+    return 'You lent $amount';
+  }
+
+  @override
+  String expYouBorrowedAmount(String amount) {
+    return 'You borrowed $amount';
+  }
+
+  @override
+  String get expNotInvolvedLong => 'You\'re not involved';
+
+  @override
+  String get expNoBalanceLong => 'You\'re even on this one';
+
+  @override
+  String get expDefaultSplitTitle => 'Default split';
+
+  @override
+  String expDefaultSplitBody(String group) {
+    return 'New expenses in $group start with this split. If the members change, they go back to equal.';
+  }
+
+  @override
+  String get expDefaultSplitEqualNote => 'Everyone pays the same share.';
+
+  @override
+  String get expDefaultSplitSaved => 'Default split saved';
+
+  @override
+  String get expPickGroup => 'Add to which group?';
+
+  @override
+  String get expNoGroupFirst => 'Create a group first, then add expenses to it.';
+
+  @override
+  String get catFood => 'Food';
+
+  @override
+  String get catGroceries => 'Groceries';
+
+  @override
+  String get catTravel => 'Travel';
+
+  @override
+  String get catRent => 'Rent';
+
+  @override
+  String get catUtilities => 'Utilities';
+
+  @override
+  String get catShopping => 'Shopping';
+
+  @override
+  String get catEntertainment => 'Entertainment';
+
+  @override
+  String get catOther => 'Other';
+
+  @override
+  String get catFoodDiningOut => 'Dining out';
+
+  @override
+  String get catFoodTakeaway => 'Takeaway';
+
+  @override
+  String get catFoodSnacks => 'Snacks';
+
+  @override
+  String get catGroceriesGroceries => 'Groceries';
+
+  @override
+  String get catGroceriesHousehold => 'Household';
+
+  @override
+  String get catTravelFlights => 'Flights';
+
+  @override
+  String get catTravelTrainBus => 'Train & bus';
+
+  @override
+  String get catTravelCabAuto => 'Cab & auto';
+
+  @override
+  String get catTravelFuel => 'Fuel';
+
+  @override
+  String get catTravelHotel => 'Hotel';
+
+  @override
+  String get catTravelParkingTolls => 'Parking & tolls';
+
+  @override
+  String get catRentRent => 'Rent';
+
+  @override
+  String get catRentMaintenance => 'Maintenance';
+
+  @override
+  String get catUtilitiesElectricity => 'Electricity';
+
+  @override
+  String get catUtilitiesWater => 'Water';
+
+  @override
+  String get catUtilitiesGas => 'Gas';
+
+  @override
+  String get catUtilitiesInternetPhone => 'Internet & phone';
+
+  @override
+  String get catUtilitiesSubscriptions => 'Subscriptions';
+
+  @override
+  String get catShoppingClothing => 'Clothing';
+
+  @override
+  String get catShoppingElectronics => 'Electronics';
+
+  @override
+  String get catShoppingGifts => 'Gifts';
+
+  @override
+  String get catShoppingOther => 'Other shopping';
+
+  @override
+  String get catEntertainmentMovies => 'Movies';
+
+  @override
+  String get catEntertainmentEvents => 'Events';
+
+  @override
+  String get catEntertainmentGames => 'Games';
+
+  @override
+  String get catEntertainmentSports => 'Sports';
+
+  @override
+  String get catOtherGeneral => 'General';
+
+  @override
+  String get catOtherMedical => 'Medical';
+
+  @override
+  String get catOtherEducation => 'Education';
+
+  @override
+  String get catOtherServices => 'Services';
+
+  @override
   String get signInTitle => 'How would you like to sign in?';
 
   @override

@@ -15,6 +15,7 @@ final class ExpenseView {
     required this.owed,
     required this.names,
     this.meId,
+    this.userNames = const {},
   });
 
   final LocalExpense expense;
@@ -28,6 +29,9 @@ final class ExpenseView {
 
   /// The viewer's member id in this group, if any.
   final String? meId;
+
+  /// Display names by account id (who added or edited the expense).
+  final Map<String, String> userNames;
 
   String nameOf(String memberId) => names[memberId] ?? '';
 
@@ -56,6 +60,10 @@ List<ExpenseView> expenseViews(
   String? userId,
 ) {
   final names = {for (final m in members) m.id: m.displayName};
+  final userNames = {
+    for (final m in members)
+      if (m.userId != null) m.userId!: m.displayName,
+  };
   final meId = members
       .where((m) => userId != null && m.userId == userId && m.deletedAt == null)
       .map((m) => m.id)
@@ -68,6 +76,7 @@ List<ExpenseView> expenseViews(
         owed: _ints(e.shares),
         names: names,
         meId: meId,
+        userNames: userNames,
       ),
   ];
 }
@@ -126,3 +135,15 @@ class ExpenseActions {
   Future<void> restore(LocalExpense e) =>
       _ref.read(expensesRepositoryProvider).restore(e.id, e.groupId);
 }
+
+/// True while the last sync attempt found no network (editor header shows "saved offline").
+final syncOfflineProvider = StreamProvider.autoDispose<bool>((ref) async* {
+  final engine = ref.watch(syncEngineProvider);
+  yield engine.phase == SyncPhase.offline;
+  yield* engine.phases.map((p) => p == SyncPhase.offline);
+});
+
+/// The group an expense belongs to (detail hero cover, editor header).
+final expenseGroupProvider = StreamProvider.autoDispose.family<LocalGroup?, String>(
+  (ref, id) => ref.watch(groupsRepositoryProvider).watchOne(id),
+);

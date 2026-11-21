@@ -23,6 +23,7 @@ class StepHeader extends StatelessWidget {
     this.statusIcon = AppIcons.shieldCheckFill,
     this.onBack,
     this.onHome,
+    this.onStepTap,
     super.key,
   });
 
@@ -34,6 +35,9 @@ class StepHeader extends StatelessWidget {
   final IconData statusIcon;
   final VoidCallback? onBack;
   final VoidCallback? onHome;
+
+  /// Jump to a step (null = steps are not tappable).
+  final ValueChanged<int>? onStepTap;
 
   @override
   Widget build(BuildContext context) {
@@ -86,6 +90,7 @@ class StepHeader extends StatelessWidget {
                         index: i,
                         current: current,
                         last: i == steps.length - 1,
+                        onTap: onStepTap == null ? null : () => onStepTap!(i),
                       ),
                     ),
                 ],
@@ -104,12 +109,14 @@ class _StepCell extends StatelessWidget {
     required this.index,
     required this.current,
     required this.last,
+    this.onTap,
   });
 
   final StepItem step;
   final int index;
   final int current;
   final bool last;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -119,19 +126,23 @@ class _StepCell extends StatelessWidget {
     final active = index == current;
     final color = active ? c.primary : (done ? c.textPrimary : c.textTertiary);
     final label = done ? l.stepDone(step.label) : (active ? l.stepCurrent(step.label) : step.label);
-    return Semantics(
+    final cell = Semantics(
       label: label,
+      button: onTap != null,
       excludeSemantics: true,
       child: Column(
         children: [
-          FittedBox(
-            fit: BoxFit.scaleDown,
-            child: Text(
-              step.label,
-              maxLines: 1,
-              style: context.text.bodySmall
-                  .w(active ? 600 : 500)
-                  .copyWith(color: active ? c.primary : c.textPrimary),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 2),
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                step.label,
+                maxLines: 1,
+                style: context.text.bodySmall
+                    .w(active ? 600 : 500)
+                    .copyWith(color: active ? c.primary : c.textPrimary),
+              ),
             ),
           ),
           const SizedBox(height: AppSpacing.s2),
@@ -158,6 +169,8 @@ class _StepCell extends StatelessWidget {
         ],
       ),
     );
+    if (onTap == null) return cell;
+    return InkWell(onTap: onTap, borderRadius: AppRadii.all16, child: cell);
   }
 }
 

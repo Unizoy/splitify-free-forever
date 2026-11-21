@@ -22,7 +22,7 @@ class AmountRow extends StatelessWidget {
 
   final String title;
 
-  /// Formatted amount without a sign ("₹1,200"); the sign comes from [tone].
+  /// Formatted amount without a sign ("₹1,200"); the sign comes from [tone]. Empty = caption only.
   final String amountText;
   final MoneyTone tone;
   final String? caption;
@@ -56,7 +56,8 @@ class AmountRow extends StatelessWidget {
     final right = Column(
       crossAxisAlignment: large ? CrossAxisAlignment.start : CrossAxisAlignment.end,
       children: [
-        Text(signed, style: context.text.title.w(700).copyWith(color: color)),
+        if (amountText.isNotEmpty)
+          Text(signed, style: context.text.title.w(700).copyWith(color: color)),
         if (amountCaption != null)
           Text(amountCaption!, style: context.text.caption.copyWith(color: color)),
       ],
