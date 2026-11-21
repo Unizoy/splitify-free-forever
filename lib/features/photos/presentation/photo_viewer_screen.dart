@@ -129,6 +129,7 @@ class _PhotoViewerScreenState extends State<PhotoViewerScreen> {
       child: Scaffold(
         backgroundColor: AppPalette.black,
         body: Stack(
+          fit: StackFit.expand,
           children: [
             Positioned.fill(
               child: Semantics(
@@ -147,27 +148,33 @@ class _PhotoViewerScreenState extends State<PhotoViewerScreen> {
                 ),
               ),
             ),
-            SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s3),
-                child: Row(
-                  children: [
-                    HeroIconButton(
-                      key: const Key('photo-close'),
-                      icon: AppIcons.close,
-                      tooltip: l.photoClose,
-                      onPressed: () => Navigator.of(context).maybePop(),
-                    ),
-                    const SizedBox(width: AppSpacing.s2),
-                    Expanded(
-                      child: Text(
-                        widget.title,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: context.text.title.w(600).copyWith(color: c.onHero),
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              child: SafeArea(
+                bottom: false,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s3),
+                  child: Row(
+                    children: [
+                      HeroIconButton(
+                        key: const Key('photo-close'),
+                        icon: AppIcons.close,
+                        tooltip: l.photoClose,
+                        onPressed: () => Navigator.of(context).maybePop(),
                       ),
-                    ),
-                  ],
+                      const SizedBox(width: AppSpacing.s2),
+                      Expanded(
+                        child: Text(
+                          widget.title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: context.text.title.w(600).copyWith(color: c.onHero),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),

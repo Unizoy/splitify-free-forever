@@ -70,7 +70,7 @@ void main() {
       expect(find.byType(AmountRow), findsNWidgets(4));
       expect(find.text('Cab to airport'), findsOneWidget);
       expect(find.text('Rahul Mehta paid ₹1,200 · 21 Nov'), findsOneWidget);
-      expect(find.text('2 people paid ₹18,000 · 25 Oct'), findsOneWidget);
+      expect(find.text('You and Asha Rao paid ₹18,000 · 25 Oct'), findsOneWidget);
     });
 
     // TC-13-01
