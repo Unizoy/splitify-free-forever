@@ -3,12 +3,12 @@
 Updated by plan-execution sessions only (see `11-execution-protocol.md`). Status values:
 `todo` · `in-progress` · `done` · `done-with-blockers` · `blocked` · `owner` (owner-only phase).
 
-Current phase: 01 (in-progress)
+Current phase: _none in progress_ (01 done, next: 02 or 03)
 
 | # | Phase | Depends on | Needs owner setup | Status | Branch | Finished | Last commit | Report |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | 00 | [Owner setup (one-time, by hand)](phases/phase-00-owner-setup.md) | — | is the setup | owner | — | | | |
-| 01 | [Bootstrap, tooling, CI](phases/phase-01-bootstrap.md) | — | no | in-progress | phase/01-bootstrap | | | |
+| 01 | [Bootstrap, tooling, CI](phases/phase-01-bootstrap.md) | — | no | done | phase/01-bootstrap | 2026-11-21 | see git log | [report](reports/phase-01.md) |
 | 02 | [Design system and app shell](phases/phase-02-design-system.md) | 01 | no | todo | phase/02-design-system | | | |
 | 03 | [Money engine (pure Dart)](phases/phase-03-money-engine.md) | 01 | no | todo | phase/03-money-engine | | | |
 | 04 | [Backend foundation](phases/phase-04-backend-foundation.md) | 03 | 00 (Supabase + MCP) | todo | phase/04-backend-foundation | | | |

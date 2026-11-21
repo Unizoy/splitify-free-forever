@@ -71,3 +71,7 @@ Added by execution sessions (format: `S-0xx | date | phase | decision | reason |
 
 | ID | Date | Phase | Decision | Reason | Rejected alternatives |
 | --- | --- | --- | --- | --- | --- |
+| S-001 | 2026-11-21 | 01 | Keep `package:flutter/material.dart` (deprecated in 3.50 in favour of `material_ui`, info-level only); do not add `material_ui` | Not in the §5 package table; deprecation is non-fatal (`--no-fatal-infos`) | Add `material_ui` now (revisit when the lint becomes a warning) |
+| S-002 | 2026-11-21 | 01 | `dart format` and CI format check cover `lib test integration_test tool` only | `dart format .` crashes on transient Gradle dirs under `build/` | Format `.` |
+| S-003 | 2026-11-21 | 01 | Generated l10n Dart files (`lib/l10n/app_localizations*.dart`) are committed; `l10n.yaml` has no `synthetic-package` | Flutter 3.50 ignores that key; CI needs them without extra steps | Git-ignore and generate in CI |
+| S-004 | 2026-11-21 | 01 | `very_good_analysis` info lints are not fatal (`--no-fatal-infos`); warnings/errors are | Matches the verify skill; new 3.50 lints are noisy | Fix all infos now |
