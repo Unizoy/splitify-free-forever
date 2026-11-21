@@ -28,6 +28,7 @@ import 'package:splitify/data/remote/supabase_remote_api.dart';
 import 'package:splitify/data/sync/sync_types.dart';
 import 'package:splitify/domain/entities/prepared_image.dart';
 import 'package:splitify/features/auth/application/auth_providers.dart';
+import 'package:splitify/features/expenses/presentation/editor/amount_step.dart';
 import 'package:splitify/features/expenses/presentation/expense_routes.dart';
 import 'package:splitify/features/groups/application/groups_providers.dart';
 import 'package:splitify/features/photos/application/photo_compression.dart';
@@ -233,7 +234,15 @@ void main() {
 
       // Loan: I lent Asha ₹500.
       router.go(ExpenseRoutes.addLoan(gid));
-      await _pumpFor(t, const Duration(seconds: 1));
+      await pumpUntil(
+        t,
+        () => find.byKey(const Key('loan-direction')).evaluate().isNotEmpty,
+        reason: 'loan screen',
+      );
+      if (find.byType(AmountKeypad).evaluate().isEmpty) {
+        debugPrint('loan keypad closed (viewInsets ${t.view.viewInsets}); opening it');
+        await _tap(t, find.byKey(const Key('loan-amount-tap')));
+      }
       await _keys(t, '500');
       await _tap(t, find.byKey(Key('loan-person-$asha')));
       expect(find.text('You lent Asha ₹500'), findsOneWidget);
