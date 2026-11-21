@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:logging/logging.dart';
 import 'package:splitify/core/config/preferences.dart';
 import 'package:splitify/data/data_providers.dart';
 import 'package:splitify/data/media_providers.dart';
@@ -40,7 +41,12 @@ final localWipeProvider = Provider<LocalWipe>(
     prefs: ref.watch(sharedPreferencesProvider),
     clearDatabase: () async {
       await ref.read(syncRepositoryProvider).wipeLocal();
-      await ref.read(mediaFilesProvider).wipe();
+      try {
+        await ref.read(mediaFilesProvider).wipe();
+      } on Object catch (e) {
+        // Photo files must never block a sign-out (no file system plugin in some test setups).
+        Logger('auth').warning('photo files not wiped: $e');
+      }
     },
   ),
 );
