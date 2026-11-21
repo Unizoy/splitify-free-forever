@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart' show OverflowBoxFit;
 import 'package:flutter/services.dart';
 import 'package:splitify/ui/theme/theme.dart';
 
@@ -65,23 +66,33 @@ class CapsuleNavBar extends StatelessWidget {
               child: LayoutBuilder(
                 builder: (context, constraints) {
                   final activeWidth = constraints.maxWidth - _inactiveWidth * (items.length - 1);
-                  return Row(
-                    children: [
-                      for (var i = 0; i < items.length; i++)
-                        AnimatedContainer(
-                          duration: context.motion.showcase,
-                          curve: context.motion.spring,
-                          width: i == currentIndex ? activeWidth : _inactiveWidth,
-                          child: _NavButton(
-                            item: items[i],
-                            active: i == currentIndex,
-                            onTap: () {
-                              if (i != currentIndex) HapticFeedback.selectionClick();
-                              onSelected(i);
-                            },
-                          ),
-                        ),
-                    ],
+                  // While the pills swap, the spring curve overshoots and the widths can add up to a
+                  // pixel or two more than the bar: lay them out unbounded and clip instead of overflowing.
+                  return ClipRect(
+                    child: OverflowBox(
+                      alignment: AlignmentDirectional.centerStart,
+                      maxWidth: double.infinity,
+                      fit: OverflowBoxFit.deferToChild,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          for (var i = 0; i < items.length; i++)
+                            AnimatedContainer(
+                              duration: context.motion.showcase,
+                              curve: context.motion.spring,
+                              width: i == currentIndex ? activeWidth : _inactiveWidth,
+                              child: _NavButton(
+                                item: items[i],
+                                active: i == currentIndex,
+                                onTap: () {
+                                  if (i != currentIndex) HapticFeedback.selectionClick();
+                                  onSelected(i);
+                                },
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
                   );
                 },
               ),
