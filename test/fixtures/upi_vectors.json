@@ -1,0 +1,611 @@
+{
+ "version": 1,
+ "spec": "CLAUDE.md rule 13, planning/08-feature-specs.md #26, planning/research/06-upi-release-ci.md Â§1",
+ "rules": [
+  "Checks in order: currency == INR (UPI_CURRENCY_NOT_INR), 1 <= amount_minor <= 999999999999 (AMOUNT_NOT_POSITIVE / AMOUNT_TOO_LARGE), UPI ID (UPI_INVALID_VPA).",
+  "UPI ID: trimmed, must match ^[a-zA-Z0-9][a-zA-Z0-9._-]{1,255}@[a-zA-Z][a-zA-Z0-9]{1,63}$, handle lower-cased.",
+  "pn/tn: whitespace collapsed, characters outside printable ASCII dropped, trimmed; tn cut to 50 characters then right-trimmed; empty tn is left out; empty pn falls back to the UPI ID.",
+  "Encoding: every byte except A-Z a-z 0-9 - . _ ~ as %XX (upper case); space is %20.",
+  "am: integer paise as plain decimal rupees with 2 decimals; cu is always INR."
+ ],
+ "vectors": [
+  {
+   "id": "UPI-01",
+   "input": {
+    "vpa": "rahul@okicici",
+    "name": "Rahul Sharma",
+    "amount_minor": 10050,
+    "currency": "INR",
+    "note": "Splitify: Goa trip"
+   },
+   "note": "spec example",
+   "expect": {
+    "uri": "upi://pay?pa=rahul@okicici&pn=Rahul%20Sharma&am=100.50&cu=INR&tn=Splitify%3A%20Goa%20trip",
+    "vpa": "rahul@okicici",
+    "name": "Rahul Sharma",
+    "amount": "100.50",
+    "note": "Splitify: Goa trip"
+   }
+  },
+  {
+   "id": "UPI-02",
+   "input": {
+    "vpa": "rahul@okicici",
+    "name": "Rahul Sharma",
+    "amount_minor": 1,
+    "currency": "INR",
+    "note": "Splitify: Goa trip"
+   },
+   "note": "1 paisa",
+   "expect": {
+    "uri": "upi://pay?pa=rahul@okicici&pn=Rahul%20Sharma&am=0.01&cu=INR&tn=Splitify%3A%20Goa%20trip",
+    "vpa": "rahul@okicici",
+    "name": "Rahul Sharma",
+    "amount": "0.01",
+    "note": "Splitify: Goa trip"
+   }
+  },
+  {
+   "id": "UPI-03",
+   "input": {
+    "vpa": "rahul@okicici",
+    "name": "Rahul Sharma",
+    "amount_minor": 50000,
+    "currency": "INR",
+    "note": "Splitify: Goa trip"
+   },
+   "note": "whole rupees keep .00",
+   "expect": {
+    "uri": "upi://pay?pa=rahul@okicici&pn=Rahul%20Sharma&am=500.00&cu=INR&tn=Splitify%3A%20Goa%20trip",
+    "vpa": "rahul@okicici",
+    "name": "Rahul Sharma",
+    "amount": "500.00",
+    "note": "Splitify: Goa trip"
+   }
+  },
+  {
+   "id": "UPI-04",
+   "input": {
+    "vpa": "rahul@okicici",
+    "name": "Rahul Sharma",
+    "amount_minor": 999999999999,
+    "currency": "INR",
+    "note": "Splitify: Goa trip"
+   },
+   "note": "largest amount",
+   "expect": {
+    "uri": "upi://pay?pa=rahul@okicici&pn=Rahul%20Sharma&am=9999999999.99&cu=INR&tn=Splitify%3A%20Goa%20trip",
+    "vpa": "rahul@okicici",
+    "name": "Rahul Sharma",
+    "amount": "9999999999.99",
+    "note": "Splitify: Goa trip"
+   }
+  },
+  {
+   "id": "UPI-05",
+   "input": {
+    "vpa": "rahul@okicici",
+    "name": "Rahul Sharma",
+    "amount_minor": 105,
+    "currency": "INR",
+    "note": "Splitify: Goa trip"
+   },
+   "note": "single-digit paise padded",
+   "expect": {
+    "uri": "upi://pay?pa=rahul@okicici&pn=Rahul%20Sharma&am=1.05&cu=INR&tn=Splitify%3A%20Goa%20trip",
+    "vpa": "rahul@okicici",
+    "name": "Rahul Sharma",
+    "amount": "1.05",
+    "note": "Splitify: Goa trip"
+   }
+  },
+  {
+   "id": "UPI-06",
+   "input": {
+    "vpa": "rahul@okicici",
+    "name": "Rahul Sharma",
+    "amount_minor": 0,
+    "currency": "INR",
+    "note": "Splitify: Goa trip"
+   },
+   "expect": {
+    "error": "AMOUNT_NOT_POSITIVE"
+   }
+  },
+  {
+   "id": "UPI-07",
+   "input": {
+    "vpa": "rahul@okicici",
+    "name": "Rahul Sharma",
+    "amount_minor": -10050,
+    "currency": "INR",
+    "note": "Splitify: Goa trip"
+   },
+   "expect": {
+    "error": "AMOUNT_NOT_POSITIVE"
+   }
+  },
+  {
+   "id": "UPI-08",
+   "input": {
+    "vpa": "rahul@okicici",
+    "name": "Rahul Sharma",
+    "amount_minor": 1000000000000,
+    "currency": "INR",
+    "note": "Splitify: Goa trip"
+   },
+   "expect": {
+    "error": "AMOUNT_TOO_LARGE"
+   }
+  },
+  {
+   "id": "UPI-09",
+   "input": {
+    "vpa": "rahul@okicici",
+    "name": "Rahul Sharma",
+    "amount_minor": 10050,
+    "currency": "USD",
+    "note": "Splitify: Goa trip"
+   },
+   "note": "never convert",
+   "expect": {
+    "error": "UPI_CURRENCY_NOT_INR"
+   }
+  },
+  {
+   "id": "UPI-10",
+   "input": {
+    "vpa": "rahul@okicici",
+    "name": "Rahul Sharma",
+    "amount_minor": 10050,
+    "currency": "inr",
+    "note": "Splitify: Goa trip"
+   },
+   "note": "code is case-sensitive",
+   "expect": {
+    "error": "UPI_CURRENCY_NOT_INR"
+   }
+  },
+  {
+   "id": "UPI-11",
+   "input": {
+    "vpa": "  Rahul.S-1_x@OkAxis ",
+    "name": "Rahul Sharma",
+    "amount_minor": 10050,
+    "currency": "INR",
+    "note": "Splitify: Goa trip"
+   },
+   "note": "trimmed, handle lower-cased, local part kept",
+   "expect": {
+    "uri": "upi://pay?pa=Rahul.S-1_x@okaxis&pn=Rahul%20Sharma&am=100.50&cu=INR&tn=Splitify%3A%20Goa%20trip",
+    "vpa": "Rahul.S-1_x@okaxis",
+    "name": "Rahul Sharma",
+    "amount": "100.50",
+    "note": "Splitify: Goa trip"
+   }
+  },
+  {
+   "id": "UPI-12",
+   "input": {
+    "vpa": "9876543210@ybl",
+    "name": "Rahul Sharma",
+    "amount_minor": 10050,
+    "currency": "INR",
+    "note": "Splitify: Goa trip"
+   },
+   "expect": {
+    "uri": "upi://pay?pa=9876543210@ybl&pn=Rahul%20Sharma&am=100.50&cu=INR&tn=Splitify%3A%20Goa%20trip",
+    "vpa": "9876543210@ybl",
+    "name": "Rahul Sharma",
+    "amount": "100.50",
+    "note": "Splitify: Goa trip"
+   }
+  },
+  {
+   "id": "UPI-13",
+   "input": {
+    "vpa": "rahul",
+    "name": "Rahul Sharma",
+    "amount_minor": 10050,
+    "currency": "INR",
+    "note": "Splitify: Goa trip"
+   },
+   "expect": {
+    "error": "UPI_INVALID_VPA"
+   }
+  },
+  {
+   "id": "UPI-14",
+   "input": {
+    "vpa": "ra hul@okicici",
+    "name": "Rahul Sharma",
+    "amount_minor": 10050,
+    "currency": "INR",
+    "note": "Splitify: Goa trip"
+   },
+   "expect": {
+    "error": "UPI_INVALID_VPA"
+   }
+  },
+  {
+   "id": "UPI-15",
+   "input": {
+    "vpa": "@okicici",
+    "name": "Rahul Sharma",
+    "amount_minor": 10050,
+    "currency": "INR",
+    "note": "Splitify: Goa trip"
+   },
+   "expect": {
+    "error": "UPI_INVALID_VPA"
+   }
+  },
+  {
+   "id": "UPI-16",
+   "input": {
+    "vpa": "r@okicici",
+    "name": "Rahul Sharma",
+    "amount_minor": 10050,
+    "currency": "INR",
+    "note": "Splitify: Goa trip"
+   },
+   "note": "local part needs 2+ characters",
+   "expect": {
+    "error": "UPI_INVALID_VPA"
+   }
+  },
+  {
+   "id": "UPI-17",
+   "input": {
+    "vpa": "rahul@ok icici",
+    "name": "Rahul Sharma",
+    "amount_minor": 10050,
+    "currency": "INR",
+    "note": "Splitify: Goa trip"
+   },
+   "expect": {
+    "error": "UPI_INVALID_VPA"
+   }
+  },
+  {
+   "id": "UPI-18",
+   "input": {
+    "vpa": "rahul@1bank",
+    "name": "Rahul Sharma",
+    "amount_minor": 10050,
+    "currency": "INR",
+    "note": "Splitify: Goa trip"
+   },
+   "note": "handle starts with a letter",
+   "expect": {
+    "error": "UPI_INVALID_VPA"
+   }
+  },
+  {
+   "id": "UPI-19",
+   "input": {
+    "vpa": "rahul@@okicici",
+    "name": "Rahul Sharma",
+    "amount_minor": 10050,
+    "currency": "INR",
+    "note": "Splitify: Goa trip"
+   },
+   "expect": {
+    "error": "UPI_INVALID_VPA"
+   }
+  },
+  {
+   "id": "UPI-20",
+   "input": {
+    "vpa": ".rahul@okicici",
+    "name": "Rahul Sharma",
+    "amount_minor": 10050,
+    "currency": "INR",
+    "note": "Splitify: Goa trip"
+   },
+   "expect": {
+    "error": "UPI_INVALID_VPA"
+   }
+  },
+  {
+   "id": "UPI-21",
+   "input": {
+    "vpa": "rahul@o",
+    "name": "Rahul Sharma",
+    "amount_minor": 10050,
+    "currency": "INR",
+    "note": "Splitify: Goa trip"
+   },
+   "expect": {
+    "error": "UPI_INVALID_VPA"
+   }
+  },
+  {
+   "id": "UPI-22",
+   "input": {
+    "vpa": "",
+    "name": "Rahul Sharma",
+    "amount_minor": 10050,
+    "currency": "INR",
+    "note": "Splitify: Goa trip"
+   },
+   "expect": {
+    "error": "UPI_INVALID_VPA"
+   }
+  },
+  {
+   "id": "UPI-23",
+   "input": {
+    "vpa": "rahul@ok.icici",
+    "name": "Rahul Sharma",
+    "amount_minor": 10050,
+    "currency": "INR",
+    "note": "Splitify: Goa trip"
+   },
+   "note": "no dot in handle",
+   "expect": {
+    "error": "UPI_INVALID_VPA"
+   }
+  },
+  {
+   "id": "UPI-24",
+   "input": {
+    "vpa": "rahul@okicici",
+    "name": "Rahul Sharma",
+    "amount_minor": 0,
+    "currency": "USD",
+    "note": "Splitify: Goa trip"
+   },
+   "note": "currency checked first",
+   "expect": {
+    "error": "UPI_CURRENCY_NOT_INR"
+   }
+  },
+  {
+   "id": "UPI-25",
+   "input": {
+    "vpa": "bad",
+    "name": "Rahul Sharma",
+    "amount_minor": 0,
+    "currency": "INR",
+    "note": "Splitify: Goa trip"
+   },
+   "note": "amount checked before the UPI ID",
+   "expect": {
+    "error": "AMOUNT_NOT_POSITIVE"
+   }
+  },
+  {
+   "id": "UPI-26",
+   "input": {
+    "vpa": "rahul@okicici",
+    "name": "Rahul Sharma",
+    "amount_minor": 10050,
+    "currency": "INR",
+    "note": "Splitify: Weekend trip to Goa with college friends 2026"
+   },
+   "note": "note cut to 50 characters",
+   "expect": {
+    "uri": "upi://pay?pa=rahul@okicici&pn=Rahul%20Sharma&am=100.50&cu=INR&tn=Splitify%3A%20Weekend%20trip%20to%20Goa%20with%20college%20friends",
+    "vpa": "rahul@okicici",
+    "name": "Rahul Sharma",
+    "amount": "100.50",
+    "note": "Splitify: Weekend trip to Goa with college friends"
+   }
+  },
+  {
+   "id": "UPI-27",
+   "input": {
+    "vpa": "rahul@okicici",
+    "name": "Rahul Sharma",
+    "amount_minor": 10050,
+    "currency": "INR",
+    "note": "Splitify: Weekend trip to Goa with the old gang & more"
+   },
+   "note": "cut lands on a space, trailing space trimmed",
+   "expect": {
+    "uri": "upi://pay?pa=rahul@okicici&pn=Rahul%20Sharma&am=100.50&cu=INR&tn=Splitify%3A%20Weekend%20trip%20to%20Goa%20with%20the%20old%20gang%20%26",
+    "vpa": "rahul@okicici",
+    "name": "Rahul Sharma",
+    "amount": "100.50",
+    "note": "Splitify: Weekend trip to Goa with the old gang &"
+   }
+  },
+  {
+   "id": "UPI-28",
+   "input": {
+    "vpa": "rahul@okicici",
+    "name": "Rahul Sharma",
+    "amount_minor": 10050,
+    "currency": "INR",
+    "note": "Splitify: dinner at Taj, 2 drinks + cake, paid all"
+   },
+   "note": "exactly 50 characters kept",
+   "expect": {
+    "uri": "upi://pay?pa=rahul@okicici&pn=Rahul%20Sharma&am=100.50&cu=INR&tn=Splitify%3A%20dinner%20at%20Taj%2C%202%20drinks%20%2B%20cake%2C%20paid%20all",
+    "vpa": "rahul@okicici",
+    "name": "Rahul Sharma",
+    "amount": "100.50",
+    "note": "Splitify: dinner at Taj, 2 drinks + cake, paid all"
+   }
+  },
+  {
+   "id": "UPI-29",
+   "input": {
+    "vpa": "rahul@okicici",
+    "name": "Rahul Sharma",
+    "amount_minor": 10050,
+    "currency": "INR",
+    "note": "Rent & bills #3 = 50% + tip? a/b"
+   },
+   "note": "reserved characters encoded",
+   "expect": {
+    "uri": "upi://pay?pa=rahul@okicici&pn=Rahul%20Sharma&am=100.50&cu=INR&tn=Rent%20%26%20bills%20%233%20%3D%2050%25%20%2B%20tip%3F%20a%2Fb",
+    "vpa": "rahul@okicici",
+    "name": "Rahul Sharma",
+    "amount": "100.50",
+    "note": "Rent & bills #3 = 50% + tip? a/b"
+   }
+  },
+  {
+   "id": "UPI-30",
+   "input": {
+    "vpa": "rahul@okicici",
+    "name": "Rahul Sharma",
+    "amount_minor": 10050,
+    "currency": "INR",
+    "note": "Splitify: Goa 🏖ï¸ trip â‚¹"
+   },
+   "note": "emoji and non-ASCII dropped",
+   "expect": {
+    "uri": "upi://pay?pa=rahul@okicici&pn=Rahul%20Sharma&am=100.50&cu=INR&tn=Splitify%3A%20Goa%20trip",
+    "vpa": "rahul@okicici",
+    "name": "Rahul Sharma",
+    "amount": "100.50",
+    "note": "Splitify: Goa trip"
+   }
+  },
+  {
+   "id": "UPI-31",
+   "input": {
+    "vpa": "rahul@okicici",
+    "name": "Rahul Sharma",
+    "amount_minor": 10050,
+    "currency": "INR",
+    "note": ""
+   },
+   "note": "empty note: no tn",
+   "expect": {
+    "uri": "upi://pay?pa=rahul@okicici&pn=Rahul%20Sharma&am=100.50&cu=INR",
+    "vpa": "rahul@okicici",
+    "name": "Rahul Sharma",
+    "amount": "100.50",
+    "note": ""
+   }
+  },
+  {
+   "id": "UPI-32",
+   "input": {
+    "vpa": "rahul@okicici",
+    "name": "Rahul Sharma",
+    "amount_minor": 10050,
+    "currency": "INR",
+    "note": " \t\n "
+   },
+   "note": "whitespace-only note: no tn",
+   "expect": {
+    "uri": "upi://pay?pa=rahul@okicici&pn=Rahul%20Sharma&am=100.50&cu=INR",
+    "vpa": "rahul@okicici",
+    "name": "Rahul Sharma",
+    "amount": "100.50",
+    "note": ""
+   }
+  },
+  {
+   "id": "UPI-33",
+   "input": {
+    "vpa": "rahul@okicici",
+    "name": "Rahul Sharma",
+    "amount_minor": 10050,
+    "currency": "INR",
+    "note": "Dinner\nat\tTajÂ hotel"
+   },
+   "note": "whitespace collapsed",
+   "expect": {
+    "uri": "upi://pay?pa=rahul@okicici&pn=Rahul%20Sharma&am=100.50&cu=INR&tn=Dinner%20at%20Taj%20hotel",
+    "vpa": "rahul@okicici",
+    "name": "Rahul Sharma",
+    "amount": "100.50",
+    "note": "Dinner at Taj hotel"
+   }
+  },
+  {
+   "id": "UPI-34",
+   "input": {
+    "vpa": "rahul@okicici",
+    "name": "Rahul Sharma",
+    "amount_minor": 10050,
+    "currency": "INR",
+    "note": "a-b_c.d~e!*'()"
+   },
+   "note": "unreserved kept, sub-delims encoded",
+   "expect": {
+    "uri": "upi://pay?pa=rahul@okicici&pn=Rahul%20Sharma&am=100.50&cu=INR&tn=a-b_c.d~e%21%2A%27%28%29",
+    "vpa": "rahul@okicici",
+    "name": "Rahul Sharma",
+    "amount": "100.50",
+    "note": "a-b_c.d~e!*'()"
+   }
+  },
+  {
+   "id": "UPI-35",
+   "input": {
+    "vpa": "rahul@okicici",
+    "name": "à¤°à¤¾à¤¹à¥à¤²",
+    "amount_minor": 10050,
+    "currency": "INR",
+    "note": "Splitify: Goa trip"
+   },
+   "note": "name with no ASCII falls back to the UPI ID",
+   "expect": {
+    "uri": "upi://pay?pa=rahul@okicici&pn=rahul%40okicici&am=100.50&cu=INR&tn=Splitify%3A%20Goa%20trip",
+    "vpa": "rahul@okicici",
+    "name": "rahul@okicici",
+    "amount": "100.50",
+    "note": "Splitify: Goa trip"
+   }
+  },
+  {
+   "id": "UPI-36",
+   "input": {
+    "vpa": "rahul@okicici",
+    "name": "  Rahul   Sharma  ",
+    "amount_minor": 10050,
+    "currency": "INR",
+    "note": "Splitify: Goa trip"
+   },
+   "expect": {
+    "uri": "upi://pay?pa=rahul@okicici&pn=Rahul%20Sharma&am=100.50&cu=INR&tn=Splitify%3A%20Goa%20trip",
+    "vpa": "rahul@okicici",
+    "name": "Rahul Sharma",
+    "amount": "100.50",
+    "note": "Splitify: Goa trip"
+   }
+  },
+  {
+   "id": "UPI-37",
+   "input": {
+    "vpa": "rahul@okicici",
+    "name": "D'Souza & Sons",
+    "amount_minor": 10050,
+    "currency": "INR",
+    "note": "Splitify: Goa trip"
+   },
+   "expect": {
+    "uri": "upi://pay?pa=rahul@okicici&pn=D%27Souza%20%26%20Sons&am=100.50&cu=INR&tn=Splitify%3A%20Goa%20trip",
+    "vpa": "rahul@okicici",
+    "name": "D'Souza & Sons",
+    "amount": "100.50",
+    "note": "Splitify: Goa trip"
+   }
+  },
+  {
+   "id": "UPI-38",
+   "input": {
+    "vpa": "rahul@okicici",
+    "name": "JosÃ© MÃ¼ller",
+    "amount_minor": 10050,
+    "currency": "INR",
+    "note": "Splitify: Goa trip"
+   },
+   "note": "accented letters dropped",
+   "expect": {
+    "uri": "upi://pay?pa=rahul@okicici&pn=Jos%20Mller&am=100.50&cu=INR&tn=Splitify%3A%20Goa%20trip",
+    "vpa": "rahul@okicici",
+    "name": "Jos Mller",
+    "amount": "100.50",
+    "note": "Splitify: Goa trip"
+   }
+  }
+ ]
+}
