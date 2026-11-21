@@ -15,6 +15,7 @@ import 'package:splitify/data/repositories/auth_repository.dart';
 import 'package:splitify/data/sync/local_writer.dart';
 import 'package:splitify/data/remote/remote_providers.dart';
 import 'package:splitify/features/auth/application/auth_providers.dart' hide clockProvider;
+import 'package:splitify/features/expenses/application/expense_providers.dart';
 import 'package:splitify/features/groups/application/groups_providers.dart';
 import 'package:splitify/features/groups/presentation/invite_sheet.dart';
 import 'package:splitify/l10n/app_localizations.dart';
@@ -166,7 +167,11 @@ List<Override> fixedGroupData({
   Set<String> unsynced = const {},
   bool offline = false,
   bool loading = false,
+  Map<String, List<ExpenseView>> expenses = const {},
 }) => [
+  // Phase 08 Expenses tab: fixed rows per group (empty unless given).
+  for (final g in groups)
+    groupExpenseViewsProvider(g.id).overrideWithValue(AsyncData(expenses[g.id] ?? const [])),
   groupsListProvider.overrideWith(
     (ref) => loading ? StreamController<List<LocalGroup>>().stream : Stream.value(groups),
   ),

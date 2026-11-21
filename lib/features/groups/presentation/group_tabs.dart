@@ -2,23 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/components/components.dart';
 import 'package:splitify/ui/theme/theme.dart';
+import 'package:splitify/features/expenses/presentation/expense_list.dart';
 
-/// Expenses tab of the group detail. Phase 08 replaces the body with `ExpenseList(groupId)`.
+/// Expenses tab of the group detail: the phase 08 [ExpenseList] (month headers, rows, empty state).
 class GroupExpensesTab extends StatelessWidget {
   const GroupExpensesTab({required this.groupId, super.key});
 
   final String groupId;
 
   @override
-  Widget build(BuildContext context) {
-    final l = AppLocalizations.of(context);
-    return EmptyState(
-      key: const Key('group-expenses-empty'),
-      icon: AppIcons.receipt,
-      title: l.groupNoExpensesTitle,
-      message: l.groupNoExpensesBody,
-    );
-  }
+  Widget build(BuildContext context) => ExpenseList(groupId: groupId);
 }
 
 /// Balances tab placeholder (phase 09 builds the real one).

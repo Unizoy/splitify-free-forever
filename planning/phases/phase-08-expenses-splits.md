@@ -8,17 +8,17 @@
 
 ## Tasks
 
-- [ ] T1 Add-expense stepper (Amount · Paid by · Split · Details · Review) with fast-path Save; amount keypad with
+- [x] T1 Add-expense stepper (Amount · Paid by · Split · Details · Review) with fast-path Save; amount keypad with
       expressions; currency chip (group main currency; full picker arrives phase 14 — keep the API ready).
-- [ ] T2 Split editor for equal/exact/percent/shares/adjust with live footer, error copy, Save disabled on error;
+- [x] T2 Split editor for equal/exact/percent/shares/adjust with live footer, error copy, Save disabled on error;
       single payer picker (multi-payer in phase 10).
-- [ ] T3 Details: category picker (IconChips, parent → sub, keys from feature spec), date picker (534 style),
+- [x] T3 Details: category picker (IconChips, parent → sub, keys from feature spec), date picker (534 style),
       notes. Review sentence summary.
-- [ ] T4 Expense list in group (month headers, AmountRow with "you lent/borrowed/not involved", SyncMarker),
+- [x] T4 Expense list in group (month headers, AmountRow with "you lent/borrowed/not involved", SyncMarker),
       expense detail screen (hero band, paid/owe rows; comments/history placeholders).
-- [ ] T5 Edit (reopens same editor state from `split_kind` + `split_values`), delete (soft, undo snackbar).
-- [ ] T6 Default split (#35): group settings editor + prefill + fallback.
-- [ ] T7 Widget + golden tests for every editor state; integration: add one expense of each split type offline,
+- [x] T5 Edit (reopens same editor state from `split_kind` + `split_values`), delete (soft, undo snackbar).
+- [x] T6 Default split (#35): group settings editor + prefill + fallback.
+- [x] T7 Widget + golden tests for every editor state; integration: add one expense of each split type offline,
       sync, verify server rows and balances equal local.
 
 ## Tests

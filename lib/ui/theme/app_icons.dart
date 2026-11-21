@@ -65,6 +65,9 @@ abstract final class AppIcons {
   // Things
   static const IconData wallet = IconData(0xe68a, fontFamily: _regular);
   static const IconData receipt = IconData(0xe3ec, fontFamily: _regular);
+  static const IconData backspace = IconData(0xe0ae, fontFamily: _regular);
+  static const IconData history = IconData(0xe1a0, fontFamily: _regular);
+  static const IconData notes = IconData(0xe34c, fontFamily: _regular);
   static const IconData calendar = IconData(0xe10a, fontFamily: _regular);
   static const IconData chat = IconData(0xe16c, fontFamily: _regular);
   static const IconData coins = IconData(0xe78e, fontFamily: _regular);

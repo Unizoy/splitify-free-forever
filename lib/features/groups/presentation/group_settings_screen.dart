@@ -14,6 +14,10 @@ import 'package:splitify/features/groups/presentation/invite_sheet.dart';
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/components/components.dart';
 import 'package:splitify/ui/theme/theme.dart';
+import 'package:splitify/core/money/split.dart';
+import 'package:splitify/domain/rules/default_split.dart';
+import 'package:splitify/features/expenses/presentation/expense_copy.dart';
+import 'package:splitify/features/expenses/presentation/expense_routes.dart';
 
 /// Group settings (`/groups/:id/settings`, 614): edit, invite, members (add name-only with a colour, rename,
 /// unlink a wrong claim, remove / leave when settled), archive and delete (creator). Phase 11/17 add default
@@ -68,8 +72,16 @@ class GroupSettingsScreen extends ConsumerWidget {
               key: const Key('settings-invite'),
               icon: AppIcons.userPlus,
               label: l.invitePeople,
-              showDivider: false,
               onTap: () => unawaited(showInviteSheet(context, groupId)),
+            ),
+            // #35: new expenses start with this split (phase 08).
+            DashedListRow(
+              key: const Key('settings-default-split'),
+              icon: AppIcons.stepSplit,
+              label: l.expDefaultSplitTitle,
+              value: l.splitKind(DefaultSplit.decode(group.defaultSplit)?.kind ?? SplitKind.equal),
+              showDivider: false,
+              onTap: () => context.push(ExpenseRoutes.defaultSplit(groupId)),
             ),
             const SizedBox(height: AppSpacing.s8),
             SectionLabel(

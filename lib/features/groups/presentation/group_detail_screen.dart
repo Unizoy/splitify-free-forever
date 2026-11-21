@@ -12,6 +12,7 @@ import 'package:splitify/features/groups/presentation/invite_sheet.dart';
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/components/components.dart';
 import 'package:splitify/ui/theme/theme.dart';
+import 'package:splitify/features/expenses/presentation/expense_routes.dart';
 
 /// Group detail (`/groups/:id`, 455 hero + 712 tabs): generated cover hero with back, invite and settings,
 /// serif name, status pill, avatar stack; FolderTabs Expenses · Balances · Totals; sticky Add expense /
@@ -88,7 +89,7 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen> {
           ),
         ),
       ),
-      bottomNavigationBar: archived ? null : const _ActionBar(),
+      bottomNavigationBar: archived ? null : _ActionBar(groupId: widget.groupId),
     );
   }
 
@@ -101,10 +102,12 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen> {
   }
 }
 
-/// Add expense (amber, phase 08 wires it) + Settle up (phase 09). Settle up keeps its natural width so
-/// its label never wraps; at large text the two stack.
+/// Add expense (amber, opens the phase 08 stepper) + Settle up (phase 09). Settle up keeps its natural
+/// width so its label never wraps; at large text the two stack.
 class _ActionBar extends StatelessWidget {
-  const _ActionBar();
+  const _ActionBar({required this.groupId});
+
+  final String groupId;
 
   @override
   Widget build(BuildContext context) {
@@ -121,7 +124,7 @@ class _ActionBar extends StatelessWidget {
       label: l.addExpense,
       icon: AppIcons.add,
       variant: PillVariant.money,
-      onPressed: () => showComingSoon(context),
+      onPressed: () => unawaited(context.push(ExpenseRoutes.add(groupId))),
     );
     final large = MediaQuery.textScalerOf(context).scale(1) > 1.4;
     return StickyActionBar(

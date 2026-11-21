@@ -16,6 +16,7 @@ import 'package:splitify/features/auth/presentation/profile_confirm_screen.dart'
 import 'package:splitify/features/auth/presentation/sign_in_screen.dart';
 import 'package:splitify/features/activity/presentation/activity_screen.dart';
 import 'package:splitify/features/debug/presentation/gallery_screen.dart';
+import 'package:splitify/features/expenses/presentation/expense_routes.dart';
 import 'package:splitify/features/friends/presentation/friends_screen.dart';
 import 'package:splitify/features/groups/presentation/deleted_groups_screen.dart';
 import 'package:splitify/features/groups/presentation/group_detail_screen.dart';
@@ -221,6 +222,7 @@ GoRouter buildRouter({String initialLocation = Routes.welcome, AuthGate? gate}) 
         ),
       ],
     ),
+    ...expenseRoutes(),
     if (kDebugMode) ...[
       GoRoute(path: Routes.gallery, builder: (context, state) => const GalleryScreen()),
       GoRoute(

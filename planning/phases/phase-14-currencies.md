@@ -23,3 +23,5 @@
 TC-14-02, TC-32-02, TC-32-04, TC-32-05 (+ re-run TC-32-01/03 parity).
 
 Pre-built (phase 06 session, branch prep/edge-functions): `supabase/functions/fetch-rates/{index,rates,rates_test}.ts`, `supabase/functions/_shared/admin_client.ts`; deploy + table DDL still in this phase.
+
+Pre-built (branch prep/fx-service): T3 `FxService` logic in `lib/features/currency/domain/fx_service.dart` (`RatesSource` interface, rate for date with previous-date fallback, cross rate via `crossRate`, typed manual-rate result, `manualRate` via `parseRate`; S-093..S-095) + tests `test/features/currency/domain/fx_service_test.dart` (100 % lines). Drift rates table, pull and UI still in this phase.

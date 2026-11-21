@@ -5,6 +5,7 @@ import 'package:splitify/data/local/app_database.dart';
 import 'package:splitify/data/remote/groups_remote.dart';
 import 'package:splitify/features/groups/application/groups_providers.dart';
 import 'package:splitify/ui/components/components.dart';
+import 'package:splitify/features/expenses/presentation/expense_list.dart';
 
 import '../../support/group_fakes.dart';
 import '../../support/group_harness.dart';
@@ -238,7 +239,9 @@ void main() {
       );
       expect(find.text('Goa trip'), findsWidgets);
       expect(find.text('3 members'), findsOneWidget);
-      expect(_key('group-expenses-empty'), findsOneWidget);
+      expect(find.byType(ExpenseList), findsOneWidget); // phase 08 Expenses tab
+      await settle(tester);
+      expect(_key('expenses-empty-add'), findsOneWidget);
       expect(find.byType(SyncMarker), findsOneWidget);
       await tester.tap(find.text('Balances'));
       await settle(tester);

@@ -129,3 +129,6 @@ desktop.ini
 
 # Real-font goldens for local visual review only (S-007)
 test/goldens/goldens/windows/
+
+# alchemist/flutter golden failure artefacts
+test/goldens/failures/

@@ -20,6 +20,7 @@ import 'package:splitify/ui/theme/theme.dart';
 import '../data/sync/sync_fakes.dart' show FakeClock;
 import '../support/fakes.dart' hide FakeClock;
 import '../support/group_fakes.dart';
+import '../features/expenses/expense_fixtures.dart' show sampleViews;
 import '../support/group_harness.dart' show fixedGroupData;
 import 'golden_support.dart';
 
@@ -137,7 +138,12 @@ final _members = [
   sampleMember(id: 'm-dev', userId: 'u3', name: 'Dev Shah', position: 3, tint: 2),
 ];
 
-List<Override> _groupData() => fixedGroupData(groups: [_goa], members: {'g-goa': _members});
+// The Expenses tab shows phase 08's sample rows (two months, one unsynced).
+List<Override> _groupData() => fixedGroupData(
+  groups: [_goa],
+  members: {'g-goa': _members},
+  expenses: {'g-goa': sampleViews()},
+);
 
 /// One screen to capture: its route, the data behind it and what to do before the picture.
 typedef _Shot = ({
