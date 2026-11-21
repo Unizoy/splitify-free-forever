@@ -18,7 +18,7 @@
       expense detail screen (hero band, paid/owe rows; comments/history placeholders).
 - [x] T5 Edit (reopens same editor state from `split_kind` + `split_values`), delete (soft, undo snackbar).
 - [x] T6 Default split (#35): group settings editor + prefill + fallback.
-- [ ] T7 Widget + golden tests for every editor state; integration: add one expense of each split type offline,
+- [x] T7 Widget + golden tests for every editor state; integration: add one expense of each split type offline,
       sync, verify server rows and balances equal local.
 
 ## Tests

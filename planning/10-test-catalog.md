@@ -66,7 +66,7 @@ Total: 116 test ids.
 | 08 | TC-35-02 | widget | prefill. | pass (`default_split_routes_test.dart`) |
 | 08 | TC-5..9-03 | widget | editor per type: live remaining, error copy, Save disabled | pass (`split_editor_test.dart`) |
 | 08 | TC-5..9-04 | golden | editor per | pass (`expense_screens_golden_test.dart`, light/dark/200 %) |
-| 08 | TC-5..9-06 | integ | one expense of each split type offline → sync; server rows, server balances and a second member equal the phone | todo |
+| 08 | TC-5..9-06 | integ | one expense of each split type offline → sync; server rows, server balances and a second member equal the phone | pass (`integration_test/expenses_offline_sync_test.dart` on emulator-5554, dev project, 2026-11-22) |
 | 09 | TC-15-03 | widget | balances tab states | todo |
 | 09 | TC-15-04 | integ | local vs server checksum equal after sync. | todo |
 | 09 | TC-18-02 | widget | feed grouping/filters | todo |

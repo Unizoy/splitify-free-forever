@@ -1,7 +1,7 @@
 # Phase 08 report — Expenses and split types (#5–#9, #13, #35)
 
-- Date: 2026-11-22 · Branch: `phase/08-expenses-splits` · Base: `origin/phase/06-sync-engine` (stacked; phase 07 merged in)
-- Commits: `f7292c8..HEAD` · Status: STATUS_PLACEHOLDER
+- Date: 2026-11-22 · Branch: `phase/08-expenses-splits` · Base: `origin/phase/06-sync-engine` (stacked); `origin/phase/07-groups-members` merged in (a064050)
+- Commits: `f7292c8..HEAD` · Status: done
 
 ## Summary
 
@@ -22,7 +22,7 @@ split. Everything works offline and syncs.
 | T4 List + detail | done | `ExpenseList(groupId)` (month headers, AmountRow, SyncMarker, empty / loading / error), `ExpenseDetailScreen` (cover hero, serif amount, paid / split rows, details, history + comments placeholders) |
 | T5 Edit / delete | done | edit reopens the same editor state; delete is soft with an Undo snackbar (restore) |
 | T6 Default split | done | `DefaultSplitScreen` (`/groups/:id/default-split`, equal / percent / shares), prefill + fallback (S-081) |
-| T7 Tests | T7_PLACEHOLDER | |
+| T7 Tests | done | widget + golden for every editor state; integration on the emulator: one expense of each split type offline → sync → server rows, `group_balances` nets and e2e-b's view equal the phone (S-087) |
 
 ## Features delivered
 
@@ -33,27 +33,45 @@ split. Everything works offline and syncs.
 
 ## Tests
 
-- New tests: unit/controller 74 · widget 88 · golden 76 (19 states × light/dark × text 1.0/2.0) · integration 2
-  files (T7 sync, device UI review) · SQL 0 new (031 re-run on dev)
-- Coverage (full run): overall 95.8 % · money 100 % · sync 100 % · domain 100 % · data 85.0 % · application 99.8 % ·
-  presentation 95.2 %
-- Test IDs now passing: TC-5..9-03, TC-5..9-04, TC-13-01, TC-13-02, TC-35-01, TC-35-02; TC-5..9-06 TC6_PLACEHOLDER
+- New tests: unit/controller 57 (74 in the four application test files) · widget 88 · golden 76 (19 states × light/dark × text 1.0/2.0) · integration 2
+  files (T7 offline → sync → server/other member; device UI review) · SQL 0 new (031 re-run on dev)
+- Coverage (full run after the phase 07 merge, 1041 tests): overall 95.9 % · money 100 % · sync 100 % · domain 100 % ·
+  data 87.6 % · application 98.0 % · presentation 95.5 %
+- Test IDs now passing: TC-5..9-03, TC-5..9-04, TC-13-01, TC-13-02, TC-35-01, TC-35-02; TC-5..9-06 (device)
 - Quarantined / skipped: none
 
 ## Gates
 
 | Gate | Result | Evidence |
 | --- | --- | --- |
-| G1 Static | PASS | `dart format` clean; `flutter analyze` 0 errors / 0 warnings (infos only, repo-wide style); guards OK |
-| G2 Tests | PASS | `flutter test --coverage --exclude-tags device,needs-owner,quarantine`: all pass; `coverage_check` all floors pass |
+| G1 Static | PASS | after the merge: `dart format` 0 changed; `flutter analyze --no-fatal-infos` 0 errors / 0 warnings (infos only, repo-wide style); guards OK |
+| G2 Tests | PASS | `flutter test --coverage --exclude-tags device,needs-owner,quarantine`: 1041 pass; `coverage_check` all floors pass |
 | G3 Backend | PASS (no migration needed) | 0001–0010 on dev (`list_migrations`); `031_validation.test.sql` 20/20 on dev in BEGIN…ROLLBACK |
-| G4 Build | PASS | `flutter build apk --debug --dart-define-from-file=secrets/env.dev.json` |
-| G5 Device | G5_PLACEHOLDER | screenshots: `C:\Users\mohit\OneDrive\Desktop\theCode\splitify-artifacts\phase-08\` |
+| G4 Build | PASS | `flutter build apk --debug --dart-define-from-file=secrets/env.dev.json` (before and after the merge) |
+| G5 Device | PASS | `expenses_offline_sync_test.dart` 1/1 on emulator-5554 (before and after the phase 07 merge, `PIN_HOST_IP`); UI review `ui_review_expenses_test.dart` 15 screens × light/dark/200 %, scores below; screenshots: `C:\Users\mohit\OneDrive\Desktop\theCode\splitify-artifacts\phase-08\` |
 | G6 Docs | PASS | phase boxes, test catalog, S-082..S-088, LEARNINGS, this report, PROGRESS |
 
 ### UI review scores (D-018, ≥ 8 required; light, dark and 200 % text)
 
-SCORES_PLACEHOLDER
+Reviewed on the emulator (`ui_review_expenses_test.dart`, 15 screens × light / dark / 200 %) and in real-font goldens.
+
+| Screen | Atlys feel | Typography | Layout | Colour | Signature | Polish | States |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Editor · Amount (keypad) | 9 | 9 | 9 | 9 | 8 | 9 | 9 |
+| Editor · Paid by | 8 | 9 | 8 | 9 | 8 | 8 | 8 |
+| Editor · Split (5 kinds + error) | 8 | 9 | 8 | 9 | 8 | 8 | 9 |
+| Editor · Details | 8 | 9 | 8 | 9 | 8 | 8 | 8 |
+| Editor · Review | 9 | 9 | 9 | 9 | 8 | 9 | 8 |
+| Expense list (group Expenses tab) | 9 | 9 | 9 | 9 | 9 | 9 | 9 |
+| Expense detail | 9 | 9 | 9 | 9 | 9 | 9 | 8 |
+| Default split | 8 | 9 | 8 | 9 | 8 | 8 | 8 |
+
+Fixed during review: ₹ tofu in the serif hero (S-085), amounts not right-aligned, "Y" avatar initials for "You",
+year-long list captions, outline "Next" next to a pill, step labels touching at 200 %, split symbols wrapping at 200 %.
+Accepted: at 200 % text the sticky bar stacks Save and Next (~20 % of the height; content scrolls) and the
+StepHeader labels shrink to fit (phase 02 component). Note: the last capture run used `-Hold 12`, which is too short
+for `capture_markers.ps1` — a few `-text200` files show the next screen; the review itself used the first run
+(own markers, all correct) plus real-font goldens. Use the default hold (30 s).
 
 ## Decisions made (S-0xx)
 
@@ -64,13 +82,22 @@ for local-DB editor providers.
 
 ## Blockers (BLK-xxx)
 
-None new.
+None new. Environment note: on this PC's ISP the emulator's DNS blocks `*.supabase.co`; device tests need
+`--dart-define=PIN_HOST_IP=<ip resolved on the PC>` (S-214 helper `integration_test/support/net_pin.dart`).
+
+## Merge with phase 07
+
+Merged `origin/phase/07-groups-members` (also carrying the 05/06 follow-ups): the group detail's Expenses tab now
+hosts `ExpenseList`, its amber "Add expense" opens the stepper, group settings got a "Default split" row. Kept
+phase 07's `syncOfflineProvider` and `AppIcons.edit` (dropped my duplicates), switched my device tests to the merged
+`net_pin.dart` and `capture_markers.ps1`. Removed `test/goldens/failures/*` that the phase 07 commit had added and
+git-ignored that folder.
 
 ## Learnings and skills added or changed
 
-Six `[phase 08]` lines in LEARNINGS (serif ₹, Riverpod 3 family overrides + retry, PopScope vs own pops, Row
-alignment, signed-in screenshots, parallel agents and sqlite3.dll). `ui-review` skill: new
-`scripts/capture_marked.ps1` + SKILL.md section for signed-in screens.
+Seven `[phase 08]` lines in LEARNINGS (serif ₹, Riverpod 3 family overrides + retry, PopScope vs own pops, Row
+alignment, signed-in screenshots, parallel agents and sqlite3.dll, emulator DNS block). `ui-review` SKILL.md: section
+on capturing signed-in screens with `UI-CAPTURE` markers + `capture_markers.ps1`.
 
 ## Owner actions
 
