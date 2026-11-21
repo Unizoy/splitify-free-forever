@@ -54,7 +54,7 @@ jobs:
         with:
           version: latest
       - name: Start local Supabase (applies supabase/migrations)
-        run: supabase start -x studio,imgproxy,mailpit,inbucket,edge-runtime,logflare,vector,supavisor,realtime,postgres-meta
+        run: supabase start -x studio,imgproxy,mailpit,edge-runtime,logflare,vector,supavisor,realtime,postgres-meta
       - name: pgTAP tests
         run: supabase test db
       - name: Stop
