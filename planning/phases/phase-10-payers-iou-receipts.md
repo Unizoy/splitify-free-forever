@@ -7,7 +7,7 @@
 
 - [x] T1 "Paid by" sheet → "Multiple people" with per-payer amounts and live remaining; payers needn't be
       participants; review sentence "Paid by you and Asha".
-- [ ] T2 IOU quick action ("Record a loan": I lent / I borrowed) from group and friend pages; Loan chip in lists;
+- [x] T2 IOU quick action ("Record a loan": I lent / I borrowed) from group and friend pages; Loan chip in lists;
       excluded from totals (verify TC-21-01 still green).
 - [x] T3 Receipt: camera or Android photo picker (no storage permission), compression (JPEG q80, ≤1600 px,
       ≤500 KB), `pending_uploads` queue, uploader after mutation applied, local thumbnail, full-screen viewer with

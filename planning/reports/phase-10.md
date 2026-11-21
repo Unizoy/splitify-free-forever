@@ -1,6 +1,6 @@
 # Phase 10 report — Multiple payers, IOU, receipt photos (#10, #11, #29)
 
-- Date: 2026-11-22 · Branch: `phase/10-payers-iou-receipts` · Base: `origin/main` (phases 01–08); `origin/phase/09-balances-payments` merged in while 09 was still in progress (c2f188d) — see "Next phase"
+- Date: 2026-11-22 · Branch: `phase/10-payers-iou-receipts` · Base: `origin/main` (phases 01–08); in-progress `origin/phase/09-balances-payments` merged early (c2f188d), then `origin/main` with phase 09 final (e98f848)
 - Commits: `2555fae..HEAD` · Status: done
 
 ## Summary
@@ -95,5 +95,6 @@ domain or proxy before release — photo downloads use the same host.)
 ## Next phase
 
 Phase 11 (friends, simplify, UPI): add "Record a loan" on friend pages with `ExpenseRoutes.addLoan(directGroupId,
-withMember:)`. Phase 09 was merged in while still in progress; when 09 lands on `main`, merge `origin/main` here
-again (expect golden conflicts in groups/expense goldens: take main's, then regenerate).
+withMember:)` (amendment in its phase file). Phase 15: show waiting/failed photo uploads on "Sync & storage" and run the
+receipt scenario under real airplane mode (amendment). Later phases that touch the group screens: the Groups card,
+group hero and expense hero take `photo:` from `groupCoverImage(ref, group)`.

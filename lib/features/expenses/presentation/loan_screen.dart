@@ -243,12 +243,15 @@ class _Form extends StatelessWidget {
             child: Text(title, textAlign: TextAlign.center, style: context.text.sheetTitle),
           ),
         ),
-        const SizedBox(height: AppSpacing.s2),
-        Text(
-          l.loanSubtitle,
-          textAlign: TextAlign.center,
-          style: context.text.bodySmall.copyWith(color: c.textSecondary),
-        ),
+        // With the keypad up at large text sizes the amount needs the room.
+        if (!(large && keypadOpen)) ...[
+          const SizedBox(height: AppSpacing.s2),
+          Text(
+            l.loanSubtitle,
+            textAlign: TextAlign.center,
+            style: context.text.bodySmall.copyWith(color: c.textSecondary),
+          ),
+        ],
         const SizedBox(height: AppSpacing.s5),
         // Two short labels: clamped so they never break inside a word at large text sizes.
         MediaQuery.withClampedTextScaling(
@@ -482,6 +485,8 @@ class _KeypadBar extends StatelessWidget {
             onPressed: onDone,
             child: Text(
               l.loanAmountDone,
+              // The keypad itself is clamped to 1.4; keep its bar in proportion.
+              textScaler: MediaQuery.textScalerOf(context).clamp(maxScaleFactor: 1.4),
               style: context.text.body.w(700).copyWith(color: c.primary),
             ),
           ),
