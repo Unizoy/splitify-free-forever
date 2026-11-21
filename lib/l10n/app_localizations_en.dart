@@ -560,6 +560,495 @@ class AppLocalizationsEn extends AppLocalizations {
   String get emptyActivityBody => 'Expenses, payments and comments show up here.';
 
   @override
+  String get youLower => 'you';
+
+  @override
+  String get someone => 'Someone';
+
+  @override
+  String get statusOwedAndOwe => 'Owed and owing';
+
+  @override
+  String balPillOwed(String amount) {
+    return 'You are owed $amount';
+  }
+
+  @override
+  String balPillOwe(String amount) {
+    return 'You owe $amount';
+  }
+
+  @override
+  String get balBannerOwed => 'You are owed here';
+
+  @override
+  String get balBannerOwe => 'You owe here';
+
+  @override
+  String get balBannerMixed => 'You are owed and owe here';
+
+  @override
+  String get balBannerSettled => 'In this group';
+
+  @override
+  String get balBannerSettledLine2 => 'You\'re all settled';
+
+  @override
+  String get balEveryone => 'Everyone';
+
+  @override
+  String get balWhoOwesWhom => 'Who owes whom';
+
+  @override
+  String get balSuggestedPayments => 'Suggested payments';
+
+  @override
+  String get balShowOriginal => 'Show original debts';
+
+  @override
+  String get balShowSimplified => 'Show suggested payments';
+
+  @override
+  String get balGetsBack => 'gets back';
+
+  @override
+  String get balOwes => 'owes';
+
+  @override
+  String get balSettledUp => 'settled up';
+
+  @override
+  String balPairOwes(String from, String to) {
+    return '$from owes $to';
+  }
+
+  @override
+  String get balSettle => 'Settle';
+
+  @override
+  String get balEveryoneSettled => 'Everyone is settled up';
+
+  @override
+  String balCurrencySection(String code) {
+    return '$code balances';
+  }
+
+  @override
+  String get balLoadError => 'Balances could not be loaded';
+
+  @override
+  String get totThisMonth => 'This month';
+
+  @override
+  String get totAllTime => 'All time';
+
+  @override
+  String get totSpent => 'Total spent';
+
+  @override
+  String totExpenseCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count expenses',
+      one: '1 expense',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get totYourShare => 'Your share';
+
+  @override
+  String get totYouPaid => 'You paid';
+
+  @override
+  String get totEachPerson => 'Each person';
+
+  @override
+  String totPaidShare(String paid, String share) {
+    return 'paid $paid · share $share';
+  }
+
+  @override
+  String get totEmptyMonthTitle => 'Nothing spent this month';
+
+  @override
+  String get totEmptyTitle => 'No spending yet';
+
+  @override
+  String get totEmptyBody => 'Add an expense and the totals show up here.';
+
+  @override
+  String get totFootnote => 'Payments and loans are not counted as spending.';
+
+  @override
+  String get totCharts => 'See charts';
+
+  @override
+  String get settleEditTitle => 'Edit payment';
+
+  @override
+  String settlePaidSentence(String from, String to) {
+    return '$from paid $to';
+  }
+
+  @override
+  String get settleSwap => 'Swap who paid';
+
+  @override
+  String get settleWhoPaid => 'Who paid?';
+
+  @override
+  String get settleWhoReceived => 'Who got the money?';
+
+  @override
+  String settleChangePerson(String name) {
+    return 'Change $name';
+  }
+
+  @override
+  String get settleAmount => 'Amount';
+
+  @override
+  String settleGaugeOf(String owed) {
+    return 'of $owed owed';
+  }
+
+  @override
+  String settleGaugeAll(String owed) {
+    return 'settles all of $owed';
+  }
+
+  @override
+  String settleGaugeOver(String owed) {
+    return 'more than the $owed owed';
+  }
+
+  @override
+  String get settleGaugeNone => 'Nothing is owed between them. You can still record it.';
+
+  @override
+  String settleUseOwed(String owed) {
+    return 'Pay all $owed';
+  }
+
+  @override
+  String get settleMethod => 'Method';
+
+  @override
+  String get methodCash => 'Cash';
+
+  @override
+  String get methodUpi => 'UPI';
+
+  @override
+  String get methodBank => 'Bank';
+
+  @override
+  String get methodOther => 'Other';
+
+  @override
+  String get settleDate => 'Date';
+
+  @override
+  String get settleNote => 'Note';
+
+  @override
+  String get settleNoteHint => 'Optional';
+
+  @override
+  String settleNoteTooLong(int max) {
+    return 'Keep the note under $max characters';
+  }
+
+  @override
+  String get settleRecord => 'Record payment';
+
+  @override
+  String get settleSave => 'Save payment';
+
+  @override
+  String get settleRecorded => 'Payment recorded';
+
+  @override
+  String get settleSaved => 'Payment saved';
+
+  @override
+  String get settleNotFoundTitle => 'Nothing to settle here';
+
+  @override
+  String get settleNotFoundBody => 'This group or payment is not on this phone.';
+
+  @override
+  String get settleSuggested => 'Suggested';
+
+  @override
+  String get settleOther => 'Record a different payment';
+
+  @override
+  String get settleGroupSettled => 'Everyone in this group is settled up.';
+
+  @override
+  String get settleWithTitle => 'Settle up with';
+
+  @override
+  String get allSettledSnack => 'You\'re all settled up';
+
+  @override
+  String get payTitle => 'Payment';
+
+  @override
+  String get payEdit => 'Edit payment';
+
+  @override
+  String get payDelete => 'Delete payment';
+
+  @override
+  String get payDeleted => 'Payment deleted';
+
+  @override
+  String get payNotFoundTitle => 'Payment not found';
+
+  @override
+  String get payNotFoundBody => 'It may have been deleted, or it has not reached this phone yet.';
+
+  @override
+  String get payMethodLabel => 'Method';
+
+  @override
+  String get payNoteLabel => 'Note';
+
+  @override
+  String get payDetailsLabel => 'Details';
+
+  @override
+  String payRowCaption(String date) {
+    return 'Payment · $date';
+  }
+
+  @override
+  String get payYouPaid => 'you paid';
+
+  @override
+  String get payYouReceived => 'you received';
+
+  @override
+  String get actFilterAll => 'All';
+
+  @override
+  String get actFilterExpenses => 'Expenses';
+
+  @override
+  String get actFilterPayments => 'Payments';
+
+  @override
+  String get actFilterComments => 'Comments';
+
+  @override
+  String get actFilterGroups => 'Groups';
+
+  @override
+  String get actEmptyFilteredTitle => 'Nothing here yet';
+
+  @override
+  String get actEmptyFilteredBody => 'Try another filter, or check back after the next change.';
+
+  @override
+  String get actTitle => 'Activity';
+
+  @override
+  String get actRecent => 'Recent activity';
+
+  @override
+  String get actSeeAll => 'See all activity';
+
+  @override
+  String actGroupCreated(String actor) {
+    return '$actor created the group';
+  }
+
+  @override
+  String actGroupUpdated(String actor) {
+    return '$actor updated the group';
+  }
+
+  @override
+  String actGroupArchived(String actor) {
+    return '$actor archived the group';
+  }
+
+  @override
+  String actGroupUnarchived(String actor) {
+    return '$actor brought the group back';
+  }
+
+  @override
+  String actGroupDeleted(String actor) {
+    return '$actor deleted the group';
+  }
+
+  @override
+  String actGroupRestored(String actor) {
+    return '$actor restored the group';
+  }
+
+  @override
+  String actMemberAdded(String actor, String member) {
+    return '$actor added $member';
+  }
+
+  @override
+  String actMemberJoined(String actor) {
+    return '$actor joined the group';
+  }
+
+  @override
+  String actMemberClaimed(String actor, String member) {
+    return '$actor joined as $member';
+  }
+
+  @override
+  String actMemberLeft(String member) {
+    return '$member left the group';
+  }
+
+  @override
+  String actMemberRemoved(String actor, String member) {
+    return '$actor removed $member';
+  }
+
+  @override
+  String actExpenseAdded(String actor, String description) {
+    return '$actor added “$description”';
+  }
+
+  @override
+  String actExpenseEdited(String actor, String description) {
+    return '$actor edited “$description”';
+  }
+
+  @override
+  String actExpenseDeleted(String actor, String description) {
+    return '$actor deleted “$description”';
+  }
+
+  @override
+  String actExpenseRestored(String actor, String description) {
+    return '$actor restored “$description”';
+  }
+
+  @override
+  String actPaymentAdded(String actor, String from, String to) {
+    return '$actor recorded a payment from $from to $to';
+  }
+
+  @override
+  String actPaymentEdited(String actor, String from, String to) {
+    return '$actor edited a payment from $from to $to';
+  }
+
+  @override
+  String actPaymentDeleted(String actor, String from, String to) {
+    return '$actor deleted a payment from $from to $to';
+  }
+
+  @override
+  String actPaymentRestored(String actor, String from, String to) {
+    return '$actor restored a payment from $from to $to';
+  }
+
+  @override
+  String actCommentOn(String actor, String description) {
+    return '$actor commented on “$description”';
+  }
+
+  @override
+  String actCommentAdded(String actor) {
+    return '$actor added a comment';
+  }
+
+  @override
+  String actCommentDeleted(String actor) {
+    return '$actor deleted a comment';
+  }
+
+  @override
+  String actReminderSent(String actor) {
+    return '$actor sent a payment reminder';
+  }
+
+  @override
+  String actSettingsChanged(String actor) {
+    return '$actor changed the group settings';
+  }
+
+  @override
+  String actRecurringCreated(String actor) {
+    return '$actor set up a recurring bill';
+  }
+
+  @override
+  String actRecurringUpdated(String actor) {
+    return '$actor changed a recurring bill';
+  }
+
+  @override
+  String actRecurringStopped(String actor) {
+    return '$actor stopped a recurring bill';
+  }
+
+  @override
+  String actImportCompleted(String actor) {
+    return '$actor imported expenses from Splitwise';
+  }
+
+  @override
+  String actUnknown(String actor) {
+    return '$actor made a change';
+  }
+
+  @override
+  String homeGroupsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count groups',
+      one: '1 group',
+      zero: 'No groups yet',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String homePeopleOweYou(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count people owe you',
+      one: '1 person owes you',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String homeYouOwePeople(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'you owe $count people',
+      one: 'you owe 1 person',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get walletBreakdownTitle => 'Balances by group';
+
+  @override
+  String get walletBreakdownEmpty => 'You\'re all settled up in every group.';
+
+  @override
   String get you => 'You';
 
   @override

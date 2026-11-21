@@ -8,13 +8,15 @@ import 'package:splitify/features/expenses/application/expense_draft.dart';
 import 'package:splitify/features/expenses/application/expense_providers.dart';
 import 'package:splitify/features/expenses/presentation/expense_copy.dart';
 import 'package:splitify/features/expenses/presentation/expense_routes.dart';
+import 'package:splitify/features/payments/application/payment_providers.dart';
+import 'package:splitify/features/payments/presentation/payment_row.dart';
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/components/components.dart';
 import 'package:splitify/ui/theme/theme.dart';
 
 /// The group's Expenses tab (07 §2): month headers, one [AmountRow] per expense ("you lent ₹400" /
-/// "you borrowed ₹300" / "not involved") and the "not synced yet" marker on pending rows. Not
-/// scrollable itself, so it can sit inside the group's overlap sheet.
+/// "you borrowed ₹300" / "not involved"), payments as slim rows (phase 09) and the "not synced yet"
+/// marker on pending rows. Not scrollable itself, so it can sit inside the group's overlap sheet.
 class ExpenseList extends ConsumerWidget {
   const ExpenseList({required this.groupId, super.key});
 
@@ -24,8 +26,9 @@ class ExpenseList extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context);
     final views = ref.watch(groupExpenseViewsProvider(groupId));
+    final payments = ref.watch(groupPaymentViewsProvider(groupId)).value ?? const <PaymentView>[];
     return switch (views) {
-      AsyncData(:final value) when value.isEmpty => Padding(
+      AsyncData(:final value) when value.isEmpty && payments.isEmpty => Padding(
         padding: const EdgeInsets.symmetric(vertical: AppSpacing.s8),
         child: EmptyState(
           icon: AppIcons.receipt,
@@ -43,7 +46,7 @@ class ExpenseList extends ConsumerWidget {
           ],
         ),
       ),
-      AsyncData(:final value) => _Rows(views: value),
+      AsyncData(:final value) => _Rows(views: value, payments: payments),
       AsyncError() => Padding(
         padding: const EdgeInsets.symmetric(vertical: AppSpacing.s8),
         child: EmptyState(
@@ -58,25 +61,40 @@ class ExpenseList extends ConsumerWidget {
 }
 
 class _Rows extends StatelessWidget {
-  const _Rows({required this.views});
+  const _Rows({required this.views, this.payments = const []});
 
   final List<ExpenseView> views;
+  final List<PaymentView> payments;
 
   @override
   Widget build(BuildContext context) {
+    // Expenses and payments by date, newest first (both lists already are; merge keeps that).
+    final items = <(String date, Widget Function(bool divider) row)>[];
+    var e = 0;
+    var p = 0;
+    while (e < views.length || p < payments.length) {
+      final takeExpense =
+          p >= payments.length ||
+          (e < views.length && views[e].expense.date.compareTo(payments[p].payment.date) >= 0);
+      if (takeExpense) {
+        final v = views[e++];
+        items.add((v.expense.date, (d) => ExpenseRow(view: v, showDivider: d)));
+      } else {
+        final v = payments[p++];
+        items.add((v.payment.date, (d) => PaymentRow(view: v, showDivider: d)));
+      }
+    }
     final children = <Widget>[];
     String? month;
-    for (var i = 0; i < views.length; i++) {
-      final date = parseIsoDate(views[i].expense.date);
-      final header = monthHeader(context, date);
+    for (var i = 0; i < items.length; i++) {
+      final header = monthHeader(context, parseIsoDate(items[i].$1));
       if (header != month) {
         month = header;
         children.add(_MonthHeader(text: header, first: i == 0));
       }
       final nextSameMonth =
-          i + 1 < views.length &&
-          monthHeader(context, parseIsoDate(views[i + 1].expense.date)) == header;
-      children.add(ExpenseRow(view: views[i], showDivider: nextSameMonth));
+          i + 1 < items.length && monthHeader(context, parseIsoDate(items[i + 1].$1)) == header;
+      children.add(items[i].$2(nextSameMonth));
     }
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: children);
   }

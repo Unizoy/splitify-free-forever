@@ -8,6 +8,7 @@ import 'package:splitify/data/local/app_database.dart';
 import 'package:splitify/data/remote/remote_providers.dart';
 import 'package:splitify/features/expenses/application/expense_draft.dart';
 import 'package:splitify/features/expenses/application/expense_editor_controller.dart';
+import 'package:splitify/features/groups/application/groups_providers.dart' as groups;
 
 import '../../../data/sync/sync_fakes.dart';
 
@@ -45,6 +46,7 @@ class ExpenseEnv {
         clockProvider.overrideWithValue(clock),
         currentUserIdProvider.overrideWithValue(userId),
         ...overrides,
+        groups.currentUserIdProvider.overrideWithValue(userId),
       ],
     );
     final env = ExpenseEnv._(db, remote, clock, container);

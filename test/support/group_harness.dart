@@ -15,7 +15,12 @@ import 'package:splitify/data/repositories/auth_repository.dart';
 import 'package:splitify/data/sync/local_writer.dart';
 import 'package:splitify/data/remote/remote_providers.dart';
 import 'package:splitify/features/auth/application/auth_providers.dart' hide clockProvider;
+import 'package:splitify/features/activity/application/activity_providers.dart';
+import 'package:splitify/features/balances/application/balance_views.dart';
+import 'package:splitify/features/balances/application/balances_providers.dart';
+import 'package:splitify/features/balances/application/totals_providers.dart';
 import 'package:splitify/features/expenses/application/expense_providers.dart';
+import 'package:splitify/features/payments/application/payment_providers.dart';
 import 'package:splitify/features/groups/application/groups_providers.dart';
 import 'package:splitify/features/groups/presentation/invite_sheet.dart';
 import 'package:splitify/l10n/app_localizations.dart';
@@ -168,7 +173,37 @@ List<Override> fixedGroupData({
   bool offline = false,
   bool loading = false,
   Map<String, List<ExpenseView>> expenses = const {},
+  Map<String, GroupBalances> balances = const {},
+  MyBalances my = noBalances,
 }) => [
+  // Phase 09 reads: fixed balances per group (none = no records), no payments, totals or activity.
+  for (final g in groups) ...[
+    groupPaymentViewsProvider(g.id).overrideWithValue(const AsyncData([])),
+    groupBalancesProvider(g.id).overrideWithValue(
+      AsyncData(
+        balances[g.id] ??
+            GroupBalances(
+              groupId: g.id,
+              groupName: g.name,
+              mainCurrency: g.mainCurrency,
+              members: members[g.id] ?? const [],
+              byCurrency: const {},
+            ),
+      ),
+    ),
+    groupTotalsProvider(g.id).overrideWithValue(
+      AsyncData(
+        GroupTotalsView(
+          mainCurrency: g.mainCurrency,
+          members: members[g.id] ?? const [],
+          month: const {},
+          allTime: const {},
+        ),
+      ),
+    ),
+    activityItemsProvider(g.id).overrideWithValue(const AsyncData([])),
+  ],
+  ...emptyBalanceOverrides(my: my),
   // Phase 08 Expenses tab: fixed rows per group (empty unless given).
   for (final g in groups)
     groupExpenseViewsProvider(g.id).overrideWithValue(AsyncData(expenses[g.id] ?? const [])),

@@ -1,4 +1,5 @@
 import 'package:splitify/core/config/env.dart';
+import 'package:splitify/data/remote/balances_remote.dart';
 import 'package:splitify/data/remote/groups_remote.dart';
 import 'package:splitify/data/remote/media_remote.dart';
 import 'package:splitify/data/remote/remote_api.dart';
@@ -17,6 +18,7 @@ class RemoteServices {
     this.api = const UnconfiguredRemoteApi(),
     this.groups = const UnconfiguredGroupsRemote(),
     this.media = const UnconfiguredMediaRemote(),
+    this.balances = const UnconfiguredBalancesRemote(),
   });
 
   final AuthRepository auth;
@@ -30,6 +32,9 @@ class RemoteServices {
 
   /// Storage for receipt photos and group covers (phase 10).
   final MediaRemote media;
+
+  /// Read-only balance RPCs (`group_balances`, `my_overview`).
+  final BalancesRemote balances;
 }
 
 /// Starts Supabase from the build settings (02 §2). With placeholder values
@@ -50,5 +55,6 @@ Future<RemoteServices> initRemote(Env env) async {
     api: SupabaseRemoteApi.client(client),
     groups: SupabaseGroupsRemote.fromClient(client),
     media: SupabaseMediaRemote.fromClient(client),
+    balances: SupabaseBalancesRemote.fromClient(client),
   );
 }

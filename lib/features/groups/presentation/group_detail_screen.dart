@@ -5,6 +5,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:splitify/data/data_providers.dart';
 import 'package:splitify/data/local/app_database.dart';
+import 'package:splitify/features/balances/application/balance_views.dart';
+import 'package:splitify/features/balances/application/balances_providers.dart';
+import 'package:splitify/features/balances/presentation/balance_copy.dart';
 import 'package:splitify/features/groups/application/groups_providers.dart';
 import 'package:splitify/features/groups/presentation/group_tabs.dart';
 import 'package:splitify/features/groups/presentation/group_visuals.dart';
@@ -13,10 +16,11 @@ import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/components/components.dart';
 import 'package:splitify/ui/theme/theme.dart';
 import 'package:splitify/features/expenses/presentation/expense_routes.dart';
+import 'package:splitify/features/payments/presentation/settle_picker.dart';
 
 /// Group detail (`/groups/:id`, 455 hero + 712 tabs): generated cover hero with back, invite and settings,
 /// serif name, status pill, avatar stack; FolderTabs Expenses · Balances · Totals; sticky Add expense /
-/// Settle up. Phase 08 fills the Expenses tab, phase 09 the balances and the status pill.
+/// Settle up. Phase 08 fills the Expenses tab, phase 09 the balances, the status pill and Settle up.
 class GroupDetailScreen extends ConsumerStatefulWidget {
   const GroupDetailScreen({required this.groupId, super.key});
 
@@ -51,11 +55,12 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen> {
     final members = ref.watch(groupMembersProvider(widget.groupId)).value ?? const [];
     final unsynced = ref.watch(groupUnsyncedProvider(widget.groupId)).value ?? false;
     final me = ref.watch(currentUserIdProvider);
+    final balances = ref.watch(groupBalancesProvider(widget.groupId)).value;
     final archived = group.archivedAt != null;
     return Scaffold(
       body: SingleChildScrollView(
         child: OverlapColumn(
-          top: _Hero(group: group, members: members, me: me),
+          top: _Hero(group: group, members: members, me: me, balances: balances),
           bottom: OverlapSheet(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -117,7 +122,7 @@ class _ActionBar extends StatelessWidget {
       label: l.settleUp,
       variant: PillVariant.outline,
       expand: false,
-      onPressed: () => showComingSoon(context),
+      onPressed: () => unawaited(showSettlePicker(context, groupId)),
     );
     final add = PillButton(
       key: const Key('group-add-expense'),
@@ -149,11 +154,12 @@ class _ActionBar extends StatelessWidget {
 }
 
 class _Hero extends ConsumerWidget {
-  const _Hero({required this.group, required this.members, required this.me});
+  const _Hero({required this.group, required this.members, required this.me, this.balances});
 
   final LocalGroup group;
   final List<LocalMember> members;
   final String? me;
+  final GroupBalances? balances;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -191,12 +197,7 @@ class _Hero extends ConsumerWidget {
       title: group.name,
       child: Column(
         children: [
-          // Phase 09 shows "You are owed ₹…" / "You owe ₹…" from the balances here.
-          StatusPill(
-            label: group.archivedAt == null ? l.allSettled : l.archivedLabel,
-            icon: group.archivedAt == null ? AppIcons.checkCircle : AppIcons.archive,
-            tone: StatusPillTone.glass,
-          ),
+          _StatusPill(archived: group.archivedAt != null, mine: balances?.myNets ?? const {}),
           const SizedBox(height: AppSpacing.s4),
           Wrap(
             alignment: WrapAlignment.center,
@@ -214,6 +215,51 @@ class _Hero extends ConsumerWidget {
         ],
       ),
     );
+  }
+}
+
+/// "You are owed ₹1,200" (lime on dark green) / "You owe ₹300" (red) / "All settled" / archived.
+class _StatusPill extends StatelessWidget {
+  const _StatusPill({required this.archived, required this.mine});
+
+  final bool archived;
+
+  /// My non-zero nets per currency.
+  final Map<String, int> mine;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    if (archived) {
+      return StatusPill(label: l.archivedLabel, icon: AppIcons.archive, tone: StatusPillTone.glass);
+    }
+    final amounts = amountsText(mine);
+    return switch (balanceStatusOf(mine.values)) {
+      BalanceStatus.owed => StatusPill(
+        key: const Key('group-status-owed'),
+        label: l.balPillOwed(amounts),
+        icon: AppIcons.coins,
+        tone: StatusPillTone.positive,
+      ),
+      BalanceStatus.owe => StatusPill(
+        key: const Key('group-status-owe'),
+        label: l.balPillOwe(amounts),
+        icon: AppIcons.coins,
+        tone: StatusPillTone.negative,
+      ),
+      BalanceStatus.mixed => StatusPill(
+        key: const Key('group-status-mixed'),
+        label: '${l.statusOwedAndOwe} · $amounts',
+        icon: AppIcons.coins,
+        tone: StatusPillTone.glass,
+      ),
+      BalanceStatus.settled => StatusPill(
+        key: const Key('group-status-settled'),
+        label: l.allSettled,
+        icon: AppIcons.checkCircle,
+        tone: StatusPillTone.glass,
+      ),
+    };
   }
 }
 

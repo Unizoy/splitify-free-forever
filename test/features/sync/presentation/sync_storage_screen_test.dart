@@ -55,6 +55,7 @@ Future<(FakeSyncRepository, GoRouter, _Shared)> _pump(
         clockProvider.overrideWithValue(FakeClock(DateTime.utc(2026, 11, 21, 12))),
         debugLogLinesProvider.overrideWithValue(() => ['line 1']),
         debugLogSharerProvider.overrideWithValue((s, t) async => share.shared.add((s, t))),
+        ...emptyBalanceOverrides(),
       ],
       child: MediaQuery(
         data: MediaQueryData(size: const Size(412, 915), textScaler: TextScaler.linear(scale)),

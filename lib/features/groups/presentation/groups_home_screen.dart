@@ -5,14 +5,20 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:splitify/data/local/app_database.dart';
 import 'package:splitify/data/sync/sync_types.dart';
+import 'package:splitify/features/auth/application/auth_providers.dart' show profileProvider;
+import 'package:splitify/features/balances/application/balance_views.dart';
+import 'package:splitify/features/balances/application/balances_providers.dart';
+import 'package:splitify/features/balances/presentation/balance_copy.dart';
 import 'package:splitify/features/groups/application/groups_providers.dart';
 import 'package:splitify/features/groups/presentation/group_visuals.dart';
+import 'package:splitify/features/payments/presentation/settle_picker.dart';
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/components/components.dart';
 import 'package:splitify/ui/theme/theme.dart';
 
-/// Groups home (`/groups`, 438): hero with the overall glass card (real totals in phase 09), the 2-column
-/// grid of group covers, the archived section, and Join / New. Reads the phone's database (offline-first).
+/// Groups home (`/groups`, 438): hero with the overall glass card (my balance per currency, rule 3), the
+/// 2-column grid of group covers (unsettled first), the archived section, and Join / New. Reads the
+/// phone's database (offline-first).
 class GroupsHomeScreen extends ConsumerStatefulWidget {
   const GroupsHomeScreen({super.key});
 
@@ -38,7 +44,14 @@ class _GroupsHomeScreenState extends ConsumerState<GroupsHomeScreen> {
     final groupsAsync = ref.watch(groupsListProvider);
     final offline = ref.watch(syncOfflineProvider).value ?? false;
     final groups = groupsAsync.value;
-    final active = [...?groups?.where((g) => g.archivedAt == null)];
+    final mine = ref.watch(myBalancesProvider).value;
+    final byGroup = mine?.byGroup ?? const <String, Map<String, int>>{};
+    bool open(LocalGroup g) => byGroup[g.id]?.isNotEmpty ?? false;
+    // Unsettled groups first (S-076 amendment); otherwise newest first.
+    final active = [
+      ...?groups?.where((g) => g.archivedAt == null && open(g)),
+      ...?groups?.where((g) => g.archivedAt == null && !open(g)),
+    ];
     final archived = [...?groups?.where((g) => g.archivedAt != null)];
 
     final Widget content;
@@ -69,7 +82,7 @@ class _GroupsHomeScreenState extends ConsumerState<GroupsHomeScreen> {
       content = Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          if (active.isNotEmpty) _GroupGrid(groups: active),
+          if (active.isNotEmpty) _GroupGrid(groups: active, balances: byGroup),
           if (archived.isNotEmpty) ...[
             const SizedBox(height: AppSpacing.s4),
             DashedListRow(
@@ -82,7 +95,7 @@ class _GroupsHomeScreenState extends ConsumerState<GroupsHomeScreen> {
             ),
             if (_showArchived) ...[
               const SizedBox(height: AppSpacing.s3),
-              _GroupGrid(groups: archived),
+              _GroupGrid(groups: archived, balances: byGroup),
             ],
           ],
         ],
@@ -92,7 +105,7 @@ class _GroupsHomeScreenState extends ConsumerState<GroupsHomeScreen> {
     return Scaffold(
       body: SingleChildScrollView(
         child: OverlapColumn(
-          top: _Hero(groupCount: active.length),
+          top: _Hero(groupCount: active.length, balances: mine),
           bottom: OverlapSheet(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -146,15 +159,31 @@ class _GroupsHomeScreenState extends ConsumerState<GroupsHomeScreen> {
   }
 }
 
-class _Hero extends StatelessWidget {
-  const _Hero({required this.groupCount});
+class _Hero extends ConsumerWidget {
+  const _Hero({required this.groupCount, required this.balances});
 
   final int groupCount;
+  final MyBalances? balances;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context);
     final c = context.colors;
+    final b = balances;
+    final first = ref.watch(profileProvider).value?.defaultCurrency ?? 'INR';
+    final totals = b?.totals ?? const <String, int>{};
+    final codes = orderCurrencies(totals.keys, first);
+    final status = b?.status ?? BalanceStatus.settled;
+    final mixed = status == BalanceStatus.mixed;
+    String amount(String code) =>
+        mixed ? signedMoney(totals[code]!, code) : listMoney(totals[code]!.abs(), code);
+    final owing = b?.peopleOwingMe ?? 0;
+    final owed = b?.peopleIOwe ?? 0;
+    final caption = [
+      l.homeGroupsCount(groupCount),
+      if (owing > 0) l.homePeopleOweYou(owing),
+      if (owed > 0) l.homeYouOwePeople(owed),
+    ].join(' · ');
     return HeroHeader(
       title: l.groupsHero,
       art: (seed: 'groups-home', family: CoverFamily.other),
@@ -170,8 +199,8 @@ class _Hero extends StatelessWidget {
           onPressed: () => showComingSoon(context),
         ),
       ],
-      // Phase 09 replaces the placeholder total with the server's per-currency balances.
       child: GlassCard(
+        key: const Key('groups-glass'),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -195,19 +224,54 @@ class _Hero extends StatelessWidget {
                   ],
                 ),
                 StatusPill(
-                  label: l.allSettled,
-                  icon: AppIcons.checkCircle,
+                  key: Key('groups-status-${status.name}'),
+                  label: status == BalanceStatus.settled ? l.allSettled : statusText(l, status),
+                  icon: status == BalanceStatus.settled ? AppIcons.checkCircle : AppIcons.coins,
                   tone: StatusPillTone.flat,
                 ),
               ],
             ),
             const SizedBox(height: AppSpacing.s4),
-            Text(l.zeroRupees, style: context.text.amountHero.copyWith(color: c.onHero)),
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: AlignmentDirectional.centerStart,
+              child: Text(
+                codes.isEmpty ? listMoney(0, first) : amount(codes.first),
+                key: const Key('groups-overall-amount'),
+                style: context.text.amountHero.copyWith(
+                  color: codes.isEmpty || mixed ? c.onHero : toneOf(status).onDarkColor(c),
+                ),
+              ),
+            ),
+            if (codes.length > 1)
+              Text(
+                [for (final code in codes.skip(1)) amount(code)].join(' · '),
+                style: context.text.amount.w(700).copyWith(color: c.onHero),
+              ),
             const SizedBox(height: AppSpacing.s1),
             Text(
-              groupCount == 0 ? l.glassEmptyHint : l.acrossGroups(groupCount),
+              groupCount == 0 ? l.glassEmptyHint : caption,
               style: context.text.body.copyWith(color: c.onHero.withValues(alpha: 0.78)),
             ),
+            if (b?.unsynced ?? false) ...[
+              const SizedBox(height: AppSpacing.s3),
+              const _GlassSyncMarker(),
+            ],
+            if (groupCount > 0) ...[
+              const SizedBox(height: AppSpacing.s4),
+              PillButton(
+                key: const Key('groups-settle'),
+                label: l.settleUp,
+                variant: PillVariant.inverse,
+                size: PillSize.medium,
+                onPressed: () => unawaited(
+                  showSettleEverywhere(
+                    context,
+                    ref.read(allGroupBalancesProvider).value ?? const [],
+                  ),
+                ),
+              ),
+            ],
           ],
         ),
       ),
@@ -215,10 +279,26 @@ class _Hero extends StatelessWidget {
   }
 }
 
+/// "Not synced yet" on the glass card: the marker on a light pill so it reads over the hero.
+class _GlassSyncMarker extends StatelessWidget {
+  const _GlassSyncMarker();
+
+  @override
+  Widget build(BuildContext context) => Container(
+    key: const Key('groups-sync-marker'),
+    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s3, vertical: AppSpacing.s1),
+    decoration: BoxDecoration(color: context.colors.bg, borderRadius: AppRadii.allPill),
+    child: const SyncMarker(),
+  );
+}
+
 class _GroupGrid extends ConsumerWidget {
-  const _GroupGrid({required this.groups});
+  const _GroupGrid({required this.groups, required this.balances});
 
   final List<LocalGroup> groups;
+
+  /// Group id -> my non-zero nets there.
+  final Map<String, Map<String, int>> balances;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -233,20 +313,39 @@ class _GroupGrid extends ConsumerWidget {
       childAspectRatio: GroupCoverCard.aspectRatioFor(context),
       children: [
         for (final g in groups)
-          GroupCoverCard(
-            key: Key('group-card-${g.id}'),
-            seed: g.id,
-            family: coverFamilyFor(g.type),
-            name: g.name,
-            // Balances arrive in phase 09; until then every group reads as settled.
-            statusLabel: g.archivedAt == null ? l.settled : l.archivedLabel,
-            unsynced: g.syncState != SyncState.synced,
-            photo: groupCoverImage(ref, g, width: 600),
-            onTap: () => context.push('/groups/${g.id}'),
-          ),
+          _groupCard(l, context, g, balances, photo: groupCoverImage(ref, g, width: 600)),
       ],
     );
   }
+}
+
+/// One cover card with my balance in that group.
+Widget _groupCard(
+  AppLocalizations l,
+  BuildContext context,
+  LocalGroup g,
+  Map<String, Map<String, int>> balances, {
+  ImageProvider? photo,
+}) {
+  final raw = balances[g.id] ?? const <String, int>{};
+  final mine = {
+    for (final code in orderCurrencies(raw.keys, g.mainCurrency.trim())) code: raw[code]!,
+  };
+  final status = balanceStatusOf(mine.values);
+  return GroupCoverCard(
+    key: Key('group-card-${g.id}'),
+    seed: g.id,
+    family: coverFamilyFor(g.type),
+    name: g.name,
+    statusLabel: g.archivedAt != null && status == BalanceStatus.settled
+        ? l.archivedLabel
+        : statusText(l, status),
+    amountText: mine.isEmpty ? null : amountsText(mine),
+    tone: toneOf(status),
+    unsynced: g.syncState != SyncState.synced,
+    photo: photo,
+    onTap: () => context.push('/groups/${g.id}'),
+  );
 }
 
 class _GridSkeleton extends StatelessWidget {

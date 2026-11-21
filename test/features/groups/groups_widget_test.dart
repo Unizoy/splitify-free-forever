@@ -248,7 +248,7 @@ void main() {
       expect(find.text('Balances show up here'), findsOneWidget);
       await tester.tap(find.text('Totals'));
       await settle(tester);
-      expect(find.text('Totals show up here'), findsOneWidget);
+      expect(find.text('No spending yet'), findsOneWidget); // phase 09 Totals tab, no expenses
       // The invisible sizing label of FolderTabs sits over the first tab; it must not swallow this tap.
       await tester.tap(
         find.descendant(of: find.byType(FolderTabs), matching: find.text('Expenses')).first,
