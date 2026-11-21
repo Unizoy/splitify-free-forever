@@ -1,0 +1,126 @@
+# =====================================================
+# Secrets & credentials — NEVER commit (public repo)
+# =====================================================
+.env
+.env.*
+!.env.example
+*.env
+secrets/
+secrets.json
+config/secrets.*
+lib/**/secrets.dart
+lib/**/env.g.dart
+
+# Signing keys & keystores
+*.jks
+*.keystore
+*.p12
+*.p8
+*.pem
+*.key
+*.mobileprovision
+*.cer
+**/android/key.properties
+**/android/keystore.properties
+
+# Firebase / Google service configs (contain project keys)
+google-services.json
+GoogleService-Info.plist
+firebase_options.dart
+.firebaserc
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+service-account*.json
+*-service-account.json
+*firebase-adminsdk*.json
+
+# Supabase / other backends
+supabase/.temp/
+supabase/.branches/
+
+# =====================================================
+# Flutter / Dart
+# =====================================================
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+build/
+coverage/
+*.g.dart.tmp
+.metadata.local
+pubspec_overrides.yaml
+
+# Generated plugin registrants
+**/generated_plugin_registrant.*
+
+# =====================================================
+# Android
+# =====================================================
+**/android/local.properties
+**/android/.gradle/
+**/android/captures/
+**/android/gradlew
+**/android/gradlew.bat
+**/android/gradle-wrapper.jar
+**/android/app/debug/
+**/android/app/profile/
+**/android/app/release/
+*.apk
+*.aab
+.cxx/
+.externalNativeBuild/
+
+# =====================================================
+# iOS / macOS
+# =====================================================
+**/ios/Flutter/.last_build_id
+**/ios/Flutter/ephemeral/
+**/ios/Flutter/Flutter.podspec
+**/ios/Flutter/Generated.xcconfig
+**/ios/Flutter/flutter_export_environment.sh
+**/ios/Flutter/App.framework
+**/ios/Flutter/Flutter.framework
+**/ios/Pods/
+**/ios/.symlinks/
+**/ios/xcuserdata/
+**/ios/**/DerivedData/
+**/macos/Flutter/ephemeral/
+**/macos/Pods/
+*.ipa
+*.dSYM.zip
+
+# =====================================================
+# Web / Windows / Linux
+# =====================================================
+**/windows/flutter/ephemeral/
+**/linux/flutter/ephemeral/
+node_modules/
+
+# =====================================================
+# IDE & OS
+# =====================================================
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/*
+!.vscode/launch.json
+!.vscode/extensions.json
+.history/
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+*~
+
+# =====================================================
+# Logs & misc
+# =====================================================
+*.log
+*.tmp
+*.bak
+.claude/settings.local.json
