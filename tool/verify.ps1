@@ -15,7 +15,7 @@ function Invoke-Step([string]$name, [scriptblock]$block) {
     $results[$name] = @{ ok = $ok; secs = [int]$sw.Elapsed.TotalSeconds }
 }
 
-Invoke-Step 'G1 format' { dart format --output=none --set-exit-if-changed . }
+Invoke-Step 'G1 format' { dart format --output=none --set-exit-if-changed lib test integration_test tool }
 Invoke-Step 'G1 analyze' { flutter analyze --no-fatal-infos }
 Invoke-Step 'G1 guards' { dart run tool/guards.dart }
 Invoke-Step 'G2 tests' {

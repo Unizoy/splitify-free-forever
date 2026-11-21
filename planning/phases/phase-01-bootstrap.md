@@ -33,7 +33,7 @@
       Flutter 3.50.1, uses `secrets/env.example.json` for the build.
 - [x] T9 Docs: README "Development setup" (Android only — fix the "Android and web" line), CONTRIBUTING "run
       `tool/verify.ps1`", bug template platform list = Android.
-- [ ] T10 Run `integration_test` on `emulator-5554`; capture `phase-01/home.png`.
+- [x] T10 Run `integration_test` on `emulator-5554`; capture `phase-01/home.png`.
 
 ## Done when
 
