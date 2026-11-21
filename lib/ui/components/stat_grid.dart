@@ -42,12 +42,18 @@ class StatGrid extends StatelessWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                rows[r][i].value,
-                                style: context.text.amountHero.copyWith(
-                                  color: valueColor,
-                                  fontSize: 32,
-                                  height: 1.15,
+                              // Long amounts ("₹12,345.50") shrink instead of breaking mid-number.
+                              FittedBox(
+                                fit: BoxFit.scaleDown,
+                                alignment: AlignmentDirectional.centerStart,
+                                child: Text(
+                                  rows[r][i].value,
+                                  maxLines: 1,
+                                  style: context.text.amountHero.copyWith(
+                                    color: valueColor,
+                                    fontSize: 32,
+                                    height: 1.15,
+                                  ),
                                 ),
                               ),
                               const SizedBox(height: AppSpacing.s1),

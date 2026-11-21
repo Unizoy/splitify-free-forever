@@ -232,14 +232,21 @@ List<Override> emptyGroupsOverrides() => [
 /// No balances or activity anywhere (phase 09 reads), without a database.
 const noBalances = MyBalances(totals: {}, byGroup: {}, people: []);
 
-/// Phase 09 overall reads without a database: nothing owed, no activity, zero stats.
-List<Override> emptyBalanceOverrides({MyBalances my = noBalances}) => [
-  myBalancesProvider.overrideWithValue(AsyncData(my)),
-  allGroupBalancesProvider.overrideWithValue(const AsyncData([])),
-  accountStatsProvider.overrideWithValue(
-    const AsyncData(
-      AccountStats(currency: 'INR', spentThisMonth: 0, groups: 0, people: 0, expenses: 0),
-    ),
+/// Phase 09 overall reads without a database: nothing owed, no activity, zero stats. [all] is what
+/// every group's Balances tab shows (the Settle up sheet and the wallet breakdown read it).
+List<Override> emptyBalanceOverrides({
+  MyBalances my = noBalances,
+  List<GroupBalances> all = const [],
+  AccountStats stats = const AccountStats(
+    currency: 'INR',
+    spentThisMonth: 0,
+    groups: 0,
+    people: 0,
+    expenses: 0,
   ),
+}) => [
+  myBalancesProvider.overrideWithValue(AsyncData(my)),
+  allGroupBalancesProvider.overrideWithValue(AsyncData(all)),
+  accountStatsProvider.overrideWithValue(AsyncData(stats)),
   activityItemsProvider(null).overrideWithValue(const AsyncData([])),
 ];

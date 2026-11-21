@@ -170,7 +170,8 @@ class ActivityRow extends StatelessWidget {
     final time = DateFormat.jm(Localizations.localeOf(context).toLanguageTag()).format(i.at);
     final amount = i.amount;
     final currency = i.currency;
-    final actorName = i.actor.isMe ? l.you : (i.actor.name.isEmpty ? l.someone : i.actor.name);
+    // Initials come from the real name ("MB"), never from "You".
+    final actorName = i.actor.name.isNotEmpty ? i.actor.name : (i.actor.isMe ? l.you : l.someone);
     return AmountRow(
       key: ValueKey('activity-${i.id}'),
       title: activitySentence(l, i),

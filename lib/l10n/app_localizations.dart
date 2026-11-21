@@ -1190,6 +1190,12 @@ abstract class AppLocalizations {
   /// **'{from} owes {to}'**
   String balPairOwes(String from, String to);
 
+  /// No description provided for @balYouOwePerson.
+  ///
+  /// In en, this message translates to:
+  /// **'You owe {name}'**
+  String balYouOwePerson(String name);
+
   /// No description provided for @balSettle.
   ///
   /// In en, this message translates to:
