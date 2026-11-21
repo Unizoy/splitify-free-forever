@@ -34,7 +34,7 @@ detail shows it with a full-screen zoomable viewer (replace / remove). Groups ca
   payers, loans, receipts in the controller) · widget ≈ 80 (loan screen, receipt widgets, loans in lists, photo
   widgets, cover photo) · golden 48 (12 states × light/dark × text 1.0/2.0) + refreshed expense/group goldens ·
   SQL 2 files (24 + 12) · integration 2 (e2e receipts/loan/cover; UI review captures)
-- Coverage: see Gates (G2)
+- Coverage: overall 96.4 % · money 100 % · sync 100 % · domain 100 % · data 91.0 % · application 96.9 % · presentation 96.2 %
 - Test IDs now passing: TC-10-02, TC-11-02, TC-29-01, TC-29-02, TC-29-03
 - Quarantined / skipped: none
 
@@ -42,10 +42,10 @@ detail shows it with a full-screen zoomable viewer (replace / remove). Groups ca
 
 | Gate | Result | Evidence |
 | --- | --- | --- |
-| G1 Static | PASS | format clean, analyze 0 errors/warnings, guards OK |
-| G2 Tests | (filled at ship) | |
+| G1 Static | PASS | `dart format --set-exit-if-changed` 0 changes (375 files), `flutter analyze --no-fatal-infos` 0 errors / 0 warnings (infos only), `tool/guards.dart` OK — after the phase 12 merge |
+| G2 Tests | PASS | full suite after merging main (phases 09 + 12): 1729 passed; the 8 phase-10 detail goldens that changed with phase 12's comment composer were refreshed (comment-thread override) and re-run green; coverage: overall 96.4 %, money 100 %, sync 100 %, domain 100 %, data 91.0 %, application 96.9 %, presentation 96.2 % (all floors pass) |
 | G3 Backend | PASS | `0013_file_paths` applied to dev; pgTAP `023` 24/24, `060` 12/12; security advisors: no new findings (only the accepted RPC/`join_attempts`/leaked-password items) |
-| G4 Build | (filled at ship) | |
+| G4 Build | PASS | `flutter build apk --debug --dart-define-from-file=secrets/env.dev.json` (after the phase 12 merge) |
 | G5 Device | PASS | `integration_test/receipts_offline_upload_test.dart` on emulator-5554 (2026-11-22, PIN_HOST_IP): real compression 3000×2000 → 1599×1066, 314,616 B (thumb 480×320); offline expense paid by me + Asha with receipt, loan and cover photo queued; online sync pushed rows, uploaded 2 photos, server rows match (payers, kind iou), user B (claimed Asha) fetched receipt and cover via signed URLs. UI review captures (9 screens × light/dark/200 %) in `C:\Users\mohit\OneDrive\Desktop\theCode\splitify-artifacts\phase-10\` |
 | G6 Docs | PASS | phase ticks, decisions S-110..S-119, catalog, learnings, amendments to phases 11 and 15 |
 
