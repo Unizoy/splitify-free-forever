@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:splitify/core/money/currencies.dart';
+import 'package:splitify/core/upi/upi_link.dart' show UpiLink;
 import 'package:splitify/data/data_providers.dart';
 import 'package:splitify/data/local/app_database.dart';
 import 'package:splitify/features/balances/presentation/balance_copy.dart';
@@ -15,6 +16,9 @@ import 'package:splitify/features/groups/presentation/group_visuals.dart'
     show PageTitle, SectionLabel;
 import 'package:splitify/features/payments/application/payment_providers.dart';
 import 'package:splitify/features/payments/application/settle_controller.dart';
+import 'package:splitify/features/payments/application/upi_providers.dart';
+import 'package:splitify/features/payments/presentation/settled_celebration.dart';
+import 'package:splitify/features/payments/presentation/upi_pay.dart';
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/components/components.dart';
 import 'package:splitify/ui/theme/theme.dart';
@@ -22,7 +26,8 @@ import 'package:splitify/ui/theme/theme.dart';
 /// Settle up (`/settle`, #25, 712 + 646): who paid whom (avatars with a swap button), the amount
 /// prefilled with what is owed, an [ArcGauge] of how much of the debt it settles, method chips, date
 /// and note; amber "Record payment" in the sticky bar. Also edits a saved payment (`/payment/:id/edit`).
-/// UPI ("Pay via UPI") arrives in phase 11.
+/// When I pay someone with a UPI ID in rupees, the bar offers amber "Pay ₹x via UPI" (phase 11, #26) with the
+/// copy / QR fallbacks in the form; a payment that settles a person shows the Celebration (T6).
 class SettleUpScreen extends ConsumerStatefulWidget {
   const SettleUpScreen({
     this.groupId = '',
@@ -79,6 +84,11 @@ class _SettleUpScreenState extends ConsumerState<SettleUpScreen> {
     setState(() => _saving = false);
     if (id == null) return;
     unawaited(HapticFeedback.mediumImpact());
+    final other = settledWith(d);
+    if (other != null) {
+      await showSettledCelebration(context, name: personName(l, d.balances, other, start: false));
+      if (!mounted) return;
+    }
     if (navigator.canPop()) {
       navigator.pop();
     } else {
@@ -87,6 +97,13 @@ class _SettleUpScreenState extends ConsumerState<SettleUpScreen> {
     messenger
       ..hideCurrentSnackBar()
       ..showSnackBar(SnackBar(content: Text(d.isEdit ? l.settleSaved : l.settleRecorded)));
+  }
+
+  Future<void> _payByUpi(SettleDraft d, UpiLink link, String payeeName) async {
+    final paid = await payViaUpi(context, ref, link, payeeName: payeeName, amountMinor: d.amount!);
+    if (!paid || !mounted) return;
+    _ctrl.setMethod('upi');
+    await _save(ref.read(settleProvider(widget.args)).value ?? d);
   }
 
   @override
@@ -123,6 +140,12 @@ class _SettleUpScreenState extends ConsumerState<SettleUpScreen> {
       );
     }
     _fill(d);
+    final payee = d.members.firstWhere((m) => m.id == d.to);
+    final vpa = payee.userId == null ? null : ref.watch(upiIdProvider(payee.userId!)).value;
+    final payeeName = personName(l, d.balances, d.to, start: false);
+    final upi = canPayByUpi(d, vpa)
+        ? upiLinkFor(d, vpa: vpa!, name: payeeName, note: l.upiNote(d.groupName))
+        : null;
     return Scaffold(
       body: SafeArea(
         bottom: false,
@@ -186,6 +209,12 @@ class _SettleUpScreenState extends ConsumerState<SettleUpScreen> {
                     ),
                 ],
               ),
+              if (upi != null) ...[
+                const SizedBox(height: AppSpacing.s8),
+                SectionLabel(l.upiOtherWays),
+                const SizedBox(height: AppSpacing.s3),
+                UpiFallbacks(link: upi, payeeName: payeeName, amountMinor: d.amount!),
+              ],
               const SizedBox(height: AppSpacing.s8),
               SectionLabel(l.settleDate),
               const SizedBox(height: AppSpacing.s3),
@@ -205,16 +234,35 @@ class _SettleUpScreenState extends ConsumerState<SettleUpScreen> {
           ),
         ),
       ),
-      bottomNavigationBar: StickyActionBar(
-        primary: PillButton(
-          key: const Key('settle-save'),
-          label: d.isEdit ? l.settleSave : l.settleRecord,
-          icon: AppIcons.check,
-          variant: PillVariant.money,
-          loading: _saving,
-          onPressed: d.canSave && !_saving ? () => unawaited(_save(d)) : null,
-        ),
-      ),
+      bottomNavigationBar: upi == null
+          ? StickyActionBar(
+              primary: PillButton(
+                key: const Key('settle-save'),
+                label: d.isEdit ? l.settleSave : l.settleRecord,
+                icon: AppIcons.check,
+                variant: PillVariant.money,
+                loading: _saving,
+                onPressed: d.canSave && !_saving ? () => unawaited(_save(d)) : null,
+              ),
+            )
+          : StickyActionBar(
+              primary: PillButton(
+                key: const Key('settle-upi'),
+                label: l.upiPay(listMoney(d.amount!, d.currency)),
+                icon: AppIcons.qr,
+                variant: PillVariant.money,
+                loading: _saving,
+                onPressed: d.canSave && !_saving
+                    ? () => unawaited(_payByUpi(d, upi, payeeName))
+                    : null,
+              ),
+              secondary: PillButton(
+                key: const Key('settle-save'),
+                label: l.settleRecord,
+                variant: PillVariant.outline,
+                onPressed: d.canSave && !_saving ? () => unawaited(_save(d)) : null,
+              ),
+            ),
     );
   }
 
@@ -492,4 +540,14 @@ class _Gauge extends StatelessWidget {
       ),
     );
   }
+}
+
+/// The person a new payment by or to me settles completely (what one of us owed the other in this
+/// currency becomes zero), or null (T6: only then the Celebration plays).
+String? settledWith(SettleDraft d) {
+  final me = d.meId;
+  if (me == null || d.isEdit || d.owed <= 0 || d.amount != d.owed) return null;
+  if (d.from == me) return d.to;
+  if (d.to == me) return d.from;
+  return null;
 }
