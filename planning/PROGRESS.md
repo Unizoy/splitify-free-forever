@@ -3,14 +3,14 @@
 Updated by plan-execution sessions only (see `11-execution-protocol.md`). Status values:
 `todo` · `in-progress` · `done` · `done-with-blockers` · `blocked` · `owner` (owner-only phase).
 
-Current phase: _none in progress_ (02 done, next: 03)
+Current phase: _none in progress_ (03 done; 04 running in parallel)
 
 | # | Phase | Depends on | Needs owner setup | Status | Branch | Finished | Last commit | Report |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | 00 | [Owner setup (one-time, by hand)](phases/phase-00-owner-setup.md) | — | is the setup | owner: Supabase done (MCP needs `/mcp` login); rest dummy per D-020 | — | | | |
 | 01 | [Bootstrap, tooling, CI](phases/phase-01-bootstrap.md) | — | no | done | phase/01-bootstrap | 2026-11-21 | see git log | [report](reports/phase-01.md) |
 | 02 | [Design system and app shell](phases/phase-02-design-system.md) | 01 | no | done | phase/02-design-system | 2026-11-21 | 2e29185 | [report](reports/phase-02.md) |
-| 03 | [Money engine (pure Dart)](phases/phase-03-money-engine.md) | 01 | no | todo | phase/03-money-engine | | | |
+| 03 | [Money engine (pure Dart)](phases/phase-03-money-engine.md) | 01 | no | done | phase/03-money-engine | 2026-11-21 | eaaac63 | [report](reports/phase-03.md) |
 | 04 | [Backend foundation](phases/phase-04-backend-foundation.md) | 03 | 00 (Supabase + MCP) | todo | phase/04-backend-foundation | | | |
 | 05 | [Auth, profile, account](phases/phase-05-auth-profile.md) | 02, 04 | 00 (Google OAuth, Resend) | todo | phase/05-auth-profile | | | |
 | 06 | [Local database and sync engine](phases/phase-06-sync-engine.md) | 04, 05 | 00 | todo | phase/06-sync-engine | | | |

@@ -55,3 +55,7 @@ _Add entries here._
 - [phase 02] alchemist: `CoverCache.warm` completes on the real event loop → golden tests clear the cache in `setUp` and pump inside `runAsync`; repeating animations (DotsPulse, sheen, spin, loader) need fixed pumps, never `pumpAndSettle`.
 - [phase 02] `OverflowBoxFit` is not exported by `material.dart` → `import 'package:flutter/rendering.dart' show OverflowBoxFit;`.
 - [phase 02] UI review tool: `.claude/skills/ui-review/scripts/capture_shell.ps1` (tap by accessibility label via uiautomator; light/dark/200 % passes).
+- [phase 03] Coverage: a constructor only ever called as `const` shows as an uncovered line in lcov → add one runtime (non-const) call in a test.
+- [phase 03] Two agents in one checkout on disjoint files worked (money core vs currencies/formatter); I wrote the shared contract (`currency.dart`, `Currencies.exponentOf/of`) first so neither blocked the other. Run only targeted `flutter test <file>` in parallel agents.
+- [phase 03] Python oracle runs leave `planning/reference/__pycache__/` — delete it, never commit it.
+- [phase 03] For Postgres cross rates, default `numeric` division keeps ~16 significant digits and can double-round → use explicit high scale or integer math (see S-016).

@@ -1,0 +1,208 @@
+import 'package:splitify/core/money/currency.dart';
+
+/// Currency table (planning/05-money-engine.md §1). Mirrors `public.currencies` on the server.
+///
+/// Contents: every fiat currency Frankfurter v2 publishes (`/v2/currencies`, `type == currency`;
+/// planning/research/05-supabase-fcm-fx.md) except `CMD` and `XDR` (not spendable currencies),
+/// plus ISO 4217 `VED` (no Frankfurter rate). ISO fund codes (BOV, CLF, UYI, …), metals and test
+/// codes are left out; [exponentOf] still knows their exponent rule.
+///
+/// Exponents follow the spec rule only (0 / 3 lists, else 2). Symbols are shown only where they are
+/// unambiguous; shared signs get a prefix (`CA$`, `HK$`, `CN¥`) or fall back to the code (`AED`,
+/// `CHF`, `LKR`, the rials that share `﷼`). No symbol contains a digit or an operator character
+/// (`. , + - − × * ÷ /`), so pasted amounts can be cleaned safely (amount_expression.dart).
+abstract final class Currencies {
+  /// Indian rupee, the app default.
+  static const inr = Currency(
+    code: 'INR',
+    exponent: 2,
+    symbol: '₹',
+    name: 'Indian Rupee',
+    frankfurter: true,
+  );
+
+  static const _exponent0 = {
+    'BIF', 'CLP', 'DJF', 'GNF', 'ISK', 'JPY', 'KMF', 'KRW', 'PYG', 'RWF', 'UGX', 'UYI', 'VND', //
+    'VUV', 'XAF', 'XOF', 'XPF',
+  };
+  static const _exponent3 = {'BHD', 'IQD', 'JOD', 'KWD', 'LYD', 'OMR', 'TND'};
+
+  /// Known currencies by code, in code order.
+  // dart format off
+  static const Map<String, Currency> all = {
+    'AED': Currency(code: 'AED', exponent: 2, symbol: 'AED', name: 'UAE Dirham', frankfurter: true),
+    'AFN': Currency(code: 'AFN', exponent: 2, symbol: '؋', name: 'Afghan Afghani', frankfurter: true),
+    'ALL': Currency(code: 'ALL', exponent: 2, symbol: 'ALL', name: 'Albanian Lek', frankfurter: true),
+    'AMD': Currency(code: 'AMD', exponent: 2, symbol: '֏', name: 'Armenian Dram', frankfurter: true),
+    'ANG': Currency(code: 'ANG', exponent: 2, symbol: 'ANG', name: 'Netherlands Antillean Guilder', frankfurter: true),
+    'AOA': Currency(code: 'AOA', exponent: 2, symbol: 'AOA', name: 'Angolan Kwanza', frankfurter: true),
+    'ARS': Currency(code: 'ARS', exponent: 2, symbol: 'ARS', name: 'Argentine Peso', frankfurter: true),
+    'AUD': Currency(code: 'AUD', exponent: 2, symbol: r'A$', name: 'Australian Dollar', frankfurter: true),
+    'AWG': Currency(code: 'AWG', exponent: 2, symbol: 'AWG', name: 'Aruban Florin', frankfurter: true),
+    'AZN': Currency(code: 'AZN', exponent: 2, symbol: '₼', name: 'Azerbaijani Manat', frankfurter: true),
+    'BAM': Currency(code: 'BAM', exponent: 2, symbol: 'BAM', name: 'Bosnia-Herzegovina Convertible Mark', frankfurter: true),
+    'BBD': Currency(code: 'BBD', exponent: 2, symbol: 'BBD', name: 'Barbadian Dollar', frankfurter: true),
+    'BDT': Currency(code: 'BDT', exponent: 2, symbol: '৳', name: 'Bangladeshi Taka', frankfurter: true),
+    'BHD': Currency(code: 'BHD', exponent: 3, symbol: 'BHD', name: 'Bahraini Dinar', frankfurter: true),
+    'BIF': Currency(code: 'BIF', exponent: 0, symbol: 'BIF', name: 'Burundian Franc', frankfurter: true),
+    'BMD': Currency(code: 'BMD', exponent: 2, symbol: 'BMD', name: 'Bermudian Dollar', frankfurter: true),
+    'BND': Currency(code: 'BND', exponent: 2, symbol: 'BND', name: 'Brunei Dollar', frankfurter: true),
+    'BOB': Currency(code: 'BOB', exponent: 2, symbol: 'BOB', name: 'Bolivian Boliviano', frankfurter: true),
+    'BRL': Currency(code: 'BRL', exponent: 2, symbol: r'R$', name: 'Brazilian Real', frankfurter: true),
+    'BSD': Currency(code: 'BSD', exponent: 2, symbol: 'BSD', name: 'Bahamian Dollar', frankfurter: true),
+    'BTN': Currency(code: 'BTN', exponent: 2, symbol: 'BTN', name: 'Bhutanese Ngultrum', frankfurter: true),
+    'BWP': Currency(code: 'BWP', exponent: 2, symbol: 'BWP', name: 'Botswanan Pula', frankfurter: true),
+    'BYN': Currency(code: 'BYN', exponent: 2, symbol: 'BYN', name: 'Belarusian Ruble', frankfurter: true),
+    'BZD': Currency(code: 'BZD', exponent: 2, symbol: 'BZD', name: 'Belize Dollar', frankfurter: true),
+    'CAD': Currency(code: 'CAD', exponent: 2, symbol: r'CA$', name: 'Canadian Dollar', frankfurter: true),
+    'CDF': Currency(code: 'CDF', exponent: 2, symbol: 'CDF', name: 'Congolese Franc', frankfurter: true),
+    'CHF': Currency(code: 'CHF', exponent: 2, symbol: 'CHF', name: 'Swiss Franc', frankfurter: true),
+    'CLP': Currency(code: 'CLP', exponent: 0, symbol: 'CLP', name: 'Chilean Peso', frankfurter: true),
+    'CNH': Currency(code: 'CNH', exponent: 2, symbol: 'CNH', name: 'Chinese Yuan (offshore)', frankfurter: true),
+    'CNY': Currency(code: 'CNY', exponent: 2, symbol: 'CN¥', name: 'Chinese Yuan', frankfurter: true),
+    'COP': Currency(code: 'COP', exponent: 2, symbol: 'COP', name: 'Colombian Peso', frankfurter: true),
+    'CRC': Currency(code: 'CRC', exponent: 2, symbol: '₡', name: 'Costa Rican Colón', frankfurter: true),
+    'CUP': Currency(code: 'CUP', exponent: 2, symbol: 'CUP', name: 'Cuban Peso', frankfurter: true),
+    'CVE': Currency(code: 'CVE', exponent: 2, symbol: 'CVE', name: 'Cape Verdean Escudo', frankfurter: true),
+    'CZK': Currency(code: 'CZK', exponent: 2, symbol: 'Kč', name: 'Czech Koruna', frankfurter: true),
+    'DJF': Currency(code: 'DJF', exponent: 0, symbol: 'DJF', name: 'Djiboutian Franc', frankfurter: true),
+    'DKK': Currency(code: 'DKK', exponent: 2, symbol: 'DKK', name: 'Danish Krone', frankfurter: true),
+    'DOP': Currency(code: 'DOP', exponent: 2, symbol: 'DOP', name: 'Dominican Peso', frankfurter: true),
+    'DZD': Currency(code: 'DZD', exponent: 2, symbol: 'DZD', name: 'Algerian Dinar', frankfurter: true),
+    'EGP': Currency(code: 'EGP', exponent: 2, symbol: 'E£', name: 'Egyptian Pound', frankfurter: true),
+    'ERN': Currency(code: 'ERN', exponent: 2, symbol: 'ERN', name: 'Eritrean Nakfa', frankfurter: true),
+    'ETB': Currency(code: 'ETB', exponent: 2, symbol: 'ETB', name: 'Ethiopian Birr', frankfurter: true),
+    'EUR': Currency(code: 'EUR', exponent: 2, symbol: '€', name: 'Euro', frankfurter: true),
+    'FJD': Currency(code: 'FJD', exponent: 2, symbol: 'FJD', name: 'Fijian Dollar', frankfurter: true),
+    'FKP': Currency(code: 'FKP', exponent: 2, symbol: 'FKP', name: 'Falkland Islands Pound', frankfurter: true),
+    'GBP': Currency(code: 'GBP', exponent: 2, symbol: '£', name: 'British Pound', frankfurter: true),
+    'GEL': Currency(code: 'GEL', exponent: 2, symbol: '₾', name: 'Georgian Lari', frankfurter: true),
+    'GGP': Currency(code: 'GGP', exponent: 2, symbol: 'GGP', name: 'Guernsey Pound', frankfurter: true),
+    'GHS': Currency(code: 'GHS', exponent: 2, symbol: 'GH₵', name: 'Ghanaian Cedi', frankfurter: true),
+    'GIP': Currency(code: 'GIP', exponent: 2, symbol: 'GIP', name: 'Gibraltar Pound', frankfurter: true),
+    'GMD': Currency(code: 'GMD', exponent: 2, symbol: 'GMD', name: 'Gambian Dalasi', frankfurter: true),
+    'GNF': Currency(code: 'GNF', exponent: 0, symbol: 'GNF', name: 'Guinean Franc', frankfurter: true),
+    'GTQ': Currency(code: 'GTQ', exponent: 2, symbol: 'GTQ', name: 'Guatemalan Quetzal', frankfurter: true),
+    'GYD': Currency(code: 'GYD', exponent: 2, symbol: 'GYD', name: 'Guyanese Dollar', frankfurter: true),
+    'HKD': Currency(code: 'HKD', exponent: 2, symbol: r'HK$', name: 'Hong Kong Dollar', frankfurter: true),
+    'HNL': Currency(code: 'HNL', exponent: 2, symbol: 'HNL', name: 'Honduran Lempira', frankfurter: true),
+    'HTG': Currency(code: 'HTG', exponent: 2, symbol: 'HTG', name: 'Haitian Gourde', frankfurter: true),
+    'HUF': Currency(code: 'HUF', exponent: 2, symbol: 'Ft', name: 'Hungarian Forint', frankfurter: true),
+    'IDR': Currency(code: 'IDR', exponent: 2, symbol: 'Rp', name: 'Indonesian Rupiah', frankfurter: true),
+    'ILS': Currency(code: 'ILS', exponent: 2, symbol: '₪', name: 'Israeli New Shekel', frankfurter: true),
+    'IMP': Currency(code: 'IMP', exponent: 2, symbol: 'IMP', name: 'Manx Pound', frankfurter: true),
+    'INR': inr,
+    'IQD': Currency(code: 'IQD', exponent: 3, symbol: 'IQD', name: 'Iraqi Dinar', frankfurter: true),
+    'IRR': Currency(code: 'IRR', exponent: 2, symbol: 'IRR', name: 'Iranian Rial', frankfurter: true),
+    'ISK': Currency(code: 'ISK', exponent: 0, symbol: 'ISK', name: 'Icelandic Króna', frankfurter: true),
+    'JEP': Currency(code: 'JEP', exponent: 2, symbol: 'JEP', name: 'Jersey Pound', frankfurter: true),
+    'JMD': Currency(code: 'JMD', exponent: 2, symbol: 'JMD', name: 'Jamaican Dollar', frankfurter: true),
+    'JOD': Currency(code: 'JOD', exponent: 3, symbol: 'JOD', name: 'Jordanian Dinar', frankfurter: true),
+    'JPY': Currency(code: 'JPY', exponent: 0, symbol: '¥', name: 'Japanese Yen', frankfurter: true),
+    'KES': Currency(code: 'KES', exponent: 2, symbol: 'KES', name: 'Kenyan Shilling', frankfurter: true),
+    'KGS': Currency(code: 'KGS', exponent: 2, symbol: 'KGS', name: 'Kyrgyzstani Som', frankfurter: true),
+    'KHR': Currency(code: 'KHR', exponent: 2, symbol: '៛', name: 'Cambodian Riel', frankfurter: true),
+    'KMF': Currency(code: 'KMF', exponent: 0, symbol: 'KMF', name: 'Comorian Franc', frankfurter: true),
+    'KPW': Currency(code: 'KPW', exponent: 2, symbol: 'KPW', name: 'North Korean Won', frankfurter: true),
+    'KRW': Currency(code: 'KRW', exponent: 0, symbol: '₩', name: 'South Korean Won', frankfurter: true),
+    'KWD': Currency(code: 'KWD', exponent: 3, symbol: 'KWD', name: 'Kuwaiti Dinar', frankfurter: true),
+    'KYD': Currency(code: 'KYD', exponent: 2, symbol: 'KYD', name: 'Cayman Islands Dollar', frankfurter: true),
+    'KZT': Currency(code: 'KZT', exponent: 2, symbol: '₸', name: 'Kazakhstani Tenge', frankfurter: true),
+    'LAK': Currency(code: 'LAK', exponent: 2, symbol: '₭', name: 'Laotian Kip', frankfurter: true),
+    'LBP': Currency(code: 'LBP', exponent: 2, symbol: 'LBP', name: 'Lebanese Pound', frankfurter: true),
+    'LKR': Currency(code: 'LKR', exponent: 2, symbol: 'LKR', name: 'Sri Lankan Rupee', frankfurter: true),
+    'LRD': Currency(code: 'LRD', exponent: 2, symbol: 'LRD', name: 'Liberian Dollar', frankfurter: true),
+    'LSL': Currency(code: 'LSL', exponent: 2, symbol: 'LSL', name: 'Lesotho Loti', frankfurter: true),
+    'LYD': Currency(code: 'LYD', exponent: 3, symbol: 'LYD', name: 'Libyan Dinar', frankfurter: true),
+    'MAD': Currency(code: 'MAD', exponent: 2, symbol: 'MAD', name: 'Moroccan Dirham', frankfurter: true),
+    'MDL': Currency(code: 'MDL', exponent: 2, symbol: 'MDL', name: 'Moldovan Leu', frankfurter: true),
+    'MGA': Currency(code: 'MGA', exponent: 2, symbol: 'MGA', name: 'Malagasy Ariary', frankfurter: true),
+    'MKD': Currency(code: 'MKD', exponent: 2, symbol: 'MKD', name: 'Macedonian Denar', frankfurter: true),
+    'MMK': Currency(code: 'MMK', exponent: 2, symbol: 'MMK', name: 'Myanmar Kyat', frankfurter: true),
+    'MNT': Currency(code: 'MNT', exponent: 2, symbol: '₮', name: 'Mongolian Tugrik', frankfurter: true),
+    'MOP': Currency(code: 'MOP', exponent: 2, symbol: 'MOP', name: 'Macanese Pataca', frankfurter: true),
+    'MRU': Currency(code: 'MRU', exponent: 2, symbol: 'MRU', name: 'Mauritanian Ouguiya', frankfurter: true),
+    'MUR': Currency(code: 'MUR', exponent: 2, symbol: 'MUR', name: 'Mauritian Rupee', frankfurter: true),
+    'MVR': Currency(code: 'MVR', exponent: 2, symbol: 'MVR', name: 'Maldivian Rufiyaa', frankfurter: true),
+    'MWK': Currency(code: 'MWK', exponent: 2, symbol: 'MWK', name: 'Malawian Kwacha', frankfurter: true),
+    'MXN': Currency(code: 'MXN', exponent: 2, symbol: r'MX$', name: 'Mexican Peso', frankfurter: true),
+    'MYR': Currency(code: 'MYR', exponent: 2, symbol: 'RM', name: 'Malaysian Ringgit', frankfurter: true),
+    'MZN': Currency(code: 'MZN', exponent: 2, symbol: 'MZN', name: 'Mozambican Metical', frankfurter: true),
+    'NAD': Currency(code: 'NAD', exponent: 2, symbol: 'NAD', name: 'Namibian Dollar', frankfurter: true),
+    'NGN': Currency(code: 'NGN', exponent: 2, symbol: '₦', name: 'Nigerian Naira', frankfurter: true),
+    'NIO': Currency(code: 'NIO', exponent: 2, symbol: 'NIO', name: 'Nicaraguan Córdoba', frankfurter: true),
+    'NOK': Currency(code: 'NOK', exponent: 2, symbol: 'NOK', name: 'Norwegian Krone', frankfurter: true),
+    'NPR': Currency(code: 'NPR', exponent: 2, symbol: 'NPR', name: 'Nepalese Rupee', frankfurter: true),
+    'NZD': Currency(code: 'NZD', exponent: 2, symbol: r'NZ$', name: 'New Zealand Dollar', frankfurter: true),
+    'OMR': Currency(code: 'OMR', exponent: 3, symbol: 'OMR', name: 'Omani Rial', frankfurter: true),
+    'PAB': Currency(code: 'PAB', exponent: 2, symbol: 'PAB', name: 'Panamanian Balboa', frankfurter: true),
+    'PEN': Currency(code: 'PEN', exponent: 2, symbol: 'PEN', name: 'Peruvian Sol', frankfurter: true),
+    'PGK': Currency(code: 'PGK', exponent: 2, symbol: 'PGK', name: 'Papua New Guinean Kina', frankfurter: true),
+    'PHP': Currency(code: 'PHP', exponent: 2, symbol: '₱', name: 'Philippine Peso', frankfurter: true),
+    'PKR': Currency(code: 'PKR', exponent: 2, symbol: 'PKR', name: 'Pakistani Rupee', frankfurter: true),
+    'PLN': Currency(code: 'PLN', exponent: 2, symbol: 'zł', name: 'Polish Zloty', frankfurter: true),
+    'PYG': Currency(code: 'PYG', exponent: 0, symbol: '₲', name: 'Paraguayan Guarani', frankfurter: true),
+    'QAR': Currency(code: 'QAR', exponent: 2, symbol: 'QAR', name: 'Qatari Riyal', frankfurter: true),
+    'RON': Currency(code: 'RON', exponent: 2, symbol: 'RON', name: 'Romanian Leu', frankfurter: true),
+    'RSD': Currency(code: 'RSD', exponent: 2, symbol: 'RSD', name: 'Serbian Dinar', frankfurter: true),
+    'RUB': Currency(code: 'RUB', exponent: 2, symbol: '₽', name: 'Russian Ruble', frankfurter: true),
+    'RWF': Currency(code: 'RWF', exponent: 0, symbol: 'RWF', name: 'Rwandan Franc', frankfurter: true),
+    'SAR': Currency(code: 'SAR', exponent: 2, symbol: 'SAR', name: 'Saudi Riyal', frankfurter: true),
+    'SBD': Currency(code: 'SBD', exponent: 2, symbol: 'SBD', name: 'Solomon Islands Dollar', frankfurter: true),
+    'SCR': Currency(code: 'SCR', exponent: 2, symbol: 'SCR', name: 'Seychellois Rupee', frankfurter: true),
+    'SDG': Currency(code: 'SDG', exponent: 2, symbol: 'SDG', name: 'Sudanese Pound', frankfurter: true),
+    'SEK': Currency(code: 'SEK', exponent: 2, symbol: 'SEK', name: 'Swedish Krona', frankfurter: true),
+    'SGD': Currency(code: 'SGD', exponent: 2, symbol: r'S$', name: 'Singapore Dollar', frankfurter: true),
+    'SHP': Currency(code: 'SHP', exponent: 2, symbol: 'SHP', name: 'Saint Helena Pound', frankfurter: true),
+    'SLE': Currency(code: 'SLE', exponent: 2, symbol: 'SLE', name: 'Sierra Leonean Leone', frankfurter: true),
+    'SOS': Currency(code: 'SOS', exponent: 2, symbol: 'SOS', name: 'Somali Shilling', frankfurter: true),
+    'SRD': Currency(code: 'SRD', exponent: 2, symbol: 'SRD', name: 'Surinamese Dollar', frankfurter: true),
+    'SSP': Currency(code: 'SSP', exponent: 2, symbol: 'SSP', name: 'South Sudanese Pound', frankfurter: true),
+    'STN': Currency(code: 'STN', exponent: 2, symbol: 'STN', name: 'São Tomé and Príncipe Dobra', frankfurter: true),
+    'SVC': Currency(code: 'SVC', exponent: 2, symbol: 'SVC', name: 'Salvadoran Colón', frankfurter: true),
+    'SYP': Currency(code: 'SYP', exponent: 2, symbol: 'SYP', name: 'Syrian Pound', frankfurter: true),
+    'SZL': Currency(code: 'SZL', exponent: 2, symbol: 'SZL', name: 'Swazi Lilangeni', frankfurter: true),
+    'THB': Currency(code: 'THB', exponent: 2, symbol: '฿', name: 'Thai Baht', frankfurter: true),
+    'TJS': Currency(code: 'TJS', exponent: 2, symbol: 'TJS', name: 'Tajikistani Somoni', frankfurter: true),
+    'TMT': Currency(code: 'TMT', exponent: 2, symbol: 'TMT', name: 'Turkmenistani Manat', frankfurter: true),
+    'TND': Currency(code: 'TND', exponent: 3, symbol: 'TND', name: 'Tunisian Dinar', frankfurter: true),
+    'TOP': Currency(code: 'TOP', exponent: 2, symbol: 'TOP', name: 'Tongan Paʻanga', frankfurter: true),
+    'TRY': Currency(code: 'TRY', exponent: 2, symbol: '₺', name: 'Turkish Lira', frankfurter: true),
+    'TTD': Currency(code: 'TTD', exponent: 2, symbol: 'TTD', name: 'Trinidad and Tobago Dollar', frankfurter: true),
+    'TWD': Currency(code: 'TWD', exponent: 2, symbol: r'NT$', name: 'New Taiwan Dollar', frankfurter: true),
+    'TZS': Currency(code: 'TZS', exponent: 2, symbol: 'TZS', name: 'Tanzanian Shilling', frankfurter: true),
+    'UAH': Currency(code: 'UAH', exponent: 2, symbol: '₴', name: 'Ukrainian Hryvnia', frankfurter: true),
+    'UGX': Currency(code: 'UGX', exponent: 0, symbol: 'UGX', name: 'Ugandan Shilling', frankfurter: true),
+    'USD': Currency(code: 'USD', exponent: 2, symbol: r'$', name: 'US Dollar', frankfurter: true),
+    'UYU': Currency(code: 'UYU', exponent: 2, symbol: 'UYU', name: 'Uruguayan Peso', frankfurter: true),
+    'UZS': Currency(code: 'UZS', exponent: 2, symbol: 'UZS', name: 'Uzbekistani Som', frankfurter: true),
+    'VED': Currency(code: 'VED', exponent: 2, symbol: 'VED', name: 'Venezuelan Digital Bolívar'),
+    'VES': Currency(code: 'VES', exponent: 2, symbol: 'VES', name: 'Venezuelan Bolívar', frankfurter: true),
+    'VND': Currency(code: 'VND', exponent: 0, symbol: '₫', name: 'Vietnamese Dong', frankfurter: true),
+    'VUV': Currency(code: 'VUV', exponent: 0, symbol: 'VUV', name: 'Vanuatu Vatu', frankfurter: true),
+    'WST': Currency(code: 'WST', exponent: 2, symbol: 'WST', name: 'Samoan Tala', frankfurter: true),
+    'XAF': Currency(code: 'XAF', exponent: 0, symbol: 'XAF', name: 'Central African CFA Franc', frankfurter: true),
+    'XCD': Currency(code: 'XCD', exponent: 2, symbol: r'EC$', name: 'East Caribbean Dollar', frankfurter: true),
+    'XCG': Currency(code: 'XCG', exponent: 2, symbol: 'XCG', name: 'Caribbean Guilder', frankfurter: true),
+    'XOF': Currency(code: 'XOF', exponent: 0, symbol: 'XOF', name: 'West African CFA Franc', frankfurter: true),
+    'XPF': Currency(code: 'XPF', exponent: 0, symbol: 'XPF', name: 'CFP Franc', frankfurter: true),
+    'YER': Currency(code: 'YER', exponent: 2, symbol: 'YER', name: 'Yemeni Rial', frankfurter: true),
+    'ZAR': Currency(code: 'ZAR', exponent: 2, symbol: 'R', name: 'South African Rand', frankfurter: true),
+    'ZMW': Currency(code: 'ZMW', exponent: 2, symbol: 'ZMW', name: 'Zambian Kwacha', frankfurter: true),
+    'ZWG': Currency(code: 'ZWG', exponent: 2, symbol: 'ZWG', name: 'Zimbabwean Gold', frankfurter: true),
+  };
+  // dart format on
+
+  /// Minor-unit digits for [code]: from the table, else the ISO rule (0/3 lists, default 2).
+  static int exponentOf(String code) {
+    final known = all[code];
+    if (known != null) return known.exponent;
+    if (_exponent0.contains(code)) return 0;
+    if (_exponent3.contains(code)) return 3;
+    return 2;
+  }
+
+  /// The currency for [code]; unknown codes get a generic entry (symbol = code).
+  static Currency of(String code) =>
+      all[code] ?? Currency(code: code, exponent: exponentOf(code), symbol: code, name: code);
+}

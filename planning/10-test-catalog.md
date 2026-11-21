@@ -11,17 +11,17 @@ Total: 114 test ids.
 | 02 | TC-B3-01 | widget | switching updates theme | pass |
 | 02 | TC-B3-02 | unit | persisted value restored | pass |
 | 02 | TC-B3-03 | golden | every | pass |
-| 03 | TC-10-01 | unit | payer validation vectors | todo |
-| 03 | TC-10-03 | unit | pairs per | todo |
-| 03 | TC-11-01 | unit | IOU produces correct pair | todo |
-| 03 | TC-14-01 | unit | balances never mix currencies | todo |
-| 03 | TC-15-01 | unit | vectors BAL-* | todo |
-| 03 | TC-16-01 | unit | across groups + direct | todo |
-| 03 | TC-17-01 | unit | simplify vectors + properties | todo |
-| 03 | TC-25-01 | unit | payment effect on nets/pairs | todo |
-| 03 | TC-32-01 | unit | FX vectors | todo |
-| 03 | TC-5..9-01 | unit | every split vector in `money_vectors.json` | todo |
-| 03 | TC-5..9-02 | unit | glados property tests | todo |
+| 03 | TC-10-01 | unit | payer validation vectors | pass |
+| 03 | TC-10-03 | unit | pairs per | pass |
+| 03 | TC-11-01 | unit | IOU produces correct pair | pass |
+| 03 | TC-14-01 | unit | balances never mix currencies | pass |
+| 03 | TC-15-01 | unit | vectors BAL-* | pass |
+| 03 | TC-16-01 | unit | across groups + direct | pass |
+| 03 | TC-17-01 | unit | simplify vectors + properties | pass |
+| 03 | TC-25-01 | unit | payment effect on nets/pairs | pass |
+| 03 | TC-32-01 | unit | FX vectors | pass |
+| 03 | TC-5..9-01 | unit | every split vector in `money_vectors.json` | pass |
+| 03 | TC-5..9-02 | unit | glados property tests | pass |
 | 04 | TC-14-03 | sql | group_balances returns per-currency blocks. | todo |
 | 04 | TC-15-02 | sql | parity with vectors | todo |
 | 04 | TC-17-02 | sql | parity | todo |
