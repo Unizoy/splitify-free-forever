@@ -8,7 +8,7 @@
 
 ## Tasks
 
-- [ ] T1 Migration 0009: `preview_join`, `join_group`, `rotate_invite_code`, `leave_group`, `remove_member`,
+- [x] T1 Migration 0010 (`0010_groups_members.sql`, S-070): `preview_join`, `join_group`, `rotate_invite_code`, `leave_group`, `remove_member`,
       unlink claim, invite code generation (Crockford base32, unique), rate limit. pgTAP `050_groups_rpcs.test.sql`.
 - [ ] T2 Groups tab: hero + GlassCard (overall placeholder until phase 09), group grid with GroupCoverCard,
       archived section, empty state, Join/New buttons.
@@ -20,7 +20,7 @@
 - [ ] T6 Invite sheet: QR (`qr_flutter`) in dashed circle, code `ABCD-EFGH`, share sheet text, reset code.
 - [ ] T7 Join flow: enter code / scan (`mobile_scanner`, camera permission just-in-time) / deep link
       `splitify://join?code=` → preview → claim carousel or "I'm new here" → open group. Online-only.
-- [ ] T8 Activity rows for group events written by RPCs/mutations (feed UI comes in phase 09).
+- [x] T8 Activity rows for group events written by RPCs/mutations (feed UI comes in phase 09).
 
 ## Tests
 

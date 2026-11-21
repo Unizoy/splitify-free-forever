@@ -16,7 +16,11 @@ Format:
 
 ## Open
 
-## BLK-001 — Supabase MCP not available to execution sessions            (open)
+_None._
+
+## Closed
+
+## BLK-001 — Supabase MCP not available to execution sessions            (closed 2026-11-21)
 - Phase: 04 (and every later cloud phase) · Found: 2026-11-21 (phase 03 session)
 - Missing: no `mcp__supabase__*` tools in the session (ToolSearch finds none), so migrations/pgTAP/advisors cannot
   run. `secrets/owner-inputs.json` exists.
@@ -27,7 +31,5 @@ Format:
   install (VS Code extension sessions read the same config) for the next "execute the plan".
 - Workaround in place: phases 01–03 need no cloud; phase 04+ wait. No fake backend.
 - Detect fixed by: ToolSearch `supabase list_tables` returns `mcp__supabase__list_tables` and it answers.
-
-## Closed
-
-_None yet._
+- Resolved: MCP connected 2026-11-21; migrations 0001–0009 applied to dev, 12 pgTAP files 282/282 on dev,
+  advisors run (S-066, S-067), `delete-account` deployed (v1), `secrets/env.dev.json` filled.

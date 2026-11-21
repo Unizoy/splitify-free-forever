@@ -77,3 +77,7 @@ _Add entries here._
 - [prep 11] Dart `Uri.queryParameters` decodes `+` as a space and `Uri.encodeComponent` leaves `!*'()` alone, so the UPI builder has its own encoder (`+` -> `%2B`, space -> `%20`).
 - [phase 08] Riverpod 3 `AsyncNotifier` already has an `update(...)` method: a controller method named `update` is an invalid override; name it `edit`. Two `clockProvider`s exist (data_providers + auth_providers) -> import auth_providers with `show`.
 - [phase 08] PowerShell has no `<<'EOF'` heredoc: pipe a `@' ... '@` here-string into `python -` for UTF-8-safe multi-line edits.
+- [phase 07] MCP `execute_sql` returns only the last row-returning statement → run pgTAP as `create temp table tap(t text)`, `insert into tap select is(...)`, `insert into tap select f from finish() f`, then one `select string_agg(...)`; pgTAP here has no `__tresults__`. A `lateral (select volatile_fn(const))` runs once → tie the argument to the row.
+- [04 dev apply] The guard hook's `truncate` regex also matches privilege lists (`revoke … truncate, references …`) in migrations → write `revoke all … ; grant select …` instead.
+- [04 dev apply] MCP `execute_sql` returns only the last result set → for pgTAP add `select num_failed(), _get('curr_test'), _get('plan');` before `rollback`; strip leading `--` comments so the SQL starts with `begin` (guard treats only that as a test).
+- [04 dev apply] Other worktrees share the dev DB: phase 07 applied `0010_groups_members` while 0001–0009 were going in — always check `list_migrations` before applying.

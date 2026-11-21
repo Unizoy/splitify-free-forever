@@ -2,7 +2,7 @@
 
 - Date: 2026-11-21 · Branch: `phase/04-backend-foundation` · Base: `phase/03-money-engine` (worktree
   `..\splitify-p04`, built in parallel with phase 03 at the owner's request; phase 03 merged in before shipping)
-- Commits: `67ccd57..HEAD` (8 phase commits + merge of phase 03 + report) · Status: **done-with-blockers** (BLK-001)
+- Commits: `67ccd57..HEAD` (8 phase commits + merge of phase 03 + report) · Status: **done** (BLK-001 closed 2026-11-21)
 
 ## Summary
 
@@ -17,12 +17,12 @@ applying it to the owner's dev project and the advisors, because the Supabase MC
 
 | Task | Result | Notes |
 | --- | --- | --- |
-| T1 Owner setup + `secrets/env.dev.json` | SKIPPED (BLK-001) | `secrets/owner-inputs.json` exists; MCP tools absent |
+| T1 Owner setup + `secrets/env.dev.json` | done 2026-11-21 | URL + publishable key from MCP, Google web client id from owner inputs (S-068) |
 | T2 Deno | done | 2.9.8, per-user `%USERPROFILE%\.deno\bin` |
-| T3 Migrations 0001–0007 | done (CI) | apply to dev via MCP: SKIPPED (BLK-001) |
+| T3 Migrations 0001–0007 | done | applied to dev via MCP 2026-11-21; 0005 default privileges rewritten (S-065) |
 | T4 `tool/gen_sql_vectors.dart` | done | generates `010_money_vectors.test.sql` + `030_balances.test.sql`; CI stale check |
 | T5 pgTAP files | done (CI) | 9 files, 189 assertions, all pass on Postgres 17 in CI |
-| T6 Advisors | SKIPPED (BLK-001) | some FKs to currencies/categories unindexed — decide after advisor output |
+| T6 Advisors | done | security: lint 0029 WARNs accepted (S-066); performance: INFO only, not fixed (S-067) |
 | T7 CI `db` + `functions` jobs | done | runs 44920553533 (all green) |
 | T8 `supabase/README.md` | done | rebuild-anywhere guide (PLAN rule 14) |
 
@@ -47,7 +47,7 @@ columns, schema reproducible from the repo.
 | --- | --- | --- |
 | G1 Static | PASS | format 0 changes, analyze 0 errors/warnings, guards OK |
 | G2 Tests | PASS | 365 Flutter tests; floors met |
-| G3 Backend | PASS in CI / SKIPPED (BLK-001) on dev | CI run 44920553533: `db` 189/189, `functions` green; MCP `execute_sql`, `get_advisors`, `list_migrations` not available |
+| G3 Backend | PASS | CI run 44920553533 (`db` 189/189); PASS on dev 2026-11-21: 0001–0009 applied via MCP, 12 pgTAP files 282/282, advisors: 0 ERROR, 12 WARN lint 0029 accepted (S-066), perf INFO only (S-067) |
 | G4 Build | PASS | flutter job green in CI (debug APK); no Dart app changes in this phase |
 | G5 Device | N/A | no app/screens changed |
 | G6 Docs | PASS | phase ticks, PROGRESS, catalog, S-020…S-029, LEARNINGS, this report |
@@ -62,7 +62,7 @@ default-privilege revokes · S-028 first shared Edge Function helper · S-029 Da
 
 ## Blockers (BLK-xxx)
 
-- BLK-001 (open): Supabase MCP not connected → T1, apply-to-dev, dev pgTAP run and advisors skipped. Next session
+- BLK-001 (closed 2026-11-21): Supabase MCP was not connected → T1, apply-to-dev, dev pgTAP run and advisors skipped. Next session
   after the fix: apply 0001–0007 with `apply_migration` (names = files), run the 9 test files via `execute_sql`
   in `BEGIN … ROLLBACK`, run advisors, write `secrets/env.dev.json`, then mark this phase `done`.
 

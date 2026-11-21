@@ -1,7 +1,7 @@
 # Phase 06 report — Local database and sync engine
 
 - Date: 2026-11-21 · Branch: `phase/06-sync-engine` · Base: `origin/phase/04-backend-foundation`
-- Commits: `bdcf1cf..HEAD` (3 commits) · Status: done-with-blockers (BLK-001), T5 still open
+- Commits: `bdcf1cf..HEAD` (3 commits) · Status: done (BLK-001 closed 2026-11-21); T5 and T7 still open
 
 ## Summary
 
@@ -21,7 +21,7 @@ proven by pgTAP in CI and the client by unit tests against a scripted fake serve
 | T4 Repositories | done | groups, members, expenses, payments, comments + Riverpod providers (DB opened lazily, no bootstrap change) |
 | T5 Sync status + screen | open | not built in the time budget (S-046) |
 | T6 Unit suite | done | TC-27-01…10 + engine details, writes, remote mapping |
-| T7 Integration (dev project) | SKIPPED (BLK-001) | no dev project / key |
+| T7 Integration (dev project) | OPEN | dev project ready (0009 applied, 040 35/35, 041 29/29); not run yet (owner deadline) |
 
 ## Features delivered
 
@@ -41,7 +41,7 @@ tombstones, lost access. No user-facing screen yet.
 | --- | --- | --- |
 | G1 Static | PASS | format, analyze (0 errors/warnings), guards OK |
 | G2 Tests | PASS | 388 tests, coverage floors pass |
-| G3 Backend | PASS (CI run 44926580278, commit bdcf1cf) | `supabase test db` green before the owner disabled CI on 2026-11-21; dev project SKIPPED (BLK-001) |
+| G3 Backend | PASS (CI run 44926580278; dev 2026-11-21: 0009 applied, 040 35/35, 041 29/29) | `supabase test db` green before the owner disabled CI on 2026-11-21; dev project SKIPPED (BLK-001) |
 | G4 Build | not verified | local debug build stopped by the owner's time limit; CI disabled by owner 2026-11-21 |
 | G5 Device | SKIPPED | no screen in this phase yet; T7 blocked |
 | G6 Docs | PASS | this report, PROGRESS, decisions S-040…S-046, LEARNINGS |
@@ -63,7 +63,7 @@ rewriting files, records and collection equality).
 
 ## Owner actions
 
-None new. BLK-001 is still open.
+None new. BLK-001 closed 2026-11-21.
 
 ## Next phase
 
