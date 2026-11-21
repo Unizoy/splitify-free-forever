@@ -49,6 +49,28 @@ detail shows it with a full-screen zoomable viewer (replace / remove). Groups ca
 | G5 Device | (filled at ship) | screenshots: `C:\Users\mohit\OneDrive\Desktop\theCode\splitify-artifacts\phase-10\` |
 | G6 Docs | PASS | phase ticks, decisions S-110..S-119, catalog, learnings, amendments to phases 11 and 15 |
 
+## UI review (D-018, rubric ≥ 8 on every line, light and dark)
+
+Device captures (`capture_markers.ps1`, light / dark / 200 %) in `splitify-artifacts\phase-10\` plus real-font
+goldens (`test/goldens/goldens/windows/phase10_*`, `photo_covers_*`). Compared with Atlys 532 (option tiles,
+stepper), 534 (segmented pill), 455/712 (photo hero, sheet).
+
+| Screen | Atlys feel | Type | Layout | Colour | Signature | Polish | States |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Paid by · Multiple people (card + footer) | 9 | 9 | 8 | 9 | 8 | 8 | 9 |
+| Review "Paid by you and Asha" | 9 | 9 | 9 | 9 | 8 | 9 | 8 |
+| Details · receipt tile / photo row | 8 | 9 | 9 | 9 | 9 (dashed) | 8 | 9 |
+| Record a loan (lent / borrowed / no others) | 9 | 9 | 8 | 9 | 9 (serif + pill) | 8 | 9 |
+| Expense list with LOAN tag / receipt badge | 9 | 9 | 9 | 9 | 8 | 8 | 8 |
+| Loan detail / receipt detail | 9 | 9 | 8 | 9 | 9 (hero + sheet) | 8 | 9 |
+| Photo viewer | 8 | 8 | 9 | 9 | 8 | 9 | 8 |
+| Group form photo cover, photo hero + card | 9 | 9 | 8 | 9 | 9 | 8 | 8 |
+
+Fixed during review: photo viewer drew in an 88 px strip (Stack sizing); loan direction pill broke "I borrowe-d" at
+200 % (clamped, icons dropped at large text); loan keypad hid the form at 200 % (collapsible keypad with Done);
+payer card opened below the fold (scrolls into view). Accepted: at 200 % the step header labels and the
+pre-existing person rows of the expense detail ("Rahul Meht a") wrap — phase 08 components, noted for phase 19.
+
 ## Decisions made (S-0xx)
 
 S-110 photo picker packages · S-111 compression ladder · S-112 path checks (0013) · S-113 upload queue in
