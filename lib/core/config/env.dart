@@ -43,7 +43,6 @@ class Env {
     final missing = <String>[
       if (supabaseUrl.isEmpty) 'SUPABASE_URL',
       if (supabasePublishableKey.isEmpty) 'SUPABASE_PUBLISHABLE_KEY',
-      if (googleWebClientId.isEmpty) 'GOOGLE_WEB_CLIENT_ID',
     ];
     if (missing.isNotEmpty) throw EnvException(missing);
     return Env._(
@@ -57,7 +56,16 @@ class Env {
 
   final String supabaseUrl;
   final String supabasePublishableKey;
+
+  /// Google OAuth web client id; empty or a template placeholder means Google
+  /// sign-in is not set up yet (D-020: the button shows "Coming soon").
   final String googleWebClientId;
+
+  /// True when a real Google web client id was compiled in.
+  bool get hasGoogle => isConfiguredValue(googleWebClientId);
+
+  /// True when [devLogin] is on and this is not a release build (TC-B1-08).
+  bool devLoginAvailable({required bool releaseMode}) => devLogin && !releaseMode;
 
   /// True only in dev builds (password login for tests).
   final bool devLogin;
@@ -65,3 +73,6 @@ class Env {
   /// Tests only.
   final String e2ePassword;
 }
+
+/// False for empty values and the `your-...` placeholders of `secrets/env.example.json`.
+bool isConfiguredValue(String value) => value.isNotEmpty && !value.contains('your-');
