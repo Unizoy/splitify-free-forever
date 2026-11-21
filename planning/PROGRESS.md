@@ -21,7 +21,7 @@ Current phase: _none in progress_ (05 + 06 leftovers finished 2026-11-22 on `pha
 | 11 | [Friends, simplify debts, Pay via UPI](phases/phase-11-friends-simplify-upi.md) | 09 | 00 | todo | phase/11-friends-simplify-upi | | | |
 | 12 | [Edit history, restore, comments](phases/phase-12-history-comments.md) | 09 | 00 | todo | phase/12-history-comments | | | |
 | 13 | [Notifications and reminders](phases/phase-13-notifications.md) | 12 | 00 (Firebase) | todo | phase/13-notifications | | | |
-| 14 | [Currencies and conversion](phases/phase-14-currencies.md) | 09 | 00 | todo | phase/14-currencies | | | |
+| 14 | [Currencies and conversion](phases/phase-14-currencies.md) | 09 | 00 | in-progress | phase/14-currencies | | | |
 | 15 | [Offline polish](phases/phase-15-offline-polish.md) | 10, 11, 12, 14 | 00 | todo | phase/15-offline-polish | | | |
 | 16 | [Recurring bills and search](phases/phase-16-recurring-search.md) | 15 | 00 | todo | phase/16-recurring-search | | | |
 | 17 | [Charts and CSV export](phases/phase-17-charts-export.md) | 14 | 00 | todo | phase/17-charts-export | | | |
