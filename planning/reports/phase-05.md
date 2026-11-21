@@ -48,7 +48,7 @@ stays signed out and Google shows "Coming soon" (D-020).
 | G1 Static | PASS | format 0 changes, analyze 0 errors/warnings (infos only), guards OK |
 | G2 Tests | PASS | 442 tests, coverage floors all PASS |
 | G3 Backend | PASS (CI) / SKIPPED (MCP) | CI run 44926040224: db + functions green; MCP advisors SKIPPED (BLK-001) |
-| G4 Build | see final run | `flutter build apk --debug --dart-define-from-file=secrets/env.dev.json` |
+| G4 Build | PASS | `flutter build apk --debug --dart-define-from-file=secrets/env.dev.json` |
 | G5 Device | SKIPPED | emulator review not run (time); goldens self-reviewed with `PLATFORM_GOLDENS=1` |
 | G6 Docs | PASS | phase ticks, catalog, S-030..S-036, learnings, this report, PROGRESS |
 
