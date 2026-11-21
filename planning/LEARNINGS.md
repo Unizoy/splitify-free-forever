@@ -79,3 +79,8 @@ _Add entries here._
 - [04 dev apply] The guard hook's `truncate` regex also matches privilege lists (`revoke … truncate, references …`) in migrations → write `revoke all … ; grant select …` instead.
 - [04 dev apply] MCP `execute_sql` returns only the last result set → for pgTAP add `select num_failed(), _get('curr_test'), _get('plan');` before `rollback`; strip leading `--` comments so the SQL starts with `begin` (guard treats only that as a test).
 - [04 dev apply] Other worktrees share the dev DB: phase 07 applied `0010_groups_members` while 0001–0009 were going in — always check `list_migrations` before applying.
+- [phase 07] New Phosphor icons: the vendored TTFs only have `uniXXXX` glyph names → look the name up in `https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.css` (`.ph-<name>:before { content: "\eXXX" }`), then check the glyph exists with fontTools `getBestCmap()`.
+- [phase 07] An invisible sizing child (`Opacity(0)` text) placed last in a `Stack` takes the taps of the widgets under it (`RenderParagraph` hit-tests itself) → wrap it in `IgnorePointer` (fixed in `FolderTabs`).
+- [phase 07] Riverpod 3: `StreamProviderFamily` and `Override` are exported from `package:flutter_riverpod/misc.dart`, not the main library; family overrides are `provider.overrideWith((ref, arg) => …)`.
+- [phase 07] Widget tests with a memory Drift DB: close it in a teardown that pumps a little time; a bare `db.close()` hangs once `watch()` streams are active. Goldens override the stream providers with `Stream.value(...)` instead of using Drift.
+- [phase 07] A hung `flutter test` can leave `flutter_tester.exe` holding `build/native_assets/windows/sqlite3.dll` → kill only that process before re-running.

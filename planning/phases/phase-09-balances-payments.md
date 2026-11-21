@@ -28,3 +28,7 @@ TC-15-03, 15-04, TC-18-02, 18-03, TC-21-01, 21-02, TC-25-02, 25-03.
 ## Done when
 
 Week scenario green on the emulator; screens pass `ui-review`.
+
+> **Amendment (S-076, phase 07):** placeholders to replace: Groups tab hero ₹0 + "All settled" and card status
+> "Settled" (`groups_home_screen.dart`), group detail StatusPill + Balances/Totals tabs (`group_detail_screen.dart`,
+> `group_tabs.dart`), "Settle up" button (key `group-settle`). Card sort "unsettled first" needs the balances too.
