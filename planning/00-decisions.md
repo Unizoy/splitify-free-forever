@@ -39,6 +39,11 @@ reason and the alternatives it rejected. It never asks the owner.
 
 | D-020 | Dummy mode for deferred services (2026-11-21) | Owner set up **Supabase only**. Google OAuth, Resend, Firebase/FCM and the release key stay **dummy until the owner likes the app**. Build everything behind config checks, never block: no `GOOGLE_WEB_CLIENT_ID` → Google button shows "Coming soon" (debug) and sign-in uses email code via Supabase's built-in mailer (delivers only to project team members, ~2/hour — fine for the owner) + dev password login for tests; no `secrets/google-services.json` → Firebase not initialised, push disabled, in-app bell + `send-push` function still built and tested with fakes (`push_status = skipped`); no release key → debug signing. When the owner later adds a service, the next session enables it and re-runs the affected tests. These are **not** blockers. | |
 
+| D-021 | Merges into main (2026-11-21, overnight run) | Sessions open one PR per finished phase and merge it into `main` themselves with a **merge commit**, in phase order (`gh pr merge --merge`). Direct pushes to main, force-push, squash/rebase merges and branch deletion stay blocked by the guard. | Owner: "you create PR and merge yourself". Guard updated accordingly. |
+| D-022 | CI (2026-11-21) | GitHub Actions workflow stays **disabled**; gates run locally and SQL tests run on the dev project via MCP. Re-enable with `gh workflow enable CI`. | Owner choice for speed. |
+| D-023 | Release scope (2026-11-21) | Build up to **phase 19**; stop before phase 20 and leave checklist R (prod project) for the owner. | |
+| D-024 | Google sign-in (2026-11-21) | Supabase Google provider not enabled yet → keep "Coming soon" (D-020 dummy mode); email code + dev login only. | |
+
 ## Technical decisions
 
 Filled in from the research in `planning/research/` (see each row's source).

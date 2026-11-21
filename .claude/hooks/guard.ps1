@@ -54,7 +54,9 @@ if ($c -match 'git stash (drop|clear)\b') { Block 'dropping stashes is not allow
 if ($c -match 'git branch\b[^;&|]*\s(-D|--delete)\s[^;&|]*\b(main|master)\b') { Block 'deleting main/master is not allowed' }
 if ($c -match 'git (filter-branch|filter-repo|replace|update-ref -d)\b') { Block 'history rewriting is not allowed' }
 if ($c -match 'gh (repo (delete|archive|edit|rename)|release (delete|edit)|secret (set|delete)|api\b[^;&|]*-X ?(DELETE|PUT|PATCH))') { Block 'destructive GitHub operations are not allowed' }
-if ($c -match 'gh pr merge\b') { Block 'merging pull requests is the owner''s job' }
+# Owner decision D-021 (2026-11-21): sessions may merge phase PRs into main with a merge commit, in phase order.
+# Squash/rebase merges and branch deletion on merge stay blocked.
+if ($c -match 'gh pr merge\b' -and ($c -notmatch '\s--merge\b' -or $c -match '\s(--squash|--rebase|-s|-r|--admin|--delete-branch|-d)\b')) { Block 'PR merges must use --merge only (D-021); no squash/rebase/admin/delete-branch' }
 if ($c -match 'gh release create\b' -and $c -notmatch '--draft') { Block 'releases must be created with --draft (owner publishes)' }
 
 # ---------------------------------------------------------------- commits: never on main while executing, never secrets
