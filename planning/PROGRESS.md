@@ -3,7 +3,7 @@
 Updated by plan-execution sessions only (see `11-execution-protocol.md`). Status values:
 `todo` Â· `in-progress` Â· `done` Â· `done-with-blockers` Â· `blocked` Â· `owner` (owner-only phase).
 
-Current phase: _none in progress_ (04-06 done-with-blockers BLK-001; 06 T5 open; next session: apply 0001-0009 on dev, then 07)
+Current phase: 07 (in-progress: backend done, screens T2-T7 open) and 08 (in-progress: logic done, screens open; branch stacks on 07)
 
 | # | Phase | Depends on | Needs owner setup | Status | Branch | Finished | Last commit | Report |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
