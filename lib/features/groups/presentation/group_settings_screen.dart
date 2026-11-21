@@ -18,6 +18,7 @@ import 'package:splitify/core/money/split.dart';
 import 'package:splitify/domain/rules/default_split.dart';
 import 'package:splitify/features/expenses/presentation/expense_copy.dart';
 import 'package:splitify/features/expenses/presentation/expense_routes.dart';
+import 'package:splitify/features/history/presentation/history_routes.dart';
 
 /// Group settings (`/groups/:id/settings`, 614): edit, invite, members (add name-only with a colour, rename,
 /// unlink a wrong claim, remove / leave when settled), archive and delete (creator). Phase 11/17 add default
@@ -104,6 +105,13 @@ class GroupSettingsScreen extends ConsumerWidget {
                 onTap: () => unawaited(_memberActions(context, ref, m, me)),
               ),
             const SizedBox(height: AppSpacing.s8),
+            // #20: deleted expenses and payments, restorable by any member (phase 12).
+            DashedListRow(
+              key: const Key('settings-deleted-items'),
+              icon: AppIcons.restore,
+              label: l.delTitle,
+              onTap: () => context.push(HistoryRoutes.deleted(groupId)),
+            ),
             DashedListRow(
               key: const Key('settings-archive'),
               icon: AppIcons.archive,

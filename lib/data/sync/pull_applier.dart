@@ -30,6 +30,7 @@ class PullApplier {
     'comments',
     'activity',
     'expense_parts',
+    'record_versions',
   ];
 
   Future<void> apply(PullPage page) => db.transaction(() async {

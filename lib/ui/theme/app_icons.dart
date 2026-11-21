@@ -70,6 +70,14 @@ abstract final class AppIcons {
   static const IconData notes = IconData(0xe34c, fontFamily: _regular);
   static const IconData calendar = IconData(0xe10a, fontFamily: _regular);
   static const IconData chat = IconData(0xe16c, fontFamily: _regular);
+  static const IconData send = IconData(
+    0xe396,
+    fontFamily: _fill,
+  ); // paper-plane-right (comments, 636)
+  static const IconData arrowRight = IconData(
+    0xe06c,
+    fontFamily: _regular,
+  ); // history diffs: old -> new
   static const IconData coins = IconData(0xe78e, fontFamily: _regular);
   static const IconData chart = IconData(0xe158, fontFamily: _fill);
   static const IconData globe = IconData(0xe28a, fontFamily: _fill);
