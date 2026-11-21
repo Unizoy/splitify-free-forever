@@ -12,7 +12,7 @@ Current phase: _none in progress_ (04 done-with-blockers BLK-001; next: 05, need
 | 02 | [Design system and app shell](phases/phase-02-design-system.md) | 01 | no | done | phase/02-design-system | 2026-11-21 | 2e29185 | [report](reports/phase-02.md) |
 | 03 | [Money engine (pure Dart)](phases/phase-03-money-engine.md) | 01 | no | done | phase/03-money-engine | 2026-11-21 | eaaac63 | [report](reports/phase-03.md) |
 | 04 | [Backend foundation](phases/phase-04-backend-foundation.md) | 03 | 00 (Supabase + MCP) | done-with-blockers (BLK-001) | phase/04-backend-foundation | 2026-11-21 | 1a69ee8 | [report](reports/phase-04.md) |
-| 05 | [Auth, profile, account](phases/phase-05-auth-profile.md) | 02, 04 | 00 (Google OAuth, Resend) | todo | phase/05-auth-profile | | | |
+| 05 | [Auth, profile, account](phases/phase-05-auth-profile.md) | 02, 04 | 00 (Google OAuth, Resend) | done-with-blockers (BLK-001) | phase/05-auth-profile | 2026-11-21 | 09bad43 | [report](reports/phase-05.md) |
 | 06 | [Local database and sync engine](phases/phase-06-sync-engine.md) | 04, 05 | 00 | todo | phase/06-sync-engine | | | |
 | 07 | [Groups, members, invites](phases/phase-07-groups-members.md) | 06 | 00 | todo | phase/07-groups-members | | | |
 | 08 | [Expenses and split types](phases/phase-08-expenses-splits.md) | 07 | 00 | todo | phase/08-expenses-splits | | | |

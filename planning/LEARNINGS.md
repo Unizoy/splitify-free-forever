@@ -64,3 +64,7 @@ _Add entries here._
 - [phase 04] Postgres regex repeat counts stop at 255 (`{0,255}` errors) → split the quantifier (e.g. `{2}{0,254}`).
 - [phase 04] Without the Supabase MCP, migrations + pgTAP can still be proven in GitHub Actions (`supabase start` on the runner, `supabase test db`); dev-project steps stay blocked.
 - [phase 03/04] Two phases in parallel: `git worktree add ../splitify-p04 -b phase/04-… phase/03-…`, one agent per worktree, then merge the earlier phase branch into the later one (conflicts only in 00-decisions / 10-test-catalog — keep both sides).
+- [phase 05] Riverpod 3 pauses providers nobody listens to: `container.read(streamProvider.future)` can hang → `container.listen(...)` first in tests.
+- [phase 05] `flutter_test` answers every HTTP request with 400, so a real `SupabaseClient('https://x.example', 'k')` is enough to cover thin PostgREST/Storage glue (calls fail fast).
+- [phase 05] PowerShell `Get-Content -Raw | Set-Content` re-encodes UTF-8 files (mojibake / `?` for `→`, BOM) → edit Dart files with Python (`io.open(..., encoding='utf-8')`) or the Edit tool.
+- [phase 05] Golden tests need a valid image for `MemoryImage` (use a base64 1×1 PNG), fake bytes throw "Invalid image data".
