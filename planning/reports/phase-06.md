@@ -41,8 +41,8 @@ tombstones, lost access. No user-facing screen yet.
 | --- | --- | --- |
 | G1 Static | PASS | format, analyze (0 errors/warnings), guards OK |
 | G2 Tests | PASS | 388 tests, coverage floors pass |
-| G3 Backend | PASS (CI) | `supabase test db` in CI; dev project SKIPPED (BLK-001) |
-| G4 Build | see CI | APK debug build in CI `flutter` job |
+| G3 Backend | PASS (CI run 44926580278, commit bdcf1cf) | `supabase test db` green before the owner disabled CI on 2026-11-21; dev project SKIPPED (BLK-001) |
+| G4 Build | not verified | local debug build stopped by the owner's time limit; CI disabled by owner 2026-11-21 |
 | G5 Device | SKIPPED | no screen in this phase yet; T7 blocked |
 | G6 Docs | PASS | this report, PROGRESS, decisions S-040…S-046, LEARNINGS |
 
