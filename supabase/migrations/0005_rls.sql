@@ -104,9 +104,12 @@ grant select on public.currencies, public.categories, public.profiles, public.gr
   public.expenses, public.payments, public.comments, public.activity, public.record_versions
   to authenticated;
 
--- Future objects created by migrations (role postgres) start without client write access.
+-- Future objects created by migrations (role postgres) start without client write access: anon gets nothing,
+-- authenticated only SELECT (RLS still filters). Written as revoke all + grant select (no privilege list).
 alter default privileges for role postgres in schema public
-  revoke insert, update, delete, truncate, references, trigger on tables from anon, authenticated;
+  revoke all on tables from anon, authenticated;
+alter default privileges for role postgres in schema public
+  grant select on tables to authenticated;
 alter default privileges for role postgres in schema public
   revoke all on sequences from anon, authenticated;
 -- (PUBLIC's global EXECUTE default on functions cannot be revoked per schema: every RPC revokes it explicitly.)

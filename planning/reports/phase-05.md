@@ -1,7 +1,7 @@
 # Phase 05 report — Auth, profile, account
 
 - Date: 2026-11-21 · Branch: `phase/05-auth-profile` · Base: `origin/phase/04-backend-foundation` (77e0bc0)
-- Commits: `618c971..HEAD` · Status: done-with-blockers (BLK-001)
+- Commits: `618c971..HEAD` · Status: done (BLK-001 closed 2026-11-21); T9 integration still open
 
 ## Summary
 
@@ -22,9 +22,9 @@ stays signed out and Google shows "Coming soon" (D-020).
 | T4 Dev login (debug only) | done | `/debug/login`, deep link `splitify://dev/login?user=e2e-a`, sign-up on first use; live run SKIPPED (BLK-001) |
 | T5 Profile edit | done | online-only with cache; photo compress + upload, no crop UI (S-034) |
 | T6 Account tab + settings sheet | done | avatar/name header, Profile accordion, Sign out, Delete account, About, version |
-| T7 `delete-account` function + client | done (deploy SKIPPED, BLK-001) | deno tests 13/13, CI functions job green |
+| T7 `delete-account` function + client | done (deployed to dev v1, verify_jwt on, 2026-11-21) | deno tests 13/13, CI functions job green |
 | T8 Sign-out wipe | done | `LocalWipe`: secure storage + prefs except `theme_mode` |
-| T9 Integration on dev project | SKIPPED (BLK-001) | no publishable key / dev sign-in |
+| T9 Integration on dev project | OPEN | key + migrations now on dev; not run yet (owner deadline 2026-11-21) |
 
 ## Features delivered
 
@@ -47,7 +47,7 @@ stays signed out and Google shows "Coming soon" (D-020).
 | --- | --- | --- |
 | G1 Static | PASS | format 0 changes, analyze 0 errors/warnings (infos only), guards OK |
 | G2 Tests | PASS | 442 tests, coverage floors all PASS |
-| G3 Backend | PASS (CI) / SKIPPED (MCP) | CI run 44926040224 (commit 618c971): db (pgTAP incl. 024) + functions green; local `deno fmt/lint/test` 13/13; MCP advisors SKIPPED (BLK-001) |
+| G3 Backend | PASS (CI + dev: 024 29/29, advisors S-066/S-067) | CI run 44926040224 (commit 618c971): db (pgTAP incl. 024) + functions green; local `deno fmt/lint/test` 13/13; MCP advisors SKIPPED (BLK-001) |
 | CI | partial | CI disabled by owner 2026-11-21: run 44928138997 (Dart commits) was cancelled before the flutter job finished; all Flutter gates above ran locally |
 | G4 Build | PASS | `flutter build apk --debug --dart-define-from-file=secrets/env.dev.json` |
 | G5 Device | SKIPPED | emulator review not run (time); goldens self-reviewed with `PLATFORM_GOLDENS=1` |
@@ -60,7 +60,7 @@ link · S-033 client OTP rules · S-034 online-only profile, no crop · S-035 SQ
 
 ## Blockers (BLK-xxx)
 
-BLK-001 (open): no Supabase MCP / publishable key → no live sign-in, no function deploy, no T9.
+BLK-001 (closed 2026-11-21, was: no Supabase MCP / publishable key → no live sign-in, no function deploy, no T9.
 
 ## Learnings and skills added or changed
 
