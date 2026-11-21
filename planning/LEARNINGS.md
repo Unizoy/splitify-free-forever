@@ -64,3 +64,5 @@ _Add entries here._
 - [phase 04] Postgres regex repeat counts stop at 255 (`{0,255}` errors) → split the quantifier (e.g. `{2}{0,254}`).
 - [phase 04] Without the Supabase MCP, migrations + pgTAP can still be proven in GitHub Actions (`supabase start` on the runner, `supabase test db`); dev-project steps stay blocked.
 - [phase 03/04] Two phases in parallel: `git worktree add ../splitify-p04 -b phase/04-… phase/03-…`, one agent per worktree, then merge the earlier phase branch into the later one (conflicts only in 00-decisions / 10-test-catalog — keep both sides).
+- [prep 16] Postgres `date + make_interval(months => n)` clamps to month end (2024-01-31 + 1 month = 2024-02-29), so the T2 SQL generator matches `recurrence.dart` if it always adds n months/years to the anchor, never to the last `next_date`.
+- [prep 11] Dart `Uri.queryParameters` decodes `+` as a space and `Uri.encodeComponent` leaves `!*'()` alone, so the UPI builder has its own encoder (`+` -> `%2B`, space -> `%20`).

@@ -47,7 +47,10 @@ void main() {
     if (path.endsWith('.g.dart') || path.endsWith('.freezed.dart')) continue;
     if (path.startsWith('lib/l10n/')) continue;
     final lines = f.readAsLinesSync();
-    final inMoney = path.startsWith('lib/core/money/') || path.startsWith('lib/domain/');
+    final inMoney =
+        path.startsWith('lib/core/money/') ||
+        path.startsWith('lib/core/upi/') ||
+        path.startsWith('lib/domain/');
     final inRemote = path.startsWith('lib/data/remote/');
     final inWidgets =
         path.startsWith('lib/features/') ||

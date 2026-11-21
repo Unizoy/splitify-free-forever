@@ -27,3 +27,5 @@ TC-2-01…03, TC-16-02, TC-17-03, TC-26-01…05.
 ## Done when
 
 Fake-UPI integration green; friend totals equal sum of group pairs in all test fixtures.
+
+Pre-built (phase 06 session, branch prep/upi-recurrence): `lib/core/upi/upi_link.dart`, `test/fixtures/upi_vectors.json`, `test/core/upi/upi_link_test.dart` (T4 builder only; `<queries>`, launch and sheets still to do).

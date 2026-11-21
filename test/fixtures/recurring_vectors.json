@@ -1,0 +1,820 @@
+{
+ "version": 1,
+ "spec": "planning/08-feature-specs.md #12, planning/03-backend.md §6, phase 16 T1",
+ "rules": [
+  "Dates are YYYY-MM-DD calendar dates (no time, no zone); the server passes the Asia/Kolkata date as today.",
+  "Occurrence 0 is the anchor (the original expense); copies are occurrences 1, 2, ...",
+  "Each occurrence is computed from the anchor: weekly +7n days, fortnightly +14n days, monthly +n months and yearly +n years with day = min(anchor day, last day of that month).",
+  "ends_on is inclusive and may equal the anchor; ends_on < anchor is ENDS_BEFORE_ANCHOR.",
+  "op next: first copy strictly after input.after and not after ends_on, else null.",
+  "op series: occurrences 0..count-1 (ignores ends_on).",
+  "op run: one generator run; dates = copies with next_date <= date <= today (and <= ends_on), oldest first; next = first copy >= next_date and > today, or null when none is left."
+ ],
+ "vectors": [
+  {
+   "id": "REC-NEXT-01",
+   "op": "next",
+   "input": {
+    "interval": "weekly",
+    "anchor": "2026-01-05",
+    "ends_on": null,
+    "after": "2026-01-05"
+   },
+   "note": "first copy of a new template",
+   "expect": {
+    "next": "2026-01-12"
+   }
+  },
+  {
+   "id": "REC-NEXT-02",
+   "op": "next",
+   "input": {
+    "interval": "weekly",
+    "anchor": "2026-01-05",
+    "ends_on": null,
+    "after": "2026-01-08"
+   },
+   "expect": {
+    "next": "2026-01-12"
+   }
+  },
+  {
+   "id": "REC-NEXT-03",
+   "op": "next",
+   "input": {
+    "interval": "weekly",
+    "anchor": "2026-01-05",
+    "ends_on": null,
+    "after": "2026-01-12"
+   },
+   "note": "strictly after a copy date",
+   "expect": {
+    "next": "2026-01-19"
+   }
+  },
+  {
+   "id": "REC-NEXT-04",
+   "op": "next",
+   "input": {
+    "interval": "weekly",
+    "anchor": "2025-12-29",
+    "ends_on": null,
+    "after": "2025-12-29"
+   },
+   "note": "across year end",
+   "expect": {
+    "next": "2026-01-05"
+   }
+  },
+  {
+   "id": "REC-NEXT-05",
+   "op": "next",
+   "input": {
+    "interval": "weekly",
+    "anchor": "2024-02-26",
+    "ends_on": null,
+    "after": "2024-02-26"
+   },
+   "note": "across Feb 29",
+   "expect": {
+    "next": "2024-03-04"
+   }
+  },
+  {
+   "id": "REC-NEXT-06",
+   "op": "next",
+   "input": {
+    "interval": "fortnightly",
+    "anchor": "2026-02-20",
+    "ends_on": null,
+    "after": "2026-02-20"
+   },
+   "expect": {
+    "next": "2026-03-06"
+   }
+  },
+  {
+   "id": "REC-NEXT-07",
+   "op": "next",
+   "input": {
+    "interval": "fortnightly",
+    "anchor": "2024-02-20",
+    "ends_on": null,
+    "after": "2024-02-20"
+   },
+   "note": "leap year",
+   "expect": {
+    "next": "2024-03-05"
+   }
+  },
+  {
+   "id": "REC-NEXT-08",
+   "op": "next",
+   "input": {
+    "interval": "fortnightly",
+    "anchor": "2026-03-01",
+    "ends_on": null,
+    "after": "2026-02-01"
+   },
+   "note": "before the anchor gives copy 1, never the anchor",
+   "expect": {
+    "next": "2026-03-15"
+   }
+  },
+  {
+   "id": "REC-NEXT-09",
+   "op": "next",
+   "input": {
+    "interval": "fortnightly",
+    "anchor": "2026-01-01",
+    "ends_on": null,
+    "after": "2026-03-13"
+   },
+   "expect": {
+    "next": "2026-03-26"
+   }
+  },
+  {
+   "id": "REC-NEXT-10",
+   "op": "next",
+   "input": {
+    "interval": "monthly",
+    "anchor": "2024-01-31",
+    "ends_on": null,
+    "after": "2024-01-31"
+   },
+   "note": "31st clamps to Feb 29 (leap)",
+   "expect": {
+    "next": "2024-02-29"
+   }
+  },
+  {
+   "id": "REC-NEXT-11",
+   "op": "next",
+   "input": {
+    "interval": "monthly",
+    "anchor": "2026-01-31",
+    "ends_on": null,
+    "after": "2026-01-31"
+   },
+   "note": "31st clamps to Feb 28",
+   "expect": {
+    "next": "2026-02-28"
+   }
+  },
+  {
+   "id": "REC-NEXT-12",
+   "op": "next",
+   "input": {
+    "interval": "monthly",
+    "anchor": "2026-01-31",
+    "ends_on": null,
+    "after": "2026-02-28"
+   },
+   "note": "returns to the 31st after a short month",
+   "expect": {
+    "next": "2026-03-31"
+   }
+  },
+  {
+   "id": "REC-NEXT-13",
+   "op": "next",
+   "input": {
+    "interval": "monthly",
+    "anchor": "2026-01-31",
+    "ends_on": null,
+    "after": "2026-03-31"
+   },
+   "note": "31st clamps to Apr 30",
+   "expect": {
+    "next": "2026-04-30"
+   }
+  },
+  {
+   "id": "REC-NEXT-14",
+   "op": "next",
+   "input": {
+    "interval": "monthly",
+    "anchor": "2026-01-30",
+    "ends_on": null,
+    "after": "2026-01-30"
+   },
+   "note": "30th clamps to Feb 28",
+   "expect": {
+    "next": "2026-02-28"
+   }
+  },
+  {
+   "id": "REC-NEXT-15",
+   "op": "next",
+   "input": {
+    "interval": "monthly",
+    "anchor": "2026-01-30",
+    "ends_on": null,
+    "after": "2026-02-28"
+   },
+   "note": "back to the 30th",
+   "expect": {
+    "next": "2026-03-30"
+   }
+  },
+  {
+   "id": "REC-NEXT-16",
+   "op": "next",
+   "input": {
+    "interval": "monthly",
+    "anchor": "2025-01-29",
+    "ends_on": null,
+    "after": "2025-01-29"
+   },
+   "note": "29th in a common year",
+   "expect": {
+    "next": "2025-02-28"
+   }
+  },
+  {
+   "id": "REC-NEXT-17",
+   "op": "next",
+   "input": {
+    "interval": "monthly",
+    "anchor": "2024-01-29",
+    "ends_on": null,
+    "after": "2024-01-29"
+   },
+   "note": "29th in a leap year",
+   "expect": {
+    "next": "2024-02-29"
+   }
+  },
+  {
+   "id": "REC-NEXT-18",
+   "op": "next",
+   "input": {
+    "interval": "monthly",
+    "anchor": "2026-01-15",
+    "ends_on": null,
+    "after": "2026-03-20"
+   },
+   "expect": {
+    "next": "2026-04-15"
+   }
+  },
+  {
+   "id": "REC-NEXT-19",
+   "op": "next",
+   "input": {
+    "interval": "monthly",
+    "anchor": "2025-12-31",
+    "ends_on": null,
+    "after": "2025-12-31"
+   },
+   "note": "across year end",
+   "expect": {
+    "next": "2026-01-31"
+   }
+  },
+  {
+   "id": "REC-NEXT-20",
+   "op": "next",
+   "input": {
+    "interval": "monthly",
+    "anchor": "2024-01-31",
+    "ends_on": null,
+    "after": "2025-02-27"
+   },
+   "note": "far from the anchor, mid-month",
+   "expect": {
+    "next": "2025-02-28"
+   }
+  },
+  {
+   "id": "REC-NEXT-21",
+   "op": "next",
+   "input": {
+    "interval": "monthly",
+    "anchor": "2024-03-31",
+    "ends_on": null,
+    "after": "2024-04-29"
+   },
+   "expect": {
+    "next": "2024-04-30"
+   }
+  },
+  {
+   "id": "REC-NEXT-22",
+   "op": "next",
+   "input": {
+    "interval": "yearly",
+    "anchor": "2024-02-29",
+    "ends_on": null,
+    "after": "2024-02-29"
+   },
+   "note": "Feb 29 clamps to Feb 28",
+   "expect": {
+    "next": "2025-02-28"
+   }
+  },
+  {
+   "id": "REC-NEXT-23",
+   "op": "next",
+   "input": {
+    "interval": "yearly",
+    "anchor": "2024-02-29",
+    "ends_on": null,
+    "after": "2027-02-28"
+   },
+   "note": "Feb 29 returns in the next leap year",
+   "expect": {
+    "next": "2028-02-29"
+   }
+  },
+  {
+   "id": "REC-NEXT-24",
+   "op": "next",
+   "input": {
+    "interval": "yearly",
+    "anchor": "2026-03-10",
+    "ends_on": null,
+    "after": "2026-05-01"
+   },
+   "expect": {
+    "next": "2027-03-10"
+   }
+  },
+  {
+   "id": "REC-NEXT-25",
+   "op": "next",
+   "input": {
+    "interval": "yearly",
+    "anchor": "2026-03-10",
+    "ends_on": null,
+    "after": "2027-03-09"
+   },
+   "expect": {
+    "next": "2027-03-10"
+   }
+  },
+  {
+   "id": "REC-NEXT-26",
+   "op": "next",
+   "input": {
+    "interval": "monthly",
+    "anchor": "2026-01-31",
+    "ends_on": "2026-02-28",
+    "after": "2026-01-31"
+   },
+   "note": "ends_on is inclusive",
+   "expect": {
+    "next": "2026-02-28"
+   }
+  },
+  {
+   "id": "REC-NEXT-27",
+   "op": "next",
+   "input": {
+    "interval": "monthly",
+    "anchor": "2026-01-31",
+    "ends_on": "2026-02-27",
+    "after": "2026-01-31"
+   },
+   "note": "next copy after ends_on",
+   "expect": {
+    "next": null
+   }
+  },
+  {
+   "id": "REC-NEXT-28",
+   "op": "next",
+   "input": {
+    "interval": "weekly",
+    "anchor": "2026-01-05",
+    "ends_on": "2026-01-20",
+    "after": "2026-01-19"
+   },
+   "note": "no copy left",
+   "expect": {
+    "next": null
+   }
+  },
+  {
+   "id": "REC-NEXT-29",
+   "op": "next",
+   "input": {
+    "interval": "weekly",
+    "anchor": "2026-01-05",
+    "ends_on": "2026-01-05",
+    "after": "2026-01-05"
+   },
+   "note": "ends_on = anchor: never repeats",
+   "expect": {
+    "next": null
+   }
+  },
+  {
+   "id": "REC-ERR-01",
+   "op": "next",
+   "input": {
+    "interval": "daily",
+    "anchor": "2026-01-05",
+    "ends_on": null,
+    "after": "2026-01-05"
+   },
+   "expect": {
+    "error": "UNKNOWN_INTERVAL"
+   }
+  },
+  {
+   "id": "REC-ERR-02",
+   "op": "next",
+   "input": {
+    "interval": "weekly",
+    "anchor": "2026-01-05",
+    "ends_on": "2026-01-04",
+    "after": "2026-01-05"
+   },
+   "expect": {
+    "error": "ENDS_BEFORE_ANCHOR"
+   }
+  },
+  {
+   "id": "REC-ERR-03",
+   "op": "next",
+   "input": {
+    "interval": "monthly",
+    "anchor": "2026-02-30",
+    "ends_on": null,
+    "after": "2026-03-01"
+   },
+   "note": "impossible date",
+   "expect": {
+    "error": "NOT_A_DATE"
+   }
+  },
+  {
+   "id": "REC-ERR-04",
+   "op": "next",
+   "input": {
+    "interval": "monthly",
+    "anchor": "2026-01-31",
+    "ends_on": null,
+    "after": "2026-3-1"
+   },
+   "note": "not YYYY-MM-DD",
+   "expect": {
+    "error": "NOT_A_DATE"
+   }
+  },
+  {
+   "id": "REC-SERIES-01",
+   "op": "series",
+   "input": {
+    "interval": "monthly",
+    "anchor": "2023-01-31",
+    "ends_on": null,
+    "count": 14
+   },
+   "note": "31st through a common and a leap February",
+   "expect": {
+    "dates": [
+     "2023-01-31",
+     "2023-02-28",
+     "2023-03-31",
+     "2023-04-30",
+     "2023-05-31",
+     "2023-06-30",
+     "2023-07-31",
+     "2023-08-31",
+     "2023-09-30",
+     "2023-10-31",
+     "2023-11-30",
+     "2023-12-31",
+     "2024-01-31",
+     "2024-02-29"
+    ]
+   }
+  },
+  {
+   "id": "REC-SERIES-02",
+   "op": "series",
+   "input": {
+    "interval": "monthly",
+    "anchor": "2024-01-29",
+    "ends_on": null,
+    "count": 5
+   },
+   "expect": {
+    "dates": [
+     "2024-01-29",
+     "2024-02-29",
+     "2024-03-29",
+     "2024-04-29",
+     "2024-05-29"
+    ]
+   }
+  },
+  {
+   "id": "REC-SERIES-03",
+   "op": "series",
+   "input": {
+    "interval": "monthly",
+    "anchor": "2024-01-30",
+    "ends_on": null,
+    "count": 4
+   },
+   "expect": {
+    "dates": [
+     "2024-01-30",
+     "2024-02-29",
+     "2024-03-30",
+     "2024-04-30"
+    ]
+   }
+  },
+  {
+   "id": "REC-SERIES-04",
+   "op": "series",
+   "input": {
+    "interval": "monthly",
+    "anchor": "2026-11-30",
+    "ends_on": null,
+    "count": 4
+   },
+   "expect": {
+    "dates": [
+     "2026-11-30",
+     "2026-12-30",
+     "2027-01-30",
+     "2027-02-28"
+    ]
+   }
+  },
+  {
+   "id": "REC-SERIES-05",
+   "op": "series",
+   "input": {
+    "interval": "yearly",
+    "anchor": "2024-02-29",
+    "ends_on": null,
+    "count": 5
+   },
+   "expect": {
+    "dates": [
+     "2024-02-29",
+     "2025-02-28",
+     "2026-02-28",
+     "2027-02-28",
+     "2028-02-29"
+    ]
+   }
+  },
+  {
+   "id": "REC-SERIES-06",
+   "op": "series",
+   "input": {
+    "interval": "yearly",
+    "anchor": "2096-02-29",
+    "ends_on": null,
+    "count": 5
+   },
+   "note": "2100 is not a leap year",
+   "expect": {
+    "dates": [
+     "2096-02-29",
+     "2097-02-28",
+     "2098-02-28",
+     "2099-02-28",
+     "2100-02-28"
+    ]
+   }
+  },
+  {
+   "id": "REC-SERIES-07",
+   "op": "series",
+   "input": {
+    "interval": "weekly",
+    "anchor": "2026-12-21",
+    "ends_on": null,
+    "count": 3
+   },
+   "expect": {
+    "dates": [
+     "2026-12-21",
+     "2026-12-28",
+     "2027-01-04"
+    ]
+   }
+  },
+  {
+   "id": "REC-SERIES-08",
+   "op": "series",
+   "input": {
+    "interval": "fortnightly",
+    "anchor": "2024-02-15",
+    "ends_on": null,
+    "count": 3
+   },
+   "expect": {
+    "dates": [
+     "2024-02-15",
+     "2024-02-29",
+     "2024-03-14"
+    ]
+   }
+  },
+  {
+   "id": "REC-RUN-01",
+   "op": "run",
+   "input": {
+    "interval": "weekly",
+    "anchor": "2026-01-05",
+    "ends_on": null,
+    "next_date": "2026-01-12",
+    "today": "2026-02-01"
+   },
+   "note": "catch-up after missed days",
+   "expect": {
+    "dates": [
+     "2026-01-12",
+     "2026-01-19",
+     "2026-01-26"
+    ],
+    "next": "2026-02-02"
+   }
+  },
+  {
+   "id": "REC-RUN-02",
+   "op": "run",
+   "input": {
+    "interval": "weekly",
+    "anchor": "2026-01-05",
+    "ends_on": null,
+    "next_date": "2026-02-02",
+    "today": "2026-02-01"
+   },
+   "note": "second run the same day creates nothing",
+   "expect": {
+    "dates": [],
+    "next": "2026-02-02"
+   }
+  },
+  {
+   "id": "REC-RUN-03",
+   "op": "run",
+   "input": {
+    "interval": "monthly",
+    "anchor": "2026-01-31",
+    "ends_on": null,
+    "next_date": "2026-02-28",
+    "today": "2026-02-28"
+   },
+   "note": "due today",
+   "expect": {
+    "dates": [
+     "2026-02-28"
+    ],
+    "next": "2026-03-31"
+   }
+  },
+  {
+   "id": "REC-RUN-04",
+   "op": "run",
+   "input": {
+    "interval": "monthly",
+    "anchor": "2026-01-31",
+    "ends_on": null,
+    "next_date": "2026-03-31",
+    "today": "2026-02-28"
+   },
+   "note": "idempotent re-run",
+   "expect": {
+    "dates": [],
+    "next": "2026-03-31"
+   }
+  },
+  {
+   "id": "REC-RUN-05",
+   "op": "run",
+   "input": {
+    "interval": "weekly",
+    "anchor": "2026-01-05",
+    "ends_on": "2026-01-20",
+    "next_date": "2026-01-12",
+    "today": "2026-02-01"
+   },
+   "note": "stops at ends_on",
+   "expect": {
+    "dates": [
+     "2026-01-12",
+     "2026-01-19"
+    ],
+    "next": null
+   }
+  },
+  {
+   "id": "REC-RUN-06",
+   "op": "run",
+   "input": {
+    "interval": "monthly",
+    "anchor": "2024-01-31",
+    "ends_on": null,
+    "next_date": "2024-02-29",
+    "today": "2024-05-01"
+   },
+   "note": "catch-up across a leap February",
+   "expect": {
+    "dates": [
+     "2024-02-29",
+     "2024-03-31",
+     "2024-04-30"
+    ],
+    "next": "2024-05-31"
+   }
+  },
+  {
+   "id": "REC-RUN-07",
+   "op": "run",
+   "input": {
+    "interval": "yearly",
+    "anchor": "2024-02-29",
+    "ends_on": null,
+    "next_date": "2025-02-28",
+    "today": "2025-02-28"
+   },
+   "expect": {
+    "dates": [
+     "2025-02-28"
+    ],
+    "next": "2026-02-28"
+   }
+  },
+  {
+   "id": "REC-RUN-08",
+   "op": "run",
+   "input": {
+    "interval": "weekly",
+    "anchor": "2026-01-05",
+    "ends_on": null,
+    "next_date": "2026-01-10",
+    "today": "2026-01-20"
+   },
+   "note": "next_date off the series snaps forward",
+   "expect": {
+    "dates": [
+     "2026-01-12",
+     "2026-01-19"
+    ],
+    "next": "2026-01-26"
+   }
+  },
+  {
+   "id": "REC-RUN-09",
+   "op": "run",
+   "input": {
+    "interval": "monthly",
+    "anchor": "2026-03-01",
+    "ends_on": null,
+    "next_date": "2026-02-01",
+    "today": "2026-03-01"
+   },
+   "note": "anchor is the original expense, never a copy",
+   "expect": {
+    "dates": [],
+    "next": "2026-04-01"
+   }
+  },
+  {
+   "id": "REC-RUN-10",
+   "op": "run",
+   "input": {
+    "interval": "fortnightly",
+    "anchor": "2026-01-01",
+    "ends_on": "2026-01-15",
+    "next_date": "2026-01-15",
+    "today": "2026-01-14"
+   },
+   "note": "not due yet, last copy",
+   "expect": {
+    "dates": [],
+    "next": "2026-01-15"
+   }
+  },
+  {
+   "id": "REC-RUN-11",
+   "op": "run",
+   "input": {
+    "interval": "monthly",
+    "anchor": "2026-01-31",
+    "ends_on": "2026-04-30",
+    "next_date": "2026-04-30",
+    "today": "2026-05-01"
+   },
+   "note": "last copy, then ends",
+   "expect": {
+    "dates": [
+     "2026-04-30"
+    ],
+    "next": null
+   }
+  }
+ ]
+}
