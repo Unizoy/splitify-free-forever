@@ -1,6 +1,6 @@
 # Phase 12 report — Edit history, restore, comments (#20, #13 comments)
 
-- Date: 2026-11-22 · Branch: `phase/12-history-comments` · Base: `origin/main` (phases 01–08); `origin/phase/09-balances-payments` merged in for payment history/comments
+- Date: 2026-11-22 · Branch: `phase/12-history-comments` · Base: `origin/main` (phases 01–08); `origin/phase/09-balances-payments` merged in twice (055599d, 99daefb) for payment history/comments — merge phase 09 into main first
 - Commits: `b3c3934..HEAD` · Status: done
 
 ## Summary
@@ -29,7 +29,7 @@ composer; comments work offline and only their author can delete them (enforced 
 ## Tests
 
 - New tests: unit/application 76 · widget 32 + fixed phase-08 detail tests · golden 28 (7 states × light/dark × text 1.0/2.0) + regenerated expense detail and group settings goldens · integration 2 files (TC-13-03 + TC-20-04 round trip on dev; device UI review) · SQL 1 file (42 assertions) · migration v1 → v2
-- Coverage: see Gates (G2)
+- Coverage (full run on the merged branch): overall 96.4 % · money 100 % · sync 100 % · domain 100 % · data 90.3 % · application 99.1 % · presentation 95.9 %
 - Test IDs now passing: TC-13-03, TC-13-04, TC-20-01, TC-20-02, TC-20-03, TC-20-04
 - Quarantined / skipped: none
 
@@ -37,12 +37,12 @@ composer; comments work offline and only their author can delete them (enforced 
 
 | Gate | Result | Evidence |
 | --- | --- | --- |
-| G1 Static | | |
-| G2 Tests | | |
-| G3 Backend | | |
-| G4 Build | | |
-| G5 Device | | screenshots: `C:\Users\mohit\OneDrive\Desktop\theCode\splitify-artifacts\phase-12\` |
-| G6 Docs | | |
+| G1 Static | PASS | `dart format --set-exit-if-changed` 0 changes; `flutter analyze --no-fatal-infos` 0 errors/warnings; `dart run tool/guards.dart` OK |
+| G2 Tests | PASS | 1521 tests: 1519 passed in the full run + `stable_hash_test.dart` failed to load once under load (rerun: 2/2 pass); coverage overall 96.4 %, money 100, sync 100, domain 100, core 96.6, data 90.3, application 99.1, presentation 95.9 (all floors met); `flutter test --coverage --exclude-tags device,needs-owner,quarantine --concurrency=1` + `tool/coverage_check.dart` |
+| G3 Backend | PASS | `0015_history_comments` applied on dev; `060_history_comments.test.sql` 42/42 (rolled back); advisors: nothing new (12 SECURITY DEFINER WARNs accepted in S-066, leaked-password protection is an owner dashboard setting); no Edge Function touched (deno SKIPPED: not needed) |
+| G4 Build | PASS | `flutter build apk --debug --dart-define-from-file=secrets/env.dev.json` |
+| G5 Device | PASS | `integration_test/history_comments_test.dart` on emulator-5554 (TC-13-03 + TC-20-04; run before and after the phase 09 merge); UI review `integration_test/ui_review_history_test.dart`, 18 shots in `C:\Users\mohit\OneDrive\Desktop\theCode\splitify-artifacts\phase-12\` |
+| G6 Docs | PASS | phase file ticked, PROGRESS, test catalog, S-130..S-135, LEARNINGS, this report |
 
 ## UI review (≥ 8/10 every line)
 
@@ -58,8 +58,8 @@ label, value right, dashed dividers, muted card) and 636 (comments: blob empty s
 | Comments (expense + payment detail) | 9 | 9 | 9 | 9 | 9 | 8 | 9 |
 
 Fixed during review: per-member diffs right-aligned (Wrap needed full width), "Deleted by you" lower-case.
-Accepted: the conflict dot is low-contrast on purpose (muted version); the dark-mode status-bar icons in the device
-captures follow the system bar timing of the capture script, not the screen (AppBar overlay style is per theme).
+Accepted: the conflict dot is low-contrast on purpose (muted version). One dark device capture caught the status bar
+before it switched to light icons (capture timing; the payment-comments dark capture shows it correctly).
 
 ## Decisions made (S-0xx)
 
