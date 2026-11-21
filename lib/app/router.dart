@@ -26,6 +26,7 @@ import 'package:splitify/features/groups/presentation/groups_home_screen.dart';
 import 'package:splitify/features/groups/presentation/join_screen.dart';
 import 'package:splitify/features/history/presentation/history_routes.dart';
 import 'package:splitify/features/onboarding/presentation/welcome_screen.dart';
+import 'package:splitify/features/payments/presentation/payment_routes.dart';
 import 'package:splitify/features/sync/presentation/sync_storage_screen.dart';
 
 /// Route paths (planning/07-screens-and-flows.md §1).
@@ -225,6 +226,7 @@ GoRouter buildRouter({String initialLocation = Routes.welcome, AuthGate? gate}) 
     ),
     ...expenseRoutes(),
     ...historyRoutes(),
+    ...paymentRoutes(),
     if (kDebugMode) ...[
       GoRoute(path: Routes.gallery, builder: (context, state) => const GalleryScreen()),
       GoRoute(

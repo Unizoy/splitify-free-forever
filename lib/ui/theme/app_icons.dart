@@ -67,17 +67,20 @@ abstract final class AppIcons {
   static const IconData receipt = IconData(0xe3ec, fontFamily: _regular);
   static const IconData backspace = IconData(0xe0ae, fontFamily: _regular);
   static const IconData history = IconData(0xe1a0, fontFamily: _regular);
+  // Payments and balances (phase 09).
+  static const IconData arrowRight = IconData(0xe06c, fontFamily: _bold);
+  static const IconData swap = IconData(0xe0a0, fontFamily: _bold);
+  static const IconData payment = IconData(0xe588, fontFamily: _regular);
+  static const IconData settle = IconData(0xe582, fontFamily: _regular);
+  static const IconData cash = IconData(0xe588, fontFamily: _fill);
+  static const IconData bank = IconData(0xe0b4, fontFamily: _fill);
+  static const IconData methodOther = IconData(0xe200, fontFamily: _fill);
+  static const IconData clock = IconData(0xe19a, fontFamily: _regular);
   static const IconData notes = IconData(0xe34c, fontFamily: _regular);
   static const IconData calendar = IconData(0xe10a, fontFamily: _regular);
   static const IconData chat = IconData(0xe16c, fontFamily: _regular);
-  static const IconData send = IconData(
-    0xe396,
-    fontFamily: _fill,
-  ); // paper-plane-right (comments, 636)
-  static const IconData arrowRight = IconData(
-    0xe06c,
-    fontFamily: _regular,
-  ); // history diffs: old -> new
+  // Comment composer send button (paper-plane-right, 636; phase 12).
+  static const IconData send = IconData(0xe396, fontFamily: _fill);
   static const IconData coins = IconData(0xe78e, fontFamily: _regular);
   static const IconData chart = IconData(0xe158, fontFamily: _fill);
   static const IconData globe = IconData(0xe28a, fontFamily: _fill);

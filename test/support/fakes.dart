@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:drift/drift.dart' show DatabaseConnection;
 import 'package:drift/native.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart' show AsyncData;
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:splitify/core/time/clock.dart';
 import 'package:splitify/data/local/app_database.dart';
@@ -12,6 +13,10 @@ import 'package:splitify/data/repositories/sync_repository.dart';
 import 'package:splitify/data/sync/sync_engine.dart';
 import 'package:splitify/data/sync/sync_types.dart';
 import 'package:splitify/domain/entities/profile.dart';
+import 'package:splitify/features/activity/application/activity_providers.dart';
+import 'package:splitify/features/balances/application/account_stats.dart';
+import 'package:splitify/features/balances/application/balance_views.dart';
+import 'package:splitify/features/balances/application/balances_providers.dart';
 import 'package:splitify/features/groups/application/groups_providers.dart';
 
 /// Clock that only moves when the test says so.
@@ -221,4 +226,20 @@ List<Override> emptyGroupsOverrides() => [
   deletedGroupsProvider.overrideWith((ref) => Stream.value(const [])),
   syncOfflineProvider.overrideWith((ref) => Stream.value(false)),
   syncNowProvider.overrideWithValue(() async {}),
+  ...emptyBalanceOverrides(),
+];
+
+/// No balances or activity anywhere (phase 09 reads), without a database.
+const noBalances = MyBalances(totals: {}, byGroup: {}, people: []);
+
+/// Phase 09 overall reads without a database: nothing owed, no activity, zero stats.
+List<Override> emptyBalanceOverrides({MyBalances my = noBalances}) => [
+  myBalancesProvider.overrideWithValue(AsyncData(my)),
+  allGroupBalancesProvider.overrideWithValue(const AsyncData([])),
+  accountStatsProvider.overrideWithValue(
+    const AsyncData(
+      AccountStats(currency: 'INR', spentThisMonth: 0, groups: 0, people: 0, expenses: 0),
+    ),
+  ),
+  activityItemsProvider(null).overrideWithValue(const AsyncData([])),
 ];

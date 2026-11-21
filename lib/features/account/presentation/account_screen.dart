@@ -4,14 +4,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:splitify/data/data_providers.dart';
 import 'package:splitify/features/account/presentation/account_settings_sheet.dart';
 import 'package:splitify/features/auth/application/auth_providers.dart';
+import 'package:splitify/features/balances/application/account_stats.dart';
+import 'package:splitify/features/balances/application/balance_views.dart';
+import 'package:splitify/features/balances/application/balances_providers.dart';
+import 'package:splitify/features/balances/presentation/balance_copy.dart';
 import 'package:go_router/go_router.dart';
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/components/components.dart';
 import 'package:splitify/ui/theme/theme.dart';
 
 /// Account tab (`/account`, 542): gear for the settings sheet, big avatar,
-/// "YOU", the wallet showpiece and the stats cards. The header shows the
-/// profile (phase 05); phase 09 brings the real balances.
+/// "YOU", the wallet showpiece with my overall balance per currency (phase 09, rule 3; tap = by
+/// group) and the stats cards from the phone's database.
 class AccountScreen extends ConsumerWidget {
   const AccountScreen({super.key});
 
@@ -19,6 +23,13 @@ class AccountScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context);
     final profile = ref.watch(profileProvider).value;
+    final mine = ref.watch(myBalancesProvider).value;
+    final stats = ref.watch(accountStatsProvider).value;
+    final first = profile?.defaultCurrency ?? 'INR';
+    final totals = mine?.totals ?? const <String, int>{};
+    final codes = orderCurrencies(totals.keys, first);
+    final status = mine?.status ?? BalanceStatus.settled;
+    final mixed = status == BalanceStatus.mixed;
     final c = context.colors;
     final bottom = MediaQuery.paddingOf(context).bottom;
     return AnnotatedRegion<SystemUiOverlayStyle>(
@@ -85,11 +96,21 @@ class AccountScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: AppSpacing.s8),
                 WalletCard(
+                  key: const Key('account-wallet'),
                   brandLabel: l.walletBrand,
-                  amounts: [l.zeroRupees],
-                  statusLabel: l.allSettled,
-                  caption: l.acrossGroups(0),
-                  onTap: () => showComingSoon(context),
+                  amounts: codes.isEmpty
+                      ? [listMoney(0, first)]
+                      : [
+                          for (final code in codes)
+                            mixed
+                                ? signedMoney(totals[code]!, code)
+                                : listMoney(totals[code]!.abs(), code),
+                        ],
+                  statusLabel: status == BalanceStatus.settled
+                      ? l.allSettled
+                      : statusText(l, status),
+                  caption: l.acrossGroups(stats?.groups ?? 0),
+                  onTap: () => showWalletBreakdown(context),
                 ),
                 // Rule 3: overall balances come from local rows; say so while some are not on the server.
                 if (ref.watch(anyUnsyncedProvider).value ?? false) ...[
@@ -100,22 +121,97 @@ class AccountScreen extends ConsumerWidget {
                 DotMatrixCard(
                   title: l.yourSpending,
                   stats: [
-                    (value: l.zeroRupees, label: l.statThisMonth),
-                    (value: '0', label: l.statGroups),
-                    (value: '0', label: l.statPeople),
+                    (
+                      value: listMoney(stats?.spentThisMonth ?? 0, stats?.currency ?? first),
+                      label: l.statThisMonth,
+                    ),
+                    (value: '${stats?.groups ?? 0}', label: l.statGroups),
+                    (value: '${stats?.people ?? 0}', label: l.statPeople),
                   ],
                   onTap: () => showComingSoon(context),
                 ),
                 const SizedBox(height: AppSpacing.s5),
                 MetalCard(
                   title: l.yourStats,
-                  stats: [(value: '0', label: l.statExpenses), (value: '0', label: l.statGroups)],
+                  stats: [
+                    (value: '${stats?.expenses ?? 0}', label: l.statExpenses),
+                    (value: '${stats?.groups ?? 0}', label: l.statGroups),
+                  ],
                 ),
               ],
             ),
           ),
         ),
       ),
+    );
+  }
+}
+
+/// Wallet tap: my balance in every group (archived ones too), each opening its group.
+Future<void> showWalletBreakdown(BuildContext context) {
+  final l = AppLocalizations.of(context);
+  final router = GoRouter.of(context);
+  return showAppSheet<void>(
+    context,
+    title: l.walletBreakdownTitle,
+    builder: (sheet) => _Breakdown(
+      open: (id) {
+        Navigator.of(sheet).pop();
+        router.push('/groups/$id').ignore();
+      },
+    ),
+  );
+}
+
+class _Breakdown extends ConsumerWidget {
+  const _Breakdown({required this.open});
+
+  final ValueChanged<String> open;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context);
+    final groups = ref.watch(allGroupBalancesProvider).value ?? const <GroupBalances>[];
+    final mine = ref.watch(myBalancesProvider).value;
+    final rows = [
+      for (final g in groups)
+        if (g.meId != null && (mine?.byGroup[g.groupId]?.isNotEmpty ?? false)) g,
+    ];
+    if (rows.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.only(bottom: AppSpacing.s4),
+        child: Text(
+          l.walletBreakdownEmpty,
+          key: const Key('wallet-breakdown-empty'),
+          style: context.text.body.copyWith(color: context.colors.textSecondary),
+        ),
+      );
+    }
+    return Column(
+      key: const Key('wallet-breakdown'),
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        for (var i = 0; i < rows.length; i++)
+          Builder(
+            builder: (context) {
+              final g = rows[i];
+              final raw = mine!.byGroup[g.groupId]!;
+              final nets = {
+                for (final code in orderCurrencies(raw.keys, g.mainCurrency)) code: raw[code]!,
+              };
+              final status = balanceStatusOf(nets.values);
+              return AmountRow(
+                key: Key('wallet-group-${g.groupId}'),
+                title: g.groupName,
+                amountText: amountsText(nets),
+                amountCaption: statusText(l, status),
+                tone: toneOf(status),
+                showDivider: i < rows.length - 1,
+                onTap: () => open(g.groupId),
+              );
+            },
+          ),
+      ],
     );
   }
 }
