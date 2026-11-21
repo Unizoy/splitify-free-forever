@@ -69,3 +69,7 @@ None new. BLK-001 closed 2026-11-21.
 
 Finish T5 (sync status providers, `SyncMarker` wiring, "Sync & storage" screen) and the S-046 glue after phase 05 is
 merged. Then phase 07 uses migration `0010_group_rpcs.sql`.
+
+## Merge sanity 2026-11-21 (05 + 06 + 3 prep branches)
+
+pub get OK; analyze 0 errors/warnings (infos only); guards OK; format 0 changed; `flutter test` (no device/needs-owner/quarantine) 635 passed. No fixes needed. Not run this session: coverage_check, debug APK, device T7, T5 screen (owner deadline).
