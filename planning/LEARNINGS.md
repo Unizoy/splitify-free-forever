@@ -75,3 +75,5 @@ _Add entries here._
 - [phase 05] Golden tests need a valid image for `MemoryImage` (use a base64 1×1 PNG), fake bytes throw "Invalid image data".
 - [prep 16] Postgres `date + make_interval(months => n)` clamps to month end (2024-01-31 + 1 month = 2024-02-29), so the T2 SQL generator matches `recurrence.dart` if it always adds n months/years to the anchor, never to the last `next_date`.
 - [prep 11] Dart `Uri.queryParameters` decodes `+` as a space and `Uri.encodeComponent` leaves `!*'()` alone, so the UPI builder has its own encoder (`+` -> `%2B`, space -> `%20`).
+- [phase 08] Riverpod 3 `AsyncNotifier` already has an `update(...)` method: a controller method named `update` is an invalid override; name it `edit`. Two `clockProvider`s exist (data_providers + auth_providers) -> import auth_providers with `show`.
+- [phase 08] PowerShell has no `<<'EOF'` heredoc: pipe a `@' ... '@` here-string into `python -` for UTF-8-safe multi-line edits.
