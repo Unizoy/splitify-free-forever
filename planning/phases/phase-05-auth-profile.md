@@ -23,10 +23,12 @@
 - [x] T6 Account tab: avatar header, WalletCard/MetalCard/DotMatrixCard with placeholder data (real data phase
       09/17), Account settings sheet (accordions + rows: Appearance (B3), Sign out, Delete account, About &
       licences, version).
-- [x] T7 (deploy SKIPPED, BLK-001) `delete-account` Edge Function + tests (deno) + deploy; client flow with "type DELETE" confirm.
+- [x] T7 `delete-account` Edge Function + tests (deno) + deploy; client flow with "type DELETE" confirm. (deployed v1;
+      live call with a throwaway user passes, 2026-11-22)
 - [x] T8 Sign-out: wipe local data (secure storage + prefs except theme), go to welcome.
-- [ ] T9 (SKIPPED, BLK-001) Integration: dev sign-in → edit profile → restart → still signed in; sign out. Google e2e only if
-      `emulator_has_google_account` is true.
+- [x] T9 Integration: dev sign-in → edit profile → restart → still signed in; sign out. Google e2e only if
+      `emulator_has_google_account` is true. (2026-11-22, `integration_test/auth_profile_test.dart`, S-214; Google e2e
+      not run, D-020)
 
 ## Tests
 

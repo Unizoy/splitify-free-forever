@@ -1,16 +1,25 @@
 import 'package:splitify/core/config/env.dart';
+import 'package:splitify/data/remote/remote_api.dart';
 import 'package:splitify/data/remote/supabase_auth_repository.dart';
 import 'package:splitify/data/remote/supabase_profile_remote.dart';
+import 'package:splitify/data/remote/supabase_remote_api.dart';
 import 'package:splitify/data/repositories/auth_repository.dart';
 import 'package:splitify/data/repositories/profile_repository.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as sb;
 
 /// The remote services the app talks to, built once in bootstrap.
 class RemoteServices {
-  const RemoteServices({required this.auth, required this.profiles});
+  const RemoteServices({
+    required this.auth,
+    required this.profiles,
+    this.api = const UnconfiguredRemoteApi(),
+  });
 
   final AuthRepository auth;
   final ProfileRemote? profiles;
+
+  /// Sync RPCs (`apply_mutations`, `pull_changes`).
+  final RemoteApi api;
 }
 
 /// Starts Supabase from the build settings (02 §2). With placeholder values
@@ -28,5 +37,6 @@ Future<RemoteServices> initRemote(Env env) async {
       google: env.hasGoogle ? GoogleSignInIdTokenSource(env.googleWebClientId) : null,
     ),
     profiles: SupabaseProfileRemote.fromClient(client),
+    api: SupabaseRemoteApi.client(client),
   );
 }

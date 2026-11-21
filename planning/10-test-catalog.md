@@ -4,7 +4,7 @@ Generated from `08-feature-specs.md` (2026-11-21); sessions update **Status** (`
 `needs-owner (BLK-xxx)` / `manual-opt`). New tests a session adds get the next number in the same feature and a row here.
 Cross-cutting suites (sync engine, a11y, goldens of every component, migration tests) are listed in each phase file.
 
-Total: 114 test ids.
+Total: 116 test ids.
 
 | Phase | ID | Type | Description | Status |
 | --- | --- | --- | --- | --- |
@@ -30,9 +30,9 @@ Total: 114 test ids.
 | 04 | TC-B2-05 | sql | co-member can read | pass (CI db job; MCP run needs-owner BLK-001) |
 | 05 | TC-B1-01 | widget | onboarding shows both buttons and dev login only in debug | pass (`test/features/auth/presentation/auth_screens_test.dart`) |
 | 05 | TC-B1-02 | unit | auth controller | pass (`sign_in_controller_test.dart`) |
-| 05 | TC-B1-03 | integ | dev sign-in → home | SKIPPED (not run yet; dev project ready since 2026-11-21); flow covered by widget test with fake auth |
-| 05 | TC-B1-04 | integ | sign-out wipes local DB and token | SKIPPED (not run yet; dev ready 2026-11-21); wipe covered by unit + widget tests (`LocalWipe`, sign-out sheet) |
-| 05 | TC-B1-05 | edge | delete-account converts memberships to name-only and deletes user | pass (deno `delete-account/handler_test.ts`, CI functions job); deploy SKIPPED (BLK-001) |
+| 05 | TC-B1-03 | integ | dev sign-in → home | pass (2026-11-22, dev project, `integration_test/auth_profile_test.dart`) |
+| 05 | TC-B1-04 | integ | sign-out wipes local DB and token | pass (2026-11-22, `auth_profile_test.dart`: outbox pushed first, session + prefs + Drift rows gone) |
+| 05 | TC-B1-05 | edge | delete-account converts memberships to name-only and deletes user | pass (deno `delete-account/handler_test.ts`; deployed v1 called live with a throwaway user 2026-11-22, `auth_profile_test.dart`) |
 | 05 | TC-B1-06 | sql | deleted | pass (`supabase/tests/024_auth_profile.test.sql`, CI db job) |
 | 05 | TC-B1-07 | integ | Google sign-in (only if emulator has Google account) | needs-owner (D-020: no Google client id) |
 | 05 | TC-B1-08 | unit | release config has no dev login | pass (`test/core/core_test.dart`; route is `kDebugMode`-only) |
@@ -40,10 +40,12 @@ Total: 114 test ids.
 | 05 | TC-B2-01 | unit | UPI regex accepts/rejects table | pass (`test/domain/profile_test.dart`) |
 | 05 | TC-B2-02 | unit | UPI QR parser | pass (`test/domain/profile_test.dart`) |
 | 05 | TC-B2-03 | widget | profile form | pass (`auth_screens_test.dart`) |
-| 05 | TC-B2-04 | integ | edit profile persists after restart and syncs | SKIPPED (not run yet; dev ready 2026-11-21); save/cache covered by unit tests |
+| 05 | TC-B2-04 | integ | edit profile persists after restart and syncs | pass (2026-11-22, `auth_profile_test.dart`: server row checked, session restored after restart, S-214) |
 | 06 | TC-1-02 | sql | create via apply_mutations makes creator owner member | pass (CI db, `040_apply_mutations`) |
 | 06 | TC-18-01 | sql | every mutation type writes activity | partial: group + expense ops asserted in `040_apply_mutations`; member/payment/comment activity written but not yet asserted |
 | 06 | TC-27-01..10 | unit | sync engine suite (`04-sync-engine.md` §10) | pass (`test/data/sync/sync_engine_test.dart`) |
+| 06 | TC-27-14 | widget+golden | "Sync & storage": status card states, Sync now, Retry/Discard, export log, settings row, Account marker; goldens light/dark × text 1.0/2.0 (synced + issues) | pass (`test/features/sync/**`, `test/data/sync/sync_repository_test.dart`, `screens_golden_test.dart`) |
+| 06 | TC-27-15 | integ | A offline-creates a group + expense, reconnects; harness B joins and sees both via `pull_changes` (T7) | pass (2026-11-22, dev project, `integration_test/sync_offline_test.dart`) |
 | 07 | TC-1-01 | unit | group form validation | todo |
 | 07 | TC-1-03 | sql | archived group rejects new expenses (`GROUP_ARCHIVED`) | todo |
 | 07 | TC-1-04 | widget | groups grid states | todo |
@@ -103,7 +105,7 @@ Total: 114 test ids.
 | 14 | TC-32-02 | edge | fetch-rates upsert/throttle/backfill | todo |
 | 14 | TC-32-04 | widget | conversion sheet manual/auto | todo |
 | 14 | TC-32-05 | unit | missing date uses previous rate. | todo |
-| 15 | TC-27-13 | integ | conflict both versions in history. | todo |
+| 15 | TC-27-13 | integ | conflict both versions in history. | todo (core already proven by phase 06 T7, `integration_test/sync_offline_test.dart`: A's older offline edit superseded, both in `record_versions`) |
 | 16 | TC-12-01 | sql | generation idempotent (double run = one copy) | todo |
 | 16 | TC-12-02 | sql | 31st clamp for Feb/Apr | todo |
 | 16 | TC-12-03 | sql | stop/ends_on | todo |

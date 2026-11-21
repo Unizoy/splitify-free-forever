@@ -967,6 +967,216 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Could not delete your account. Check your connection and try again.'**
   String get deleteAccountFailed;
+
+  /// Account settings row and screen title (04 §9).
+  ///
+  /// In en, this message translates to:
+  /// **'Sync & storage'**
+  String get syncStorage;
+
+  /// No description provided for @syncStorageHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Changes are saved on this phone first, then sent to your groups.'**
+  String get syncStorageHint;
+
+  /// No description provided for @syncStateSynced.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything is synced'**
+  String get syncStateSynced;
+
+  /// No description provided for @syncStateWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 change waiting to sync} other{{count} changes waiting to sync}}'**
+  String syncStateWaiting(int count);
+
+  /// No description provided for @syncStateOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'You are offline'**
+  String get syncStateOffline;
+
+  /// No description provided for @syncStateOfflineHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Changes stay on this phone and sync when you are back online.'**
+  String get syncStateOfflineHint;
+
+  /// No description provided for @syncStateFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 change needs attention} other{{count} changes need attention}}'**
+  String syncStateFailed(int count);
+
+  /// No description provided for @syncStateError.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync did not finish. It tries again soon.'**
+  String get syncStateError;
+
+  /// No description provided for @syncStateSignedOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in again to sync'**
+  String get syncStateSignedOut;
+
+  /// No description provided for @lastSyncLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Last sync {when}'**
+  String lastSyncLine(String when);
+
+  /// No description provided for @lastSyncNever.
+  ///
+  /// In en, this message translates to:
+  /// **'never'**
+  String get lastSyncNever;
+
+  /// No description provided for @lastSyncJustNow.
+  ///
+  /// In en, this message translates to:
+  /// **'just now'**
+  String get lastSyncJustNow;
+
+  /// No description provided for @lastSyncMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min ago'**
+  String lastSyncMinutes(int minutes);
+
+  /// No description provided for @lastSyncHours.
+  ///
+  /// In en, this message translates to:
+  /// **'{hours, plural, =1{1 hour ago} other{{hours} hours ago}}'**
+  String lastSyncHours(int hours);
+
+  /// No description provided for @lastSyncOn.
+  ///
+  /// In en, this message translates to:
+  /// **'on {date}'**
+  String lastSyncOn(String date);
+
+  /// No description provided for @syncWaitingLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting'**
+  String get syncWaitingLabel;
+
+  /// No description provided for @syncFailedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Need attention'**
+  String get syncFailedLabel;
+
+  /// No description provided for @syncNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync now'**
+  String get syncNow;
+
+  /// No description provided for @syncIssuesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs attention'**
+  String get syncIssuesTitle;
+
+  /// No description provided for @syncIssueEntity.
+  ///
+  /// In en, this message translates to:
+  /// **'{entity, select, group{Group} member{Member} expense{Expense} payment{Payment} comment{Comment} other{Change}}'**
+  String syncIssueEntity(String entity);
+
+  /// No description provided for @syncIssueOp.
+  ///
+  /// In en, this message translates to:
+  /// **'{op, select, delete{Delete} restore{Restore} other{Edit}}'**
+  String syncIssueOp(String op);
+
+  /// No description provided for @syncIssueTries.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Tried once} other{Tried {count} times}}'**
+  String syncIssueTries(int count);
+
+  /// No description provided for @syncErrorNotMember.
+  ///
+  /// In en, this message translates to:
+  /// **'You are no longer in this group.'**
+  String get syncErrorNotMember;
+
+  /// No description provided for @syncErrorRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'The server did not accept this change.'**
+  String get syncErrorRejected;
+
+  /// No description provided for @syncErrorCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Code {code}'**
+  String syncErrorCode(String code);
+
+  /// No description provided for @retryLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get retryLabel;
+
+  /// No description provided for @discardLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard'**
+  String get discardLabel;
+
+  /// No description provided for @discardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard this change?'**
+  String get discardTitle;
+
+  /// No description provided for @discardBody.
+  ///
+  /// In en, this message translates to:
+  /// **'It is removed from this phone and the copy on the server comes back.'**
+  String get discardBody;
+
+  /// No description provided for @onThisPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'On this phone'**
+  String get onThisPhone;
+
+  /// No description provided for @exportDebugLog.
+  ///
+  /// In en, this message translates to:
+  /// **'Export debug log'**
+  String get exportDebugLog;
+
+  /// No description provided for @debugLogSubject.
+  ///
+  /// In en, this message translates to:
+  /// **'Splitify debug log'**
+  String get debugLogSubject;
+
+  /// No description provided for @syncRowSynced.
+  ///
+  /// In en, this message translates to:
+  /// **'Synced'**
+  String get syncRowSynced;
+
+  /// No description provided for @syncRowWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} waiting'**
+  String syncRowWaiting(int count);
+
+  /// No description provided for @syncRowProblems.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 problem} other{{count} problems}}'**
+  String syncRowProblems(int count);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

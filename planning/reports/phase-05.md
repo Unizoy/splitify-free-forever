@@ -1,7 +1,7 @@
 # Phase 05 report — Auth, profile, account
 
 - Date: 2026-11-21 · Branch: `phase/05-auth-profile` · Base: `origin/phase/04-backend-foundation` (77e0bc0)
-- Commits: `618c971..HEAD` · Status: done (BLK-001 closed 2026-11-21); T9 integration still open
+- Commits: `618c971..HEAD` · Status: **done** (2026-11-22 follow-up: T9 integration and live `delete-account` call pass)
 
 ## Summary
 
@@ -23,8 +23,8 @@ stays signed out and Google shows "Coming soon" (D-020).
 | T5 Profile edit | done | online-only with cache; photo compress + upload, no crop UI (S-034) |
 | T6 Account tab + settings sheet | done | avatar/name header, Profile accordion, Sign out, Delete account, About, version |
 | T7 `delete-account` function + client | done (deployed to dev v1, verify_jwt on, 2026-11-21) | deno tests 13/13, CI functions job green |
-| T8 Sign-out wipe | done | `LocalWipe`: secure storage + prefs except `theme_mode` |
-| T9 Integration on dev project | OPEN | key + migrations now on dev; not run yet (owner deadline 2026-11-21) |
+| T8 Sign-out wipe | done | `LocalWipe`: Drift DB (2026-11-22) + secure storage + prefs except `theme_mode`; outbox pushed first (S-210) |
+| T9 Integration on dev project | done (2026-11-22) | `integration_test/auth_profile_test.dart` on emulator-5554: dev sign-in → edit name + UPI (server row checked) → restart (S-214) → still signed in → sign out (session, prefs, Drift rows gone) |
 
 ## Features delivered
 
@@ -76,3 +76,16 @@ Four LEARNINGS lines (Riverpod 3 paused providers, flutter_test HTTP 400, PowerS
 
 06 Local database and sync engine (built in parallel). It must add the DB wipe to `LocalWipe.wipe()` and the
 outbox push / device unregister before `AuthRepository.signOut()` in `AccountActions`.
+
+## Follow-up 2026-11-22 (T9, live delete-account)
+
+- T9 passes on the dev project (2/2 in `integration_test/auth_profile_test.dart`): TC-B1-03, TC-B1-04, TC-B2-04.
+  e2e-a/b were created by `signUp` on first use (email confirmation off).
+- `delete-account` (deployed v1, verify_jwt on) called live with a throwaway `e2e-del-<ms>@splitify.test` user:
+  200, signed out, the same password no longer signs in (TC-B1-05 live).
+- Phase 06 wiring done: sign-out/delete push the outbox first, `LocalWipe` wipes the Drift DB (S-210).
+- Gates in this follow-up: G1 PASS, G2 PASS (661 tests, coverage floors pass), G4 PASS (debug APK), G5 Device: PASS
+  (integration on emulator); Account/sign-in screens were not re-captured on the device in this
+  follow-up (goldens cover them; release builds have no dev login, S-214).
+- Owner note: this PC's ISP DNS-blocks `*.supabase.co` for plain DNS; device tests pin the address (S-214). Real
+  users on such ISPs will need a Supabase custom domain or proxy before release (phase 19/20).

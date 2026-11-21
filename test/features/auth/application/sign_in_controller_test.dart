@@ -6,12 +6,16 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:splitify/core/config/preferences.dart';
+import 'package:splitify/data/data_providers.dart';
+import 'package:splitify/data/local/app_database.dart';
+import 'package:splitify/data/remote/remote_providers.dart';
 import 'package:splitify/data/repositories/auth_repository.dart';
 import 'package:splitify/data/repositories/profile_repository.dart';
 import 'package:splitify/features/auth/application/auth_providers.dart';
 import 'package:splitify/features/auth/application/sign_in_controller.dart';
 import 'package:splitify/l10n/app_localizations.dart';
 
+import '../../../data/sync/sync_fakes.dart' show FakeRemoteApi, appliedAll;
 import '../../../support/fakes.dart';
 
 void main() {
@@ -20,6 +24,8 @@ void main() {
   late FakeClock clock;
   late ProviderContainer c;
   late SharedPreferences prefs;
+  late AppDatabase db;
+  late FakeRemoteApi server;
 
   setUp(() async {
     FlutterSecureStorage.setMockInitialValues({});
@@ -28,8 +34,13 @@ void main() {
     auth = FakeAuthRepository();
     remote = FakeProfileRemote(sampleProfile);
     clock = FakeClock(DateTime.utc(2026, 11, 21, 10));
+    db = testDb();
+    addTearDown(db.close);
+    server = FakeRemoteApi();
     c = ProviderContainer(
       overrides: [
+        appDatabaseProvider.overrideWithValue(db),
+        remoteApiProvider.overrideWithValue(server),
         sharedPreferencesProvider.overrideWithValue(prefs),
         authRepositoryProvider.overrideWithValue(auth),
         profileRemoteProvider.overrideWithValue(remote),
@@ -126,9 +137,20 @@ void main() {
   test('T8 sign out and delete account wipe the phone but keep the theme', () async {
     await auth.signInWithPassword(email: 'a@splitify.test', password: 'pw');
     await prefs.setString(ProfileRepository.cacheKey, '{}');
+    // 04 §7: waiting changes are pushed while still signed in, then the local database is wiped.
+    await c.read(groupsRepositoryProvider).create(name: 'Goa', ownerName: 'Asha');
+    final signedInAtPush = <bool>[];
+    server.applyScript.add((batch) {
+      signedInAtPush.add(auth.currentUser != null);
+      return appliedAll(batch, server.serverTime);
+    });
     await c.read(accountActionsProvider).signOut();
+    expect(signedInAtPush, [true]);
+    expect(server.applied.single.single['entity'], 'group');
     expect(auth.currentUser, isNull);
     expect(prefs.getKeys(), {'theme_mode'});
+    expect(await db.select(db.groups).get(), isEmpty);
+    expect(await db.select(db.outbox).get(), isEmpty);
 
     await auth.signInWithPassword(email: 'a@splitify.test', password: 'pw');
     await prefs.setString('x', 'y');

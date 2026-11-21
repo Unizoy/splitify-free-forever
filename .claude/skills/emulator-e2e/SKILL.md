@@ -36,7 +36,17 @@ flutter test integration_test --dart-define-from-file=secrets/env.dev.json -d em
 dart run patrol_cli:main test -t integration_test/patrol --dart-define-from-file=secrets/env.dev.json
 ```
 Second-user actions (another member adding an expense) are performed by the test harness through the Supabase
-API as user B (see `planning/09-testing-strategy.md`, "multi-user harness"), not by a second emulator.
+API as user B (see `planning/09-testing-strategy.md`, "multi-user harness"), not by a second emulator:
+`integration_test/support/harness.dart` (`devEnv()`, `pumpUntil`, `HarnessUser.signIn(env, 'e2e-b')`).
+
+**DNS on this PC (S-214):** the ISP answers plain DNS for `*.supabase.co` with a block page, so the emulator cannot
+reach the dev project by name (`AuthFailure(offline)`, nothing in the edge logs). Always add the PC's answer:
+```powershell
+$e = Get-Content secrets\env.dev.json -Raw | ConvertFrom-Json
+$ip = (Resolve-DnsName ([Uri]$e.SUPABASE_URL).Host -Type A | ? IPAddress | Select -First 1).IPAddress
+flutter test integration_test/<file>.dart -d emulator-5554 --dart-define-from-file=secrets/env.dev.json "--dart-define=PIN_HOST_IP=$ip"
+```
+Tests must call `devEnv()` before creating any Supabase client (it installs the pin).
 
 ## 4. Scripted adb interactions
 
