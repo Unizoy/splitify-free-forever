@@ -14,6 +14,7 @@ import 'package:splitify/features/expenses/application/expense_draft.dart';
 import 'package:splitify/features/expenses/application/expense_editor_controller.dart';
 import 'package:splitify/features/expenses/application/expense_providers.dart';
 import 'package:splitify/features/expenses/application/split_draft.dart';
+import 'package:splitify/features/payments/application/payment_providers.dart';
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/theme/theme.dart';
 import 'package:splitify/features/groups/application/groups_providers.dart'
@@ -230,6 +231,8 @@ List<Override> baseOverrides() => [
   clockProvider.overrideWithValue(FakeClock(DateTime(2026, 11, 21, 10))),
   syncOfflineProvider.overrideWith((ref) => Stream.value(false)),
   currentUserIdProvider.overrideWithValue('u1'),
+  // Phase 09: the Expenses tab also lists payments; none in these fixtures.
+  groupPaymentViewsProvider(gid).overrideWithValue(const AsyncData([])),
 ];
 
 /// Themed app around [child] (no router).
