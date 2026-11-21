@@ -21,7 +21,6 @@ import 'package:splitify/data/local/app_database.dart';
 import 'package:splitify/data/remote/remote_api.dart';
 import 'package:splitify/data/remote/remote_providers.dart';
 import 'package:splitify/data/remote/supabase_client.dart';
-import 'package:splitify/data/remote/supabase_remote_api.dart';
 import 'package:splitify/data/sync/sync_types.dart';
 import 'package:splitify/domain/rules/invite_code.dart';
 import 'package:splitify/features/auth/application/auth_providers.dart';
@@ -30,6 +29,8 @@ import 'package:splitify/features/groups/presentation/join_screen.dart';
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/theme/theme.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
+import 'support/harness.dart';
 
 /// The real server, switched off while "offline".
 class SwitchableRemote implements RemoteApi {
@@ -64,31 +65,14 @@ class SwitchableRemote implements RemoteApi {
 
 RemoteServices? _services;
 
-/// Starts Supabase once and signs the phone in as e2e-a.
+/// Starts Supabase once (with the PIN_HOST_IP workaround, S-214) and signs the phone in as e2e-a.
 Future<(Env, RemoteServices, String)> _signInA() async {
-  final env = Env.load();
+  final env = devEnv();
   final services = _services ??= await initRemote(env);
   if (services.auth.currentUser == null) {
-    await services.auth.signInWithPassword(email: 'e2e-a@splitify.test', password: env.e2ePassword);
+    await services.auth.signInWithPassword(email: e2eEmail('e2e-a'), password: env.e2ePassword);
   }
   return (env, services, services.auth.currentUser!.id);
-}
-
-/// A second user with its own client (harness), created on first use.
-Future<SupabaseClient> _harness(Env env, String user) async {
-  final c = SupabaseClient(
-    env.supabaseUrl,
-    env.supabasePublishableKey,
-    authOptions: const AuthClientOptions(autoRefreshToken: false),
-  );
-  final email = '$user@splitify.test';
-  try {
-    await c.auth.signInWithPassword(email: email, password: env.e2ePassword);
-  } on AuthException {
-    await c.auth.signUp(email: email, password: env.e2ePassword);
-    await c.auth.signInWithPassword(email: email, password: env.e2ePassword);
-  }
-  return c;
 }
 
 Future<void> _pumpFor(WidgetTester t, Duration d) async {
@@ -144,14 +128,12 @@ Future<_Phone> _open(
   List<Override> extra = const [],
 }) async {
   final db = AppDatabase(NativeDatabase.memory());
-  final server = SwitchableRemote(
-    SupabaseRemoteApi.client(Supabase.instance.client),
-    online: online,
-  );
+  final server = SwitchableRemote(services.api, online: online);
   final container = ProviderContainer(
     overrides: [
       appDatabaseProvider.overrideWithValue(db),
       remoteApiProvider.overrideWithValue(server),
+      groupsRemoteProvider.overrideWithValue(services.groups),
       authRepositoryProvider.overrideWithValue(services.auth),
       profileRemoteProvider.overrideWithValue(services.profiles),
       ...extra,
@@ -257,8 +239,9 @@ void main() {
       expect(code, group.inviteCode);
 
       // Harness B previews and claims Rahul.
-      final b = await _harness(env, 'e2e-b');
-      final buid = b.auth.currentUser!.id;
+      final harness = await HarnessUser.signIn(env, 'e2e-b');
+      final b = harness.client;
+      final buid = harness.id;
       final preview = (await b.rpc<Object?>('preview_join', params: {'code': code}))! as Map;
       expect((preview['unclaimed']! as List).map((m) => (m as Map)['id']), contains(rahul.id));
       final joined =
@@ -294,7 +277,7 @@ void main() {
       await p.sync();
       final deleted = await client.from('groups').select('deleted_at').eq('id', gid).maybeSingle();
       expect(deleted == null || deleted['deleted_at'] != null, isTrue);
-      await b.dispose();
+      await harness.dispose();
     },
   );
 
@@ -302,7 +285,8 @@ void main() {
     'TC-3-04 scanning B\'s invite QR previews and joins; the deep link opens the join screen',
     (t) async {
       final (env, services, uid) = await _signInA();
-      final b = await _harness(env, 'e2e-b');
+      final harness = await HarnessUser.signIn(env, 'e2e-b');
+      final b = harness.client;
       final gid = newId();
       final name = 'e2e-Manali ${DateTime.now().millisecondsSinceEpoch}';
       final now = DateTime.now().toUtc().toIso8601String();
@@ -368,7 +352,7 @@ void main() {
           ],
         },
       );
-      await b.dispose();
+      await harness.dispose();
     },
   );
 }
