@@ -37,6 +37,8 @@ reason and the alternatives it rejected. It never asks the owner.
 | D-018 | UI priority (2026-11-21) | **Good UI is the top priority.** Every screen must closely match the Atlys reference look (layout rhythm, typography, radii, colour, imagery, motion) and pass the `ui-review` rubric (≥ 8/10 on every criterion) before its phase can ship. When time or tokens are short, cut elsewhere — never UI quality. | |
 | D-019 | Token economy (2026-11-21) | Save tokens: the main session (Opus) plans, writes app/UI code and does UI review; **test writing goes to the `test-writer` sub-agent (Sonnet)**, **test running/log triage to `test-runner` (Haiku)**, file searches to Explore. Read only the spec sections a task needs; no re-reading files already in context; short reports. | `.claude/agents/` |
 
+| D-020 | Dummy mode for deferred services (2026-11-21) | Owner set up **Supabase only**. Google OAuth, Resend, Firebase/FCM and the release key stay **dummy until the owner likes the app**. Build everything behind config checks, never block: no `GOOGLE_WEB_CLIENT_ID` → Google button shows "Coming soon" (debug) and sign-in uses email code via Supabase's built-in mailer (delivers only to project team members, ~2/hour — fine for the owner) + dev password login for tests; no `secrets/google-services.json` → Firebase not initialised, push disabled, in-app bell + `send-push` function still built and tested with fakes (`push_status = skipped`); no release key → debug signing. When the owner later adds a service, the next session enables it and re-runs the affected tests. These are **not** blockers. | |
+
 ## Technical decisions
 
 Filled in from the research in `planning/research/` (see each row's source).

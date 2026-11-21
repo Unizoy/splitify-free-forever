@@ -35,3 +35,5 @@ TC-B1-01…09, TC-B2-01…05.
 ## Done when
 
 All listed tests pass (B1-07 may be `needs-owner`, B1-09 is manual-opt); screens pass `ui-review`.
+
+> **Amendment (D-020, 2026-11-21):** services the owner has not set up yet run in dummy mode — build and test them behind their config checks with fakes; missing Google client id / Resend / Firebase file is not a blocker.

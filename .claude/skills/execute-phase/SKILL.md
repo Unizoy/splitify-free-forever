@@ -25,8 +25,8 @@ checklist. **Never ask the owner a question, never wait for approval, one phase 
 - A phase marked `in-progress` → resume it.
 - Otherwise the lowest `todo` phase whose dependencies are `done`/`done-with-blockers` and whose owner setup exists.
 - Owner setup check (needed from phase 04): `secrets/owner-inputs.json` exists and parses; the Supabase MCP answers
-  `list_tables`; for phase 05+ the Google web client id is present; for phase 13+ `secrets/google-services.json`
-  exists. Missing → add/refresh a `BLK-` entry in `planning/BLOCKERS.md` with the exact phase-00 step, then pick the
+  `list_tables`. Google client id, Resend, `secrets/google-services.json` and the release key are **optional**
+  (D-020 dummy mode): if missing, build the feature behind its config check with fakes — never a blocker. Missing → add/refresh a `BLK-` entry in `planning/BLOCKERS.md` with the exact phase-00 step, then pick the
   next phase that doesn't need it. If nothing is runnable, write a short report saying exactly what the owner must
   do and stop.
 
