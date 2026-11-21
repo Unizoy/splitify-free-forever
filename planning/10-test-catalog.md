@@ -75,10 +75,10 @@ Total: 116 test ids.
 | 09 | TC-21-02 | widget | totals tab. | todo |
 | 09 | TC-25-02 | widget | settle-up form | todo |
 | 09 | TC-25-03 | integ | settle a week | todo |
-| 10 | TC-10-02 | widget | multi-payer sheet | todo |
-| 10 | TC-11-02 | widget | direction toggle copy. | todo |
-| 10 | TC-29-01 | unit | compression bounds | todo |
-| 10 | TC-29-02 | sql | storage policies (member-only) | todo |
+| 10 | TC-10-02 | widget | multi-payer sheet | pass |
+| 10 | TC-11-02 | widget | direction toggle copy. | pass |
+| 10 | TC-29-01 | unit | compression bounds (+ real compression on the device) | pass |
+| 10 | TC-29-02 | sql | storage policies (member-only) — `023_storage` 24/24 + `060_file_paths` 12/12 on dev | pass |
 | 10 | TC-29-03 | integ | offline | todo |
 | 11 | TC-16-02 | sql | my_overview friend totals. | todo |
 | 11 | TC-17-03 | widget | toggle + link. | todo |
