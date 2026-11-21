@@ -601,6 +601,372 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{label}, current step'**
   String stepCurrent(String label);
+
+  /// No description provided for @signInTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How would you like to sign in?'**
+  String get signInTitle;
+
+  /// No description provided for @signInSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Use Google or get a 6-digit code by email. The same email is always the same account.'**
+  String get signInSubtitle;
+
+  /// No description provided for @continueWithGoogle.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue with Google'**
+  String get continueWithGoogle;
+
+  /// No description provided for @googleSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Google sign-in is coming soon. Use your email for now.'**
+  String get googleSoon;
+
+  /// No description provided for @orDivider.
+  ///
+  /// In en, this message translates to:
+  /// **'or'**
+  String get orDivider;
+
+  /// No description provided for @emailLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get emailLabel;
+
+  /// No description provided for @emailHint.
+  ///
+  /// In en, this message translates to:
+  /// **'you@example.com'**
+  String get emailHint;
+
+  /// No description provided for @sendCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Send code'**
+  String get sendCode;
+
+  /// No description provided for @devSignIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Developer sign-in'**
+  String get devSignIn;
+
+  /// No description provided for @codeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the 6-digit code'**
+  String get codeTitle;
+
+  /// No description provided for @codeSentTo.
+  ///
+  /// In en, this message translates to:
+  /// **'We sent it to {email}. It works for 10 minutes.'**
+  String codeSentTo(String email);
+
+  /// No description provided for @codeBoxes.
+  ///
+  /// In en, this message translates to:
+  /// **'6-digit code, {count} of 6 entered'**
+  String codeBoxes(int count);
+
+  /// No description provided for @resendIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Resend code in {seconds} s'**
+  String resendIn(int seconds);
+
+  /// No description provided for @resendCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Resend code'**
+  String get resendCode;
+
+  /// No description provided for @changeEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Change email'**
+  String get changeEmail;
+
+  /// No description provided for @verifyCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify'**
+  String get verifyCode;
+
+  /// No description provided for @profileConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What should friends call you?'**
+  String get profileConfirmTitle;
+
+  /// No description provided for @profileConfirmSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your name, photo and UPI ID are shown to people in your groups.'**
+  String get profileConfirmSubtitle;
+
+  /// No description provided for @nameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Your name'**
+  String get nameLabel;
+
+  /// No description provided for @upiLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'UPI ID (optional)'**
+  String get upiLabel;
+
+  /// No description provided for @upiHint.
+  ///
+  /// In en, this message translates to:
+  /// **'name@bank'**
+  String get upiHint;
+
+  /// No description provided for @scanUpiQr.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan my UPI QR'**
+  String get scanUpiQr;
+
+  /// No description provided for @continueLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get continueLabel;
+
+  /// No description provided for @authErrorInvalidCode.
+  ///
+  /// In en, this message translates to:
+  /// **'That code is not right. Check it and try again.'**
+  String get authErrorInvalidCode;
+
+  /// No description provided for @authErrorExpiredCode.
+  ///
+  /// In en, this message translates to:
+  /// **'This code has expired or is not right. Request a new code.'**
+  String get authErrorExpiredCode;
+
+  /// No description provided for @authErrorTooManyTries.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many tries, request a new code'**
+  String get authErrorTooManyTries;
+
+  /// No description provided for @authErrorInvalidEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter an email like name@example.com'**
+  String get authErrorInvalidEmail;
+
+  /// No description provided for @authErrorOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'You’re offline — connect once to sign in'**
+  String get authErrorOffline;
+
+  /// No description provided for @authErrorCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign-in was cancelled'**
+  String get authErrorCancelled;
+
+  /// No description provided for @authErrorNotConfigured.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign-in is not set up in this build yet'**
+  String get authErrorNotConfigured;
+
+  /// No description provided for @authErrorInvalidCredentials.
+  ///
+  /// In en, this message translates to:
+  /// **'Wrong email or password'**
+  String get authErrorInvalidCredentials;
+
+  /// No description provided for @authErrorUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong. Please try again.'**
+  String get authErrorUnknown;
+
+  /// No description provided for @devLoginSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Debug builds only. Signs in a test user and creates it on first use.'**
+  String get devLoginSubtitle;
+
+  /// No description provided for @devLoginUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Test user {user}'**
+  String devLoginUser(String user);
+
+  /// No description provided for @profileTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get profileTitle;
+
+  /// No description provided for @profileSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Name, photo, UPI ID, currency'**
+  String get profileSubtitle;
+
+  /// No description provided for @editProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit profile'**
+  String get editProfile;
+
+  /// No description provided for @changePhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Change photo'**
+  String get changePhoto;
+
+  /// No description provided for @defaultCurrency.
+  ///
+  /// In en, this message translates to:
+  /// **'Default currency'**
+  String get defaultCurrency;
+
+  /// No description provided for @defaultCurrencyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Used for new groups'**
+  String get defaultCurrencyHint;
+
+  /// No description provided for @saveLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get saveLabel;
+
+  /// No description provided for @profileSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile saved'**
+  String get profileSaved;
+
+  /// No description provided for @needsInternet.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs internet. Connect and try again.'**
+  String get needsInternet;
+
+  /// No description provided for @nameInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your name (1 to 50 letters)'**
+  String get nameInvalid;
+
+  /// No description provided for @upiInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a UPI ID like name@bank'**
+  String get upiInvalid;
+
+  /// No description provided for @upiQrInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'That QR is not a UPI payment code'**
+  String get upiQrInvalid;
+
+  /// No description provided for @scanUpiHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Point the camera at the QR code in your UPI app.'**
+  String get scanUpiHint;
+
+  /// No description provided for @chooseCurrency.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose currency'**
+  String get chooseCurrency;
+
+  /// No description provided for @notSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Not set'**
+  String get notSet;
+
+  /// No description provided for @signOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out'**
+  String get signOut;
+
+  /// No description provided for @signOutTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out?'**
+  String get signOutTitle;
+
+  /// No description provided for @signOutBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Splitify removes your data from this phone. Your groups stay safe on the server.'**
+  String get signOutBody;
+
+  /// No description provided for @cancelLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancelLabel;
+
+  /// No description provided for @deleteAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete account'**
+  String get deleteAccount;
+
+  /// No description provided for @deleteAccountTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete your account'**
+  String get deleteAccountTitle;
+
+  /// No description provided for @deleteAccountBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your expenses stay in your groups under your name so balances stay right; your profile, photo, UPI ID and sign-in are removed.'**
+  String get deleteAccountBody;
+
+  /// No description provided for @deleteAccountWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'This works only online and cannot be undone.'**
+  String get deleteAccountWarning;
+
+  /// No description provided for @typeDeleteLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Type DELETE to confirm'**
+  String get typeDeleteLabel;
+
+  /// No description provided for @deleteWord.
+  ///
+  /// In en, this message translates to:
+  /// **'DELETE'**
+  String get deleteWord;
+
+  /// No description provided for @deleteAccountButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete my account'**
+  String get deleteAccountButton;
+
+  /// No description provided for @deleteAccountFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not delete your account. Check your connection and try again.'**
+  String get deleteAccountFailed;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

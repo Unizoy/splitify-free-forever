@@ -8,24 +8,24 @@
 
 ## Tasks
 
-- [ ] T1 `lib/data/remote/supabase_client.dart` (init from env), `AuthRepository` (Google via
+- [x] T1 `lib/data/remote/supabase_client.dart` (init from env), `AuthRepository` (Google via
       `GoogleSignIn.instance.initialize(serverClientId: GOOGLE_WEB_CLIENT_ID)` → `authenticate()` → `idToken` →
       `signInWithIdToken`; email `signInWithOtp` + `verifyOTP(type: OtpType.email)`; dev `signInWithPassword`;
       sign out; session stream). Unit tests with fakes.
-- [ ] T2 Migration: `update_profile` RPC (if not in 0004) + auth trigger check; test `022`.
-- [ ] T3 Screens: welcome (DashedCircleButton), sign-in (Google pill + email UnderlineField), code entry (6 boxes,
+- [x] T2 Migration: `update_profile` RPC (if not in 0004) + auth trigger check; test `022`.
+- [x] T3 Screens: welcome (DashedCircleButton), sign-in (Google pill + email UnderlineField), code entry (6 boxes,
       resend timer), profile confirm on first sign-in. Router redirects by auth state.
-- [ ] T4 Dev login (debug only): `/debug/login` + deep link `splitify://dev/login?user=e2e-a`; harness creates
+- [x] T4 Dev login (debug only): `/debug/login` + deep link `splitify://dev/login?user=e2e-a`; harness creates
       `e2e-a/b/c@splitify.test` with `signUp` if missing. Release build test proves it's absent (TC-B1-08).
-- [ ] T5 Profile edit (online-only action with local cache — allowed exception, show "Needs internet" offline):
+- [x] T5 Profile edit (online-only action with local cache — allowed exception, show "Needs internet" offline):
       name, photo (picker → crop → compress → `avatars` bucket), UPI ID + "Scan my UPI QR" (`mobile_scanner`,
       `upi://pay?pa=` parser), default currency picker.
-- [ ] T6 Account tab: avatar header, WalletCard/MetalCard/DotMatrixCard with placeholder data (real data phase
+- [x] T6 Account tab: avatar header, WalletCard/MetalCard/DotMatrixCard with placeholder data (real data phase
       09/17), Account settings sheet (accordions + rows: Appearance (B3), Sign out, Delete account, About &
       licences, version).
-- [ ] T7 `delete-account` Edge Function + tests (deno) + deploy; client flow with "type DELETE" confirm.
-- [ ] T8 Sign-out: wipe local data (secure storage + prefs except theme), go to welcome.
-- [ ] T9 Integration: dev sign-in → edit profile → restart → still signed in; sign out. Google e2e only if
+- [x] T7 (deploy SKIPPED, BLK-001) `delete-account` Edge Function + tests (deno) + deploy; client flow with "type DELETE" confirm.
+- [x] T8 Sign-out: wipe local data (secure storage + prefs except theme), go to welcome.
+- [ ] T9 (SKIPPED, BLK-001) Integration: dev sign-in → edit profile → restart → still signed in; sign out. Google e2e only if
       `emulator_has_google_account` is true.
 
 ## Tests

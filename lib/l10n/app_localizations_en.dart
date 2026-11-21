@@ -294,4 +294,201 @@ class AppLocalizationsEn extends AppLocalizations {
   String stepCurrent(String label) {
     return '$label, current step';
   }
+
+  @override
+  String get signInTitle => 'How would you like to sign in?';
+
+  @override
+  String get signInSubtitle =>
+      'Use Google or get a 6-digit code by email. The same email is always the same account.';
+
+  @override
+  String get continueWithGoogle => 'Continue with Google';
+
+  @override
+  String get googleSoon => 'Google sign-in is coming soon. Use your email for now.';
+
+  @override
+  String get orDivider => 'or';
+
+  @override
+  String get emailLabel => 'Email';
+
+  @override
+  String get emailHint => 'you@example.com';
+
+  @override
+  String get sendCode => 'Send code';
+
+  @override
+  String get devSignIn => 'Developer sign-in';
+
+  @override
+  String get codeTitle => 'Enter the 6-digit code';
+
+  @override
+  String codeSentTo(String email) {
+    return 'We sent it to $email. It works for 10 minutes.';
+  }
+
+  @override
+  String codeBoxes(int count) {
+    return '6-digit code, $count of 6 entered';
+  }
+
+  @override
+  String resendIn(int seconds) {
+    return 'Resend code in $seconds s';
+  }
+
+  @override
+  String get resendCode => 'Resend code';
+
+  @override
+  String get changeEmail => 'Change email';
+
+  @override
+  String get verifyCode => 'Verify';
+
+  @override
+  String get profileConfirmTitle => 'What should friends call you?';
+
+  @override
+  String get profileConfirmSubtitle =>
+      'Your name, photo and UPI ID are shown to people in your groups.';
+
+  @override
+  String get nameLabel => 'Your name';
+
+  @override
+  String get upiLabel => 'UPI ID (optional)';
+
+  @override
+  String get upiHint => 'name@bank';
+
+  @override
+  String get scanUpiQr => 'Scan my UPI QR';
+
+  @override
+  String get continueLabel => 'Continue';
+
+  @override
+  String get authErrorInvalidCode => 'That code is not right. Check it and try again.';
+
+  @override
+  String get authErrorExpiredCode => 'This code has expired or is not right. Request a new code.';
+
+  @override
+  String get authErrorTooManyTries => 'Too many tries, request a new code';
+
+  @override
+  String get authErrorInvalidEmail => 'Enter an email like name@example.com';
+
+  @override
+  String get authErrorOffline => 'You’re offline — connect once to sign in';
+
+  @override
+  String get authErrorCancelled => 'Sign-in was cancelled';
+
+  @override
+  String get authErrorNotConfigured => 'Sign-in is not set up in this build yet';
+
+  @override
+  String get authErrorInvalidCredentials => 'Wrong email or password';
+
+  @override
+  String get authErrorUnknown => 'Something went wrong. Please try again.';
+
+  @override
+  String get devLoginSubtitle =>
+      'Debug builds only. Signs in a test user and creates it on first use.';
+
+  @override
+  String devLoginUser(String user) {
+    return 'Test user $user';
+  }
+
+  @override
+  String get profileTitle => 'Profile';
+
+  @override
+  String get profileSubtitle => 'Name, photo, UPI ID, currency';
+
+  @override
+  String get editProfile => 'Edit profile';
+
+  @override
+  String get changePhoto => 'Change photo';
+
+  @override
+  String get defaultCurrency => 'Default currency';
+
+  @override
+  String get defaultCurrencyHint => 'Used for new groups';
+
+  @override
+  String get saveLabel => 'Save';
+
+  @override
+  String get profileSaved => 'Profile saved';
+
+  @override
+  String get needsInternet => 'Needs internet. Connect and try again.';
+
+  @override
+  String get nameInvalid => 'Enter your name (1 to 50 letters)';
+
+  @override
+  String get upiInvalid => 'Enter a UPI ID like name@bank';
+
+  @override
+  String get upiQrInvalid => 'That QR is not a UPI payment code';
+
+  @override
+  String get scanUpiHint => 'Point the camera at the QR code in your UPI app.';
+
+  @override
+  String get chooseCurrency => 'Choose currency';
+
+  @override
+  String get notSet => 'Not set';
+
+  @override
+  String get signOut => 'Sign out';
+
+  @override
+  String get signOutTitle => 'Sign out?';
+
+  @override
+  String get signOutBody =>
+      'Splitify removes your data from this phone. Your groups stay safe on the server.';
+
+  @override
+  String get cancelLabel => 'Cancel';
+
+  @override
+  String get deleteAccount => 'Delete account';
+
+  @override
+  String get deleteAccountTitle => 'Delete your account';
+
+  @override
+  String get deleteAccountBody =>
+      'Your expenses stay in your groups under your name so balances stay right; your profile, photo, UPI ID and sign-in are removed.';
+
+  @override
+  String get deleteAccountWarning => 'This works only online and cannot be undone.';
+
+  @override
+  String get typeDeleteLabel => 'Type DELETE to confirm';
+
+  @override
+  String get deleteWord => 'DELETE';
+
+  @override
+  String get deleteAccountButton => 'Delete my account';
+
+  @override
+  String get deleteAccountFailed =>
+      'Could not delete your account. Check your connection and try again.';
 }

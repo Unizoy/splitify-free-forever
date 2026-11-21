@@ -6,9 +6,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:splitify/app/router.dart';
 import 'package:splitify/core/config/preferences.dart';
+import 'package:splitify/data/repositories/auth_repository.dart';
+import 'package:splitify/features/auth/application/auth_providers.dart';
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/theme/theme.dart';
 
+import '../support/fakes.dart';
 import 'golden_support.dart';
 
 const _frame = Size(goldenWidth, 915);
@@ -32,7 +35,14 @@ class _PhoneApp extends StatelessWidget {
     return SizedBox.fromSize(
       size: _frame,
       child: ProviderScope(
-        overrides: [sharedPreferencesProvider.overrideWithValue(prefs)],
+        overrides: [
+          sharedPreferencesProvider.overrideWithValue(prefs),
+          // Signed in as the sample profile, so Account and Profile show real fields.
+          authRepositoryProvider.overrideWithValue(
+            FakeAuthRepository(user: const AuthUser(id: 'u1')),
+          ),
+          profileRemoteProvider.overrideWithValue(FakeProfileRemote(sampleProfile)),
+        ],
         child: MediaQuery(
           data: MediaQueryData(
             size: _frame,
@@ -74,6 +84,11 @@ void main() {
     ('activity', Routes.activity),
     ('account', Routes.account),
     ('appearance', Routes.appearance),
+    ('sign_in', Routes.signIn),
+    ('sign_in_code', '${Routes.signInCode}?email=asha%40splitify.test'),
+    ('sign_in_profile', Routes.signInProfile),
+    ('profile', Routes.profile),
+    ('delete_account', Routes.deleteAccount),
   ];
 
   // One golden per mode: the router uses a shared navigator key, so two apps cannot
