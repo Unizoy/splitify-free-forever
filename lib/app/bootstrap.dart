@@ -7,6 +7,7 @@ import 'package:splitify/app/app.dart';
 import 'package:splitify/core/config/env.dart';
 import 'package:splitify/core/config/preferences.dart';
 import 'package:splitify/core/logging/logger.dart';
+import 'package:splitify/data/remote/remote_providers.dart';
 import 'package:splitify/data/remote/supabase_client.dart';
 import 'package:splitify/features/auth/application/auth_providers.dart';
 
@@ -29,6 +30,7 @@ Future<Widget> bootstrap() async {
         sharedPreferencesProvider.overrideWithValue(prefs),
         authRepositoryProvider.overrideWithValue(remote.auth),
         profileRemoteProvider.overrideWithValue(remote.profiles),
+        remoteApiProvider.overrideWithValue(remote.api),
         googleConfiguredProvider.overrideWithValue(env.hasGoogle),
         devLoginProvider.overrideWithValue(env.devLoginAvailable(releaseMode: kReleaseMode)),
         e2ePasswordProvider.overrideWithValue(kReleaseMode ? '' : env.e2ePassword),

@@ -19,6 +19,7 @@ import 'package:splitify/features/debug/presentation/gallery_screen.dart';
 import 'package:splitify/features/friends/presentation/friends_screen.dart';
 import 'package:splitify/features/groups/presentation/groups_home_screen.dart';
 import 'package:splitify/features/onboarding/presentation/welcome_screen.dart';
+import 'package:splitify/features/sync/presentation/sync_storage_screen.dart';
 
 /// Route paths (planning/07-screens-and-flows.md §1).
 abstract final class Routes {
@@ -33,6 +34,7 @@ abstract final class Routes {
   static const appearance = '/account/appearance';
   static const profile = '/account/profile';
   static const deleteAccount = '/account/delete';
+  static const syncStorage = '/account/sync';
   static const gallery = '/debug/gallery';
   static const devLogin = '/debug/login';
 }
@@ -141,6 +143,11 @@ GoRouter buildRouter({String initialLocation = Routes.welcome, AuthGate? gate}) 
                   path: 'delete',
                   parentNavigatorKey: _rootKey,
                   builder: (context, state) => const DeleteAccountScreen(),
+                ),
+                GoRoute(
+                  path: 'sync',
+                  parentNavigatorKey: _rootKey,
+                  builder: (context, state) => const SyncStorageScreen(),
                 ),
               ],
             ),

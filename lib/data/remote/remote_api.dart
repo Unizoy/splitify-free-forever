@@ -109,3 +109,25 @@ class RemoteException implements Exception {
   @override
   String toString() => 'RemoteException($code)';
 }
+
+/// Used when the build has no Supabase settings (D-020) and in tests that never reach the server: every call
+/// fails like being offline, so writes stay queued.
+class UnconfiguredRemoteApi implements RemoteApi {
+  const UnconfiguredRemoteApi();
+
+  static const code = 'not_configured';
+
+  @override
+  Future<ApplyResponse> applyMutations(List<Map<String, Object?>> batch) =>
+      Future.error(const NetworkException(code));
+
+  @override
+  Future<PullPage> pullChanges({
+    required Map<String, int> cursors,
+    required int userSeq,
+    int pageSize = 500,
+  }) => Future.error(const NetworkException(code));
+
+  @override
+  Future<void> refreshSession() => Future.error(const AuthExpiredException());
+}

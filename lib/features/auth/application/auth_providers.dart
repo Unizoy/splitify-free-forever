@@ -2,11 +2,13 @@ import 'dart:typed_data';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:splitify/core/config/preferences.dart';
-import 'package:splitify/core/time/clock.dart';
+import 'package:splitify/data/data_providers.dart';
 import 'package:splitify/data/repositories/auth_repository.dart';
 import 'package:splitify/data/repositories/local_wipe.dart';
 import 'package:splitify/data/repositories/profile_repository.dart';
 import 'package:splitify/domain/entities/profile.dart';
+
+export 'package:splitify/data/data_providers.dart' show clockProvider;
 
 /// Auth backend; bootstrap overrides it with the Supabase one.
 final authRepositoryProvider = Provider<AuthRepository>(
@@ -25,8 +27,6 @@ final devLoginProvider = Provider<bool>((ref) => false);
 /// Password for the e2e test users (debug builds only).
 final e2ePasswordProvider = Provider<String>((ref) => '');
 
-final clockProvider = Provider<Clock>((ref) => const SystemClock());
-
 final profileRepositoryProvider = Provider<ProfileRepository>(
   (ref) => ProfileRepository(
     remote: ref.watch(profileRemoteProvider),
@@ -35,7 +35,10 @@ final profileRepositoryProvider = Provider<ProfileRepository>(
 );
 
 final localWipeProvider = Provider<LocalWipe>(
-  (ref) => LocalWipe(prefs: ref.watch(sharedPreferencesProvider)),
+  (ref) => LocalWipe(
+    prefs: ref.watch(sharedPreferencesProvider),
+    clearDatabase: () => ref.read(syncRepositoryProvider).wipeLocal(),
+  ),
 );
 
 /// The signed-in user (null = signed out).
@@ -78,8 +81,10 @@ class AccountActions {
 
   final Ref _ref;
 
+  /// 04 §7: send waiting changes (10 s best effort) → sign out → wipe the local database and sign-in data.
+  /// Phase 13 adds "unregister the device token" before the sign-out.
   Future<void> signOut() async {
-    // Phase 06+: push the outbox (10 s best effort) and unregister the device first.
+    await _ref.read(syncRepositoryProvider).pushBeforeSignOut();
     try {
       await _ref.read(authRepositoryProvider).signOut();
     } finally {
@@ -87,7 +92,9 @@ class AccountActions {
     }
   }
 
+  /// Online only: waiting changes go first so they stay in the groups, then the server deletes the account.
   Future<void> deleteAccount() async {
+    await _ref.read(syncRepositoryProvider).pushBeforeSignOut();
     await _ref.read(authRepositoryProvider).deleteAccount();
     await _ref.read(localWipeProvider).wipe();
   }
