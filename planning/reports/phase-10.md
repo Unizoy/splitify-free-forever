@@ -46,7 +46,7 @@ detail shows it with a full-screen zoomable viewer (replace / remove). Groups ca
 | G2 Tests | (filled at ship) | |
 | G3 Backend | PASS | `0013_file_paths` applied to dev; pgTAP `023` 24/24, `060` 12/12; security advisors: no new findings (only the accepted RPC/`join_attempts`/leaked-password items) |
 | G4 Build | (filled at ship) | |
-| G5 Device | (filled at ship) | screenshots: `C:\Users\mohit\OneDrive\Desktop\theCode\splitify-artifacts\phase-10\` |
+| G5 Device | PASS | `integration_test/receipts_offline_upload_test.dart` on emulator-5554 (2026-11-22, PIN_HOST_IP): real compression 3000×2000 → 1599×1066, 314,616 B (thumb 480×320); offline expense paid by me + Asha with receipt, loan and cover photo queued; online sync pushed rows, uploaded 2 photos, server rows match (payers, kind iou), user B (claimed Asha) fetched receipt and cover via signed URLs. UI review captures (9 screens × light/dark/200 %) in `C:\Users\mohit\OneDrive\Desktop\theCode\splitify-artifacts\phase-10\` |
 | G6 Docs | PASS | phase ticks, decisions S-110..S-119, catalog, learnings, amendments to phases 11 and 15 |
 
 ## UI review (D-018, rubric ≥ 8 on every line, light and dark)
@@ -67,7 +67,7 @@ stepper), 534 (segmented pill), 455/712 (photo hero, sheet).
 | Group form photo cover, photo hero + card | 9 | 9 | 8 | 9 | 9 | 8 | 8 |
 
 Fixed during review: photo viewer drew in an 88 px strip (Stack sizing); loan direction pill broke "I borrowe-d" at
-200 % (clamped, icons dropped at large text); loan keypad hid the form at 200 % (collapsible keypad with Done);
+200 % (clamped, icons dropped at large text); loan keypad hid the form at 200 % (collapsible keypad with Done; with the keypad up at large text the subtitle steps aside and the Done bar is clamped like the keypad);
 payer card opened below the fold (scrolls into view). Accepted: at 200 % the step header labels and the
 pre-existing person rows of the expense detail ("Rahul Meht a") wrap — phase 08 components, noted for phase 19.
 
