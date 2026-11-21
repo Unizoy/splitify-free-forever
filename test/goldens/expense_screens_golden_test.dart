@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:splitify/core/money/split.dart';
+import 'package:splitify/features/comments/application/comments_providers.dart';
 import 'package:splitify/features/expenses/application/default_split_controller.dart';
 import 'package:splitify/features/expenses/application/expense_draft.dart';
 import 'package:splitify/features/expenses/application/expense_editor_controller.dart';
@@ -97,6 +98,8 @@ List<_Case> _cases() {
           AsyncData(sampleView(sampleExpense(notes: 'Table by the window, paid by card.'))),
         ),
         expenseGroupProvider(gid).overrideWith((ref) => Stream.value(sampleGroup())),
+        commentThreadProvider((groupId: gid, targetType: 'expense', targetId: 'e1'))
+            .overrideWithValue(const AsyncData([])),
       ],
     ),
     (
@@ -105,6 +108,8 @@ List<_Case> _cases() {
       [
         expenseViewProvider('e2').overrideWithValue(AsyncData(views.first)),
         expenseGroupProvider(gid).overrideWith((ref) => Stream.value(null)),
+        commentThreadProvider((groupId: gid, targetType: 'expense', targetId: 'e2'))
+            .overrideWithValue(const AsyncData([])),
       ],
     ),
     (

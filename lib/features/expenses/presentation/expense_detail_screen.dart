@@ -11,13 +11,17 @@ import 'package:splitify/features/expenses/application/expense_providers.dart';
 import 'package:splitify/features/expenses/presentation/editor/step_body.dart';
 import 'package:splitify/features/expenses/presentation/expense_copy.dart';
 import 'package:splitify/features/expenses/presentation/expense_routes.dart';
+import 'package:splitify/features/comments/application/comments_providers.dart';
+import 'package:splitify/features/comments/presentation/comment_thread.dart';
+import 'package:splitify/features/history/presentation/history_routes.dart';
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/components/components.dart';
 import 'package:splitify/ui/theme/theme.dart';
 
 /// Expense detail (`/expense/:id`, #13, 712 layout): the group's cover hero with the category,
 /// description, serif amount and the viewer's side; then who paid, how it was split, details,
-/// history and comments (placeholders until phase 12). Edit and delete (soft, with undo) on top.
+/// history (phase 12) and the comment thread with its composer pinned at the bottom. Edit and delete (soft,
+/// with undo) on top.
 class ExpenseDetailScreen extends ConsumerWidget {
   const ExpenseDetailScreen({required this.expenseId, super.key});
 
@@ -59,9 +63,16 @@ class ExpenseDetailScreen extends ConsumerWidget {
           bottom: OverlapSheet(child: _Body(view: v)),
         ),
       ),
+      bottomNavigationBar: CommentComposer(
+        target: _commentTarget(v),
+        readOnly: group?.archivedAt != null,
+      ),
     );
   }
 }
+
+CommentTarget _commentTarget(ExpenseView v) =>
+    (groupId: v.expense.groupId, targetType: 'expense', targetId: v.expense.id);
 
 class _Hero extends ConsumerWidget {
   const _Hero({required this.view, required this.group});
@@ -183,6 +194,7 @@ class _Body extends StatelessWidget {
     String name(String id) => id == view.meId ? l.you : view.nameOf(id);
     final kind = splitKindOf(e.splitKind);
     final added = _addedLine(context, l);
+    final edited = _editedLine(context, l);
     final payers = view.paid.entries.where((p) => p.value != 0).toList();
     final owed = view.owed.entries.toList();
 
@@ -242,7 +254,7 @@ class _Body extends StatelessWidget {
           icon: AppIcons.history,
           label: l.expHistory,
           showDivider: false,
-          onTap: () => showComingSoon(context),
+          onTap: () => unawaited(context.push(HistoryRoutes.expense(e.id))),
         ),
         if (added != null) ...[
           const SizedBox(height: AppSpacing.s2),
@@ -252,35 +264,33 @@ class _Body extends StatelessWidget {
             style: context.text.caption.copyWith(color: c.textSecondary),
           ),
         ],
+        if (edited != null) ...[
+          const SizedBox(height: AppSpacing.s1),
+          Text(
+            edited,
+            key: const Key('expense-edited-line'),
+            textAlign: TextAlign.center,
+            style: context.text.caption.copyWith(color: c.textSecondary),
+          ),
+        ],
         const SizedBox(height: AppSpacing.s8),
         SectionLabel(l.expComments),
-        ClipRRect(
-          borderRadius: AppRadii.all24,
-          child: BlobBackground(
-            child: Padding(
-              padding: const EdgeInsets.all(AppSpacing.s5),
-              child: Row(
-                children: [
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(color: c.surface, shape: BoxShape.circle),
-                    child: Icon(AppIcons.chat, size: 20, color: c.primary),
-                  ),
-                  const SizedBox(width: AppSpacing.s3),
-                  Expanded(
-                    child: Text(
-                      l.expCommentsSoon,
-                      style: context.text.bodySmall.copyWith(color: c.textSecondary),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
+        const SizedBox(height: AppSpacing.s3),
+        CommentThread(target: _commentTarget(view)),
       ],
     );
+  }
+
+  /// "Edited by Asha on 22 Nov 2026" once the server has an edit (its `updated_at` moved past `created_at`).
+  String? _editedLine(BuildContext context, AppLocalizations l) {
+    final e = view.expense;
+    final created = e.createdAt == null ? null : DateTime.tryParse(e.createdAt!);
+    final updated = e.updatedAt == null ? null : DateTime.tryParse(e.updatedAt!);
+    if (created == null || updated == null || !updated.isAfter(created)) return null;
+    final by = e.updatedBy;
+    final who = by == null ? null : view.userNames[by];
+    final date = shortDate(context, updated.toLocal());
+    return who == null ? l.expEditedOn(date) : l.expEditedBy(who, date);
   }
 
   String? _addedLine(BuildContext context, AppLocalizations l) {

@@ -20,6 +20,7 @@ import 'package:splitify/features/balances/application/balances_providers.dart';
 import 'package:splitify/features/balances/application/totals_providers.dart';
 import 'package:splitify/features/balances/presentation/balances_tab.dart';
 import 'package:splitify/features/balances/presentation/totals_tab.dart';
+import 'package:splitify/features/comments/application/comments_providers.dart';
 import 'package:splitify/features/expenses/application/expense_providers.dart';
 import 'package:splitify/features/expenses/presentation/expense_list.dart';
 import 'package:splitify/features/groups/application/groups_providers.dart';
@@ -138,6 +139,9 @@ List<_Case> _cases() => [
     () => [
       paymentViewProvider('p1').overrideWithValue(AsyncData(paymentView())),
       expenseGroupProvider(gid).overrideWith((ref) => Stream.value(sampleGroup())),
+      // Phase 12: the comment thread (empty here; its states are in history_comments_golden_test).
+      commentThreadProvider((groupId: gid, targetType: 'payment', targetId: 'p1'))
+          .overrideWithValue(const AsyncData([])),
     ],
   ),
   _case(

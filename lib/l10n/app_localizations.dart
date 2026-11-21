@@ -2678,11 +2678,407 @@ abstract class AppLocalizations {
   /// **'Comments'**
   String get expComments;
 
-  /// No description provided for @expCommentsSoon.
+  /// No description provided for @expEditedBy.
   ///
   /// In en, this message translates to:
-  /// **'Comments arrive in a later update.'**
-  String get expCommentsSoon;
+  /// **'Edited by {name} on {date}'**
+  String expEditedBy(String name, String date);
+
+  /// No description provided for @expEditedOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Edited on {date}'**
+  String expEditedOn(String date);
+
+  /// No description provided for @histTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit history'**
+  String get histTitle;
+
+  /// No description provided for @histPaymentTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{from} paid {to}'**
+  String histPaymentTitle(String from, String to);
+
+  /// No description provided for @histAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} added this'**
+  String histAdded(String name);
+
+  /// No description provided for @histEdited.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} edited this'**
+  String histEdited(String name);
+
+  /// No description provided for @histDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} deleted this'**
+  String histDeleted(String name);
+
+  /// No description provided for @histRestored.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} restored this'**
+  String histRestored(String name);
+
+  /// No description provided for @histLostChange.
+  ///
+  /// In en, this message translates to:
+  /// **'Change by {name}'**
+  String histLostChange(String name);
+
+  /// No description provided for @histNotApplied.
+  ///
+  /// In en, this message translates to:
+  /// **'Not applied (a newer edit won)'**
+  String get histNotApplied;
+
+  /// No description provided for @histFormerMember.
+  ///
+  /// In en, this message translates to:
+  /// **'A former member'**
+  String get histFormerMember;
+
+  /// No description provided for @histWhen.
+  ///
+  /// In en, this message translates to:
+  /// **'{date} · {time}'**
+  String histWhen(String date, String time);
+
+  /// No description provided for @histFieldDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Description'**
+  String get histFieldDescription;
+
+  /// No description provided for @histFieldAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get histFieldAmount;
+
+  /// No description provided for @histFieldDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get histFieldDate;
+
+  /// No description provided for @histFieldCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get histFieldCategory;
+
+  /// No description provided for @histFieldPayers.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid by'**
+  String get histFieldPayers;
+
+  /// No description provided for @histFieldShares.
+  ///
+  /// In en, this message translates to:
+  /// **'Split'**
+  String get histFieldShares;
+
+  /// No description provided for @histFieldSplitKind.
+  ///
+  /// In en, this message translates to:
+  /// **'Split type'**
+  String get histFieldSplitKind;
+
+  /// No description provided for @histFieldNotes.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes'**
+  String get histFieldNotes;
+
+  /// No description provided for @histFieldKind.
+  ///
+  /// In en, this message translates to:
+  /// **'Type'**
+  String get histFieldKind;
+
+  /// No description provided for @histFieldMethod.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid with'**
+  String get histFieldMethod;
+
+  /// No description provided for @histFieldFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'From'**
+  String get histFieldFrom;
+
+  /// No description provided for @histFieldTo.
+  ///
+  /// In en, this message translates to:
+  /// **'To'**
+  String get histFieldTo;
+
+  /// No description provided for @histSplitDetailsChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'Split details changed'**
+  String get histSplitDetailsChanged;
+
+  /// No description provided for @histReceiptAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Receipt added'**
+  String get histReceiptAdded;
+
+  /// No description provided for @histReceiptRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'Receipt removed'**
+  String get histReceiptRemoved;
+
+  /// No description provided for @histReceiptReplaced.
+  ///
+  /// In en, this message translates to:
+  /// **'Receipt replaced'**
+  String get histReceiptReplaced;
+
+  /// No description provided for @histNoValue.
+  ///
+  /// In en, this message translates to:
+  /// **'—'**
+  String get histNoValue;
+
+  /// No description provided for @histNoVisibleChange.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing you can see changed'**
+  String get histNoVisibleChange;
+
+  /// No description provided for @histKindExpense.
+  ///
+  /// In en, this message translates to:
+  /// **'Expense'**
+  String get histKindExpense;
+
+  /// No description provided for @histKindIou.
+  ///
+  /// In en, this message translates to:
+  /// **'Loan'**
+  String get histKindIou;
+
+  /// No description provided for @histMethodCash.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash'**
+  String get histMethodCash;
+
+  /// No description provided for @histMethodUpi.
+  ///
+  /// In en, this message translates to:
+  /// **'UPI'**
+  String get histMethodUpi;
+
+  /// No description provided for @histMethodBank.
+  ///
+  /// In en, this message translates to:
+  /// **'Bank transfer'**
+  String get histMethodBank;
+
+  /// No description provided for @histMethodOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get histMethodOther;
+
+  /// No description provided for @histChangeA11y.
+  ///
+  /// In en, this message translates to:
+  /// **'{field}: {from} to {to}'**
+  String histChangeA11y(String field, String from, String to);
+
+  /// No description provided for @histPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Your latest change shows here once it\'s synced.'**
+  String get histPending;
+
+  /// No description provided for @histOfflineNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Showing saved history. Connect to see newer changes.'**
+  String get histOfflineNote;
+
+  /// No description provided for @histOfflineTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'History needs internet'**
+  String get histOfflineTitle;
+
+  /// No description provided for @histOfflineBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect once to load it. After that it stays on this phone.'**
+  String get histOfflineBody;
+
+  /// No description provided for @histEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No history yet'**
+  String get histEmptyTitle;
+
+  /// No description provided for @histEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Changes show up here once they reach the server.'**
+  String get histEmptyBody;
+
+  /// No description provided for @histRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get histRetry;
+
+  /// No description provided for @histNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'This item isn\'t on this phone'**
+  String get histNotFound;
+
+  /// No description provided for @histNotFoundBody.
+  ///
+  /// In en, this message translates to:
+  /// **'It may belong to a group you left.'**
+  String get histNotFoundBody;
+
+  /// No description provided for @cmtHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a comment'**
+  String get cmtHint;
+
+  /// No description provided for @cmtSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Send comment'**
+  String get cmtSend;
+
+  /// No description provided for @cmtEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No comments yet'**
+  String get cmtEmptyTitle;
+
+  /// No description provided for @cmtEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Start the conversation'**
+  String get cmtEmptyBody;
+
+  /// No description provided for @cmtDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete comment'**
+  String get cmtDelete;
+
+  /// No description provided for @cmtDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this comment?'**
+  String get cmtDeleteTitle;
+
+  /// No description provided for @cmtDeleteBody.
+  ///
+  /// In en, this message translates to:
+  /// **'It disappears for everyone in the group.'**
+  String get cmtDeleteBody;
+
+  /// No description provided for @cmtDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Comment deleted'**
+  String get cmtDeleted;
+
+  /// No description provided for @cmtTooLong.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep it under {max} characters.'**
+  String cmtTooLong(int max);
+
+  /// No description provided for @cmtArchived.
+  ///
+  /// In en, this message translates to:
+  /// **'This group is archived, so comments are read-only.'**
+  String get cmtArchived;
+
+  /// No description provided for @cmtA11y.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}, {time}: {body}'**
+  String cmtA11y(String name, String time, String body);
+
+  /// No description provided for @cmtOptions.
+  ///
+  /// In en, this message translates to:
+  /// **'Comment options'**
+  String get cmtOptions;
+
+  /// No description provided for @delTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleted items'**
+  String get delTitle;
+
+  /// No description provided for @delSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Expenses and payments deleted in this group. Restoring brings one back for everyone.'**
+  String get delSubtitle;
+
+  /// No description provided for @delEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing deleted'**
+  String get delEmptyTitle;
+
+  /// No description provided for @delEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleted expenses and payments show up here, ready to restore.'**
+  String get delEmptyBody;
+
+  /// No description provided for @delBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleted by {name} · {date}'**
+  String delBy(String name, String date);
+
+  /// No description provided for @delOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleted {date}'**
+  String delOn(String date);
+
+  /// No description provided for @delRestored.
+  ///
+  /// In en, this message translates to:
+  /// **'Restored'**
+  String get delRestored;
+
+  /// No description provided for @delArchivedNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Unarchive the group to restore items.'**
+  String get delArchivedNote;
+
+  /// No description provided for @delRestoreA11y.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore {item}'**
+  String delRestoreA11y(String item);
 
   /// No description provided for @expNotFoundTitle.
   ///

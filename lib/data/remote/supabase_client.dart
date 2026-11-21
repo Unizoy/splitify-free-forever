@@ -1,6 +1,7 @@
 import 'package:splitify/core/config/env.dart';
 import 'package:splitify/data/remote/balances_remote.dart';
 import 'package:splitify/data/remote/groups_remote.dart';
+import 'package:splitify/data/remote/history_remote.dart';
 import 'package:splitify/data/remote/remote_api.dart';
 import 'package:splitify/data/remote/supabase_auth_repository.dart';
 import 'package:splitify/data/remote/supabase_profile_remote.dart';
@@ -16,6 +17,7 @@ class RemoteServices {
     required this.profiles,
     this.api = const UnconfiguredRemoteApi(),
     this.groups = const UnconfiguredGroupsRemote(),
+    this.history = const UnconfiguredHistoryRemote(),
     this.balances = const UnconfiguredBalancesRemote(),
   });
 
@@ -27,6 +29,9 @@ class RemoteServices {
 
   /// Online-only group RPCs (join, invite code, leave/remove/unlink).
   final GroupsRemote groups;
+
+  /// Edit-history reads (`record_versions`, phase 12).
+  final HistoryRemote history;
 
   /// Read-only balance RPCs (`group_balances`, `my_overview`).
   final BalancesRemote balances;
@@ -49,6 +54,7 @@ Future<RemoteServices> initRemote(Env env) async {
     profiles: SupabaseProfileRemote.fromClient(client),
     api: SupabaseRemoteApi.client(client),
     groups: SupabaseGroupsRemote.fromClient(client),
+    history: SupabaseHistoryRemote.fromClient(client),
     balances: SupabaseBalancesRemote.fromClient(client),
   );
 }
