@@ -8,8 +8,9 @@ import 'package:splitify/core/config/preferences.dart';
 import 'package:splitify/ui/components/dashed_circle_button.dart';
 
 void main() {
-  // TC-B3-03: the app opens on the welcome screen and "Get started" leads into the shell.
-  testWidgets('App starts on welcome and Get started opens the capsule nav', (tester) async {
+  // TC-B3-03 / T3: the app opens on the welcome screen; signed out, "Get started" opens
+  // sign-in and the tabs redirect back to welcome.
+  testWidgets('App starts on welcome and Get started opens sign-in', (tester) async {
     SharedPreferences.setMockInitialValues({});
     final prefs = await SharedPreferences.getInstance();
     tester.view.physicalSize = const Size(412 * 2, 915 * 2);
@@ -32,7 +33,8 @@ void main() {
     await tester.pump(const Duration(milliseconds: 600));
 
     expect(find.byType(DashedCircleButton), findsNothing);
-    expect(find.text('Groups'), findsWidgets);
+    expect(find.text('How would you like to sign in?'), findsOneWidget);
+    expect(find.text('Groups'), findsNothing);
   });
 
   testWidgets('bootstrap shows config error when env is missing', (tester) async {
