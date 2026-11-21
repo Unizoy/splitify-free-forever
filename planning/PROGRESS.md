@@ -19,7 +19,7 @@ Current phase: _none in progress_ (05 + 06 leftovers finished 2026-11-22 on `pha
 | 09 | [Balances, payments, activity, totals](phases/phase-09-balances-payments.md) | 08 | 00 | in-progress | phase/09-balances-payments | | | |
 | 10 | [Multiple payers, IOU, receipt photos](phases/phase-10-payers-iou-receipts.md) | 09 | 00 | todo | phase/10-payers-iou-receipts | | | |
 | 11 | [Friends, simplify debts, Pay via UPI](phases/phase-11-friends-simplify-upi.md) | 09 | 00 | todo | phase/11-friends-simplify-upi | | | |
-| 12 | [Edit history, restore, comments](phases/phase-12-history-comments.md) | 09 | 00 | done (phase 09 merged in; G5 device PASS) | phase/12-history-comments | 2026-11-22 | see branch head | [report](reports/phase-12.md) |
+| 12 | [Edit history, restore, comments](phases/phase-12-history-comments.md) | 09 | 00 | done (phase 09 merged in; G5 device PASS) | phase/12-history-comments | 2026-11-22 | ca1c8b7 (+ docs commit) | [report](reports/phase-12.md) |
 | 13 | [Notifications and reminders](phases/phase-13-notifications.md) | 12 | 00 (Firebase) | todo | phase/13-notifications | | | |
 | 14 | [Currencies and conversion](phases/phase-14-currencies.md) | 09 | 00 | todo | phase/14-currencies | | | |
 | 15 | [Offline polish](phases/phase-15-offline-polish.md) | 10, 11, 12, 14 | 00 | todo | phase/15-offline-polish | | | |
