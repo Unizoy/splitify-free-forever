@@ -64,3 +64,8 @@ _Add entries here._
 - [phase 04] Postgres regex repeat counts stop at 255 (`{0,255}` errors) → split the quantifier (e.g. `{2}{0,254}`).
 - [phase 04] Without the Supabase MCP, migrations + pgTAP can still be proven in GitHub Actions (`supabase start` on the runner, `supabase test db`); dev-project steps stay blocked.
 - [phase 03/04] Two phases in parallel: `git worktree add ../splitify-p04 -b phase/04-… phase/03-…`, one agent per worktree, then merge the earlier phase branch into the later one (conflicts only in 00-decisions / 10-test-catalog — keep both sides).
+- [phase 06] Drift: a typed `db.into(table)` on a `TableInfo<Table, Object?>` fails at runtime (`RawValuesInsertable<Object?>` is not `Insertable<LocalGroup>`) → generic writes use `customInsert`/`customUpdate` with `updates: {table}` so `watch()` streams still fire (`customStatement` does NOT notify streams).
+- [phase 06] Drift tables declared in a `.drift` file avoid uncovered getter lines in coverage; FTS5 needs `sql: {dialect: sqlite, options: {modules: [fts5]}}` in build.yaml; `package:sqlite3` 3.x bundles SQLite (with FTS5), so `NativeDatabase.memory()` works in `flutter test` on Windows.
+- [phase 06] `drift_dev schema generate` output trips `strict_raw_type` → exclude `test/data/local/generated/**` in analysis_options. `drift/drift.dart` clashes with matcher's `isNull`/`isNotNull` in tests.
+- [phase 06] `dart run build_runner build` rewrote unrelated riverpod `*.g.dart` files (generator drift) → `git checkout` them unless the source changed.
+- [phase 06] Dart records compare collection fields by identity: `expect((map, list), ({..}, [..]))` fails even when equal → assert collections separately.

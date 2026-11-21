@@ -41,9 +41,9 @@ Total: 114 test ids.
 | 05 | TC-B2-02 | unit | UPI QR parser | todo |
 | 05 | TC-B2-03 | widget | profile form | todo |
 | 05 | TC-B2-04 | integ | edit profile persists after restart and syncs | todo |
-| 06 | TC-1-02 | sql | create via apply_mutations makes creator owner member | todo |
-| 06 | TC-18-01 | sql | every mutation type writes activity | todo |
-| 06 | TC-27-01..10 | unit | sync engine suite (`04-sync-engine.md` §10) | todo |
+| 06 | TC-1-02 | sql | create via apply_mutations makes creator owner member | pass (CI db, `040_apply_mutations`) |
+| 06 | TC-18-01 | sql | every mutation type writes activity | partial: group + expense ops asserted in `040_apply_mutations`; member/payment/comment activity written but not yet asserted |
+| 06 | TC-27-01..10 | unit | sync engine suite (`04-sync-engine.md` §10) | pass (`test/data/sync/sync_engine_test.dart`) |
 | 07 | TC-1-01 | unit | group form validation | todo |
 | 07 | TC-1-03 | sql | archived group rejects new expenses (`GROUP_ARCHIVED`) | todo |
 | 07 | TC-1-04 | widget | groups grid states | todo |

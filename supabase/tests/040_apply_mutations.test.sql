@@ -1,4 +1,4 @@
--- apply_mutations (04-sync-engine.md §3): group create makes the caller owner, applied / duplicate (TC-27-02) /
+-- apply_mutations (04-sync-engine.md §3): group create makes the caller owner (TC-1-02), applied / duplicate (TC-27-02) /
 -- superseded with both versions in history (TC-27-03) / rejected (TC-27-08, NOT_MEMBER), per-mutation savepoints,
 -- soft delete + restore with activity, clamped future client time (TC-27-04), auth and grants.
 begin;

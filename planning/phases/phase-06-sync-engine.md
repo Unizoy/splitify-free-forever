@@ -7,21 +7,21 @@
 
 ## Tasks
 
-- [ ] T1 Migration 0008: `apply_mutations` (entities: group, member, expense, payment, comment; ops upsert/delete/
+- [x] T1 Migration 0009 (S-040): `apply_mutations` (entities: group, member, expense, payment, comment; ops upsert/delete/
       restore; idempotency; LWW with clamped `client_updated_at`; `record_versions`; `activity`), `pull_changes`
       (cursors, new/lost groups, paging), broadcast trigger to `group:<id>` / `user:<uid>`, realtime policies.
       pgTAP: `040_apply_mutations.test.sql` (applied/duplicate/superseded/rejected, history rows, activity rows),
       `041_pull_changes.test.sql` (cursor, paging, tombstones, lost access).
-- [ ] T2 Drift: tables per `04-sync-engine.md` §2 (+ `expense_parts`, `outbox`, `sync_cursors`, `sync_meta`,
+- [x] T2 Drift: tables per `04-sync-engine.md` §2 (+ `expense_parts`, `outbox`, `sync_cursors`, `sync_meta`,
       `pending_uploads`, FTS table created now, filled in phase 16), DAOs, schema v1 dump + migration test harness.
-- [ ] T3 `RemoteApi` (only place calling RPCs), `SyncEngine` (push → pull loop, backoff, server-time offset, single
-      flight), `MutationQueue`, `PullApplier`, connectivity watcher, Realtime subscriber, `workmanager` callback.
-- [ ] T4 Repositories (read streams + write-with-outbox) for groups, members, expenses, payments, comments; Riverpod
+- [x] T3 `RemoteApi` (only place calling RPCs), `SyncEngine` (push → pull loop, backoff, server-time offset, single
+      flight), `MutationQueue`, `PullApplier`, connectivity watcher, Realtime subscriber, `workmanager` callback. (connectivity + workmanager glue open, S-046)
+- [x] T4 Repositories (read streams + write-with-outbox) for groups, members, expenses, payments, comments; Riverpod
       providers.
-- [ ] T5 Sync status providers + `SyncMarker` wiring + basic "Sync & storage" screen (§9).
-- [ ] T6 Unit suite TC-27-01…10 with `FakeRemoteApi`/`FakeClock`: ordering, idempotent retry, LWW both ways, clock
+- [ ] T5 (open, S-046) Sync status providers + `SyncMarker` wiring + basic "Sync & storage" screen (§9).
+- [x] T6 Unit suite TC-27-01…10 with `FakeRemoteApi`/`FakeClock`: ordering, idempotent retry, LWW both ways, clock
       offset, paging, tombstones, kill mid-page, rejected/poison, 401 handling, lost group access.
-- [ ] T7 Integration (dev project): user A (app) offline-creates a group + expense, reconnects; harness user B
+- [ ] T7 SKIPPED (BLK-001) Integration (dev project): user A (app) offline-creates a group + expense, reconnects; harness user B
       edits the same expense earlier/later → expected winner, both versions in `record_versions`.
 
 ## Tests
