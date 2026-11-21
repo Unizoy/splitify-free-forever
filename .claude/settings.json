@@ -1,0 +1,26 @@
+{
+  "permissions": {
+    "deny": [
+      "Bash(git push --force:*)",
+      "Bash(git push -f:*)",
+      "Bash(git push --force-with-lease:*)",
+      "Bash(git push origin main:*)",
+      "Bash(git push origin master:*)",
+      "Bash(git reset --hard:*)",
+      "Bash(git clean -fdx:*)",
+      "PowerShell(git push --force:*)",
+      "PowerShell(git push -f:*)",
+      "PowerShell(git push --force-with-lease:*)",
+      "PowerShell(git push origin main:*)",
+      "PowerShell(git push origin master:*)",
+      "PowerShell(git reset --hard:*)",
+      "PowerShell(git clean -fdx:*)",
+      "Read(./secrets/key.properties)",
+      "Read(**/*.jks)",
+      "Read(**/*.keystore)",
+      "Read(**/*service-account*.json)",
+      "Read(**/*firebase-adminsdk*.json)",
+      "Edit(./docs/PLAN.md)"
+    ]
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "permissions": {
+    "defaultMode": "bypassPermissions"
+  },
+  "skipDangerousModePermissionPrompt": true,
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash|PowerShell",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell.exe",
+            "args": ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "C:/Users/mohit/OneDrive/Desktop/theCode/splitify-free-forever/.claude/hooks/guard.ps1"],
+            "timeout": 30
+          }
+        ]
+      },
+      {
+        "matcher": "mcp__.*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell.exe",
+            "args": ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "C:/Users/mohit/OneDrive/Desktop/theCode/splitify-free-forever/.claude/hooks/guard-mcp.ps1"],
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "startup|resume|clear|compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell.exe",
+            "args": ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "C:/Users/mohit/OneDrive/Desktop/theCode/splitify-free-forever/.claude/hooks/session-start.ps1"],
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell.exe",
+            "args": ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "C:/Users/mohit/OneDrive/Desktop/theCode/splitify-free-forever/.claude/hooks/stop-check.ps1"],
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  }
+}
