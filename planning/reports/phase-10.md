@@ -1,6 +1,6 @@
 # Phase 10 report — Multiple payers, IOU, receipt photos (#10, #11, #29)
 
-- Date: 2026-11-22 · Branch: `phase/10-payers-iou-receipts` · Base: `origin/main` (phases 01–08); in-progress `origin/phase/09-balances-payments` merged early (c2f188d), then `origin/main` with phase 09 final (e98f848)
+- Date: 2026-11-22 · Branch: `phase/10-payers-iou-receipts` · Base: `origin/main` (phases 01–08); in-progress `origin/phase/09-balances-payments` merged early (c2f188d), then `origin/main` with phase 09 final (e98f848) and phase 12 (f365779)
 - Commits: `2555fae..HEAD` · Status: done
 
 ## Summary
