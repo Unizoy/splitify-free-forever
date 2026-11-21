@@ -216,7 +216,9 @@ class TransferRow extends StatelessWidget {
         : t.to == b.meId
         ? MoneyTone.owed
         : MoneyTone.settled;
-    final title = l.balPairOwes(personName(l, b, t.from), personName(l, b, t.to, start: false));
+    final title = t.from == b.meId
+        ? l.balYouOwePerson(personName(l, b, t.to, start: false))
+        : l.balPairOwes(personName(l, b, t.from), personName(l, b, t.to, start: false));
     final amount = listMoney(t.amount, currency);
     final large = MediaQuery.textScalerOf(context).scale(1) > 1.4;
     void open() {
@@ -289,18 +291,18 @@ class _PairAvatars extends StatelessWidget {
     final b = balances.member(to);
     return ExcludeSemantics(
       child: SizedBox(
-        width: 68,
+        width: 74,
         height: 40,
         child: Stack(
           clipBehavior: Clip.none,
           children: [
             Avatar(name: balances.nameOf(from), seed: from, tint: a?.tint),
             Positioned(
-              left: 28,
+              left: 34,
               child: Avatar(name: balances.nameOf(to), seed: to, tint: b?.tint, ring: true),
             ),
             Positioned(
-              left: 22,
+              left: 27,
               top: 24,
               child: Container(
                 width: 18,
