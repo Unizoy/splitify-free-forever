@@ -10,6 +10,8 @@ import 'package:splitify/features/history/application/deleted_items_providers.da
 import 'package:splitify/features/history/application/history_providers.dart';
 import 'package:splitify/features/history/presentation/deleted_items_screen.dart';
 import 'package:splitify/features/history/presentation/history_screen.dart';
+import 'package:splitify/features/payments/application/payment_providers.dart';
+import 'package:splitify/features/payments/presentation/payment_detail_screen.dart';
 
 import '../features/expenses/expense_fixtures.dart';
 import '../features/history/presentation/history_fixtures.dart';
@@ -82,6 +84,19 @@ List<_Case> _cases() => [
           .overrideWithValue(AsyncData(sampleThread())),
     ],
     1500,
+  ),
+  (
+    'payment_detail_comments',
+    const PaymentDetailScreen(paymentId: 'p1'),
+    [
+      paymentViewProvider('p1').overrideWithValue(
+        AsyncData(PaymentView(payment: samplePayment(), names: memberNames, meId: me)),
+      ),
+      expenseGroupProvider(gid).overrideWith((ref) => Stream.value(sampleGroup())),
+      commentThreadProvider((groupId: gid, targetType: 'payment', targetId: 'p1'))
+          .overrideWithValue(AsyncData(sampleThread())),
+    ],
+    1300,
   ),
 ];
 

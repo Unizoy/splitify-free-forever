@@ -63,7 +63,7 @@ void main() {
     expect(find.text('₹2,400.00'), findsOneWidget);
     expect(find.text('₹600.00'), findsOneWidget);
     expect(find.text('Deleted by Asha Rao · 20 Nov 2026'), findsOneWidget);
-    expect(find.text('Deleted by You · 21 Nov 2026'), findsOneWidget);
+    expect(find.text('Deleted by you · 21 Nov 2026'), findsOneWidget);
     // The payment was deleted last, so it comes first.
     expect(
       t.getTopLeft(find.byKey(const Key('restore-p1'))).dy,
