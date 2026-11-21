@@ -3,12 +3,14 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:splitify/app/router.dart';
 import 'package:splitify/core/config/env.dart';
+import 'package:splitify/features/account/application/theme_mode_controller.dart';
 import 'package:splitify/l10n/app_localizations.dart';
+import 'package:splitify/ui/theme/theme.dart';
 
 /// Build settings, set once in bootstrap.
 final envProvider = Provider<Env>((ref) => throw UnimplementedError());
 
-/// Root widget. Temporary theme until phase 02.
+/// Root widget: router, localisation and the light/dark themes (B3).
 class App extends ConsumerWidget {
   const App({super.key});
 
@@ -24,8 +26,10 @@ class App extends ConsumerWidget {
         GlobalCupertinoLocalizations.delegate,
       ],
       supportedLocales: AppLocalizations.supportedLocales,
-      theme: ThemeData(colorSchemeSeed: Colors.teal),
-      darkTheme: ThemeData(colorSchemeSeed: Colors.teal, brightness: Brightness.dark),
+      theme: AppTheme.light(),
+      darkTheme: AppTheme.dark(),
+      themeMode: ref.watch(themeModeControllerProvider),
+      debugShowCheckedModeBanner: false,
     );
   }
 }
@@ -39,21 +43,20 @@ class ConfigErrorApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      theme: AppTheme.light(),
+      darkTheme: AppTheme.dark(),
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       home: Builder(
         builder: (context) => Scaffold(
           body: SafeArea(
             child: Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(AppSpacing.screen),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    AppLocalizations.of(context).envErrorTitle,
-                    style: Theme.of(context).textTheme.headlineSmall,
-                  ),
-                  const SizedBox(height: 8),
+                  Text(AppLocalizations.of(context).envErrorTitle, style: context.text.headline),
+                  const SizedBox(height: AppSpacing.s2),
                   Text(message),
                 ],
               ),
