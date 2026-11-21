@@ -11,6 +11,20 @@ Reference images (UI inspiration only, contain personal data, never copy into th
 
 ## 1. Capture
 
+Fast path (phase 02+): build a **release x64** APK (a debug APK started without an attached `flutter run` does
+not render on this emulator), install it, run the capture script:
+```powershell
+. .\tool\env.ps1
+flutter build apk --release --target-platform android-x64 --dart-define-from-file=secrets/env.dev.json
+& "$env:LOCALAPPDATA\Android\Sdk\platform-tools\adb.exe" install -r build\app\outputs\flutter-apk\app-release.apk
+powershell -File .claude\skills\ui-review\scripts\capture_shell.ps1 -Phase NN   # light, dark, text 2.0
+```
+`scripts/ui.ps1` gives `Invoke-TapLabel '<accessibility label>'` (uiautomator, no hard-coded coordinates),
+`Save-Shot`, `Set-Dark`, `Set-FontScale`, `Invoke-Scroll`, `Start-App`; extend `capture_shell.ps1` with new
+screens. Debug-only screens (`/debug/gallery`) are not in release builds: review them via real-font goldens
+(`$env:PLATFORM_GOLDENS='1'; flutter test --update-goldens test/goldens/gallery_golden_test.dart`, then open
+`test/goldens/goldens/windows/*.png`, which is git-ignored).
+
 For every screen the phase touched, using `emulator-e2e` §6, capture into
 `C:\Users\mohit\OneDrive\Desktop\theCode\splitify-artifacts\phase-NN\`:
 `<screen>-light.png`, `<screen>-dark.png`, `<screen>-text200.png`, plus empty, loading, error and offline states

@@ -43,3 +43,15 @@ _Add entries here._
 - [phase 01] First `flutter test integration_test` run on a fresh emulator session failed once at "loading" (install/VM service), reruns passed twice → re-run once before debugging.
 - [phase 01] Screenshot: `adb shell screencap -p /sdcard/x.png; adb pull /sdcard/x.png <dest>`.
 - [phase 01] CI: first run failed in `flutter build apk` (Gradle could not resolve kotlin-gradle-plugin 2.3.20 from plugins.gradle.org); the re-run on the next push passed (green, ~15 min cold) — transient plugin-portal issue.
+- [phase 02] Impeller (GLES) on the emulator: ~30–40k `drawRawPoints` per frame (cover grain) stalled the raster thread → black screen in debug, stuck splash in release, no errors in logcat → paint grain from a cached tile (`Picture.toImageSync` + repeating `ImageShader`), never thousands of primitives per frame (S-009). Bisect such hangs with a `--dart-define` kill switch + release build.
+- [phase 02] A debug APK started by `adb am start` / `flutter run --no-resident` / after the tool disconnects renders black or freezes here → for screenshots use a release x64 build (`flutter build apk --release --target-platform android-x64`), see `ui-review` skill scripts.
+- [phase 02] `flutter run` in a background shell exits on stdin EOF ("Lost connection") → don't rely on resident runs from tool shells.
+- [phase 02] `phosphor_flutter` 2.1.0 fails to compile on Flutter 3.50 (`IconData` is final, `@RecordUse`); the analyzer does NOT catch it (package code), only `flutter build` → vendor the Phosphor TTFs and declare `const IconData` (S-008).
+- [phase 02] `flutter_native_splash:create` rewrites `values*/styles.xml` with platform (non-AppCompat) parents in `-v31` and `windowDrawsSystemBarBackgrounds=false` → re-apply AppCompat parents and drop those lines after regenerating (S-011).
+- [phase 02] `flutter_launcher_icons` needs PNG input → render PNGs from the painter: `flutter test tool/brand/render_brand_test.dart`, then `dart run flutter_launcher_icons` and `dart run flutter_native_splash:create`.
+- [phase 02] Release build failed once with `GeneratedPluginRegistrant ... package dev.flutter.plugins.integration_test does not exist` while a sub-agent ran `flutter test` in parallel → retry; avoid parallel flutter commands in one checkout.
+- [phase 02] Writing regexes with `\b` through `python - <<'EOF'` inside a Python non-raw string produced literal backspace bytes in `tool/guards.dart` → edit Dart regexes with the Write/Edit tools, check with `grep -c $'\x08'`.
+- [phase 02] The guard hook blocks `git clean -d/-x`; to set files aside use `mv` into the scratchpad.
+- [phase 02] alchemist: `CoverCache.warm` completes on the real event loop → golden tests clear the cache in `setUp` and pump inside `runAsync`; repeating animations (DotsPulse, sheen, spin, loader) need fixed pumps, never `pumpAndSettle`.
+- [phase 02] `OverflowBoxFit` is not exported by `material.dart` → `import 'package:flutter/rendering.dart' show OverflowBoxFit;`.
+- [phase 02] UI review tool: `.claude/skills/ui-review/scripts/capture_shell.ps1` (tap by accessibility label via uiautomator; light/dark/200 % passes).

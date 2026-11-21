@@ -19,7 +19,9 @@ Future<void> testExecutable(FutureOr<void> Function() testMain) async {
             HostPlatform.current().isWindows && Platform.environment['PLATFORM_GOLDENS'] == '1',
         platforms: {HostPlatform.windows},
       ),
-      ciGoldensConfig: const CiGoldensConfig(),
+      // Linux CI and Windows anti-alias a few edge pixels differently (seen: 0.01 %);
+      // allow up to 0.1 % of pixels to differ (S-007).
+      ciGoldensConfig: const CiGoldensConfig(diffThreshold: 0.001),
     ),
     run: testMain,
   );

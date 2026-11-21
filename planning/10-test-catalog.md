@@ -8,9 +8,9 @@ Total: 114 test ids.
 
 | Phase | ID | Type | Description | Status |
 | --- | --- | --- | --- | --- |
-| 02 | TC-B3-01 | widget | switching updates theme | todo |
-| 02 | TC-B3-02 | unit | persisted value restored | todo |
-| 02 | TC-B3-03 | golden | every | todo |
+| 02 | TC-B3-01 | widget | switching updates theme | pass |
+| 02 | TC-B3-02 | unit | persisted value restored | pass |
+| 02 | TC-B3-03 | golden | every | pass |
 | 03 | TC-10-01 | unit | payer validation vectors | todo |
 | 03 | TC-10-03 | unit | pairs per | todo |
 | 03 | TC-11-01 | unit | IOU produces correct pair | todo |
@@ -47,7 +47,7 @@ Total: 114 test ids.
 | 07 | TC-1-01 | unit | group form validation | todo |
 | 07 | TC-1-03 | sql | archived group rejects new expenses (`GROUP_ARCHIVED`) | todo |
 | 07 | TC-1-04 | widget | groups grid states | todo |
-| 07 | TC-1-05 | golden | group card variants | todo |
+| 07 | TC-1-05 | golden | group card variants | pass (phase 02, fake data; phase 07 re-checks with real data) |
 | 07 | TC-1-06 | integ | create group offline then | todo |
 | 07 | TC-1-07 | sql | only creator can delete; restore works. | todo |
 | 07 | TC-3-01 | unit | code format/normalisation (lowercase, dashes, O/0) | todo |
