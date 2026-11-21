@@ -59,6 +59,20 @@ begin
 end;
 $$;
 
+-- Per-member values are bounded by +-max_amount so sums cannot overflow (matches the Dart engine).
+create or replace function money.check_magnitudes(vals bigint[])
+returns void
+language plpgsql
+immutable
+set search_path = ''
+as $$
+begin
+  if exists (select 1 from unnest(vals) as x where x > money.max_amount() or x < -money.max_amount()) then
+    perform money.fail('AMOUNT_TOO_LARGE');
+  end if;
+end;
+$$;
+
 -- members[i] -> amounts[i] as a jsonb object.
 create or replace function money.zip(members text[], amounts bigint[])
 returns jsonb
@@ -195,6 +209,9 @@ begin
   if n = 0 then
     perform money.fail('NO_PARTICIPANTS');
   end if;
+  if (select count(distinct x) from unnest(members) as x) <> n then
+    perform money.fail('DUPLICATE_MEMBER');
+  end if;
   vals := coalesce(vals, '{}'::jsonb);
   v := array(select coalesce((vals ->> m.k)::bigint, 0) from unnest(members) with ordinality as m(k, i) order by m.i);
   s := (select coalesce(sum(x), 0) from unnest(v) as x);
@@ -203,6 +220,7 @@ begin
     when 'equal' then
       return money.allocate_equal(total, members);
     when 'exact' then
+      perform money.check_magnitudes(v);
       if exists (select 1 from unnest(v) as x where x < 0) then
         perform money.fail('NEGATIVE_SHARE');
       end if;
@@ -219,6 +237,7 @@ begin
       end if;
       return money.allocate_ratio(total, members, v);
     when 'shares' then
+      perform money.check_magnitudes(v);
       if exists (select 1 from unnest(v) as x where x < 0) then
         perform money.fail('NEGATIVE_SHARE');
       end if;
@@ -227,6 +246,7 @@ begin
       end if;
       return money.allocate_ratio(total, members, v);
     when 'adjust' then
+      perform money.check_magnitudes(v);
       rest := total - s;
       if rest < 0 then
         perform money.fail('ADJUSTMENTS_EXCEED_TOTAL', jsonb_build_object('over', -rest));
@@ -258,6 +278,7 @@ begin
      or exists (select 1 from jsonb_each_text(paid) as e where e.value::bigint < 0) then
     perform money.fail('INVALID_PAYERS');
   end if;
+  perform money.check_magnitudes(array(select e.value::bigint from jsonb_each_text(paid) as e));
   s := (select sum(e.value::bigint) from jsonb_each_text(paid) as e);
   if total - s <> 0 then
     perform money.fail('PAYERS_SUM_MISMATCH', jsonb_build_object('remaining', total - s));
@@ -471,7 +492,8 @@ parallel safe
 set search_path = ''
 as $$ select (sign(v) * floor(abs(v) + 0.5))::bigint $$;
 
--- rate = major units of `to_currency` per one major unit of `from_currency` (decimal, > 0).
+-- rate = major units of `to_currency` per one major unit of `from_currency` (decimal, > 0, at most 10 decimal
+-- places not counting trailing zeros, i.e. fits numeric(24,10)).
 create or replace function money.convert(amount bigint, from_currency text, to_currency text, rate numeric)
 returns bigint
 language plpgsql
@@ -479,7 +501,7 @@ immutable
 set search_path = ''
 as $$
 begin
-  if rate is null or rate <= 0 then
+  if rate is null or rate <= 0 or min_scale(rate) > 10 then
     perform money.fail('INVALID_RATE');
   end if;
   return money.round_half_away(

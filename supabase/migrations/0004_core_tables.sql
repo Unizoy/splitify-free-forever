@@ -8,7 +8,9 @@ create table public.profiles (
   id uuid primary key references auth.users (id) on delete cascade,
   display_name text not null check (char_length(btrim(display_name)) between 1 and 50),
   avatar_path text,
-  upi_id text check (upi_id ~ '^[a-zA-Z0-9.\-_]{2,256}@[a-zA-Z][a-zA-Z0-9.\-]{1,63}$'),
+  -- 03 §2 regex ^[a-zA-Z0-9.\-_]{2,256}@[a-zA-Z][a-zA-Z0-9.\-]{1,63}$, written {2}{0,254} because Postgres
+  -- regex bounds stop at 255.
+  upi_id text check (upi_id ~ '^[a-zA-Z0-9.\-_]{2}[a-zA-Z0-9.\-_]{0,254}@[a-zA-Z][a-zA-Z0-9.\-]{1,63}$'),
   default_currency char(3) not null default 'INR' references public.currencies (code),
   created_at timestamptz not null default now(),
   updated_at timestamptz,
