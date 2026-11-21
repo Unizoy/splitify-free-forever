@@ -170,6 +170,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get archivedGroups => 'Archived groups';
 
   @override
+  String get archivedLabel => 'Archived';
+
+  @override
   String get groupsOffline => 'You\'re offline. Changes sync when you\'re back.';
 
   @override

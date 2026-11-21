@@ -50,16 +50,17 @@ Total: 116 test ids.
 | 07 | TC-1-03 | sql | archived group rejects new expenses (`GROUP_ARCHIVED`) | pass (sql 050) |
 | 07 | TC-1-04 | widget | groups grid states | pass (widget `groups_widget_test.dart`: empty, loading, list, archived, offline) |
 | 07 | TC-1-05 | golden | group card variants | pass (phase 02 + phase 07 `groups_golden_test.dart` groups list light/dark, text 1.0/2.0) |
-| 07 | TC-1-06 | integ | create group offline then | todo |
+| 07 | TC-1-06 | integ | create group offline then sync | pass (2026-11-22, emulator + dev, `integration_test/groups_test.dart`) |
 | 07 | TC-1-07 | sql | only creator can delete; restore works. | pass (sql 050) |
 | 07 | TC-3-01 | unit | code format/normalisation (lowercase, dashes, O/0) | pass (unit + sql 050) |
 | 07 | TC-3-02 | sql | preview/join/rotate/rate-limit | pass (sql 050 (dev)) |
 | 07 | TC-3-03 | widget | join screen states | pass (widget `join_screen_test.dart`) |
-| 07 | TC-3-04 | integ | scan QR (inject image / deep link) → join | todo |
+| 07 | TC-3-04 | integ | scan QR (inject image / deep link) → join | pass (2026-11-22, injected scanner + `/join?code=` route + `authRedirect` mapping) |
+| 07 | TC-3-05 | e2e | user B joins A's group by code via harness, A sees B | pass (2026-11-22, harness B claims; A's members list shows "Claimed this spot", `member_claimed` activity row) |
 | 07 | TC-4-01 | sql | claim/unlink rules | pass (sql 050) |
 | 07 | TC-4-02 | sql | cannot claim a linked member | pass (sql 050) |
 | 07 | TC-4-03 | widget | claim picker | pass (widget `join_screen_test.dart`) |
-| 07 | TC-4-04 | integ | claimed spot keeps balances. | todo |
+| 07 | TC-4-04 | integ | claimed spot keeps balances | pass (2026-11-22, `group_balances` identical before/after the claim) |
 | 08 | TC-13-01 | widget | form validation | pass (`expense_editor_test.dart`, `expense_editor_controller_test.dart`) |
 | 08 | TC-13-02 | widget | category picker | pass (`expense_editor_test.dart`) |
 | 08 | TC-35-01 | unit | fallback rules | pass (`expense_editor_controller_test.dart`, `default_split_controller_test.dart`) |

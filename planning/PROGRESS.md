@@ -14,7 +14,7 @@ Current phase: _none in progress_ (05 + 06 leftovers finished 2026-11-22 on `pha
 | 04 | [Backend foundation](phases/phase-04-backend-foundation.md) | 03 | 00 (Supabase + MCP) | done | phase/04-backend-foundation | 2026-11-21 | 1a69ee8 | [report](reports/phase-04.md) |
 | 05 | [Auth, profile, account](phases/phase-05-auth-profile.md) | 02, 04 | 00 (Google OAuth, Resend) | done | phase/05-auth-profile (follow-up on phase/06-sync-engine) | 2026-11-22 | 77c9f6a | [report](reports/phase-05.md) |
 | 06 | [Local database and sync engine](phases/phase-06-sync-engine.md) | 04, 05 | 00 | done | phase/06-sync-engine | 2026-11-22 | 77c9f6a | [report](reports/phase-06.md) |
-| 07 | [Groups, members, invites](phases/phase-07-groups-members.md) | 06 | 00 | in-progress (T1, T8 + data layer done; UI T2–T7 open) | phase/07-groups-members | | | |
+| 07 | [Groups, members, invites](phases/phase-07-groups-members.md) | 06 | 00 | done | phase/07-groups-members | 2026-11-22 | see git log | [report](reports/phase-07.md) |
 | 08 | [Expenses and split types](phases/phase-08-expenses-splits.md) | 07 | 00 | done (phase 07 merged in; G5 device PASS) | phase/08-expenses-splits | 2026-11-22 | 7045ea3 (+ docs commit) | [report](reports/phase-08.md) |
 | 09 | [Balances, payments, activity, totals](phases/phase-09-balances-payments.md) | 08 | 00 | todo | phase/09-balances-payments | | | |
 | 10 | [Multiple payers, IOU, receipt photos](phases/phase-10-payers-iou-receipts.md) | 09 | 00 | todo | phase/10-payers-iou-receipts | | | |

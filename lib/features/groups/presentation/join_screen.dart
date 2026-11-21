@@ -159,6 +159,7 @@ class _JoinScreenState extends ConsumerState<JoinScreen> {
     final l = AppLocalizations.of(context);
     final preview = _preview;
     return Scaffold(
+      bottomNavigationBar: preview == null ? null : _submitBar(context, preview),
       appBar: AppBar(
         leading: IconButton(
           tooltip: l.back,
@@ -260,11 +261,28 @@ class _JoinScreenState extends ConsumerState<JoinScreen> {
     ];
   }
 
+  /// The CTA of the preview step, kept in a sticky bar so it is always on screen.
+  Widget _submitBar(BuildContext context, JoinPreview p) {
+    final l = AppLocalizations.of(context);
+    final claimPick = _newHere == false && p.unclaimed.isNotEmpty ? p.unclaimed[_carousel] : null;
+    final ready = p.alreadyMember || _newHere != null;
+    return StickyActionBar(
+      primary: PillButton(
+        key: const Key('join-submit'),
+        label: p.alreadyMember
+            ? l.openGroup
+            : claimPick != null
+            ? l.joinAsCta(claimPick.name)
+            : l.joinGroupShort,
+        loading: _busy,
+        onPressed: ready ? () => unawaited(_join()) : null,
+      ),
+    );
+  }
+
   List<Widget> _previewStep(BuildContext context, JoinPreview p) {
     final l = AppLocalizations.of(context);
     final c = context.colors;
-    final claimPick = _newHere == false && p.unclaimed.isNotEmpty ? p.unclaimed[_carousel] : null;
-    final ready = p.alreadyMember || _newHere != null;
     return [
       Text(
         l.groupMembersCount(p.memberCount),
@@ -332,19 +350,8 @@ class _JoinScreenState extends ConsumerState<JoinScreen> {
           style: context.text.body.copyWith(color: c.oweText),
         ),
       ],
-      const SizedBox(height: AppSpacing.s8),
-      PillButton(
-        key: const Key('join-submit'),
-        label: p.alreadyMember
-            ? l.openGroup
-            : claimPick != null
-            ? l.joinAsCta(claimPick.name)
-            : l.joinGroupShort,
-        loading: _busy,
-        onPressed: ready ? () => unawaited(_join()) : null,
-      ),
       if (widget.code == null) ...[
-        const SizedBox(height: AppSpacing.s2),
+        const SizedBox(height: AppSpacing.s6),
         PillButton(
           key: const Key('join-other-code'),
           label: l.joinOtherCode,

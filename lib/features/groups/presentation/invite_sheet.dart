@@ -110,12 +110,18 @@ class _InviteSheetBodyState extends ConsumerState<InviteSheetBody> {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            // Balances the copy button so the code sits in the middle.
+            const SizedBox(width: AppSpacing.minTouch + AppSpacing.s1),
+            // One line always: large text shrinks the code to fit instead of breaking it.
             Flexible(
-              child: Text(
-                code,
-                key: const Key('invite-code'),
-                textAlign: TextAlign.center,
-                style: context.text.amountHero.copyWith(letterSpacing: 3),
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  code,
+                  key: const Key('invite-code'),
+                  maxLines: 1,
+                  style: context.text.amountHero.copyWith(letterSpacing: 2),
+                ),
               ),
             ),
             const SizedBox(width: AppSpacing.s1),

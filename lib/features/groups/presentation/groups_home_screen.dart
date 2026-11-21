@@ -239,7 +239,7 @@ class _GroupGrid extends StatelessWidget {
             family: coverFamilyFor(g.type),
             name: g.name,
             // Balances arrive in phase 09; until then every group reads as settled.
-            statusLabel: g.archivedAt == null ? l.settled : l.archivedGroups,
+            statusLabel: g.archivedAt == null ? l.settled : l.archivedLabel,
             unsynced: g.syncState != SyncState.synced,
             onTap: () => context.push('/groups/${g.id}'),
           ),
