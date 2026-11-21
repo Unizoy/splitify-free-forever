@@ -113,3 +113,4 @@ _Add entries here._
 - [phase 10] `path_provider` in unit tests throws a FlutterError ("Binding has not yet been initialized"), not an Exception → sign-out paths that touch files catch broadly (or tests override `mediaFilesProvider`).
 - [phase 10] Integration tests: an app sheet (`showAppSheet`, motion.slow) needs ~1.5 s of pumping before its content can be tapped.
 - [phase 10] Merging an in-progress sibling phase branch: additive conflicts (RemoteServices fields, overrides, PROGRESS rows) resolve as unions; its CI goldens may be stale → regenerate the failing goldens after checking the diffs.
+- [phase 10] Never wrap `LocalWriter.write` in an outer `db.transaction`: its `onWrite` nudge schedules the debounced sync inside the transaction's zone, and when the timer fires Drift throws "A transaction was used after being closed" (only seen on the device e2e) → pass extra work as `write(..., alongside)` so it runs in the writer's own transaction.
