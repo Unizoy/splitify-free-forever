@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:splitify/data/data_providers.dart';
 import 'package:splitify/features/account/presentation/account_settings_sheet.dart';
 import 'package:splitify/features/auth/application/auth_providers.dart';
 import 'package:go_router/go_router.dart';
@@ -90,6 +91,11 @@ class AccountScreen extends ConsumerWidget {
                   caption: l.acrossGroups(0),
                   onTap: () => showComingSoon(context),
                 ),
+                // Rule 3: overall balances come from local rows; say so while some are not on the server.
+                if (ref.watch(anyUnsyncedProvider).value ?? false) ...[
+                  const SizedBox(height: AppSpacing.s3),
+                  const SyncMarker(key: Key('account-sync-marker')),
+                ],
                 const SizedBox(height: AppSpacing.s5),
                 DotMatrixCard(
                   title: l.yourSpending,

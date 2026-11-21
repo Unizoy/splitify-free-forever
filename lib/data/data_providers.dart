@@ -4,6 +4,7 @@ import 'package:splitify/core/time/clock.dart';
 import 'package:splitify/data/local/app_database.dart';
 import 'package:splitify/data/remote/remote_providers.dart';
 import 'package:splitify/data/repositories/repositories.dart';
+import 'package:splitify/data/repositories/sync_repository.dart';
 import 'package:splitify/data/sync/local_writer.dart';
 import 'package:splitify/data/sync/sync_engine.dart';
 
@@ -51,4 +52,29 @@ final paymentsRepositoryProvider = Provider<PaymentsRepository>(
 );
 final commentsRepositoryProvider = Provider<CommentsRepository>(
   (ref) => CommentsRepository(ref.watch(appDatabaseProvider), ref.watch(localWriterProvider)),
+);
+
+/// Sync state and actions ("Sync & storage", markers, sign-out flush).
+final syncRepositoryProvider = Provider<SyncRepository>(
+  (ref) => SyncRepository(ref.watch(syncEngineProvider)),
+);
+
+/// Engine phase, last sync and outbox counts (04 §9).
+final syncStatusProvider = StreamProvider<SyncStatus>(
+  (ref) => ref.watch(syncRepositoryProvider).watchStatus(),
+);
+
+/// Changes the server refused, oldest first.
+final syncIssuesProvider = StreamProvider<List<SyncIssue>>(
+  (ref) => ref.watch(syncRepositoryProvider).watchIssues(),
+);
+
+/// True while anything on this phone is not on the server yet: overall balances show the `SyncMarker`.
+final anyUnsyncedProvider = StreamProvider<bool>(
+  (ref) => ref.watch(syncRepositoryProvider).watchAnyUnsynced(),
+);
+
+/// True while a row of the group is not on the server yet: group cards and balances show the `SyncMarker`.
+final groupUnsyncedProvider = StreamProvider.family<bool, String>(
+  (ref, groupId) => ref.watch(syncRepositoryProvider).watchGroupUnsynced(groupId),
 );

@@ -2,11 +2,13 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:splitify/app/app.dart';
 import 'package:splitify/core/config/env.dart';
 import 'package:splitify/core/config/preferences.dart';
 import 'package:splitify/core/logging/logger.dart';
+import 'package:splitify/data/remote/remote_providers.dart';
 import 'package:splitify/data/remote/supabase_client.dart';
 import 'package:splitify/features/auth/application/auth_providers.dart';
 
@@ -24,21 +26,32 @@ Future<Widget> bootstrap() async {
     final prefs = await SharedPreferences.getInstance();
     final remote = await initRemote(env);
     return ProviderScope(
-      overrides: [
-        envProvider.overrideWithValue(env),
-        sharedPreferencesProvider.overrideWithValue(prefs),
-        authRepositoryProvider.overrideWithValue(remote.auth),
-        profileRemoteProvider.overrideWithValue(remote.profiles),
-        googleConfiguredProvider.overrideWithValue(env.hasGoogle),
-        devLoginProvider.overrideWithValue(env.devLoginAvailable(releaseMode: kReleaseMode)),
-        e2ePasswordProvider.overrideWithValue(kReleaseMode ? '' : env.e2ePassword),
-      ],
+      overrides: appOverrides(env: env, prefs: prefs, remote: remote),
       child: const App(),
     );
   } on EnvException catch (e) {
     return ConfigErrorApp(message: e.message);
   }
 }
+
+/// Provider overrides of a running app (bootstrap and the integration tests). [devLogin] defaults to the
+/// build setting (debug builds only, TC-B1-08).
+List<Override> appOverrides({
+  required Env env,
+  required SharedPreferences prefs,
+  required RemoteServices remote,
+  bool? devLogin,
+}) => [
+  envProvider.overrideWithValue(env),
+  sharedPreferencesProvider.overrideWithValue(prefs),
+  authRepositoryProvider.overrideWithValue(remote.auth),
+  profileRemoteProvider.overrideWithValue(remote.profiles),
+  remoteApiProvider.overrideWithValue(remote.api),
+  groupsRemoteProvider.overrideWithValue(remote.groups),
+  googleConfiguredProvider.overrideWithValue(env.hasGoogle),
+  devLoginProvider.overrideWithValue(devLogin ?? env.devLoginAvailable(releaseMode: kReleaseMode)),
+  e2ePasswordProvider.overrideWithValue(kReleaseMode ? '' : env.e2ePassword),
+];
 
 bool _licencesAdded = false;
 

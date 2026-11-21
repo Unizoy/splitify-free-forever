@@ -863,4 +863,177 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get deleteAccountFailed =>
       'Could not delete your account. Check your connection and try again.';
+
+  @override
+  String get syncStorage => 'Sync & storage';
+
+  @override
+  String get syncStorageHint => 'Changes are saved on this phone first, then sent to your groups.';
+
+  @override
+  String get syncStateSynced => 'Everything is synced';
+
+  @override
+  String syncStateWaiting(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count changes waiting to sync',
+      one: '1 change waiting to sync',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get syncStateOffline => 'You are offline';
+
+  @override
+  String get syncStateOfflineHint =>
+      'Changes stay on this phone and sync when you are back online.';
+
+  @override
+  String syncStateFailed(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count changes need attention',
+      one: '1 change needs attention',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get syncStateError => 'Sync did not finish. It tries again soon.';
+
+  @override
+  String get syncStateSignedOut => 'Sign in again to sync';
+
+  @override
+  String lastSyncLine(String when) {
+    return 'Last sync $when';
+  }
+
+  @override
+  String get lastSyncNever => 'never';
+
+  @override
+  String get lastSyncJustNow => 'just now';
+
+  @override
+  String lastSyncMinutes(int minutes) {
+    return '$minutes min ago';
+  }
+
+  @override
+  String lastSyncHours(int hours) {
+    String _temp0 = intl.Intl.pluralLogic(
+      hours,
+      locale: localeName,
+      other: '$hours hours ago',
+      one: '1 hour ago',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String lastSyncOn(String date) {
+    return 'on $date';
+  }
+
+  @override
+  String get syncWaitingLabel => 'Waiting';
+
+  @override
+  String get syncFailedLabel => 'Need attention';
+
+  @override
+  String get syncNow => 'Sync now';
+
+  @override
+  String get syncIssuesTitle => 'Needs attention';
+
+  @override
+  String syncIssueEntity(String entity) {
+    String _temp0 = intl.Intl.selectLogic(entity, {
+      'group': 'Group',
+      'member': 'Member',
+      'expense': 'Expense',
+      'payment': 'Payment',
+      'comment': 'Comment',
+      'other': 'Change',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String syncIssueOp(String op) {
+    String _temp0 = intl.Intl.selectLogic(op, {
+      'delete': 'Delete',
+      'restore': 'Restore',
+      'other': 'Edit',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String syncIssueTries(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Tried $count times',
+      one: 'Tried once',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get syncErrorNotMember => 'You are no longer in this group.';
+
+  @override
+  String get syncErrorRejected => 'The server did not accept this change.';
+
+  @override
+  String syncErrorCode(String code) {
+    return 'Code $code';
+  }
+
+  @override
+  String get retryLabel => 'Retry';
+
+  @override
+  String get discardLabel => 'Discard';
+
+  @override
+  String get discardTitle => 'Discard this change?';
+
+  @override
+  String get discardBody => 'It is removed from this phone and the copy on the server comes back.';
+
+  @override
+  String get onThisPhone => 'On this phone';
+
+  @override
+  String get exportDebugLog => 'Export debug log';
+
+  @override
+  String get debugLogSubject => 'Splitify debug log';
+
+  @override
+  String get syncRowSynced => 'Synced';
+
+  @override
+  String syncRowWaiting(int count) {
+    return '$count waiting';
+  }
+
+  @override
+  String syncRowProblems(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count problems',
+      one: '1 problem',
+    );
+    return '$_temp0';
+  }
 }

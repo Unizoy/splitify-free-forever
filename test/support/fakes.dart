@@ -1,10 +1,16 @@
 import 'dart:async';
 import 'dart:typed_data';
 
+import 'package:drift/drift.dart' show DatabaseConnection;
+import 'package:drift/native.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:splitify/core/time/clock.dart';
+import 'package:splitify/data/local/app_database.dart';
 import 'package:splitify/data/repositories/auth_repository.dart';
 import 'package:splitify/data/repositories/profile_repository.dart';
+import 'package:splitify/data/repositories/sync_repository.dart';
+import 'package:splitify/data/sync/sync_engine.dart';
+import 'package:splitify/data/sync/sync_types.dart';
 import 'package:splitify/domain/entities/profile.dart';
 import 'package:splitify/features/groups/application/groups_providers.dart';
 
@@ -134,6 +140,79 @@ const sampleProfile = Profile(
   id: '00000000-0000-4000-8000-0000000000a1',
   displayName: 'Asha Rao',
   upiId: 'asha.rao@okaxis',
+);
+
+/// In-memory database for widget tests; streams close synchronously so no timers are left behind.
+AppDatabase testDb() =>
+    AppDatabase(DatabaseConnection(NativeDatabase.memory(), closeStreamsSynchronously: true));
+
+/// Scripted [SyncRepository] for screens: fixed streams, records every action.
+class FakeSyncRepository implements SyncRepository {
+  FakeSyncRepository({
+    this.status = const SyncStatus(phase: SyncPhase.idle),
+    this.issues = const [],
+    this.unsynced = false,
+  });
+
+  SyncStatus status;
+  List<SyncIssue> issues;
+  bool unsynced;
+  final calls = <String>[];
+
+  /// Completes "Sync now"; null = completes at once.
+  Completer<void>? syncGate;
+
+  @override
+  SyncEngine get engine => throw UnimplementedError();
+
+  @override
+  Stream<SyncStatus> watchStatus() => Stream.value(status);
+
+  @override
+  Stream<List<SyncIssue>> watchIssues() => Stream.value(issues);
+
+  @override
+  Stream<bool> watchAnyUnsynced() => Stream.value(unsynced);
+
+  @override
+  Stream<bool> watchGroupUnsynced(String groupId) => Stream.value(unsynced);
+
+  @override
+  Future<void> syncNow() async {
+    calls.add('sync');
+    await syncGate?.future;
+  }
+
+  @override
+  Future<void> retry(int seq) async => calls.add('retry:$seq');
+
+  @override
+  Future<void> discard(int seq) async => calls.add('discard:$seq');
+
+  @override
+  Future<bool> pushBeforeSignOut({Duration timeout = const Duration(seconds: 10)}) async {
+    calls.add('push');
+    return true;
+  }
+
+  @override
+  Future<void> wipeLocal() async => calls.add('wipe');
+}
+
+/// A refused expense edit (screens, goldens).
+SyncIssue sampleIssue({
+  int seq = 7,
+  SyncEntity entity = SyncEntity.expense,
+  String code = 'NOT_MEMBER',
+}) => SyncIssue(
+  seq: seq,
+  entity: entity,
+  op: SyncOp.upsert,
+  recordId: '01900000-0000-7000-8000-00000000e001',
+  groupId: '01900000-0000-7000-8000-000000000001',
+  code: code,
+  attempts: 2,
+  createdAt: DateTime.utc(2026, 11, 21, 9, 30),
 );
 
 /// Groups screens without a database or server: no groups, online, sync does nothing.

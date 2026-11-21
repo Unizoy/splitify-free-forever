@@ -21,3 +21,8 @@
 ## Tests
 
 TC-27-11…13 + performance numbers recorded in the report.
+
+> **Amendment (S-046, 2026-11-22):** phase 06 left the automatic sync triggers unbuilt: connectivity watcher
+> (`connectivity_plus` → `SyncTriggers.online`), app-resume trigger, Realtime `ChangeNudges.watchGroups` for the
+> user's groups, the `workmanager` periodic/one-off task, and sign-out on a second 401 (`SyncEngine.onSignedOut`).
+> Build them here if no earlier phase has. Device tests reach the dev project only with `PIN_HOST_IP` (S-214).

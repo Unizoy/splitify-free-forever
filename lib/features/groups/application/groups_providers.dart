@@ -33,12 +33,6 @@ final StreamProviderFamily<List<LocalMember>, String> groupMembersProvider =
       (ref, id) => ref.watch(membersRepositoryProvider).watchForGroup(id),
     );
 
-/// True while some row of the group is not on the server yet (SyncMarker).
-final StreamProviderFamily<bool, String> groupUnsyncedProvider =
-    StreamProvider.family<bool, String>(
-      (ref, id) => watchGroupUnsynced(ref.watch(appDatabaseProvider), id),
-    );
-
 /// Groups this user deleted (Account → Deleted groups).
 final deletedGroupsProvider = StreamProvider<List<LocalGroup>>((ref) {
   final uid = ref.watch(currentUserIdProvider);
@@ -46,18 +40,20 @@ final deletedGroupsProvider = StreamProvider<List<LocalGroup>>((ref) {
   return ref.watch(groupsRepositoryProvider).watchDeletedBy(uid);
 });
 
-/// Runs one push + pull now: when the Groups tab opens and after online-only group actions. The app-wide
-/// triggers (connectivity, resume, realtime) belong to phase 06 (S-046). Tests override it.
+/// Runs one push + pull now (never throws): when the Groups tab opens and after online-only group actions.
+/// The app-wide triggers (connectivity, resume, realtime) belong to phase 06 (S-046). Tests override it.
 final syncNowProvider = Provider<Future<void> Function()>(
-  (ref) => ref.watch(syncEngineProvider).sync,
+  (ref) => ref.watch(syncRepositoryProvider).syncNow,
 );
 
-/// True while the last sync failed for lack of network (offline banner on the Groups tab).
-final syncOfflineProvider = StreamProvider<bool>((ref) async* {
-  final engine = ref.watch(syncEngineProvider);
-  yield engine.phase == SyncPhase.offline;
-  yield* engine.phases.map((p) => p == SyncPhase.offline);
-});
+/// True while the last sync failed for lack of network (offline note on the Groups tab).
+final syncOfflineProvider = StreamProvider<bool>(
+  (ref) => ref
+      .watch(syncRepositoryProvider)
+      .watchStatus()
+      .map((s) => s.phase == SyncPhase.offline)
+      .distinct(),
+);
 
 /// Whole days left to restore a group deleted at [deletedAt] (30-day window, TC-1-07); -1 = too late.
 int restoreDaysLeft(String deletedAt, DateTime now) {
