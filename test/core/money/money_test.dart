@@ -114,6 +114,34 @@ void main() {
     });
   });
 
+  test('every MoneyError can be built at runtime and keeps its code', () {
+    // Runtime (non-const) construction: some platforms only count constructor lines that run.
+    final n = ['INR'].length;
+    final errors = <MoneyError>[
+      AmountNotPositive(),
+      AmountTooLarge(),
+      NoParticipants(),
+      SumMismatch(n),
+      NegativeShare(),
+      PercentSumMismatch(n),
+      PercentOutOfRange(),
+      NoShares(),
+      AdjustmentsExceedTotal(n),
+      UnknownSplit(),
+      PayersSumMismatch(n),
+      InvalidPayers(),
+      InvalidWeights(),
+      NetsDoNotSumToZero(),
+      InvalidRate(),
+      RateNotFound('X$n'),
+      CurrencyMismatch('INR', 'X$n'),
+      UnknownMember('m$n'),
+      DuplicateMember('m$n'),
+      InvalidPayment('m$n'),
+    ];
+    expect(errors.map((e) => e.code).toSet(), hasLength(errors.length));
+  });
+
   test('Money.zero built at runtime is zero in its currency', () {
     // Runtime (non-const) call so coverage counts the constructor line.
     final currency = ['INR'].first;
