@@ -1058,6 +1058,318 @@ abstract class AppLocalizations {
   /// **'People you share a group with show up here.'**
   String get emptyFriendsBody;
 
+  /// No description provided for @friendsSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Friends'**
+  String get friendsSection;
+
+  /// No description provided for @friendsSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search friends'**
+  String get friendsSearchHint;
+
+  /// No description provided for @addFriendExpense.
+  ///
+  /// In en, this message translates to:
+  /// **'Add friend expense'**
+  String get addFriendExpense;
+
+  /// No description provided for @friendsNoMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'No one called “{query}”'**
+  String friendsNoMatch(String query);
+
+  /// No description provided for @friendOwesYou.
+  ///
+  /// In en, this message translates to:
+  /// **'owes you'**
+  String get friendOwesYou;
+
+  /// No description provided for @friendYouOwe.
+  ///
+  /// In en, this message translates to:
+  /// **'you owe'**
+  String get friendYouOwe;
+
+  /// No description provided for @friendDirectOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Friend expenses'**
+  String get friendDirectOnly;
+
+  /// No description provided for @friendGroupsMore.
+  ///
+  /// In en, this message translates to:
+  /// **'{names} +{count}'**
+  String friendGroupsMore(String names, int count);
+
+  /// No description provided for @friendPillOwed.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} owes you {amount}'**
+  String friendPillOwed(String name, String amount);
+
+  /// No description provided for @friendPillOwe.
+  ///
+  /// In en, this message translates to:
+  /// **'You owe {name} {amount}'**
+  String friendPillOwe(String name, String amount);
+
+  /// No description provided for @friendByGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'By group'**
+  String get friendByGroup;
+
+  /// No description provided for @friendSharedItems.
+  ///
+  /// In en, this message translates to:
+  /// **'Shared expenses'**
+  String get friendSharedItems;
+
+  /// No description provided for @friendNoItemsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing shared yet'**
+  String get friendNoItemsTitle;
+
+  /// No description provided for @friendNoItemsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Add an expense with {name} to get started.'**
+  String friendNoItemsBody(String name);
+
+  /// No description provided for @friendDirectGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Just you two'**
+  String get friendDirectGroup;
+
+  /// No description provided for @friendItemCaption.
+  ///
+  /// In en, this message translates to:
+  /// **'{group} · {date}'**
+  String friendItemCaption(String group, String date);
+
+  /// No description provided for @friendNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'This friend isn\'t on this phone'**
+  String get friendNotFound;
+
+  /// No description provided for @friendSettledSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'You and {name} are settled up'**
+  String friendSettledSnack(String name);
+
+  /// No description provided for @friendSettleTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Settle up with {name}'**
+  String friendSettleTitle(String name);
+
+  /// No description provided for @friendInvite.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite {name} to claim their spot'**
+  String friendInvite(String name);
+
+  /// No description provided for @friendNeedsInternet.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect to the internet once to start sharing with {name}. After that it works offline.'**
+  String friendNeedsInternet(String name);
+
+  /// No description provided for @friendStartFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t start an expense with {name}. Try again.'**
+  String friendStartFailed(String name);
+
+  /// No description provided for @friendGroupSettled.
+  ///
+  /// In en, this message translates to:
+  /// **'settled up'**
+  String get friendGroupSettled;
+
+  /// No description provided for @addFriendWho.
+  ///
+  /// In en, this message translates to:
+  /// **'Who with?'**
+  String get addFriendWho;
+
+  /// No description provided for @addFriendNew.
+  ///
+  /// In en, this message translates to:
+  /// **'Someone new'**
+  String get addFriendNew;
+
+  /// No description provided for @addFriendNewHint.
+  ///
+  /// In en, this message translates to:
+  /// **'They don\'t need the app. Invite them later to claim their spot.'**
+  String get addFriendNewHint;
+
+  /// No description provided for @addFriendNoFriends.
+  ///
+  /// In en, this message translates to:
+  /// **'No friends yet. Add someone new below.'**
+  String get addFriendNoFriends;
+
+  /// No description provided for @simplifyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Simplify debts'**
+  String get simplifyTitle;
+
+  /// No description provided for @simplifyHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Fewer payments, same totals. Someone may pay a person they didn\'t share an expense with.'**
+  String get simplifyHelp;
+
+  /// No description provided for @simplifyOnDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Simplify debts is on'**
+  String get simplifyOnDone;
+
+  /// No description provided for @simplifyOffDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Simplify debts is off'**
+  String get simplifyOffDone;
+
+  /// No description provided for @actSimplifyOn.
+  ///
+  /// In en, this message translates to:
+  /// **'{actor} turned on simplify debts'**
+  String actSimplifyOn(String actor);
+
+  /// No description provided for @actSimplifyOff.
+  ///
+  /// In en, this message translates to:
+  /// **'{actor} turned off simplify debts'**
+  String actSimplifyOff(String actor);
+
+  /// No description provided for @actDefaultSplitChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'{actor} changed the default split'**
+  String actDefaultSplitChanged(String actor);
+
+  /// No description provided for @upiPay.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay {amount} via UPI'**
+  String upiPay(String amount);
+
+  /// No description provided for @upiOtherWays.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay from another app'**
+  String get upiOtherWays;
+
+  /// No description provided for @upiCopyId.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy UPI ID'**
+  String get upiCopyId;
+
+  /// No description provided for @upiCopyAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy amount'**
+  String get upiCopyAmount;
+
+  /// No description provided for @upiShowQr.
+  ///
+  /// In en, this message translates to:
+  /// **'UPI QR'**
+  String get upiShowQr;
+
+  /// No description provided for @upiCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Copied'**
+  String get upiCopied;
+
+  /// No description provided for @upiReturnTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Did the payment go through?'**
+  String get upiReturnTitle;
+
+  /// No description provided for @upiReturnBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your UPI app doesn\'t tell Splitify. Mark it as paid once the money has left your account.'**
+  String get upiReturnBody;
+
+  /// No description provided for @upiMarkPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark as paid'**
+  String get upiMarkPaid;
+
+  /// No description provided for @upiNotYet.
+  ///
+  /// In en, this message translates to:
+  /// **'Not yet'**
+  String get upiNotYet;
+
+  /// No description provided for @upiNoAppTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No UPI app found'**
+  String get upiNoAppTitle;
+
+  /// No description provided for @upiNoAppBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay {name} from any UPI app with the UPI ID or the QR code, then record the payment here.'**
+  String upiNoAppBody(String name);
+
+  /// No description provided for @upiQrTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan to pay {name}'**
+  String upiQrTitle(String name);
+
+  /// No description provided for @upiQrBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan with a UPI app on another phone. Amount {amount}.'**
+  String upiQrBody(String amount);
+
+  /// No description provided for @upiFailedHint.
+  ///
+  /// In en, this message translates to:
+  /// **'If your app says the payment failed, copy the UPI ID and amount into it by hand.'**
+  String get upiFailedHint;
+
+  /// No description provided for @upiNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Splitify: {group}'**
+  String upiNote(String group);
+
+  /// No description provided for @upiIdLine.
+  ///
+  /// In en, this message translates to:
+  /// **'UPI ID {vpa}'**
+  String upiIdLine(String vpa);
+
+  /// No description provided for @celebrationSettledWith.
+  ///
+  /// In en, this message translates to:
+  /// **'You and {name} are square.'**
+  String celebrationSettledWith(String name);
+
   /// No description provided for @activityHero.
   ///
   /// In en, this message translates to:

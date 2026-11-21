@@ -551,6 +551,207 @@ class AppLocalizationsEn extends AppLocalizations {
   String get emptyFriendsBody => 'People you share a group with show up here.';
 
   @override
+  String get friendsSection => 'Friends';
+
+  @override
+  String get friendsSearchHint => 'Search friends';
+
+  @override
+  String get addFriendExpense => 'Add friend expense';
+
+  @override
+  String friendsNoMatch(String query) {
+    return 'No one called “$query”';
+  }
+
+  @override
+  String get friendOwesYou => 'owes you';
+
+  @override
+  String get friendYouOwe => 'you owe';
+
+  @override
+  String get friendDirectOnly => 'Friend expenses';
+
+  @override
+  String friendGroupsMore(String names, int count) {
+    return '$names +$count';
+  }
+
+  @override
+  String friendPillOwed(String name, String amount) {
+    return '$name owes you $amount';
+  }
+
+  @override
+  String friendPillOwe(String name, String amount) {
+    return 'You owe $name $amount';
+  }
+
+  @override
+  String get friendByGroup => 'By group';
+
+  @override
+  String get friendSharedItems => 'Shared expenses';
+
+  @override
+  String get friendNoItemsTitle => 'Nothing shared yet';
+
+  @override
+  String friendNoItemsBody(String name) {
+    return 'Add an expense with $name to get started.';
+  }
+
+  @override
+  String get friendDirectGroup => 'Just you two';
+
+  @override
+  String friendItemCaption(String group, String date) {
+    return '$group · $date';
+  }
+
+  @override
+  String get friendNotFound => 'This friend isn\'t on this phone';
+
+  @override
+  String friendSettledSnack(String name) {
+    return 'You and $name are settled up';
+  }
+
+  @override
+  String friendSettleTitle(String name) {
+    return 'Settle up with $name';
+  }
+
+  @override
+  String friendInvite(String name) {
+    return 'Invite $name to claim their spot';
+  }
+
+  @override
+  String friendNeedsInternet(String name) {
+    return 'Connect to the internet once to start sharing with $name. After that it works offline.';
+  }
+
+  @override
+  String friendStartFailed(String name) {
+    return 'Couldn\'t start an expense with $name. Try again.';
+  }
+
+  @override
+  String get friendGroupSettled => 'settled up';
+
+  @override
+  String get addFriendWho => 'Who with?';
+
+  @override
+  String get addFriendNew => 'Someone new';
+
+  @override
+  String get addFriendNewHint => 'They don\'t need the app. Invite them later to claim their spot.';
+
+  @override
+  String get addFriendNoFriends => 'No friends yet. Add someone new below.';
+
+  @override
+  String get simplifyTitle => 'Simplify debts';
+
+  @override
+  String get simplifyHelp =>
+      'Fewer payments, same totals. Someone may pay a person they didn\'t share an expense with.';
+
+  @override
+  String get simplifyOnDone => 'Simplify debts is on';
+
+  @override
+  String get simplifyOffDone => 'Simplify debts is off';
+
+  @override
+  String actSimplifyOn(String actor) {
+    return '$actor turned on simplify debts';
+  }
+
+  @override
+  String actSimplifyOff(String actor) {
+    return '$actor turned off simplify debts';
+  }
+
+  @override
+  String actDefaultSplitChanged(String actor) {
+    return '$actor changed the default split';
+  }
+
+  @override
+  String upiPay(String amount) {
+    return 'Pay $amount via UPI';
+  }
+
+  @override
+  String get upiOtherWays => 'Pay from another app';
+
+  @override
+  String get upiCopyId => 'Copy UPI ID';
+
+  @override
+  String get upiCopyAmount => 'Copy amount';
+
+  @override
+  String get upiShowQr => 'UPI QR';
+
+  @override
+  String get upiCopied => 'Copied';
+
+  @override
+  String get upiReturnTitle => 'Did the payment go through?';
+
+  @override
+  String get upiReturnBody =>
+      'Your UPI app doesn\'t tell Splitify. Mark it as paid once the money has left your account.';
+
+  @override
+  String get upiMarkPaid => 'Mark as paid';
+
+  @override
+  String get upiNotYet => 'Not yet';
+
+  @override
+  String get upiNoAppTitle => 'No UPI app found';
+
+  @override
+  String upiNoAppBody(String name) {
+    return 'Pay $name from any UPI app with the UPI ID or the QR code, then record the payment here.';
+  }
+
+  @override
+  String upiQrTitle(String name) {
+    return 'Scan to pay $name';
+  }
+
+  @override
+  String upiQrBody(String amount) {
+    return 'Scan with a UPI app on another phone. Amount $amount.';
+  }
+
+  @override
+  String get upiFailedHint =>
+      'If your app says the payment failed, copy the UPI ID and amount into it by hand.';
+
+  @override
+  String upiNote(String group) {
+    return 'Splitify: $group';
+  }
+
+  @override
+  String upiIdLine(String vpa) {
+    return 'UPI ID $vpa';
+  }
+
+  @override
+  String celebrationSettledWith(String name) {
+    return 'You and $name are square.';
+  }
+
+  @override
   String get activityHero => 'every rupee,\naccounted for.';
 
   @override
