@@ -215,13 +215,13 @@ class _Hero extends StatelessWidget {
   }
 }
 
-class _GroupGrid extends StatelessWidget {
+class _GroupGrid extends ConsumerWidget {
   const _GroupGrid({required this.groups});
 
   final List<LocalGroup> groups;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context);
     return GridView.count(
       crossAxisCount: 2,
@@ -241,6 +241,7 @@ class _GroupGrid extends StatelessWidget {
             // Balances arrive in phase 09; until then every group reads as settled.
             statusLabel: g.archivedAt == null ? l.settled : l.archivedLabel,
             unsynced: g.syncState != SyncState.synced,
+            photo: groupCoverImage(ref, g, width: 600),
             onTap: () => context.push('/groups/${g.id}'),
           ),
       ],

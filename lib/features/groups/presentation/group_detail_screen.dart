@@ -148,7 +148,7 @@ class _ActionBar extends StatelessWidget {
   }
 }
 
-class _Hero extends StatelessWidget {
+class _Hero extends ConsumerWidget {
   const _Hero({required this.group, required this.members, required this.me});
 
   final LocalGroup group;
@@ -156,11 +156,12 @@ class _Hero extends StatelessWidget {
   final String? me;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context);
     final c = context.colors;
     return HeroHeader(
       art: (seed: group.id, family: coverFamilyFor(group.type)),
+      photo: groupCoverImage(ref, group, width: 1200),
       leading: HeroIconButton(
         icon: AppIcons.back,
         tooltip: l.back,

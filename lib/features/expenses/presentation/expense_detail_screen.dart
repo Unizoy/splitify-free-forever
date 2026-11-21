@@ -12,6 +12,7 @@ import 'package:splitify/features/expenses/presentation/editor/step_body.dart';
 import 'package:splitify/features/expenses/presentation/expense_copy.dart';
 import 'package:splitify/features/expenses/presentation/expense_routes.dart';
 import 'package:splitify/features/expenses/presentation/receipt_card.dart';
+import 'package:splitify/features/groups/presentation/group_visuals.dart' show groupCoverImage;
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/components/components.dart';
 import 'package:splitify/ui/theme/theme.dart';
@@ -106,6 +107,7 @@ class _Hero extends ConsumerWidget {
     final g = group;
     return HeroHeader(
       art: g == null ? null : (seed: g.id, family: _family(g.type)),
+      photo: g == null ? null : groupCoverImage(ref, g, width: 1200),
       leading: HeroIconButton(
         icon: AppIcons.back,
         tooltip: l.back,
