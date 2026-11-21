@@ -70,6 +70,7 @@
   "emptyGroupsTitle": "Create your first group",
   "emptyGroupsBody": "Trips, flatmates, couples — add the people you split with.",
   "archivedGroups": "Archived groups",
+  "archivedLabel": "Archived",
   "groupsOffline": "You're offline. Changes sync when you're back.",
   "groupsLoading": "Loading your groups",
 

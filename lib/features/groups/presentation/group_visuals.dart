@@ -94,11 +94,19 @@ class SectionLabel extends StatelessWidget {
       style: context.text.labelCaps.copyWith(color: context.colors.textSecondary),
     );
     if (trailing == null) return Semantics(header: true, child: label);
-    return Row(
-      children: [
-        Expanded(child: Semantics(header: true, child: label)),
-        trailing!,
-      ],
+    // Wraps as a whole at large text sizes so the label never breaks inside a word.
+    return SizedBox(
+      width: double.infinity,
+      child: Wrap(
+        alignment: WrapAlignment.spaceBetween,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        spacing: AppSpacing.s2,
+        runSpacing: AppSpacing.s2,
+        children: [
+          Semantics(header: true, child: label),
+          trailing!,
+        ],
+      ),
     );
   }
 }

@@ -46,78 +46,81 @@ class GroupSettingsScreen extends ConsumerWidget {
     final isCreator = me != null && group.createdBy == me;
     return Scaffold(
       appBar: back,
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(
-          AppSpacing.screen,
-          AppSpacing.s2,
-          AppSpacing.screen,
-          AppSpacing.s10,
-        ),
-        children: [
-          PageTitle(title: l.groupSettingsTitle, subtitle: group.name),
-          const SizedBox(height: AppSpacing.s6),
-          DashedListRow(
-            key: const Key('settings-edit-group'),
-            icon: AppIcons.edit,
-            label: l.editGroup,
-            onTap: () => context.push('/groups/$groupId/edit'),
+      body: SafeArea(
+        top: false,
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.screen,
+            AppSpacing.s2,
+            AppSpacing.screen,
+            AppSpacing.s10,
           ),
-          DashedListRow(
-            key: const Key('settings-invite'),
-            icon: AppIcons.userPlus,
-            label: l.invitePeople,
-            showDivider: false,
-            onTap: () => unawaited(showInviteSheet(context, groupId)),
-          ),
-          const SizedBox(height: AppSpacing.s8),
-          SectionLabel(
-            '${l.membersSection} · ${members.length}',
-            trailing: PillButton(
-              key: const Key('settings-add-member'),
-              label: l.addMember,
-              icon: AppIcons.plus,
-              variant: PillVariant.outline,
-              size: PillSize.medium,
-              expand: false,
-              onPressed: () => unawaited(_addMember(context, ref, members.length)),
-            ),
-          ),
-          const SizedBox(height: AppSpacing.s2),
-          for (final m in members)
-            _MemberRow(
-              member: m,
-              me: me,
-              onTap: () => unawaited(_memberActions(context, ref, m, me)),
-            ),
-          const SizedBox(height: AppSpacing.s8),
-          DashedListRow(
-            key: const Key('settings-archive'),
-            icon: AppIcons.archive,
-            label: archived ? l.unarchiveGroup : l.archiveGroup,
-            onTap: () async {
-              await ref.read(groupActionsProvider).setArchived(groupId, archived: !archived);
-              if (context.mounted) {
-                showGroupMessage(context, archived ? l.groupUnarchivedDone : l.groupArchivedDone);
-              }
-            },
-          ),
-          DashedListRow(
-            key: const Key('settings-leave'),
-            icon: AppIcons.leave,
-            label: l.leaveGroup,
-            showDivider: isCreator,
-            onTap: () => unawaited(_leave(context, ref)),
-          ),
-          if (isCreator)
+          children: [
+            PageTitle(title: l.groupSettingsTitle, subtitle: group.name),
+            const SizedBox(height: AppSpacing.s6),
             DashedListRow(
-              key: const Key('settings-delete'),
-              icon: AppIcons.trash,
-              label: l.deleteGroup,
-              destructive: true,
-              showDivider: false,
-              onTap: () => unawaited(_delete(context, ref)),
+              key: const Key('settings-edit-group'),
+              icon: AppIcons.edit,
+              label: l.editGroup,
+              onTap: () => context.push('/groups/$groupId/edit'),
             ),
-        ],
+            DashedListRow(
+              key: const Key('settings-invite'),
+              icon: AppIcons.userPlus,
+              label: l.invitePeople,
+              showDivider: false,
+              onTap: () => unawaited(showInviteSheet(context, groupId)),
+            ),
+            const SizedBox(height: AppSpacing.s8),
+            SectionLabel(
+              '${l.membersSection} · ${members.length}',
+              trailing: PillButton(
+                key: const Key('settings-add-member'),
+                label: l.addMember,
+                icon: AppIcons.plus,
+                variant: PillVariant.outline,
+                size: PillSize.medium,
+                expand: false,
+                onPressed: () => unawaited(_addMember(context, ref, members.length)),
+              ),
+            ),
+            const SizedBox(height: AppSpacing.s2),
+            for (final m in members)
+              _MemberRow(
+                member: m,
+                me: me,
+                onTap: () => unawaited(_memberActions(context, ref, m, me)),
+              ),
+            const SizedBox(height: AppSpacing.s8),
+            DashedListRow(
+              key: const Key('settings-archive'),
+              icon: AppIcons.archive,
+              label: archived ? l.unarchiveGroup : l.archiveGroup,
+              onTap: () async {
+                await ref.read(groupActionsProvider).setArchived(groupId, archived: !archived);
+                if (context.mounted) {
+                  showGroupMessage(context, archived ? l.groupUnarchivedDone : l.groupArchivedDone);
+                }
+              },
+            ),
+            DashedListRow(
+              key: const Key('settings-leave'),
+              icon: AppIcons.leave,
+              label: l.leaveGroup,
+              showDivider: isCreator,
+              onTap: () => unawaited(_leave(context, ref)),
+            ),
+            if (isCreator)
+              DashedListRow(
+                key: const Key('settings-delete'),
+                icon: AppIcons.trash,
+                label: l.deleteGroup,
+                destructive: true,
+                showDivider: false,
+                onTap: () => unawaited(_delete(context, ref)),
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -330,10 +333,6 @@ class _MemberRow extends StatelessWidget {
                   ),
                   if (m.syncState != SyncState.synced) ...[
                     const SyncMarker(compact: true),
-                    const SizedBox(width: AppSpacing.s2),
-                  ],
-                  if (m.userId == null) ...[
-                    Icon(AppIcons.link, size: 18, color: c.textTertiary),
                     const SizedBox(width: AppSpacing.s2),
                   ],
                   Icon(AppIcons.more, size: 20, color: c.textSecondary),

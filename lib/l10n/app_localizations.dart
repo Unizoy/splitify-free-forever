@@ -380,6 +380,12 @@ abstract class AppLocalizations {
   /// **'Archived groups'**
   String get archivedGroups;
 
+  /// No description provided for @archivedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Archived'**
+  String get archivedLabel;
+
   /// No description provided for @groupsOffline.
   ///
   /// In en, this message translates to:

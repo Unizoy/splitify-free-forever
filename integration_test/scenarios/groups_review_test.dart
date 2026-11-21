@@ -26,6 +26,9 @@ import '../../test/support/group_harness.dart' show fixedGroupData;
 /// Seconds each screen stays up for the host captures (`UI_HOLD`, default 0 = no hold).
 const _hold = int.fromEnvironment('UI_HOLD');
 
+/// Hold only these screens (`UI_ONLY=invite-sheet,group-settings`) to re-capture a few shots quickly.
+const _only = String.fromEnvironment('UI_ONLY');
+
 final _goa = sampleGroup(id: 'g-goa', name: 'Goa trip');
 final _members = [
   sampleMember(id: 'm-asha', userId: 'u1', name: 'Asha Rao', role: 'owner', tint: 0),
@@ -58,11 +61,14 @@ void main() {
 
   Future<void> hold(WidgetTester t, String name) async {
     await t.pump(const Duration(milliseconds: 800));
-    if (_hold == 0) return;
+    if (_hold == 0 || (_only.isNotEmpty && !_only.split(',').contains(name))) return;
     debugPrint('UI-CAPTURE $name');
     final end = DateTime.now().add(const Duration(seconds: _hold));
+    // Real waits, not a pump loop: Dart runs on Android's main thread, and a tight pump loop starves input
+    // and configuration events until Android shows "isn't responding".
     while (DateTime.now().isBefore(end)) {
-      await t.pump(const Duration(milliseconds: 250));
+      await Future<void>.delayed(const Duration(milliseconds: 250));
+      await t.pump();
     }
   }
 

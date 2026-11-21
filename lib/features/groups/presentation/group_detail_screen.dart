@@ -182,7 +182,7 @@ class _Hero extends StatelessWidget {
         children: [
           // Phase 09 shows "You are owed ₹…" / "You owe ₹…" from the balances here.
           StatusPill(
-            label: group.archivedAt == null ? l.allSettled : l.archivedGroups,
+            label: group.archivedAt == null ? l.allSettled : l.archivedLabel,
             icon: group.archivedAt == null ? AppIcons.checkCircle : AppIcons.archive,
             tone: StatusPillTone.glass,
           ),
