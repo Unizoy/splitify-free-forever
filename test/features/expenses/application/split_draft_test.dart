@@ -210,5 +210,28 @@ void main() {
       expect(splitKindOf('shares'), SplitKind.shares);
       expect(splitKindOf('weird'), SplitKind.equal);
     });
+
+    test('negativeMember names the first participant going below zero (adjust)', () {
+      final adjust = SplitDraft.initial(_m, 2).switchTo(SplitKind.adjust);
+      // Valid adjustments: nobody negative.
+      expect(adjust.setText('a', '10').negativeMember(10000), isNull);
+      // a takes -60.00 of a 100.00 split: share 53.34 - 60.00 < 0.
+      final neg = adjust.setText('a', '-60');
+      expect((neg.check(10000) as SplitInvalid).code, 'NEGATIVE_SHARE');
+      expect(neg.negativeMember(10000), 'a');
+      // The first in fixed order, even when a later one is negative too.
+      expect(
+        adjust.setText('a', '90').setText('b', '-60').setText('c', '-50').negativeMember(10000),
+        'b',
+      );
+      // Unticked people are not participants.
+      expect(adjust.toggle('a').setText('b', '-60').setText('c', '90').negativeMember(10000), 'b');
+      // Other kinds, invalid text, adjustments over the total, nobody ticked.
+      expect(SplitDraft.initial(_m, 2).negativeMember(10000), isNull);
+      expect(SplitDraft.initial(_m, 2).switchTo(SplitKind.shares).negativeMember(10000), isNull);
+      expect(adjust.setText('a', 'x').negativeMember(10000), isNull);
+      expect(adjust.setText('a', '150').negativeMember(10000), isNull);
+      expect(adjust.toggle('a').toggle('b').toggle('c').negativeMember(10000), isNull);
+    });
   });
 }

@@ -74,9 +74,14 @@ class _ExpenseEditorScreenState extends ConsumerState<ExpenseEditorScreen> {
     }
   }
 
+  /// Leaves the editor (after Save or Back on step 1). `pop` ignores the step-back PopScope.
   Future<void> _close() async {
     final navigator = Navigator.of(context);
-    if (!await navigator.maybePop() && mounted) context.go('/groups');
+    if (navigator.canPop()) {
+      navigator.pop();
+    } else {
+      context.go('/groups');
+    }
   }
 
   void _next(ExpenseDraft d) {
@@ -196,7 +201,7 @@ class _ExpenseEditorScreenState extends ConsumerState<ExpenseEditorScreen> {
     };
 
     return PopScope(
-      canPop: _step == EditorStep.amount,
+      canPop: _saved || _step == EditorStep.amount,
       onPopInvokedWithResult: (didPop, _) {
         if (!didPop) _back();
       },

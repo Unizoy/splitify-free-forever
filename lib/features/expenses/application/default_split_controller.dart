@@ -24,7 +24,10 @@ final class DefaultSplitState {
 }
 
 final defaultSplitProvider = AsyncNotifierProvider.autoDispose
-    .family<DefaultSplitController, DefaultSplitState, String>(DefaultSplitController.new);
+    .family<DefaultSplitController, DefaultSplitState, String>(
+      DefaultSplitController.new,
+      retry: (retryCount, error) => null,
+    );
 
 /// Group settings → Default split: choose equal, percent or shares; new expenses start from it (#35).
 class DefaultSplitController extends AsyncNotifier<DefaultSplitState> {

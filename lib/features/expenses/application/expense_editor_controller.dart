@@ -25,8 +25,15 @@ final currentUserIdProvider = Provider<String?>(
   (ref) => ref.watch(authRepositoryProvider).currentUser?.id,
 );
 
+/// Loads from the local database only, so a failure (e.g. [ExpenseNotFound]) is shown at once
+/// instead of being retried.
 final expenseEditorProvider = AsyncNotifierProvider.autoDispose
-    .family<ExpenseEditorController, ExpenseDraft, ExpenseEditorArgs>(ExpenseEditorController.new);
+    .family<ExpenseEditorController, ExpenseDraft, ExpenseEditorArgs>(
+      ExpenseEditorController.new,
+      retry: _noRetry,
+    );
+
+Duration? _noRetry(int retryCount, Object error) => null;
 
 /// Add/edit expense (#5–9, #13, #35): loads the group's people and the saved expense (or the group's
 /// default split), keeps the draft, and saves through the expenses repository → outbox.
