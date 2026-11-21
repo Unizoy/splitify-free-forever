@@ -34,10 +34,10 @@ difference (server wins). A scripted "week in Goa" with three people settles to 
 
 ## Tests
 
-- New tests: unit/application/data 157 (11 files) · widget 116 (5 files) · golden 60 (`balances_golden_test.dart`,
+- New tests: unit/application/data 157 (11 files) · widget 118 (5 files) · golden 60 (`balances_golden_test.dart`,
   15 states × light/dark × text 1.0/2.0) · integration 1 (week in Goa, also the device UI review) · SQL 12
   (`090_payments_activity.test.sql`)
-- Coverage: see G2 below
+- Coverage (full run): overall 96.6 % · money 100 % · sync 100 % · domain 100 % · core 96.6 % · data 90.2 % · application 99.0 % · presentation 96.1 %
 - Test IDs now passing: TC-15-03, TC-15-04, TC-18-02, TC-18-03 (new row), TC-21-01, TC-21-02, TC-25-02, TC-25-03,
   TC-14-02 (multi-currency sections); TC-18-01 now also asserts payment activity (still partial: member/comment)
 - Quarantined / skipped: none
@@ -46,11 +46,11 @@ difference (server wins). A scripted "week in Goa" with three people settles to 
 
 | Gate | Result | Evidence |
 | --- | --- | --- |
-| G1 Static | GATE_G1 | `dart format --set-exit-if-changed lib test integration_test tool`; `flutter analyze --no-fatal-infos` 0 errors / 0 warnings; `dart run tool/guards.dart` OK |
-| G2 Tests | GATE_G2 | `flutter test --coverage --exclude-tags device,needs-owner,quarantine --concurrency=1`; `dart run tool/coverage_check.dart` |
+| G1 Static | PASS | `dart format --set-exit-if-changed lib test integration_test tool`; `flutter analyze --no-fatal-infos` 0 errors / 0 warnings; `dart run tool/guards.dart` OK |
+| G2 Tests | PASS | `flutter test --coverage --exclude-tags device,needs-owner,quarantine --concurrency=1`: 1376 pass; `coverage_check` all floors pass (overall 96.6 %) |
 | G3 Backend | PASS (no migration) | 0012 not needed (S-107); dev migrations 0001–0010, 0013, 0015 present (other phases); `090_payments_activity` 12/12 on dev in BEGIN…ROLLBACK; security advisors: no new findings (existing SECURITY DEFINER RPC warnings are the intended API, leaked-password protection is an owner setting) |
-| G4 Build | GATE_G4 | `flutter build apk --debug --dart-define-from-file=secrets/env.dev.json` |
-| G5 Device | PASS | `balances_week_test.dart` on emulator-5554 (`PIN_HOST_IP`): 1/1 (35 s), again 1/1 as the capture run (`UI_HOLD=30`, 11 screens × light/dark/200 %) GATE_G5_RECAPTURE; screenshots `C:\Users\mohit\OneDrive\Desktop\theCode\splitify-artifacts\phase-09\` |
+| G4 Build | PASS | `flutter build apk --debug --dart-define-from-file=secrets/env.dev.json` |
+| G5 Device | PASS | `balances_week_test.dart` on emulator-5554 (`PIN_HOST_IP`): 1/1 (35 s), again 1/1 as the capture run (`UI_HOLD=30`, 11 screens × light/dark/200 %), re-run after the review fixes (12 screens, 1/1); screenshots `C:\Users\mohit\OneDrive\Desktop\theCode\splitify-artifacts\phase-09\` |
 | G6 Docs | PASS | phase boxes, test catalog, S-100..S-107, LEARNINGS, this report, PROGRESS |
 
 ### UI review scores (D-018, ≥ 8 required; light, dark and 200 % text, real data on the emulator + real-font goldens)
