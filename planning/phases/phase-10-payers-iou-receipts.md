@@ -5,14 +5,14 @@
 
 ## Tasks
 
-- [ ] T1 "Paid by" sheet → "Multiple people" with per-payer amounts and live remaining; payers needn't be
+- [x] T1 "Paid by" sheet → "Multiple people" with per-payer amounts and live remaining; payers needn't be
       participants; review sentence "Paid by you and Asha".
-- [ ] T2 IOU quick action ("Record a loan": I lent / I borrowed) from group and friend pages; Loan chip in lists;
+- [x] T2 IOU quick action ("Record a loan": I lent / I borrowed) from group and friend pages; Loan chip in lists;
       excluded from totals (verify TC-21-01 still green).
-- [ ] T3 Receipt: camera or Android photo picker (no storage permission), compression (JPEG q80, ≤1600 px,
+- [x] T3 Receipt: camera or Android photo picker (no storage permission), compression (JPEG q80, ≤1600 px,
       ≤500 KB), `pending_uploads` queue, uploader after mutation applied, local thumbnail, full-screen viewer with
       zoom, replace/remove, signed URL caching.
-- [ ] T4 Storage policy tests for receipts (member-only read/write by folder) — extend `023_storage.test.sql`.
+- [x] T4 Storage policy tests for receipts (member-only read/write by folder) — extend `023_storage.test.sql`.
 
 ## Tests
 
@@ -25,3 +25,9 @@ Airplane mode → add expense with receipt photo → back online → photo uploa
 > **Amendment (S-073, phase 07):** the same uploader also handles group cover photos: `group-covers/<group_id>/<uuid>.jpg`,
 > group `cover_kind = 'photo'` + `cover_path`; add a "Photo" option to the cover on `GroupFormScreen`
 > (`lib/features/groups/presentation/group_form_screen.dart`) and pass the image to `GroupCoverCard.photo`/the detail hero.
+
+> **Amendment (S-110..S-119, phase 10):** Android photo picker via `image_picker_android` (S-110); compression ladder
+> and square bound (S-111); migration `0013_file_paths.sql` checks receipt/cover paths (S-112, pgTAP `060_file_paths`);
+> uploads run in the sync engine's `afterPush` hook once the record is on the server (S-113); local photo files and
+> signed-URL cache (S-114); the group cover photo amendment (S-073) is done (`GroupActions.setCoverPhoto`,
+> `GroupCoverCard.photo`, `HeroHeader.photo`, `CoverBanner.photo`).

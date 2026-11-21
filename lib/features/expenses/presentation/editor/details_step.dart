@@ -5,6 +5,8 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:splitify/domain/rules/expense_categories.dart';
 import 'package:splitify/features/expenses/application/expense_draft.dart';
+import 'package:splitify/features/expenses/application/receipt_draft.dart';
+import 'package:splitify/features/expenses/presentation/editor/receipt_field.dart';
 import 'package:splitify/features/expenses/presentation/editor/step_body.dart';
 import 'package:splitify/features/expenses/presentation/expense_copy.dart';
 import 'package:splitify/l10n/app_localizations.dart';
@@ -12,7 +14,7 @@ import 'package:splitify/ui/components/components.dart';
 import 'package:splitify/ui/theme/theme.dart';
 
 /// Step 4 "A few details": category (parent → sub IconChips), date (today / yesterday / calendar
-/// sheet like 534) and notes.
+/// sheet like 534), notes and the receipt photo (#29).
 class DetailsStep extends StatelessWidget {
   const DetailsStep({
     required this.draft,
@@ -21,6 +23,7 @@ class DetailsStep extends StatelessWidget {
     required this.onCategory,
     required this.onDate,
     required this.onNotes,
+    this.onReceipt,
     super.key,
   });
 
@@ -32,6 +35,9 @@ class DetailsStep extends StatelessWidget {
   final ValueChanged<String> onCategory;
   final ValueChanged<DateTime> onDate;
   final ValueChanged<String> onNotes;
+
+  /// Receipt changes; null hides the receipt section.
+  final ValueChanged<ReceiptDraft>? onReceipt;
 
   @override
   Widget build(BuildContext context) {
@@ -57,6 +63,11 @@ class DetailsStep extends StatelessWidget {
           inputFormatters: [LengthLimitingTextInputFormatter(maxNotes + 50)],
           onChanged: onNotes,
         ),
+        if (onReceipt != null) ...[
+          const SizedBox(height: AppSpacing.s8),
+          SectionLabel(l.receiptLabel),
+          ReceiptField(receipt: draft.receipt, onChanged: onReceipt!),
+        ],
       ],
     );
   }

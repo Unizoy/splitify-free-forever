@@ -11,6 +11,8 @@ import 'package:splitify/features/expenses/application/expense_providers.dart';
 import 'package:splitify/features/expenses/presentation/editor/step_body.dart';
 import 'package:splitify/features/expenses/presentation/expense_copy.dart';
 import 'package:splitify/features/expenses/presentation/expense_routes.dart';
+import 'package:splitify/features/expenses/presentation/receipt_card.dart';
+import 'package:splitify/features/groups/presentation/group_visuals.dart' show groupCoverImage;
 import 'package:splitify/features/comments/application/comments_providers.dart';
 import 'package:splitify/features/comments/presentation/comment_thread.dart';
 import 'package:splitify/features/history/presentation/history_routes.dart';
@@ -116,6 +118,7 @@ class _Hero extends ConsumerWidget {
     final g = group;
     return HeroHeader(
       art: g == null ? null : (seed: g.id, family: _family(g.type)),
+      photo: g == null ? null : groupCoverImage(ref, g, width: 1200),
       leading: HeroIconButton(
         icon: AppIcons.back,
         tooltip: l.back,
@@ -126,7 +129,9 @@ class _Hero extends ConsumerWidget {
           key: const Key('expense-edit'),
           icon: AppIcons.edit,
           tooltip: l.expEdit,
-          onPressed: () => unawaited(context.push(ExpenseRoutes.edit(e.id))),
+          onPressed: () => unawaited(
+            context.push(view.isLoan ? ExpenseRoutes.editLoan(e.id) : ExpenseRoutes.edit(e.id)),
+          ),
         ),
         HeroIconButton(
           key: const Key('expense-delete'),
@@ -141,8 +146,14 @@ class _Hero extends ConsumerWidget {
             width: 56,
             height: 56,
             decoration: BoxDecoration(color: c.onHero, shape: BoxShape.circle),
-            child: Icon(category.icon, size: 28, color: category.color),
+            child: view.isLoan
+                ? Icon(AppIcons.loanFill, size: 28, color: c.primary)
+                : Icon(category.icon, size: 28, color: category.color),
           ),
+          if (view.isLoan) ...[
+            const SizedBox(height: AppSpacing.s3),
+            StatusPill(label: l.loanChip, icon: AppIcons.loan, tone: StatusPillTone.glass),
+          ],
           const SizedBox(height: AppSpacing.s4),
           Text(
             e.description,
@@ -205,7 +216,7 @@ class _Body extends StatelessWidget {
           const Center(child: SyncMarker()),
           const SizedBox(height: AppSpacing.s4),
         ],
-        SectionLabel(l.expPaidByLabel),
+        SectionLabel(view.isLoan ? l.loanLentBy : l.expPaidByLabel),
         for (var i = 0; i < payers.length; i++)
           _PersonRow(
             name: name(payers[i].key),
@@ -216,7 +227,7 @@ class _Body extends StatelessWidget {
             divider: i < payers.length - 1,
           ),
         const SizedBox(height: AppSpacing.s6),
-        SectionLabel(l.expSplitLabel(l.splitKind(kind))),
+        SectionLabel(view.isLoan ? l.loanBorrowedBy : l.expSplitLabel(l.splitKind(kind))),
         for (var i = 0; i < owed.length; i++)
           _PersonRow(
             name: name(owed[i].key),
@@ -227,11 +238,14 @@ class _Body extends StatelessWidget {
           ),
         const SizedBox(height: AppSpacing.s6),
         SectionLabel(l.expDetailsLabel),
-        DashedListRow(
-          icon: categoryOf(e.category).icon,
-          label: l.category(e.category),
-          value: l.category(categoryOf(e.category).name),
-        ),
+        if (view.isLoan)
+          DashedListRow(icon: AppIcons.info, label: l.loanNotSpending)
+        else
+          DashedListRow(
+            icon: categoryOf(e.category).icon,
+            label: l.category(e.category),
+            value: l.category(categoryOf(e.category).name),
+          ),
         DashedListRow(
           icon: AppIcons.calendar,
           label: l.expDateLabel,
@@ -249,6 +263,11 @@ class _Body extends StatelessWidget {
               ],
             ),
           ),
+        if (e.receiptPath != null) ...[
+          const SizedBox(height: AppSpacing.s4),
+          ReceiptCard(expense: e),
+          const SizedBox(height: AppSpacing.s2),
+        ],
         DashedListRow(
           key: const Key('expense-history'),
           icon: AppIcons.history,

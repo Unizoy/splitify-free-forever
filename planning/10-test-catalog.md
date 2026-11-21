@@ -76,11 +76,11 @@ Total: 117 test ids (TC-18-03 golden added in phase 09).
 | 09 | TC-21-02 | widget | totals tab. | pass (`totals_tab_test.dart`) |
 | 09 | TC-25-02 | widget | settle-up form | pass (`settle_up_screen_test.dart`, `settle_controller_test.dart`) |
 | 09 | TC-25-03 | integ | settle a week | pass (device `integration_test/balances_week_test.dart` 2026-11-22: week in Goa, 3 people, 2 payments, oracle = phone = server, all settle → 0) |
-| 10 | TC-10-02 | widget | multi-payer sheet | todo |
-| 10 | TC-11-02 | widget | direction toggle copy. | todo |
-| 10 | TC-29-01 | unit | compression bounds | todo |
-| 10 | TC-29-02 | sql | storage policies (member-only) | todo |
-| 10 | TC-29-03 | integ | offline | todo |
+| 10 | TC-10-02 | widget | multi-payer sheet | pass |
+| 10 | TC-11-02 | widget | direction toggle copy. | pass |
+| 10 | TC-29-01 | unit | compression bounds (+ real compression on the device) | pass |
+| 10 | TC-29-02 | sql | storage policies (member-only) — `023_storage` 24/24 + `060_file_paths` 12/12 on dev | pass |
+| 10 | TC-29-03 | integ | offline photo uploads later — device `integration_test/receipts_offline_upload_test.dart` 2026-11-22 (receipt + cover uploaded after sync, B reads both via signed URLs) | pass |
 | 11 | TC-16-02 | sql | my_overview friend totals. | todo |
 | 11 | TC-17-03 | widget | toggle + link. | todo |
 | 11 | TC-2-01 | sql | one direct group per user pair | todo |

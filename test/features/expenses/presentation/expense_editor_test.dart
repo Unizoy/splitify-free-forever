@@ -285,18 +285,51 @@ void main() {
       expect(h.draft.payerId, 'm1');
     });
 
-    // TC-13-01
-    testWidgets('"Multiple people" says coming soon', (t) async {
+    // TC-10-01
+    testWidgets('"Multiple people" shows the amounts card and the live footer', (t) async {
       final h = await pumpEditor(t, sampleDraft(), step: EditorStep.paidBy);
+      expect(find.byKey(const Key('payer-amounts')), findsNothing);
+      expect(find.byKey(const Key('payers-footer')), findsNothing);
       await tapKey(t, 'payer-multiple');
-      expect(find.text('Coming soon'), findsOneWidget);
-      expect(h.draft.payerId, me);
+      expect(find.byKey(const Key('payer-amounts')), findsOneWidget);
+      expect(find.byKey(const Key('payers-footer')), findsOneWidget);
+      expect(h.draft.payerId, isNull);
+      expect(find.text('Coming soon'), findsNothing);
+      expect(footerText(t), 'Type at least one amount');
     });
 
-    // TC-13-01
-    testWidgets('a draft with several payers shows the note', (t) async {
+    // TC-10-02
+    testWidgets('typing amounts updates the footer; Save enables only when they add up', (t) async {
+      final h = await pumpEditor(t, sampleDraft(), step: EditorStep.paidBy);
+      await tapKey(t, 'payer-multiple');
+      expect(buttonEnabled(t, 'expense-save'), isFalse);
+
+      await t.enterText(fieldIn('payer-amount-m1'), '800');
+      await settle(t);
+      expect(footerText(t), '₹800 of ₹1,200 · ₹400 left');
+      expect(buttonEnabled(t, 'expense-save'), isFalse);
+
+      await t.enterText(fieldIn('payer-amount-m2'), '500');
+      await settle(t);
+      expect(footerText(t), '₹1,300 of ₹1,200 · ₹100 over');
+      expect(buttonEnabled(t, 'expense-save'), isFalse);
+
+      await t.enterText(fieldIn('payer-amount-m2'), '400');
+      await settle(t);
+      expect(footerText(t), '₹1,200 covered');
+      expect(buttonEnabled(t, 'expense-save'), isTrue);
+      expect(h.draft.payersCheck, isA<PayersReady>());
+      expect((h.draft.payersCheck as PayersReady).paid, {'m1': 80000, 'm2': 40000});
+    });
+
+    // TC-10-01
+    testWidgets('a draft with several payers shows the amounts card prefilled', (t) async {
       await pumpEditor(t, _multiPayer(), step: EditorStep.paidBy);
-      expect(find.textContaining('Several people paid for this one'), findsOneWidget);
+      expect(find.byKey(const Key('payer-amounts')), findsOneWidget);
+      expect(t.widget<TextField>(fieldIn('payer-amount-m1')).controller!.text, '600');
+      expect(t.widget<TextField>(fieldIn('payer-amount-m2')).controller!.text, '600');
+      expect(footerText(t), '₹1,200 covered');
+      expect(find.textContaining('Several people paid for this one'), findsNothing);
     });
 
     // TC-13-01
@@ -449,10 +482,10 @@ void main() {
     });
 
     // TC-13-01
-    testWidgets('several payers: "several people" and a paid line for each', (t) async {
+    testWidgets('several payers: names both payers and a paid line for each', (t) async {
       await pumpEditor(t, _multiPayer(), step: EditorStep.review);
       final sentence = t.widget<Text>(find.byKey(const Key('review-sentence')));
-      expect(sentence.textSpan!.toPlainText(), startsWith('Paid by several people'));
+      expect(sentence.textSpan!.toPlainText(), startsWith('Paid by you and Asha Rao'));
       expect(find.text('paid ₹600.00'), findsNWidgets(2));
     });
 

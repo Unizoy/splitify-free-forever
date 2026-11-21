@@ -21,12 +21,15 @@ class LocalWriter {
 
   /// Upsert/delete/restore of one record. [data] holds snake_case server columns (upsert) and may carry
   /// extra keys for the server only (e.g. `owner_member` on group create); unknown keys never reach Drift.
+  /// [alongside] runs inside the same transaction (e.g. queueing a photo upload, phase 10) — never wrap
+  /// `write` in an outer transaction: the sync nudge it schedules would keep that transaction's zone.
   Future<void> write(
     SyncEntity entity,
     SyncOp op,
     String id,
     String groupId, [
     Map<String, Object?> data = const {},
+    Future<void> Function()? alongside,
   ]) async {
     final cua = (await serverClock.now()).toIso8601String();
     final now = clock.now().toUtc().toIso8601String();
@@ -71,6 +74,7 @@ class LocalWriter {
         clientUpdatedAt: cua,
         createdAt: now,
       );
+      if (alongside != null) await alongside();
     });
     onWrite?.call();
   }

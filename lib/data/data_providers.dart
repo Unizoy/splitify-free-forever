@@ -2,6 +2,7 @@ import 'package:drift_flutter/drift_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:splitify/core/time/clock.dart';
 import 'package:splitify/data/local/app_database.dart';
+import 'package:splitify/data/media_providers.dart';
 import 'package:splitify/data/remote/remote_providers.dart';
 import 'package:splitify/data/repositories/repositories.dart';
 import 'package:splitify/data/repositories/sync_repository.dart';
@@ -23,6 +24,9 @@ final syncEngineProvider = Provider<SyncEngine>((ref) {
     db: ref.watch(appDatabaseProvider),
     remote: ref.watch(remoteApiProvider),
     clock: ref.watch(clockProvider),
+    afterPush: () async {
+      await ref.read(uploadQueueProvider).run();
+    },
   );
   ref.onDispose(e.dispose);
   return e;

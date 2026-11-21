@@ -292,7 +292,7 @@ class _GlassSyncMarker extends StatelessWidget {
   );
 }
 
-class _GroupGrid extends StatelessWidget {
+class _GroupGrid extends ConsumerWidget {
   const _GroupGrid({required this.groups, required this.balances});
 
   final List<LocalGroup> groups;
@@ -301,7 +301,7 @@ class _GroupGrid extends StatelessWidget {
   final Map<String, Map<String, int>> balances;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context);
     return GridView.count(
       crossAxisCount: 2,
@@ -311,7 +311,10 @@ class _GroupGrid extends StatelessWidget {
       mainAxisSpacing: AppSpacing.gutter,
       crossAxisSpacing: AppSpacing.gutter,
       childAspectRatio: GroupCoverCard.aspectRatioFor(context),
-      children: [for (final g in groups) _groupCard(l, context, g, balances)],
+      children: [
+        for (final g in groups)
+          _groupCard(l, context, g, balances, photo: groupCoverImage(ref, g, width: 600)),
+      ],
     );
   }
 }
@@ -321,8 +324,9 @@ Widget _groupCard(
   AppLocalizations l,
   BuildContext context,
   LocalGroup g,
-  Map<String, Map<String, int>> balances,
-) {
+  Map<String, Map<String, int>> balances, {
+  ImageProvider? photo,
+}) {
   final raw = balances[g.id] ?? const <String, int>{};
   final mine = {
     for (final code in orderCurrencies(raw.keys, g.mainCurrency.trim())) code: raw[code]!,
@@ -339,6 +343,7 @@ Widget _groupCard(
     amountText: mine.isEmpty ? null : amountsText(mine),
     tone: toneOf(status),
     unsynced: g.syncState != SyncState.synced,
+    photo: photo,
     onTap: () => context.push('/groups/${g.id}'),
   );
 }
