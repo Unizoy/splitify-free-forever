@@ -22,12 +22,12 @@ Total: 114 test ids.
 | 03 | TC-32-01 | unit | FX vectors | todo |
 | 03 | TC-5..9-01 | unit | every split vector in `money_vectors.json` | todo |
 | 03 | TC-5..9-02 | unit | glados property tests | todo |
-| 04 | TC-14-03 | sql | group_balances returns per-currency blocks. | todo |
-| 04 | TC-15-02 | sql | parity with vectors | todo |
-| 04 | TC-17-02 | sql | parity | todo |
-| 04 | TC-32-03 | sql | cross_rate | todo |
-| 04 | TC-5..9-05 | sql | server rejects inconsistent payers/shares (`SPLIT_SUM_MISMATCH`). | todo |
-| 04 | TC-B2-05 | sql | co-member can read | todo |
+| 04 | TC-14-03 | sql | group_balances returns per-currency blocks. | pass (CI db job; MCP run needs-owner BLK-001) |
+| 04 | TC-15-02 | sql | parity with vectors | pass (CI db job; MCP run needs-owner BLK-001) |
+| 04 | TC-17-02 | sql | parity | pass (CI db job; MCP run needs-owner BLK-001) |
+| 04 | TC-32-03 | sql | cross_rate | pass (CI db job; MCP run needs-owner BLK-001) |
+| 04 | TC-5..9-05 | sql | server rejects inconsistent payers/shares (`SPLIT_SUM_MISMATCH`). | pass (CI db job; MCP run needs-owner BLK-001) |
+| 04 | TC-B2-05 | sql | co-member can read | pass (CI db job; MCP run needs-owner BLK-001) |
 | 05 | TC-B1-01 | widget | onboarding shows both buttons and dev login only in debug | todo |
 | 05 | TC-B1-02 | unit | auth controller | todo |
 | 05 | TC-B1-03 | integ | dev sign-in → home | todo |
