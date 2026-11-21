@@ -3,8 +3,10 @@ import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:splitify/data/data_providers.dart';
 import 'package:splitify/data/local/app_database.dart';
+import 'package:splitify/data/media_providers.dart';
 import 'package:splitify/data/repositories/expense_reads.dart';
 import 'package:splitify/data/sync/sync_types.dart';
+import 'package:splitify/domain/entities/prepared_image.dart';
 import 'package:splitify/features/expenses/application/expense_editor_controller.dart';
 
 /// One expense as the group list and the detail screen show it.
@@ -128,7 +130,7 @@ final expenseViewProvider = Provider.autoDispose.family<AsyncValue<ExpenseView?>
       .whenData((m) => expenseViews([expense], m, uid).first);
 });
 
-/// Delete (soft, with undo) and restore (#13, rule 9).
+/// Delete (soft, with undo) and restore (#13, rule 9); replace or remove the receipt photo (#29).
 final expenseActionsProvider = Provider<ExpenseActions>(ExpenseActions.new);
 
 class ExpenseActions {
@@ -141,6 +143,23 @@ class ExpenseActions {
 
   Future<void> restore(LocalExpense e) =>
       _ref.read(expensesRepositoryProvider).restore(e.id, e.groupId);
+
+  /// New receipt photo for a saved expense (only `receipt_path` changes; the old photo stays on the
+  /// server for the history, or is forgotten when it never went up).
+  Future<void> replaceReceipt(LocalExpense e, PreparedImage image) async {
+    final media = _ref.read(mediaRepositoryProvider);
+    final old = e.receiptPath;
+    if (old != null) await media.discardPending(MediaBuckets.receipts, old);
+    await media.saveExpenseWithReceipt(e.groupId, e.id, const {}, image);
+  }
+
+  Future<void> removeReceipt(LocalExpense e) async {
+    final old = e.receiptPath;
+    if (old != null) {
+      await _ref.read(mediaRepositoryProvider).discardPending(MediaBuckets.receipts, old);
+    }
+    await _ref.read(expensesRepositoryProvider).save(e.groupId, {'receipt_path': null}, id: e.id);
+  }
 }
 
 /// The group an expense belongs to (detail hero cover, editor header).

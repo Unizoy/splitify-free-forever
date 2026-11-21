@@ -11,6 +11,7 @@ import 'package:splitify/features/expenses/application/expense_providers.dart';
 import 'package:splitify/features/expenses/presentation/editor/step_body.dart';
 import 'package:splitify/features/expenses/presentation/expense_copy.dart';
 import 'package:splitify/features/expenses/presentation/expense_routes.dart';
+import 'package:splitify/features/expenses/presentation/receipt_card.dart';
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/components/components.dart';
 import 'package:splitify/ui/theme/theme.dart';
@@ -248,6 +249,11 @@ class _Body extends StatelessWidget {
               ],
             ),
           ),
+        if (e.receiptPath != null) ...[
+          const SizedBox(height: AppSpacing.s4),
+          ReceiptCard(expense: e),
+          const SizedBox(height: AppSpacing.s2),
+        ],
         DashedListRow(
           key: const Key('expense-history'),
           icon: AppIcons.history,

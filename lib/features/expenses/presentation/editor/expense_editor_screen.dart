@@ -195,6 +195,7 @@ class _ExpenseEditorScreenState extends ConsumerState<ExpenseEditorScreen> {
         onCategory: (k) => _edit((d) => d.copyWith(category: k)),
         onDate: (date) => _edit((d) => d.copyWith(date: date)),
         onNotes: (t) => _edit((d) => d.copyWith(notes: t)),
+        onReceipt: (r) => _edit((d) => d.copyWith(receipt: r)),
       ),
       EditorStep.review => ReviewStep(
         draft: draft,
