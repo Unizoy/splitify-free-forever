@@ -3,7 +3,8 @@
 # script then saves <name>-light/-dark/-text200.png. Run from the repo root while holding the emulator lock:
 #   powershell -File .claude\skills\ui-review\scripts\capture_markers.ps1 -Phase 06 `
 #     -Test integration_test/scenarios/sync_storage_review_test.dart
-param([string]$Phase = '00', [Parameter(Mandatory)][string]$Test, [int]$Hold = 30)
+# Extra build settings: -Define 'UI_ONLY=invite-sheet' (re-capture one screen if the test supports it).
+param([string]$Phase = '00', [Parameter(Mandatory)][string]$Test, [int]$Hold = 30, [string[]]$Define = @())
 . "$PSScriptRoot\ui.ps1" -Phase $Phase
 $log = Join-Path $script:out 'capture-test.log'
 & $script:adb shell settings put system font_scale 1.0
@@ -12,8 +13,8 @@ $log = Join-Path $script:out 'capture-test.log'
 $supabaseHost = ([Uri](Get-Content secrets\env.dev.json -Raw | ConvertFrom-Json).SUPABASE_URL).Host
 $ip = (Resolve-DnsName $supabaseHost -Type A | Where-Object IPAddress | Select-Object -First 1).IPAddress
 $p = Start-Process -FilePath 'flutter.bat' -NoNewWindow -PassThru -RedirectStandardOutput $log `
-  -ArgumentList @('test', $Test, '-d', 'emulator-5554', '--dart-define-from-file=secrets/env.dev.json',
-  "--dart-define=UI_HOLD=$Hold", "--dart-define=PIN_HOST_IP=$ip")
+  -ArgumentList (@('test', $Test, '-d', 'emulator-5554', '--dart-define-from-file=secrets/env.dev.json',
+  "--dart-define=UI_HOLD=$Hold", "--dart-define=PIN_HOST_IP=$ip") + @($Define | ForEach-Object { "--dart-define=$_" }))
 $null = $p.Handle   # makes ExitCode readable after the process ends
 $done = @{}
 while (-not $p.HasExited) {

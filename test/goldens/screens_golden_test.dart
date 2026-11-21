@@ -71,6 +71,8 @@ class _PhoneApp extends StatelessWidget {
           profileRemoteProvider.overrideWithValue(FakeProfileRemote(sampleProfile)),
           syncRepositoryProvider.overrideWithValue(sync),
           clockProvider.overrideWithValue(FakeClock(_now)),
+          // No database or server in goldens: the Groups tab shows its empty state.
+          ...emptyGroupsOverrides(),
         ],
         child: MediaQuery(
           data: MediaQueryData(

@@ -40,14 +40,17 @@ class GroupsRepository extends _Repo {
   Stream<LocalGroup?> watchOne(String id) =>
       (db.select(db.groups)..where((g) => g.id.equals(id))).watchSingleOrNull();
 
-  /// New group with the creator as owner member (the server creates the same member, TC-1-02).
+  /// New group with the creator as owner member (the server creates the same member, TC-1-02). [id] lets
+  /// the form preview the generated cover before saving.
   Future<String> create({
     required String name,
     required String ownerName,
     String type = 'other',
     String mainCurrency = 'INR',
+    String? ownerUserId,
+    String? id,
   }) async {
-    final id = newId();
+    id ??= newId();
     final ownerId = newId();
     final createdAt = writer.clock.now().toUtc().toIso8601String();
     await writer.write(SyncEntity.group, SyncOp.upsert, id, id, {
@@ -55,33 +58,62 @@ class GroupsRepository extends _Repo {
       'type': type,
       'main_currency': mainCurrency,
       'created_at': createdAt,
+      'created_by': ?ownerUserId,
       'owner_member': {'id': ownerId, 'display_name': ownerName},
     });
     await writer.writeShadow(SyncEntity.member, {
       'id': ownerId,
       'group_id': id,
+      'user_id': ownerUserId,
       'display_name': ownerName,
       'position': 0,
       'role': 'owner',
+      'created_at': createdAt,
     });
     return id;
   }
 
   /// Save the group itself (its id is its scope).
   Future<void> update(String id, Map<String, Object?> data) => save(id, data, id: id);
+
+  /// Archive (read-only, own section) or bring back; any member (08 #1).
+  Future<void> setArchived(String id, {required bool archived}) =>
+      update(id, {'archived_at': archived ? writer.clock.now().toUtc().toIso8601String() : null});
+
+  /// Soft-deleted groups this user created, newest first (Account → Deleted groups, 30-day restore).
+  Stream<List<LocalGroup>> watchDeletedBy(String userId) =>
+      (db.select(db.groups)
+            ..where(
+              (g) =>
+                  g.deletedAt.isNotNull() &
+                  g.createdBy.equals(userId) &
+                  g.type.equals('direct').not(),
+            )
+            ..orderBy([(g) => OrderingTerm.desc(g.deletedAt)]))
+          .watch();
 }
 
 class MembersRepository extends _Repo {
   MembersRepository(AppDatabase db, LocalWriter writer) : super(db, writer, SyncEntity.member);
 
+  /// Active members of a group in position order (left/removed members drop out).
   Stream<List<LocalMember>> watchForGroup(String groupId) =>
       (db.select(db.groupMembers)
-            ..where((m) => m.groupId.equals(groupId) & m.deletedAt.isNull())
+            ..where(
+              (m) => m.groupId.equals(groupId) & m.deletedAt.isNull() & m.status.equals('active'),
+            )
             ..orderBy([(m) => OrderingTerm.asc(m.position)]))
           .watch();
 
-  /// Name-only member (rule 8) at the next position.
-  Future<String> addNameOnly(String groupId, String name) async {
+  /// Active members of all groups (avatar stacks on the Groups tab).
+  Stream<List<LocalMember>> watchAllActive() =>
+      (db.select(db.groupMembers)
+            ..where((m) => m.deletedAt.isNull() & m.status.equals('active'))
+            ..orderBy([(m) => OrderingTerm.asc(m.position)]))
+          .watch();
+
+  /// Name-only member (rule 8) at the next position, with an optional avatar tint 0..4.
+  Future<String> addNameOnly(String groupId, String name, {int? tint}) async {
     final max = db.groupMembers.position.max();
     final row =
         await (db.selectOnly(db.groupMembers)
@@ -89,8 +121,12 @@ class MembersRepository extends _Repo {
               ..where(db.groupMembers.groupId.equals(groupId)))
             .getSingle();
     final next = (row.read(max) ?? -1) + 1;
-    return save(groupId, {'display_name': name, 'position': next});
+    return save(groupId, {'display_name': name, 'position': next, 'tint': tint ?? next % 5});
   }
+
+  /// Rename (for a linked member only the fallback name changes, 08 #4).
+  Future<void> rename(String groupId, String memberId, String name) =>
+      save(groupId, {'display_name': name}, id: memberId);
 }
 
 class ExpensesRepository extends _Repo {

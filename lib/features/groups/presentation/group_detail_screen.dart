@@ -1,0 +1,254 @@
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:splitify/data/data_providers.dart';
+import 'package:splitify/data/local/app_database.dart';
+import 'package:splitify/features/groups/application/groups_providers.dart';
+import 'package:splitify/features/groups/presentation/group_tabs.dart';
+import 'package:splitify/features/groups/presentation/group_visuals.dart';
+import 'package:splitify/features/groups/presentation/invite_sheet.dart';
+import 'package:splitify/l10n/app_localizations.dart';
+import 'package:splitify/ui/components/components.dart';
+import 'package:splitify/ui/theme/theme.dart';
+
+/// Group detail (`/groups/:id`, 455 hero + 712 tabs): generated cover hero with back, invite and settings,
+/// serif name, status pill, avatar stack; FolderTabs Expenses · Balances · Totals; sticky Add expense /
+/// Settle up. Phase 08 fills the Expenses tab, phase 09 the balances and the status pill.
+class GroupDetailScreen extends ConsumerStatefulWidget {
+  const GroupDetailScreen({required this.groupId, super.key});
+
+  final String groupId;
+
+  @override
+  ConsumerState<GroupDetailScreen> createState() => _GroupDetailScreenState();
+}
+
+class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen> {
+  int _tab = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final groupAsync = ref.watch(groupProvider(widget.groupId));
+    final group = groupAsync.value;
+    if (group == null || group.deletedAt != null) {
+      return Scaffold(
+        appBar: AppBar(
+          leading: IconButton(
+            tooltip: l.back,
+            icon: const Icon(AppIcons.back),
+            onPressed: () => _close(context),
+          ),
+        ),
+        body: groupAsync.isLoading
+            ? const SizedBox.shrink()
+            : EmptyState(icon: AppIcons.groups, title: l.groupNotFound),
+      );
+    }
+    final members = ref.watch(groupMembersProvider(widget.groupId)).value ?? const [];
+    final unsynced = ref.watch(groupUnsyncedProvider(widget.groupId)).value ?? false;
+    final me = ref.watch(currentUserIdProvider);
+    final archived = group.archivedAt != null;
+    return Scaffold(
+      body: SingleChildScrollView(
+        child: OverlapColumn(
+          top: _Hero(group: group, members: members, me: me),
+          bottom: OverlapSheet(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (archived) ...[
+                  _ArchivedBanner(groupId: group.id),
+                  const SizedBox(height: AppSpacing.s5),
+                ],
+                FolderTabs(
+                  index: _tab,
+                  onChanged: (i) => setState(() => _tab = i),
+                  tabs: [
+                    FolderTab(label: l.groupTabExpenses, icon: AppIcons.receipt),
+                    FolderTab(label: l.groupTabBalances, icon: AppIcons.coins),
+                    FolderTab(label: l.groupTabTotals, icon: AppIcons.chart),
+                  ],
+                ),
+                if (unsynced) ...[
+                  const SizedBox(height: AppSpacing.s3),
+                  const Align(alignment: AlignmentDirectional.centerStart, child: SyncMarker()),
+                ],
+                const SizedBox(height: AppSpacing.s2),
+                switch (_tab) {
+                  0 => GroupExpensesTab(groupId: group.id),
+                  1 => GroupBalancesTab(groupId: group.id),
+                  _ => GroupTotalsTab(groupId: group.id),
+                },
+                const SizedBox(height: AppSpacing.s8),
+              ],
+            ),
+          ),
+        ),
+      ),
+      bottomNavigationBar: archived ? null : const _ActionBar(),
+    );
+  }
+
+  static void _close(BuildContext context) {
+    if (context.canPop()) {
+      context.pop();
+    } else {
+      context.go('/groups');
+    }
+  }
+}
+
+/// Add expense (amber, phase 08 wires it) + Settle up (phase 09). Settle up keeps its natural width so
+/// its label never wraps; at large text the two stack.
+class _ActionBar extends StatelessWidget {
+  const _ActionBar();
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final settle = PillButton(
+      key: const Key('group-settle'),
+      label: l.settleUp,
+      variant: PillVariant.outline,
+      expand: false,
+      onPressed: () => showComingSoon(context),
+    );
+    final add = PillButton(
+      key: const Key('group-add-expense'),
+      label: l.addExpense,
+      icon: AppIcons.add,
+      variant: PillVariant.money,
+      onPressed: () => showComingSoon(context),
+    );
+    final large = MediaQuery.textScalerOf(context).scale(1) > 1.4;
+    return StickyActionBar(
+      primary: large
+          ? Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                add,
+                const SizedBox(height: AppSpacing.s2),
+                settle,
+              ],
+            )
+          : Row(
+              children: [
+                settle,
+                const SizedBox(width: AppSpacing.s3),
+                Expanded(child: add),
+              ],
+            ),
+    );
+  }
+}
+
+class _Hero extends StatelessWidget {
+  const _Hero({required this.group, required this.members, required this.me});
+
+  final LocalGroup group;
+  final List<LocalMember> members;
+  final String? me;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final c = context.colors;
+    return HeroHeader(
+      art: (seed: group.id, family: coverFamilyFor(group.type)),
+      leading: HeroIconButton(
+        icon: AppIcons.back,
+        tooltip: l.back,
+        onPressed: () => _GroupDetailScreenState._close(context),
+      ),
+      actions: [
+        HeroIconButton(
+          key: const Key('group-invite'),
+          icon: AppIcons.userPlus,
+          tooltip: l.invitePeople,
+          onPressed: () => unawaited(showInviteSheet(context, group.id)),
+        ),
+        HeroIconButton(
+          key: const Key('group-settings'),
+          icon: AppIcons.settings,
+          tooltip: l.groupSettingsTitle,
+          onPressed: () => context.push('/groups/${group.id}/settings'),
+        ),
+      ],
+      title: group.name,
+      child: Column(
+        children: [
+          // Phase 09 shows "You are owed ₹…" / "You owe ₹…" from the balances here.
+          StatusPill(
+            label: group.archivedAt == null ? l.allSettled : l.archivedLabel,
+            icon: group.archivedAt == null ? AppIcons.checkCircle : AppIcons.archive,
+            tone: StatusPillTone.glass,
+          ),
+          const SizedBox(height: AppSpacing.s4),
+          Wrap(
+            alignment: WrapAlignment.center,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: AppSpacing.s2,
+            runSpacing: AppSpacing.s2,
+            children: [
+              AvatarStack(people: [for (final m in members) memberPerson(l, m, me)], max: 4),
+              Text(
+                l.groupMembersCount(members.length),
+                style: context.text.body.w(600).copyWith(color: c.onHero),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ArchivedBanner extends ConsumerWidget {
+  const _ArchivedBanner({required this.groupId});
+
+  final String groupId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context);
+    final c = context.colors;
+    return Container(
+      key: const Key('group-archived-banner'),
+      padding: const EdgeInsets.all(AppSpacing.s4),
+      decoration: BoxDecoration(color: c.infoContainer, borderRadius: AppRadii.all16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(AppIcons.archive, size: 20, color: c.info),
+              const SizedBox(width: AppSpacing.s3),
+              Expanded(
+                child: Text(
+                  l.groupArchivedBanner,
+                  style: context.text.body.copyWith(color: c.textPrimary),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.s3),
+          PillButton(
+            key: const Key('group-unarchive'),
+            label: l.unarchiveGroup,
+            variant: PillVariant.outline,
+            size: PillSize.medium,
+            expand: false,
+            onPressed: () async {
+              await ref.read(groupActionsProvider).setArchived(groupId, archived: false);
+              if (context.mounted) showGroupMessage(context, l.groupUnarchivedDone);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}

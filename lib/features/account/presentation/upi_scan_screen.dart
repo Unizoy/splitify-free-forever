@@ -3,15 +3,20 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/theme/theme.dart';
 
-/// "Scan my UPI QR": camera preview; pops with the first QR's raw text.
-class UpiScanScreen extends StatefulWidget {
-  const UpiScanScreen({super.key});
+/// Camera QR scanner ("Scan my UPI QR", "Scan invite QR"); pops with the first QR's raw text. The camera
+/// permission is asked just in time, when this screen opens.
+class QrScanScreen extends StatefulWidget {
+  const QrScanScreen({this.title, this.hint, super.key});
+
+  /// Defaults to the UPI copy.
+  final String? title;
+  final String? hint;
 
   @override
-  State<UpiScanScreen> createState() => _UpiScanScreenState();
+  State<QrScanScreen> createState() => _QrScanScreenState();
 }
 
-class _UpiScanScreenState extends State<UpiScanScreen> {
+class _QrScanScreenState extends State<QrScanScreen> {
   bool _done = false;
 
   @override
@@ -23,7 +28,7 @@ class _UpiScanScreenState extends State<UpiScanScreen> {
       appBar: AppBar(
         backgroundColor: c.navyTop,
         foregroundColor: c.onHero,
-        title: Text(l.scanUpiQr),
+        title: Text(widget.title ?? l.scanUpiQr),
         leading: IconButton(
           tooltip: l.close,
           icon: const Icon(AppIcons.close),
@@ -46,7 +51,7 @@ class _UpiScanScreenState extends State<UpiScanScreen> {
             child: Padding(
               padding: const EdgeInsets.all(AppSpacing.s8),
               child: Text(
-                l.scanUpiHint,
+                widget.hint ?? l.scanUpiHint,
                 textAlign: TextAlign.center,
                 style: context.text.body.copyWith(color: c.onHero),
               ),

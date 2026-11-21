@@ -25,8 +25,9 @@ Product plan: [docs/PLAN.md](docs/PLAN.md). It wins over any other doc.
 - **Never ask the owner anything during plan execution** — decide per the protocol, log `S-` decisions, log
   owner-only problems in `planning/BLOCKERS.md`, keep going.
 - **Git exception (owner decision D-001, 2026-11-21):** in this repo, plan-execution sessions commit and push their
-  phase branch (`phase/NN-slug`) **without asking**. They never commit to, merge into or push `main`, never
-  force-push, never push tags. Outside plan execution follow CONTRIBUTING.md: branch from `main`, commit, push
+  phase branch (`phase/NN-slug`) **without asking**. They never commit to or push `main` directly, never
+  force-push, never push tags. **D-021:** when a phase is finished they open a PR to `main` and merge it with a
+  merge commit (`gh pr merge --merge`), in phase order. Outside plan execution follow CONTRIBUTING.md: branch from `main`, commit, push
   the branch, open a PR to `main` (owner decision 2026-11-21); never commit to or push `main` directly.
 - Guard hooks in `.claude/hooks/` (wired in the git-ignored `.claude/settings.local.json`) enforce the hard limits;
   never work around them.

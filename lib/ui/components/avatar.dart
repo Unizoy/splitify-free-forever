@@ -23,6 +23,7 @@ class Avatar extends StatelessWidget {
     this.size = AvatarSize.s40,
     this.image,
     this.ring = false,
+    this.tint,
     super.key,
   });
 
@@ -36,6 +37,9 @@ class Avatar extends StatelessWidget {
   /// White ring, used when avatars overlap.
   final bool ring;
 
+  /// Chosen colour 0..4 (name-only members, 08 #4); null picks one from [seed].
+  final int? tint;
+
   /// Up to two initials from [name].
   static String initials(String name) {
     final parts = name.trim().split(RegExp(r'\s+')).where((p) => p.isNotEmpty).toList();
@@ -45,15 +49,18 @@ class Avatar extends StatelessWidget {
     return (first + second).toUpperCase();
   }
 
-  /// Tint pair for [seed] in the current mode.
-  static AvatarTint tintFor(BuildContext context, String seed) {
+  /// Tint pair for [tint] (when set) or [seed] in the current mode.
+  static AvatarTint tintFor(BuildContext context, String seed, [int? tint]) {
     final tints = context.isDark ? AppPalette.avatarDark : AppPalette.avatarLight;
-    return tints[stableHash(seed) % tints.length];
+    return tints[(tint ?? stableHash(seed)) % tints.length];
   }
+
+  /// Number of tint pairs a member can pick from.
+  static const tintCount = 5;
 
   @override
   Widget build(BuildContext context) {
-    final tint = tintFor(context, seed);
+    final pair = tintFor(context, seed, tint);
     final d = size.dp;
     return Semantics(
       label: name,
@@ -62,7 +69,7 @@ class Avatar extends StatelessWidget {
         width: d,
         height: d,
         decoration: BoxDecoration(
-          color: tint.bg,
+          color: pair.bg,
           shape: BoxShape.circle,
           border: ring ? Border.all(color: context.colors.bg, width: 2) : null,
           image: image == null ? null : DecorationImage(image: image!, fit: BoxFit.cover),
@@ -76,7 +83,7 @@ class Avatar extends StatelessWidget {
                     initials(name),
                     style: context.text.body
                         .w(700)
-                        .copyWith(color: tint.fg, fontSize: d * 0.38, height: 1, letterSpacing: 0),
+                        .copyWith(color: pair.fg, fontSize: d * 0.38, height: 1, letterSpacing: 0),
                   ),
                 ),
               ),
@@ -86,7 +93,7 @@ class Avatar extends StatelessWidget {
 }
 
 /// One person in an [AvatarStack].
-typedef AvatarPerson = ({String name, String seed});
+typedef AvatarPerson = ({String name, String seed, int? tint});
 
 /// Overlapping avatars with a "+N" bubble after [max] people (438).
 class AvatarStack extends StatelessWidget {
@@ -112,7 +119,13 @@ class AvatarStack extends StatelessWidget {
           for (var i = 0; i < shown.length; i++)
             PositionedDirectional(
               start: step * i,
-              child: Avatar(name: shown[i].name, seed: shown[i].seed, size: size, ring: true),
+              child: Avatar(
+                name: shown[i].name,
+                seed: shown[i].seed,
+                tint: shown[i].tint,
+                size: size,
+                ring: true,
+              ),
             ),
           if (extra > 0)
             PositionedDirectional(

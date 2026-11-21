@@ -80,6 +80,7 @@ class _AvatarCarouselState extends State<AvatarCarousel> {
                     child: Avatar(
                       name: widget.people[i].name,
                       seed: widget.people[i].seed,
+                      tint: widget.people[i].tint,
                       size: AvatarSize.s96,
                     ),
                   ),

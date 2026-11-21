@@ -84,7 +84,7 @@ class _ProfileFieldsState extends State<ProfileFields> {
     final l = AppLocalizations.of(context);
     final messenger = ScaffoldMessenger.of(context);
     final raw = await Navigator.of(context)
-        .push<String>(MaterialPageRoute(builder: (_) => const UpiScanScreen()));
+        .push<String>(MaterialPageRoute(builder: (_) => const QrScanScreen()));
     if (raw == null) return;
     final id = ProfileRules.upiIdFromQr(raw);
     if (id == null) {
@@ -95,12 +95,7 @@ class _ProfileFieldsState extends State<ProfileFields> {
   }
 
   Future<void> _pickCurrency() async {
-    final l = AppLocalizations.of(context);
-    final code = await showAppSheet<String>(
-      context,
-      title: l.chooseCurrency,
-      builder: (context) => _CurrencyList(selected: d.currency),
-    );
+    final code = await showCurrencyPicker(context, selected: d.currency);
     if (code != null) setState(() => d.currency = code);
   }
 
@@ -167,6 +162,14 @@ class _ProfileFieldsState extends State<ProfileFields> {
     );
   }
 }
+
+/// Currency list sheet (INR first); returns the picked ISO code or null.
+Future<String?> showCurrencyPicker(BuildContext context, {required String selected}) =>
+    showAppSheet<String>(
+      context,
+      title: AppLocalizations.of(context).chooseCurrency,
+      builder: (context) => _CurrencyList(selected: selected),
+    );
 
 class _CurrencyList extends StatelessWidget {
   const _CurrencyList({required this.selected});

@@ -8,19 +8,19 @@
 
 ## Tasks
 
-- [ ] T1 Migration 0009: `preview_join`, `join_group`, `rotate_invite_code`, `leave_group`, `remove_member`,
+- [x] T1 Migration 0010 (`0010_groups_members.sql`, S-070): `preview_join`, `join_group`, `rotate_invite_code`, `leave_group`, `remove_member`,
       unlink claim, invite code generation (Crockford base32, unique), rate limit. pgTAP `050_groups_rpcs.test.sql`.
-- [ ] T2 Groups tab: hero + GlassCard (overall placeholder until phase 09), group grid with GroupCoverCard,
+- [x] T2 Groups tab: hero + GlassCard (overall placeholder until phase 09), group grid with GroupCoverCard,
       archived section, empty state, Join/New buttons.
-- [ ] T3 Create/edit group screen (name, type OptionTiles, currency picker, cover generated/photo upload).
-- [ ] T4 Group detail shell: cover hero, status pill, avatar stack, FolderTabs (Expenses list placeholder,
+- [x] T3 Create/edit group screen (name, type OptionTiles, currency picker, cover generated/photo upload).
+- [x] T4 Group detail shell: cover hero, status pill, avatar stack, FolderTabs (Expenses list placeholder,
       Balances placeholder, Totals placeholder), settings route.
-- [ ] T5 Group settings: members list (add name-only with tint, rename, remove/leave with balance check,
+- [x] T5 Group settings: members list (add name-only with tint, rename, remove/leave with balance check,
       unlink claim), invite, archive/unarchive, delete (creator) + Account → Deleted groups restore.
-- [ ] T6 Invite sheet: QR (`qr_flutter`) in dashed circle, code `ABCD-EFGH`, share sheet text, reset code.
-- [ ] T7 Join flow: enter code / scan (`mobile_scanner`, camera permission just-in-time) / deep link
+- [x] T6 Invite sheet: QR (`qr_flutter`) in dashed circle, code `ABCD-EFGH`, share sheet text, reset code.
+- [x] T7 Join flow: enter code / scan (`mobile_scanner`, camera permission just-in-time) / deep link
       `splitify://join?code=` → preview → claim carousel or "I'm new here" → open group. Online-only.
-- [ ] T8 Activity rows for group events written by RPCs/mutations (feed UI comes in phase 09).
+- [x] T8 Activity rows for group events written by RPCs/mutations (feed UI comes in phase 09).
 
 ## Tests
 
@@ -33,3 +33,7 @@ A creates "e2e-Goa" (trip) offline → online sync → shares code → harness B
 
 > **Amendment (S-040, 2026-11-21):** phase 06 used `0009_sync.sql` because phase 05 took `0008`. This phase's
 > migration is `0010_group_rpcs.sql`, and later migration numbers in `03-backend.md` §8 shift by one.
+
+> **Amendment (S-073..S-079, 2026-11-22):** cover photos move to phase 10 (S-073); the invite is a sheet, deep link
+> mapped in `authRedirect` (S-074); the Groups tab and online-only actions trigger a sync until 06's S-046 glue (S-075);
+> balance placeholders and the Expenses tab slot in `group_tabs.dart` for phases 08/09 (S-076).

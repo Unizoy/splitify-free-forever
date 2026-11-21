@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:splitify/ui/theme/theme.dart';
 
@@ -17,18 +18,25 @@ class OverlapSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bottom = MediaQuery.paddingOf(context).bottom;
-    return DecoratedBox(
-      decoration: BoxDecoration(color: context.colors.bg, borderRadius: AppRadii.overlapTop),
-      child: Padding(
-        padding:
-            padding ??
-            EdgeInsets.fromLTRB(
-              AppSpacing.screen,
-              AppSpacing.s6 + AppSpacing.s1,
-              AppSpacing.screen,
-              bottom + AppSpacing.s6,
-            ),
-        child: child,
+    // Once scrolled under the status bar the sheet (not the dark hero) decides the icon colour.
+    final bars = (context.isDark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark).copyWith(
+      statusBarColor: AppPalette.clear,
+    );
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: bars,
+      child: DecoratedBox(
+        decoration: BoxDecoration(color: context.colors.bg, borderRadius: AppRadii.overlapTop),
+        child: Padding(
+          padding:
+              padding ??
+              EdgeInsets.fromLTRB(
+                AppSpacing.screen,
+                AppSpacing.s6 + AppSpacing.s1,
+                AppSpacing.screen,
+                bottom + AppSpacing.s6,
+              ),
+          child: child,
+        ),
       ),
     );
   }
