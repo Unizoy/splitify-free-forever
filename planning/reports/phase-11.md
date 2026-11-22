@@ -67,7 +67,9 @@ payment that settles a person plays the "all settled" celebration.
 
 Fixed during review: the UPI bar's side-by-side "Record payment" wrapped at 360 dp → stacked with a quiet
 "Record without UPI"; the return sheet said "You paid …" before anything was paid → "To …"; the friend pill
-stretched across the hero → centred.
+stretched across the hero → centred. After the phase 13 merge the device run found the celebration's
+timer popping a route that was already gone → it now pops only while its own route is current (widget test
+`settled_celebration_test.dart`), and the e2e waits for the fake UPI app to hand back before "Mark as paid".
 
 ## Decisions made (S-0xx)
 
