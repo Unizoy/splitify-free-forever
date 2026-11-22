@@ -210,6 +210,23 @@ CREATE TABLE pending_uploads (
   attempts INT NOT NULL DEFAULT 0
 ) AS PendingUpload;
 
+-- Edit-history cache (phase 12, S-130): record_versions rows of one record, fetched when its history opens
+-- (append-only on the server, so rows are cached by id). Columns as on the server.
+CREATE TABLE record_versions (
+  id INT NOT NULL PRIMARY KEY,
+  table_name TEXT NOT NULL,
+  record_id TEXT NOT NULL,
+  group_id TEXT NOT NULL,
+  op TEXT NOT NULL,
+  snapshot TEXT NOT NULL,
+  changed_by TEXT,
+  changed_at TEXT NOT NULL,
+  client_updated_at TEXT,
+  seq INT NOT NULL DEFAULT 0
+) AS LocalVersion;
+
+CREATE INDEX record_versions_record ON record_versions (record_id, seq);
+
 -- Cache of the server's `fx_rates` (05 §6, phase 14): units of `currency` per 1 EUR on `date`, rate as exact
 -- decimal TEXT. Pulled by FxRatesRepository (not the change feed: the table is shared, not group-scoped).
 CREATE TABLE fx_rates (

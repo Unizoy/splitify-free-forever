@@ -160,7 +160,7 @@ class _MemberRow extends StatelessWidget {
 
     final controls = <Widget>[
       if (split.kind == SplitKind.exact)
-        _ValueField(
+        ValueField(
           key: ValueKey('exact-$id'),
           initial: split.text[id] ?? '',
           prefix: Currencies.of(currency).symbol,
@@ -168,7 +168,7 @@ class _MemberRow extends StatelessWidget {
           onChanged: (t) => onChanged(split.setText(id, t)),
         ),
       if (split.kind == SplitKind.percent)
-        _ValueField(
+        ValueField(
           key: ValueKey('percent-$id'),
           initial: split.text[id] ?? '',
           suffix: '%',
@@ -176,7 +176,7 @@ class _MemberRow extends StatelessWidget {
           onChanged: (t) => onChanged(split.setText(id, t)),
         ),
       if (split.kind == SplitKind.adjust && included)
-        _ValueField(
+        ValueField(
           key: ValueKey('adjust-$id'),
           initial: split.text[id] ?? '',
           prefix: '±${Currencies.of(currency).symbol}',
@@ -316,9 +316,9 @@ class _TickCircle extends StatelessWidget {
   }
 }
 
-/// Compact value input on a muted pill (exact amount, percentage, adjustment).
-class _ValueField extends StatefulWidget {
-  const _ValueField({
+/// Compact value input on a muted pill (exact amount, percentage, adjustment, a payer's amount).
+class ValueField extends StatefulWidget {
+  const ValueField({
     required this.initial,
     required this.onChanged,
     required this.semanticLabel,
@@ -336,10 +336,10 @@ class _ValueField extends StatefulWidget {
   final bool signed;
 
   @override
-  State<_ValueField> createState() => _ValueFieldState();
+  State<ValueField> createState() => _ValueFieldState();
 }
 
-class _ValueFieldState extends State<_ValueField> {
+class _ValueFieldState extends State<ValueField> {
   late final _controller = TextEditingController(text: widget.initial);
   final _focus = FocusNode();
 

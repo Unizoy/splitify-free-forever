@@ -5,17 +5,19 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:splitify/core/money/currencies.dart';
 import 'package:splitify/core/utils/uuid.dart';
+import 'package:splitify/domain/entities/prepared_image.dart';
 import 'package:splitify/domain/rules/group_rules.dart';
 import 'package:splitify/features/account/presentation/profile_form.dart';
 import 'package:splitify/features/auth/application/auth_providers.dart';
 import 'package:splitify/features/groups/application/groups_providers.dart';
 import 'package:splitify/features/groups/presentation/group_visuals.dart';
+import 'package:splitify/features/photos/presentation/photo_source_sheet.dart';
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/components/components.dart';
 import 'package:splitify/ui/theme/theme.dart';
 
 /// Create (`/groups/new`) or edit (`/groups/:id/edit`) a group (08 #1, 602): name, type, main currency and
-/// the generated cover preview. Works offline (outbox). Photo covers come with the uploader (S-073).
+/// the cover (generated art or a photo, S-073). Works offline (outbox + upload queue).
 class GroupFormScreen extends ConsumerStatefulWidget {
   const GroupFormScreen({this.groupId, super.key});
 
@@ -31,6 +33,11 @@ class _GroupFormScreenState extends ConsumerState<GroupFormScreen> {
   late final String _seed = widget.groupId ?? newId();
   String _type = 'trip';
   String? _currency;
+
+  /// 'generated' or 'photo'; [_photo] is a newly picked cover.
+  String _coverKind = 'generated';
+  String? _savedCoverPath;
+  PreparedImage? _photo;
   bool _filled = false;
   bool _showErrors = false;
   bool _saving = false;
@@ -64,7 +71,9 @@ class _GroupFormScreenState extends ConsumerState<GroupFormScreen> {
     final actions = ref.read(groupActionsProvider);
     try {
       if (_isEdit) {
-        await actions.update(widget.groupId!, name: _name.text, type: _type, currency: currency);
+        final id = widget.groupId!;
+        await actions.update(id, name: _name.text, type: _type, currency: currency);
+        await _saveCover(id);
         messenger.showSnackBar(SnackBar(content: Text(l.groupSaved)));
         if (mounted) router.pop();
       } else {
@@ -78,10 +87,32 @@ class _GroupFormScreenState extends ConsumerState<GroupFormScreen> {
               currency: currency,
               ownerName: profile?.displayName ?? '',
             );
+        await _saveCover(_seed);
         if (mounted) unawaited(router.pushReplacement('/groups/$_seed'));
       }
     } finally {
       if (mounted) setState(() => _saving = false);
+    }
+  }
+
+  /// Writes the cover change after the group itself (photo → upload queue).
+  Future<void> _saveCover(String id) async {
+    final actions = ref.read(groupActionsProvider);
+    final photo = _photo;
+    if (_coverKind == 'photo' && photo != null) {
+      await actions.setCoverPhoto(id, photo, oldPath: _savedCoverPath);
+    } else if (_coverKind == 'generated' && _savedCoverPath != null) {
+      await actions.useGeneratedCover(id, oldPath: _savedCoverPath);
+    }
+  }
+
+  Future<void> _pickCover() async {
+    final image = await pickPhoto(context, ref);
+    if (image != null && mounted) {
+      setState(() {
+        _photo = image;
+        _coverKind = 'photo';
+      });
     }
   }
 
@@ -95,7 +126,15 @@ class _GroupFormScreenState extends ConsumerState<GroupFormScreen> {
       _name.text = group.name;
       _type = GroupRules.type(group.type);
       _currency = group.mainCurrency;
+      _coverKind = group.coverKind == 'photo' && group.coverPath != null ? 'photo' : 'generated';
+      _savedCoverPath = _coverKind == 'photo' ? group.coverPath : null;
     }
+    final picked = _photo;
+    final ImageProvider? coverPhoto = _coverKind != 'photo'
+        ? null
+        : (picked != null
+              ? ResizeImage(MemoryImage(picked.full), width: 1000)
+              : (group == null ? null : groupCoverImage(ref, group, width: 1000)));
     final currency =
         _currency ?? ref.watch(profileProvider).value?.defaultCurrency ?? Currencies.inr.code;
     final cur = Currencies.of(currency);
@@ -121,14 +160,40 @@ class _GroupFormScreenState extends ConsumerState<GroupFormScreen> {
             PageTitle(title: _isEdit ? l.editGroup : l.newGroup, subtitle: l.groupFormSubtitle),
             const SizedBox(height: AppSpacing.s6),
             CoverBanner(
+              key: const Key('group-cover-preview'),
               seed: _seed,
               type: _type,
               name: name.isEmpty ? l.newGroup : name,
               caption: groupTypeLabel(l, _type),
+              photo: coverPhoto,
+            ),
+            const SizedBox(height: AppSpacing.s3),
+            Wrap(
+              alignment: WrapAlignment.center,
+              spacing: AppSpacing.s2,
+              runSpacing: AppSpacing.s2,
+              children: [
+                IconChip(
+                  key: const Key('cover-generated'),
+                  label: l.coverGenerated,
+                  icon: AppIcons.sparkle,
+                  selected: _coverKind == 'generated',
+                  onTap: () => setState(() => _coverKind = 'generated'),
+                ),
+                IconChip(
+                  key: const Key('cover-photo'),
+                  label: _coverKind == 'photo' ? l.coverChangePhoto : l.coverPhotoOption,
+                  icon: AppIcons.image,
+                  selected: _coverKind == 'photo',
+                  onTap: _coverKind != 'photo' && (_photo != null || _savedCoverPath != null)
+                      ? () => setState(() => _coverKind = 'photo')
+                      : () => unawaited(_pickCover()),
+                ),
+              ],
             ),
             const SizedBox(height: AppSpacing.s2),
             Text(
-              l.coverHint,
+              _coverKind == 'photo' ? l.coverPhotoHint : l.coverHint,
               textAlign: TextAlign.center,
               style: context.text.bodySmall.copyWith(color: c.textSecondary),
             ),

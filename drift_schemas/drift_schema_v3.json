@@ -1868,6 +1868,136 @@
       "references": [],
       "type": "table",
       "data": {
+        "name": "record_versions",
+        "was_declared_in_moor": true,
+        "columns": [
+          {
+            "name": "id",
+            "getter_name": "id",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": "NOT NULL PRIMARY KEY",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              "primary-key"
+            ]
+          },
+          {
+            "name": "table_name",
+            "getter_name": "tableName$",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "record_id",
+            "getter_name": "recordId",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "group_id",
+            "getter_name": "groupId",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "op",
+            "getter_name": "op",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "snapshot",
+            "getter_name": "snapshot",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "changed_by",
+            "getter_name": "changedBy",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": "",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "changed_at",
+            "getter_name": "changedAt",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "client_updated_at",
+            "getter_name": "clientUpdatedAt",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": "",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "seq",
+            "getter_name": "seq",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": "NOT NULL DEFAULT 0",
+            "default_dart": "const CustomExpression('0')",
+            "default_client_dart": null,
+            "dsl_features": []
+          }
+        ],
+        "is_virtual": false,
+        "without_rowid": false,
+        "constraints": []
+      }
+    },
+    {
+      "id": 20,
+      "references": [
+        19
+      ],
+      "type": "index",
+      "data": {
+        "on": 19,
+        "name": "record_versions_record",
+        "sql": "CREATE INDEX record_versions_record ON record_versions (record_id, seq);",
+        "unique": false,
+        "columns": []
+      }
+    },
+    {
+      "id": 21,
+      "references": [],
+      "type": "table",
+      "data": {
         "name": "fx_rates",
         "was_declared_in_moor": true,
         "columns": [
@@ -1924,13 +2054,13 @@
       }
     },
     {
-      "id": 20,
+      "id": 22,
       "references": [
-        19
+        21
       ],
       "type": "index",
       "data": {
-        "on": 19,
+        "on": 21,
         "name": "fx_rates_currency_date",
         "sql": "CREATE INDEX fx_rates_currency_date ON fx_rates (currency, date);",
         "unique": false,
@@ -1938,7 +2068,7 @@
       }
     },
     {
-      "id": 21,
+      "id": 23,
       "references": [],
       "type": "table",
       "data": {
@@ -2162,6 +2292,24 @@
         {
           "dialect": "sqlite",
           "sql": "CREATE TABLE IF NOT EXISTS \"pending_uploads\" (\"id\" TEXT NOT NULL PRIMARY KEY, \"bucket\" TEXT NOT NULL, \"local_path\" TEXT NOT NULL, \"remote_path\" TEXT NOT NULL, \"record_id\" TEXT NOT NULL, \"attempts\" INTEGER NOT NULL DEFAULT 0);"
+        }
+      ]
+    },
+    {
+      "name": "record_versions",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TABLE IF NOT EXISTS \"record_versions\" (\"id\" INTEGER NOT NULL PRIMARY KEY, \"table_name\" TEXT NOT NULL, \"record_id\" TEXT NOT NULL, \"group_id\" TEXT NOT NULL, \"op\" TEXT NOT NULL, \"snapshot\" TEXT NOT NULL, \"changed_by\" TEXT, \"changed_at\" TEXT NOT NULL, \"client_updated_at\" TEXT, \"seq\" INTEGER NOT NULL DEFAULT 0);"
+        }
+      ]
+    },
+    {
+      "name": "record_versions_record",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE INDEX record_versions_record ON record_versions (record_id, seq)"
         }
       ]
     },

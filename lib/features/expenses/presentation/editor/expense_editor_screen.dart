@@ -188,7 +188,9 @@ class _ExpenseEditorScreenState extends ConsumerState<ExpenseEditorScreen> {
       ),
       EditorStep.paidBy => PaidByStep(
         draft: draft,
-        onPayer: (id) => _edit((d) => d.copyWith(payerId: id)),
+        onPayer: (id) => _edit((d) => d.withSinglePayer(id)),
+        onMultiple: () => _edit((d) => d.withMultiplePayers()),
+        onPayerText: (id, t) => _edit((d) => d.withPayerText(id, t)),
       ),
       EditorStep.split => SplitStep(
         draft: draft,
@@ -201,6 +203,7 @@ class _ExpenseEditorScreenState extends ConsumerState<ExpenseEditorScreen> {
         onCategory: (k) => _edit((d) => d.copyWith(category: k)),
         onDate: (date) => _edit((d) => d.copyWith(date: date)),
         onNotes: (t) => _edit((d) => d.copyWith(notes: t)),
+        onReceipt: (r) => _edit((d) => d.copyWith(receipt: r)),
       ),
       EditorStep.review => ReviewStep(
         draft: draft,
@@ -267,6 +270,10 @@ class _ExpenseEditorScreenState extends ConsumerState<ExpenseEditorScreen> {
     final review = _step == EditorStep.review;
     final total = d.total;
     final Widget? summary = switch (_step) {
+      EditorStep.paidBy when d.multiplePayers => SplitFooterLine(
+        key: const Key('payers-footer'),
+        footer: payersFooter(l, d),
+      ),
       EditorStep.split => SplitFooterLine(
         footer: splitFooter(
           l,

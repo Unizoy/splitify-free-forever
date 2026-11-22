@@ -1769,7 +1769,236 @@ class AppLocalizationsEn extends AppLocalizations {
   String get expComments => 'Comments';
 
   @override
-  String get expCommentsSoon => 'Comments arrive in a later update.';
+  String expEditedBy(String name, String date) {
+    return 'Edited by $name on $date';
+  }
+
+  @override
+  String expEditedOn(String date) {
+    return 'Edited on $date';
+  }
+
+  @override
+  String get histTitle => 'Edit history';
+
+  @override
+  String histPaymentTitle(String from, String to) {
+    return '$from paid $to';
+  }
+
+  @override
+  String histAdded(String name) {
+    return '$name added this';
+  }
+
+  @override
+  String histEdited(String name) {
+    return '$name edited this';
+  }
+
+  @override
+  String histDeleted(String name) {
+    return '$name deleted this';
+  }
+
+  @override
+  String histRestored(String name) {
+    return '$name restored this';
+  }
+
+  @override
+  String histLostChange(String name) {
+    return 'Change by $name';
+  }
+
+  @override
+  String get histNotApplied => 'Not applied (a newer edit won)';
+
+  @override
+  String get histFormerMember => 'A former member';
+
+  @override
+  String histWhen(String date, String time) {
+    return '$date · $time';
+  }
+
+  @override
+  String get histFieldDescription => 'Description';
+
+  @override
+  String get histFieldAmount => 'Amount';
+
+  @override
+  String get histFieldDate => 'Date';
+
+  @override
+  String get histFieldCategory => 'Category';
+
+  @override
+  String get histFieldPayers => 'Paid by';
+
+  @override
+  String get histFieldShares => 'Split';
+
+  @override
+  String get histFieldSplitKind => 'Split type';
+
+  @override
+  String get histFieldNotes => 'Notes';
+
+  @override
+  String get histFieldKind => 'Type';
+
+  @override
+  String get histFieldMethod => 'Paid with';
+
+  @override
+  String get histFieldFrom => 'From';
+
+  @override
+  String get histFieldTo => 'To';
+
+  @override
+  String get histSplitDetailsChanged => 'Split details changed';
+
+  @override
+  String get histReceiptAdded => 'Receipt added';
+
+  @override
+  String get histReceiptRemoved => 'Receipt removed';
+
+  @override
+  String get histReceiptReplaced => 'Receipt replaced';
+
+  @override
+  String get histNoValue => '—';
+
+  @override
+  String get histNoVisibleChange => 'Nothing you can see changed';
+
+  @override
+  String get histKindExpense => 'Expense';
+
+  @override
+  String get histKindIou => 'Loan';
+
+  @override
+  String get histMethodCash => 'Cash';
+
+  @override
+  String get histMethodUpi => 'UPI';
+
+  @override
+  String get histMethodBank => 'Bank transfer';
+
+  @override
+  String get histMethodOther => 'Other';
+
+  @override
+  String histChangeA11y(String field, String from, String to) {
+    return '$field: $from to $to';
+  }
+
+  @override
+  String get histPending => 'Your latest change shows here once it\'s synced.';
+
+  @override
+  String get histOfflineNote => 'Showing saved history. Connect to see newer changes.';
+
+  @override
+  String get histOfflineTitle => 'History needs internet';
+
+  @override
+  String get histOfflineBody => 'Connect once to load it. After that it stays on this phone.';
+
+  @override
+  String get histEmptyTitle => 'No history yet';
+
+  @override
+  String get histEmptyBody => 'Changes show up here once they reach the server.';
+
+  @override
+  String get histRetry => 'Try again';
+
+  @override
+  String get histNotFound => 'This item isn\'t on this phone';
+
+  @override
+  String get histNotFoundBody => 'It may belong to a group you left.';
+
+  @override
+  String get cmtHint => 'Add a comment';
+
+  @override
+  String get cmtSend => 'Send comment';
+
+  @override
+  String get cmtEmptyTitle => 'No comments yet';
+
+  @override
+  String get cmtEmptyBody => 'Start the conversation';
+
+  @override
+  String get cmtDelete => 'Delete comment';
+
+  @override
+  String get cmtDeleteTitle => 'Delete this comment?';
+
+  @override
+  String get cmtDeleteBody => 'It disappears for everyone in the group.';
+
+  @override
+  String get cmtDeleted => 'Comment deleted';
+
+  @override
+  String cmtTooLong(int max) {
+    return 'Keep it under $max characters.';
+  }
+
+  @override
+  String get cmtArchived => 'This group is archived, so comments are read-only.';
+
+  @override
+  String cmtA11y(String name, String time, String body) {
+    return '$name, $time: $body';
+  }
+
+  @override
+  String get cmtOptions => 'Comment options';
+
+  @override
+  String get delTitle => 'Deleted items';
+
+  @override
+  String get delSubtitle =>
+      'Expenses and payments deleted in this group. Restoring brings one back for everyone.';
+
+  @override
+  String get delEmptyTitle => 'Nothing deleted';
+
+  @override
+  String get delEmptyBody => 'Deleted expenses and payments show up here, ready to restore.';
+
+  @override
+  String delBy(String name, String date) {
+    return 'Deleted by $name · $date';
+  }
+
+  @override
+  String delOn(String date) {
+    return 'Deleted $date';
+  }
+
+  @override
+  String get delRestored => 'Restored';
+
+  @override
+  String get delArchivedNote => 'Unarchive the group to restore items.';
+
+  @override
+  String delRestoreA11y(String item) {
+    return 'Restore $item';
+  }
 
   @override
   String get expNotFoundTitle => 'This expense isn\'t here';
@@ -2296,4 +2525,227 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get payersMultipleHint =>
+      'Type what each person paid. Payers don\'t have to be in the split.';
+
+  @override
+  String get payersNone => 'Type at least one amount';
+
+  @override
+  String payersDone(String total) {
+    return '$total covered';
+  }
+
+  @override
+  String payerAmountLabel(String name) {
+    return 'Amount $name paid';
+  }
+
+  @override
+  String payersTwo(String first, String second) {
+    return '$first and $second';
+  }
+
+  @override
+  String payersMany(String first, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count others',
+      one: '1 other',
+    );
+    return '$first and $_temp0';
+  }
+
+  @override
+  String payersCaption(String names, String amount) {
+    return '$names paid $amount';
+  }
+
+  @override
+  String get loanAction => 'Record a loan';
+
+  @override
+  String get loanTitle => 'Record a loan';
+
+  @override
+  String get loanEditTitle => 'Edit loan';
+
+  @override
+  String get loanSubtitle =>
+      'Money lent or borrowed, outside any bill. It isn\'t counted as spending.';
+
+  @override
+  String get loanILent => 'I lent';
+
+  @override
+  String get loanIBorrowed => 'I borrowed';
+
+  @override
+  String get loanToWhom => 'To whom?';
+
+  @override
+  String get loanFromWhom => 'From whom?';
+
+  @override
+  String loanSentenceLent(String name, String amount) {
+    return 'You lent $name $amount';
+  }
+
+  @override
+  String loanSentenceBorrowed(String name, String amount) {
+    return '$name lent you $amount';
+  }
+
+  @override
+  String loanResultLent(String name, String amount) {
+    return '$name will owe you $amount';
+  }
+
+  @override
+  String loanResultBorrowed(String name, String amount) {
+    return 'You will owe $name $amount';
+  }
+
+  @override
+  String get loanPickPerson => 'Choose a person';
+
+  @override
+  String get loanNoOthers => 'Add someone to this group first.';
+
+  @override
+  String get loanWhatFor => 'What for?';
+
+  @override
+  String get loanWhatForHint => 'Optional, e.g. Cab money';
+
+  @override
+  String get loanDefaultDescription => 'Loan';
+
+  @override
+  String get loanSave => 'Save loan';
+
+  @override
+  String get loanSaved => 'Loan saved';
+
+  @override
+  String get loanChip => 'Loan';
+
+  @override
+  String loanCaption(String lender, String borrower, String amount) {
+    return '$lender lent $borrower $amount';
+  }
+
+  @override
+  String get loanLentBy => 'Lent by';
+
+  @override
+  String get loanBorrowedBy => 'Borrowed by';
+
+  @override
+  String get loanAmountLabel => 'Loan amount';
+
+  @override
+  String get loanNotSpending => 'Loans aren\'t counted in group totals.';
+
+  @override
+  String get receiptLabel => 'Receipt';
+
+  @override
+  String get receiptAdd => 'Add receipt photo';
+
+  @override
+  String get receiptAddHint => 'One photo per expense, shrunk before it\'s uploaded.';
+
+  @override
+  String get receiptPhoto => 'Receipt photo';
+
+  @override
+  String get receiptRemoveTitle => 'Remove the receipt photo?';
+
+  @override
+  String get receiptRemoveBody =>
+      'Everyone in the group stops seeing it. Earlier versions stay in the edit history.';
+
+  @override
+  String get receiptRemoved => 'Receipt photo removed';
+
+  @override
+  String get receiptReplaced => 'Receipt photo replaced';
+
+  @override
+  String get receiptOnList => 'Has a receipt photo';
+
+  @override
+  String get photoSourceTitle => 'Add a photo';
+
+  @override
+  String get photoTake => 'Take a photo';
+
+  @override
+  String get photoChoose => 'Choose from your photos';
+
+  @override
+  String get photoChooseHint =>
+      'Opens the Android photo picker. Splitify only sees the photo you pick.';
+
+  @override
+  String get photoReplace => 'Replace';
+
+  @override
+  String get photoRemove => 'Remove';
+
+  @override
+  String get photoView => 'Open photo';
+
+  @override
+  String get photoClose => 'Close photo';
+
+  @override
+  String get photoWaiting => 'Uploads when you\'re online';
+
+  @override
+  String get photoOffline => 'Shows when you\'re online';
+
+  @override
+  String get photoUnavailable => 'Photo not available';
+
+  @override
+  String get photoPickFailed => 'Couldn\'t use that photo. Try another one.';
+
+  @override
+  String get photoZoomHint => 'Pinch or double-tap to zoom';
+
+  @override
+  String get coverLabel => 'Cover';
+
+  @override
+  String get coverGenerated => 'Generated';
+
+  @override
+  String get coverPhotoOption => 'Photo';
+
+  @override
+  String get coverChangePhoto => 'Change photo';
+
+  @override
+  String get coverPhotoHint => 'Your photo is shrunk and shared with group members only.';
+
+  @override
+  String get coverPhotoSaved => 'Cover photo saved';
+
+  @override
+  String loanNameLent(String name) {
+    return '$name lent';
+  }
+
+  @override
+  String loanNameBorrowed(String name) {
+    return '$name borrowed';
+  }
+
+  @override
+  String get loanAmountDone => 'Done';
 }

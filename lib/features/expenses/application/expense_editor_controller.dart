@@ -3,9 +3,12 @@ import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:splitify/core/money/currencies.dart';
 import 'package:splitify/core/money/scaled_input.dart';
+import 'package:splitify/core/utils/uuid.dart';
 import 'package:splitify/data/data_providers.dart';
 import 'package:splitify/data/local/app_database.dart';
+import 'package:splitify/data/media_providers.dart';
 import 'package:splitify/data/repositories/expense_reads.dart';
+import 'package:splitify/domain/entities/prepared_image.dart';
 import 'package:splitify/domain/rules/default_split.dart';
 import 'package:splitify/domain/rules/expense_categories.dart';
 import 'package:splitify/features/auth/application/auth_providers.dart' show authRepositoryProvider;
@@ -13,6 +16,7 @@ import 'package:splitify/features/currency/application/conversion_actions.dart'
     show savedFxOfExpense;
 import 'package:splitify/features/currency/domain/conversion.dart' show expenseFxAfterEdit;
 import 'package:splitify/features/expenses/application/expense_draft.dart';
+import 'package:splitify/features/expenses/application/receipt_draft.dart';
 import 'package:splitify/features/expenses/application/split_draft.dart';
 
 /// Which expense the editor opens: a new one in [groupId], or the saved [expenseId].
@@ -112,6 +116,9 @@ class ExpenseEditorController extends AsyncNotifier<ExpenseDraft> {
       description: saved.description,
       category: ExpenseCategories.normalize(saved.category),
       notes: saved.notes ?? '',
+      receipt: saved.receiptPath == null
+          ? const ReceiptDraft.none()
+          : ReceiptDraft.saved(saved.receiptPath!),
     );
   }
 
@@ -121,14 +128,27 @@ class ExpenseEditorController extends AsyncNotifier<ExpenseDraft> {
     if (d != null) state = AsyncData(change(d));
   }
 
-  /// Saves (offline first) and returns the expense id, or null when the draft is not valid.
+  /// Saves (offline first) and returns the expense id, or null when the draft is not valid. A new
+  /// receipt photo is queued for upload in the same transaction (#29); a removed or replaced photo
+  /// that never went up is forgotten.
   Future<String?> save() async {
     final d = state.value;
     if (d == null || !d.canSave) return null;
     final row = d.toRow();
     if (!d.isEdit) row['created_at'] = ref.read(clockProvider).now().toUtc().toIso8601String();
     if (d.isEdit) row.addAll(await _fxAfterEdit(d, row));
-    return await ref.read(expensesRepositoryProvider).save(d.groupId, row, id: d.expenseId);
+    final id = d.expenseId ?? newId();
+    final receipt = d.receipt;
+    final media = ref.read(mediaRepositoryProvider);
+    final old = receipt.savedPath;
+    if (receipt.changed && old != null) await media.discardPending(MediaBuckets.receipts, old);
+    final picked = receipt.picked;
+    if (picked != null) {
+      await media.saveExpenseWithReceipt(d.groupId, id, row, picked);
+      return id;
+    }
+    if (receipt.removed) row['receipt_path'] = null;
+    return await ref.read(expensesRepositoryProvider).save(d.groupId, row, id: id);
   }
 
   /// A saved conversion follows the edit (phase 14, S-151): same currency → the saved rate re-converts

@@ -11,9 +11,12 @@ import 'package:splitify/features/currency/presentation/conversion_tile.dart';
 import 'package:splitify/features/expenses/application/expense_draft.dart' show parseIsoDate;
 import 'package:splitify/features/expenses/application/expense_providers.dart'
     show expenseGroupProvider;
+import 'package:splitify/features/comments/application/comments_providers.dart';
+import 'package:splitify/features/comments/presentation/comment_thread.dart';
 import 'package:splitify/features/expenses/presentation/expense_copy.dart';
 import 'package:splitify/features/groups/presentation/group_visuals.dart'
     show SectionLabel, coverFamilyFor;
+import 'package:splitify/features/history/presentation/history_routes.dart';
 import 'package:splitify/features/payments/application/payment_providers.dart';
 import 'package:splitify/features/payments/presentation/payment_routes.dart';
 import 'package:splitify/features/payments/presentation/settle_up_screen.dart'
@@ -23,8 +26,8 @@ import 'package:splitify/ui/components/components.dart';
 import 'package:splitify/ui/theme/theme.dart';
 
 /// Payment detail (`/payment/:id`, #25): the group's cover hero with both people, the serif amount
-/// and "You paid Asha"; method, date and note; edit and delete (soft, with undo). History and
-/// comments arrive in phase 12.
+/// and "You paid Asha"; method, date and note; edit and delete (soft, with undo); history and the
+/// comment thread with its composer pinned at the bottom (phase 12).
 class PaymentDetailScreen extends ConsumerWidget {
   const PaymentDetailScreen({required this.paymentId, super.key});
 
@@ -66,9 +69,16 @@ class PaymentDetailScreen extends ConsumerWidget {
           bottom: OverlapSheet(child: _Body(view: v)),
         ),
       ),
+      bottomNavigationBar: CommentComposer(
+        target: _commentTarget(v),
+        readOnly: group?.archivedAt != null,
+      ),
     );
   }
 }
+
+CommentTarget _commentTarget(PaymentView v) =>
+    (groupId: v.payment.groupId, targetType: 'payment', targetId: v.payment.id);
 
 String _name(AppLocalizations l, PaymentView v, String id, {bool start = true}) {
   if (id == v.meId) return start ? l.you : l.youLower;
@@ -246,7 +256,7 @@ class _Body extends StatelessWidget {
           icon: AppIcons.history,
           label: l.expHistory,
           showDivider: false,
-          onTap: () => showComingSoon(context),
+          onTap: () => unawaited(context.push(HistoryRoutes.payment(p.id))),
         ),
         if (added != null) ...[
           const SizedBox(height: AppSpacing.s2),
@@ -258,31 +268,8 @@ class _Body extends StatelessWidget {
         ],
         const SizedBox(height: AppSpacing.s8),
         SectionLabel(l.expComments),
-        ClipRRect(
-          borderRadius: AppRadii.all24,
-          child: BlobBackground(
-            child: Padding(
-              padding: const EdgeInsets.all(AppSpacing.s5),
-              child: Row(
-                children: [
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(color: c.surface, shape: BoxShape.circle),
-                    child: Icon(AppIcons.chat, size: 20, color: c.primary),
-                  ),
-                  const SizedBox(width: AppSpacing.s3),
-                  Expanded(
-                    child: Text(
-                      l.expCommentsSoon,
-                      style: context.text.bodySmall.copyWith(color: c.textSecondary),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
+        const SizedBox(height: AppSpacing.s3),
+        CommentThread(target: _commentTarget(view)),
       ],
     );
   }

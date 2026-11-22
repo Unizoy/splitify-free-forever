@@ -153,7 +153,7 @@ class _ActionBar extends StatelessWidget {
   }
 }
 
-class _Hero extends StatelessWidget {
+class _Hero extends ConsumerWidget {
   const _Hero({required this.group, required this.members, required this.me, this.balances});
 
   final LocalGroup group;
@@ -162,17 +162,25 @@ class _Hero extends StatelessWidget {
   final GroupBalances? balances;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context);
     final c = context.colors;
     return HeroHeader(
       art: (seed: group.id, family: coverFamilyFor(group.type)),
+      photo: groupCoverImage(ref, group, width: 1200),
       leading: HeroIconButton(
         icon: AppIcons.back,
         tooltip: l.back,
         onPressed: () => _GroupDetailScreenState._close(context),
       ),
       actions: [
+        if (group.archivedAt == null)
+          HeroIconButton(
+            key: const Key('group-loan'),
+            icon: AppIcons.loan,
+            tooltip: l.loanAction,
+            onPressed: () => unawaited(context.push(ExpenseRoutes.addLoan(group.id))),
+          ),
         HeroIconButton(
           key: const Key('group-invite'),
           icon: AppIcons.userPlus,

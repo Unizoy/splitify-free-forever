@@ -16,7 +16,12 @@ class AppDatabase extends _$AppDatabase {
   MigrationStrategy get migration => MigrationStrategy(
     onCreate: (m) => m.createAll(),
     onUpgrade: (m, from, to) async {
-      // v3 (phase 14): exchange-rate cache. (v2 is phase 12's edit-history cache.)
+      // v2 (phase 12): edit-history cache.
+      if (from < 2) {
+        await m.createTable(recordVersions);
+        await m.createIndex(recordVersionsRecord);
+      }
+      // v3 (phase 14): exchange-rate cache.
       if (from < 3) {
         await m.createTable(fxRates);
         await m.createIndex(fxRatesCurrencyDate);

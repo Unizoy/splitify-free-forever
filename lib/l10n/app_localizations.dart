@@ -2924,11 +2924,407 @@ abstract class AppLocalizations {
   /// **'Comments'**
   String get expComments;
 
-  /// No description provided for @expCommentsSoon.
+  /// No description provided for @expEditedBy.
   ///
   /// In en, this message translates to:
-  /// **'Comments arrive in a later update.'**
-  String get expCommentsSoon;
+  /// **'Edited by {name} on {date}'**
+  String expEditedBy(String name, String date);
+
+  /// No description provided for @expEditedOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Edited on {date}'**
+  String expEditedOn(String date);
+
+  /// No description provided for @histTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit history'**
+  String get histTitle;
+
+  /// No description provided for @histPaymentTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{from} paid {to}'**
+  String histPaymentTitle(String from, String to);
+
+  /// No description provided for @histAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} added this'**
+  String histAdded(String name);
+
+  /// No description provided for @histEdited.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} edited this'**
+  String histEdited(String name);
+
+  /// No description provided for @histDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} deleted this'**
+  String histDeleted(String name);
+
+  /// No description provided for @histRestored.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} restored this'**
+  String histRestored(String name);
+
+  /// No description provided for @histLostChange.
+  ///
+  /// In en, this message translates to:
+  /// **'Change by {name}'**
+  String histLostChange(String name);
+
+  /// No description provided for @histNotApplied.
+  ///
+  /// In en, this message translates to:
+  /// **'Not applied (a newer edit won)'**
+  String get histNotApplied;
+
+  /// No description provided for @histFormerMember.
+  ///
+  /// In en, this message translates to:
+  /// **'A former member'**
+  String get histFormerMember;
+
+  /// No description provided for @histWhen.
+  ///
+  /// In en, this message translates to:
+  /// **'{date} · {time}'**
+  String histWhen(String date, String time);
+
+  /// No description provided for @histFieldDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Description'**
+  String get histFieldDescription;
+
+  /// No description provided for @histFieldAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get histFieldAmount;
+
+  /// No description provided for @histFieldDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get histFieldDate;
+
+  /// No description provided for @histFieldCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get histFieldCategory;
+
+  /// No description provided for @histFieldPayers.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid by'**
+  String get histFieldPayers;
+
+  /// No description provided for @histFieldShares.
+  ///
+  /// In en, this message translates to:
+  /// **'Split'**
+  String get histFieldShares;
+
+  /// No description provided for @histFieldSplitKind.
+  ///
+  /// In en, this message translates to:
+  /// **'Split type'**
+  String get histFieldSplitKind;
+
+  /// No description provided for @histFieldNotes.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes'**
+  String get histFieldNotes;
+
+  /// No description provided for @histFieldKind.
+  ///
+  /// In en, this message translates to:
+  /// **'Type'**
+  String get histFieldKind;
+
+  /// No description provided for @histFieldMethod.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid with'**
+  String get histFieldMethod;
+
+  /// No description provided for @histFieldFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'From'**
+  String get histFieldFrom;
+
+  /// No description provided for @histFieldTo.
+  ///
+  /// In en, this message translates to:
+  /// **'To'**
+  String get histFieldTo;
+
+  /// No description provided for @histSplitDetailsChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'Split details changed'**
+  String get histSplitDetailsChanged;
+
+  /// No description provided for @histReceiptAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Receipt added'**
+  String get histReceiptAdded;
+
+  /// No description provided for @histReceiptRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'Receipt removed'**
+  String get histReceiptRemoved;
+
+  /// No description provided for @histReceiptReplaced.
+  ///
+  /// In en, this message translates to:
+  /// **'Receipt replaced'**
+  String get histReceiptReplaced;
+
+  /// No description provided for @histNoValue.
+  ///
+  /// In en, this message translates to:
+  /// **'—'**
+  String get histNoValue;
+
+  /// No description provided for @histNoVisibleChange.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing you can see changed'**
+  String get histNoVisibleChange;
+
+  /// No description provided for @histKindExpense.
+  ///
+  /// In en, this message translates to:
+  /// **'Expense'**
+  String get histKindExpense;
+
+  /// No description provided for @histKindIou.
+  ///
+  /// In en, this message translates to:
+  /// **'Loan'**
+  String get histKindIou;
+
+  /// No description provided for @histMethodCash.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash'**
+  String get histMethodCash;
+
+  /// No description provided for @histMethodUpi.
+  ///
+  /// In en, this message translates to:
+  /// **'UPI'**
+  String get histMethodUpi;
+
+  /// No description provided for @histMethodBank.
+  ///
+  /// In en, this message translates to:
+  /// **'Bank transfer'**
+  String get histMethodBank;
+
+  /// No description provided for @histMethodOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get histMethodOther;
+
+  /// No description provided for @histChangeA11y.
+  ///
+  /// In en, this message translates to:
+  /// **'{field}: {from} to {to}'**
+  String histChangeA11y(String field, String from, String to);
+
+  /// No description provided for @histPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Your latest change shows here once it\'s synced.'**
+  String get histPending;
+
+  /// No description provided for @histOfflineNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Showing saved history. Connect to see newer changes.'**
+  String get histOfflineNote;
+
+  /// No description provided for @histOfflineTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'History needs internet'**
+  String get histOfflineTitle;
+
+  /// No description provided for @histOfflineBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect once to load it. After that it stays on this phone.'**
+  String get histOfflineBody;
+
+  /// No description provided for @histEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No history yet'**
+  String get histEmptyTitle;
+
+  /// No description provided for @histEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Changes show up here once they reach the server.'**
+  String get histEmptyBody;
+
+  /// No description provided for @histRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get histRetry;
+
+  /// No description provided for @histNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'This item isn\'t on this phone'**
+  String get histNotFound;
+
+  /// No description provided for @histNotFoundBody.
+  ///
+  /// In en, this message translates to:
+  /// **'It may belong to a group you left.'**
+  String get histNotFoundBody;
+
+  /// No description provided for @cmtHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a comment'**
+  String get cmtHint;
+
+  /// No description provided for @cmtSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Send comment'**
+  String get cmtSend;
+
+  /// No description provided for @cmtEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No comments yet'**
+  String get cmtEmptyTitle;
+
+  /// No description provided for @cmtEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Start the conversation'**
+  String get cmtEmptyBody;
+
+  /// No description provided for @cmtDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete comment'**
+  String get cmtDelete;
+
+  /// No description provided for @cmtDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this comment?'**
+  String get cmtDeleteTitle;
+
+  /// No description provided for @cmtDeleteBody.
+  ///
+  /// In en, this message translates to:
+  /// **'It disappears for everyone in the group.'**
+  String get cmtDeleteBody;
+
+  /// No description provided for @cmtDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Comment deleted'**
+  String get cmtDeleted;
+
+  /// No description provided for @cmtTooLong.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep it under {max} characters.'**
+  String cmtTooLong(int max);
+
+  /// No description provided for @cmtArchived.
+  ///
+  /// In en, this message translates to:
+  /// **'This group is archived, so comments are read-only.'**
+  String get cmtArchived;
+
+  /// No description provided for @cmtA11y.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}, {time}: {body}'**
+  String cmtA11y(String name, String time, String body);
+
+  /// No description provided for @cmtOptions.
+  ///
+  /// In en, this message translates to:
+  /// **'Comment options'**
+  String get cmtOptions;
+
+  /// No description provided for @delTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleted items'**
+  String get delTitle;
+
+  /// No description provided for @delSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Expenses and payments deleted in this group. Restoring brings one back for everyone.'**
+  String get delSubtitle;
+
+  /// No description provided for @delEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing deleted'**
+  String get delEmptyTitle;
+
+  /// No description provided for @delEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleted expenses and payments show up here, ready to restore.'**
+  String get delEmptyBody;
+
+  /// No description provided for @delBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleted by {name} · {date}'**
+  String delBy(String name, String date);
+
+  /// No description provided for @delOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleted {date}'**
+  String delOn(String date);
+
+  /// No description provided for @delRestored.
+  ///
+  /// In en, this message translates to:
+  /// **'Restored'**
+  String get delRestored;
+
+  /// No description provided for @delArchivedNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Unarchive the group to restore items.'**
+  String get delArchivedNote;
+
+  /// No description provided for @delRestoreA11y.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore {item}'**
+  String delRestoreA11y(String item);
 
   /// No description provided for @expNotFoundTitle.
   ///
@@ -3805,6 +4201,384 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, =1{1 problem} other{{count} problems}}'**
   String syncRowProblems(int count);
+
+  /// No description provided for @payersMultipleHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Type what each person paid. Payers don\'t have to be in the split.'**
+  String get payersMultipleHint;
+
+  /// No description provided for @payersNone.
+  ///
+  /// In en, this message translates to:
+  /// **'Type at least one amount'**
+  String get payersNone;
+
+  /// No description provided for @payersDone.
+  ///
+  /// In en, this message translates to:
+  /// **'{total} covered'**
+  String payersDone(String total);
+
+  /// No description provided for @payerAmountLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount {name} paid'**
+  String payerAmountLabel(String name);
+
+  /// No description provided for @payersTwo.
+  ///
+  /// In en, this message translates to:
+  /// **'{first} and {second}'**
+  String payersTwo(String first, String second);
+
+  /// No description provided for @payersMany.
+  ///
+  /// In en, this message translates to:
+  /// **'{first} and {count, plural, =1{1 other} other{{count} others}}'**
+  String payersMany(String first, int count);
+
+  /// No description provided for @payersCaption.
+  ///
+  /// In en, this message translates to:
+  /// **'{names} paid {amount}'**
+  String payersCaption(String names, String amount);
+
+  /// No description provided for @loanAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Record a loan'**
+  String get loanAction;
+
+  /// No description provided for @loanTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Record a loan'**
+  String get loanTitle;
+
+  /// No description provided for @loanEditTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit loan'**
+  String get loanEditTitle;
+
+  /// No description provided for @loanSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Money lent or borrowed, outside any bill. It isn\'t counted as spending.'**
+  String get loanSubtitle;
+
+  /// No description provided for @loanILent.
+  ///
+  /// In en, this message translates to:
+  /// **'I lent'**
+  String get loanILent;
+
+  /// No description provided for @loanIBorrowed.
+  ///
+  /// In en, this message translates to:
+  /// **'I borrowed'**
+  String get loanIBorrowed;
+
+  /// No description provided for @loanToWhom.
+  ///
+  /// In en, this message translates to:
+  /// **'To whom?'**
+  String get loanToWhom;
+
+  /// No description provided for @loanFromWhom.
+  ///
+  /// In en, this message translates to:
+  /// **'From whom?'**
+  String get loanFromWhom;
+
+  /// No description provided for @loanSentenceLent.
+  ///
+  /// In en, this message translates to:
+  /// **'You lent {name} {amount}'**
+  String loanSentenceLent(String name, String amount);
+
+  /// No description provided for @loanSentenceBorrowed.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} lent you {amount}'**
+  String loanSentenceBorrowed(String name, String amount);
+
+  /// No description provided for @loanResultLent.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} will owe you {amount}'**
+  String loanResultLent(String name, String amount);
+
+  /// No description provided for @loanResultBorrowed.
+  ///
+  /// In en, this message translates to:
+  /// **'You will owe {name} {amount}'**
+  String loanResultBorrowed(String name, String amount);
+
+  /// No description provided for @loanPickPerson.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a person'**
+  String get loanPickPerson;
+
+  /// No description provided for @loanNoOthers.
+  ///
+  /// In en, this message translates to:
+  /// **'Add someone to this group first.'**
+  String get loanNoOthers;
+
+  /// No description provided for @loanWhatFor.
+  ///
+  /// In en, this message translates to:
+  /// **'What for?'**
+  String get loanWhatFor;
+
+  /// No description provided for @loanWhatForHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional, e.g. Cab money'**
+  String get loanWhatForHint;
+
+  /// No description provided for @loanDefaultDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Loan'**
+  String get loanDefaultDescription;
+
+  /// No description provided for @loanSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save loan'**
+  String get loanSave;
+
+  /// No description provided for @loanSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Loan saved'**
+  String get loanSaved;
+
+  /// No description provided for @loanChip.
+  ///
+  /// In en, this message translates to:
+  /// **'Loan'**
+  String get loanChip;
+
+  /// No description provided for @loanCaption.
+  ///
+  /// In en, this message translates to:
+  /// **'{lender} lent {borrower} {amount}'**
+  String loanCaption(String lender, String borrower, String amount);
+
+  /// No description provided for @loanLentBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Lent by'**
+  String get loanLentBy;
+
+  /// No description provided for @loanBorrowedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Borrowed by'**
+  String get loanBorrowedBy;
+
+  /// No description provided for @loanAmountLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Loan amount'**
+  String get loanAmountLabel;
+
+  /// No description provided for @loanNotSpending.
+  ///
+  /// In en, this message translates to:
+  /// **'Loans aren\'t counted in group totals.'**
+  String get loanNotSpending;
+
+  /// No description provided for @receiptLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Receipt'**
+  String get receiptLabel;
+
+  /// No description provided for @receiptAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add receipt photo'**
+  String get receiptAdd;
+
+  /// No description provided for @receiptAddHint.
+  ///
+  /// In en, this message translates to:
+  /// **'One photo per expense, shrunk before it\'s uploaded.'**
+  String get receiptAddHint;
+
+  /// No description provided for @receiptPhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Receipt photo'**
+  String get receiptPhoto;
+
+  /// No description provided for @receiptRemoveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove the receipt photo?'**
+  String get receiptRemoveTitle;
+
+  /// No description provided for @receiptRemoveBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Everyone in the group stops seeing it. Earlier versions stay in the edit history.'**
+  String get receiptRemoveBody;
+
+  /// No description provided for @receiptRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'Receipt photo removed'**
+  String get receiptRemoved;
+
+  /// No description provided for @receiptReplaced.
+  ///
+  /// In en, this message translates to:
+  /// **'Receipt photo replaced'**
+  String get receiptReplaced;
+
+  /// No description provided for @receiptOnList.
+  ///
+  /// In en, this message translates to:
+  /// **'Has a receipt photo'**
+  String get receiptOnList;
+
+  /// No description provided for @photoSourceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a photo'**
+  String get photoSourceTitle;
+
+  /// No description provided for @photoTake.
+  ///
+  /// In en, this message translates to:
+  /// **'Take a photo'**
+  String get photoTake;
+
+  /// No description provided for @photoChoose.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose from your photos'**
+  String get photoChoose;
+
+  /// No description provided for @photoChooseHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Opens the Android photo picker. Splitify only sees the photo you pick.'**
+  String get photoChooseHint;
+
+  /// No description provided for @photoReplace.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace'**
+  String get photoReplace;
+
+  /// No description provided for @photoRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get photoRemove;
+
+  /// No description provided for @photoView.
+  ///
+  /// In en, this message translates to:
+  /// **'Open photo'**
+  String get photoView;
+
+  /// No description provided for @photoClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Close photo'**
+  String get photoClose;
+
+  /// No description provided for @photoWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'Uploads when you\'re online'**
+  String get photoWaiting;
+
+  /// No description provided for @photoOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Shows when you\'re online'**
+  String get photoOffline;
+
+  /// No description provided for @photoUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo not available'**
+  String get photoUnavailable;
+
+  /// No description provided for @photoPickFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t use that photo. Try another one.'**
+  String get photoPickFailed;
+
+  /// No description provided for @photoZoomHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Pinch or double-tap to zoom'**
+  String get photoZoomHint;
+
+  /// No description provided for @coverLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cover'**
+  String get coverLabel;
+
+  /// No description provided for @coverGenerated.
+  ///
+  /// In en, this message translates to:
+  /// **'Generated'**
+  String get coverGenerated;
+
+  /// No description provided for @coverPhotoOption.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo'**
+  String get coverPhotoOption;
+
+  /// No description provided for @coverChangePhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Change photo'**
+  String get coverChangePhoto;
+
+  /// No description provided for @coverPhotoHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Your photo is shrunk and shared with group members only.'**
+  String get coverPhotoHint;
+
+  /// No description provided for @coverPhotoSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Cover photo saved'**
+  String get coverPhotoSaved;
+
+  /// No description provided for @loanNameLent.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} lent'**
+  String loanNameLent(String name);
+
+  /// No description provided for @loanNameBorrowed.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} borrowed'**
+  String loanNameBorrowed(String name);
+
+  /// No description provided for @loanAmountDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get loanAmountDone;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

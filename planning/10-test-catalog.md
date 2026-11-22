@@ -76,11 +76,11 @@ Total: 117 test ids (TC-18-03 golden added in phase 09).
 | 09 | TC-21-02 | widget | totals tab. | pass (`totals_tab_test.dart`) |
 | 09 | TC-25-02 | widget | settle-up form | pass (`settle_up_screen_test.dart`, `settle_controller_test.dart`) |
 | 09 | TC-25-03 | integ | settle a week | pass (device `integration_test/balances_week_test.dart` 2026-11-22: week in Goa, 3 people, 2 payments, oracle = phone = server, all settle → 0) |
-| 10 | TC-10-02 | widget | multi-payer sheet | todo |
-| 10 | TC-11-02 | widget | direction toggle copy. | todo |
-| 10 | TC-29-01 | unit | compression bounds | todo |
-| 10 | TC-29-02 | sql | storage policies (member-only) | todo |
-| 10 | TC-29-03 | integ | offline | todo |
+| 10 | TC-10-02 | widget | multi-payer sheet | pass |
+| 10 | TC-11-02 | widget | direction toggle copy. | pass |
+| 10 | TC-29-01 | unit | compression bounds (+ real compression on the device) | pass |
+| 10 | TC-29-02 | sql | storage policies (member-only) — `023_storage` 24/24 + `060_file_paths` 12/12 on dev | pass |
+| 10 | TC-29-03 | integ | offline photo uploads later — device `integration_test/receipts_offline_upload_test.dart` 2026-11-22 (receipt + cover uploaded after sync, B reads both via signed URLs) | pass |
 | 11 | TC-16-02 | sql | my_overview friend totals. | todo |
 | 11 | TC-17-03 | widget | toggle + link. | todo |
 | 11 | TC-2-01 | sql | one direct group per user pair | todo |
@@ -91,12 +91,12 @@ Total: 117 test ids (TC-18-03 golden added in phase 09).
 | 11 | TC-26-03 | integ | no UPI app → fallback sheet | todo |
 | 11 | TC-26-04 | widget | hidden for non-INR / no VPA | todo |
 | 11 | TC-26-05 | manual-opt | real UPI app on a phone. | manual-opt |
-| 12 | TC-13-03 | integ | add comment offline then | todo |
-| 12 | TC-13-04 | sql | comment delete only by author. | todo |
-| 12 | TC-20-01 | sql | versions written for insert/update/delete/restore/conflict | todo |
-| 12 | TC-20-02 | unit | diff builder | todo |
-| 12 | TC-20-03 | widget | history timeline | todo |
-| 12 | TC-20-04 | integ | delete → restore round trip. | todo |
+| 12 | TC-13-03 | integ | add comment offline then | pass (`integration_test/history_comments_test.dart` on emulator + dev; unit `comments_providers_test.dart`) |
+| 12 | TC-13-04 | sql | comment delete only by author. | pass (`supabase/tests/060_history_comments.test.sql` on dev; widget: `comment_thread_test.dart`) |
+| 12 | TC-20-01 | sql | versions written for insert/update/delete/restore/conflict | pass (`060_history_comments.test.sql` on dev, 42/42) |
+| 12 | TC-20-02 | unit | diff builder | pass (`version_diff_test.dart`, prep) |
+| 12 | TC-20-03 | widget | history timeline | pass (`history_screen_test.dart`, `history_providers_test.dart`, goldens `history_comments_golden_test.dart`) |
+| 12 | TC-20-04 | integ | delete → restore round trip. | pass (`integration_test/history_comments_test.dart` on emulator + dev; widget `deleted_items_screen_test.dart`) |
 | 13 | TC-19-01 | sql | fan-out recipients exclude actor/muted | todo |
 | 13 | TC-19-02 | edge | send-push idempotent + token cleanup | todo |
 | 13 | TC-19-03 | widget | bell badge | todo |

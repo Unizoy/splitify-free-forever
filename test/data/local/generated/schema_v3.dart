@@ -1787,6 +1787,126 @@ class PendingUploads extends Table with TableInfo {
   bool get dontWriteConstraints => true;
 }
 
+class RecordVersions extends Table with TableInfo {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  RecordVersions(this.attachedDatabase, [this._alias]);
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    $customConstraints: 'NOT NULL PRIMARY KEY',
+  );
+  late final GeneratedColumn<String> tableName$ = GeneratedColumn<String>(
+    'table_name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL',
+  );
+  late final GeneratedColumn<String> recordId = GeneratedColumn<String>(
+    'record_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL',
+  );
+  late final GeneratedColumn<String> groupId = GeneratedColumn<String>(
+    'group_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL',
+  );
+  late final GeneratedColumn<String> op = GeneratedColumn<String>(
+    'op',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL',
+  );
+  late final GeneratedColumn<String> snapshot = GeneratedColumn<String>(
+    'snapshot',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL',
+  );
+  late final GeneratedColumn<String> changedBy = GeneratedColumn<String>(
+    'changed_by',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    $customConstraints: '',
+  );
+  late final GeneratedColumn<String> changedAt = GeneratedColumn<String>(
+    'changed_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL',
+  );
+  late final GeneratedColumn<String> clientUpdatedAt = GeneratedColumn<String>(
+    'client_updated_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    $customConstraints: '',
+  );
+  late final GeneratedColumn<int> seq = GeneratedColumn<int>(
+    'seq',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    $customConstraints: 'NOT NULL DEFAULT 0',
+    defaultValue: const CustomExpression('0'),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    tableName$,
+    recordId,
+    groupId,
+    op,
+    snapshot,
+    changedBy,
+    changedAt,
+    clientUpdatedAt,
+    seq,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'record_versions';
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  Never map(Map<String, dynamic> data, {String? tablePrefix}) {
+    throw UnsupportedError('TableInfo.map in schema verification code');
+  }
+
+  @override
+  RecordVersions createAlias(String alias) {
+    return RecordVersions(attachedDatabase, alias);
+  }
+
+  @override
+  bool get dontWriteConstraints => true;
+}
+
 class FxRates extends Table with TableInfo {
   @override
   final GeneratedDatabase attachedDatabase;
@@ -1959,6 +2079,11 @@ class DatabaseAtV3 extends GeneratedDatabase {
   late final SyncCursors syncCursors = SyncCursors(this);
   late final SyncMeta syncMeta = SyncMeta(this);
   late final PendingUploads pendingUploads = PendingUploads(this);
+  late final RecordVersions recordVersions = RecordVersions(this);
+  late final Index recordVersionsRecord = Index(
+    'record_versions_record',
+    'CREATE INDEX record_versions_record ON record_versions (record_id, seq)',
+  );
   late final FxRates fxRates = FxRates(this);
   late final Index fxRatesCurrencyDate = Index(
     'fx_rates_currency_date',
@@ -1989,6 +2114,8 @@ class DatabaseAtV3 extends GeneratedDatabase {
     syncCursors,
     syncMeta,
     pendingUploads,
+    recordVersions,
+    recordVersionsRecord,
     fxRates,
     fxRatesCurrencyDate,
     expenseSearch,

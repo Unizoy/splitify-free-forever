@@ -29,3 +29,8 @@ TC-2-01…03, TC-16-02, TC-17-03, TC-26-01…05.
 Fake-UPI integration green; friend totals equal sum of group pairs in all test fixtures.
 
 Pre-built (phase 06 session, branch prep/upi-recurrence): `lib/core/upi/upi_link.dart`, `test/fixtures/upi_vectors.json`, `test/core/upi/upi_link_test.dart` (T4 builder only; `<queries>`, launch and sheets still to do).
+
+> **Amendment (S-116, phase 10):** the friend page's "Record a loan" action opens
+> `ExpenseRoutes.addLoan(<direct group id>, withMember: <friend's member id>)` (`lib/features/expenses/presentation/expense_routes.dart`);
+> the loan form, IOU rows (LOAN tag, "You lent Asha ₹500") and loan detail already exist. Friend page item lists can reuse
+> `paidCaption()` from `expense_list.dart`.

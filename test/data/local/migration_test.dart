@@ -20,8 +20,17 @@ void main() {
     expect(db.schemaVersion, 3);
   });
 
-  test('v1 -> v3 adds the exchange-rate cache (phase 14)', () async {
+  test('v1 -> v3 adds the edit-history and exchange-rate caches (phases 12, 14)', () async {
     final connection = await verifier.startAt(1);
+    final db = AppDatabase(connection);
+    addTearDown(db.close);
+    await verifier.migrateAndValidate(db, 3);
+    expect(await db.select(db.recordVersions).get(), isEmpty);
+    expect(await db.select(db.fxRates).get(), isEmpty);
+  });
+
+  test('v2 -> v3 adds the exchange-rate cache (phase 14)', () async {
+    final connection = await verifier.startAt(2);
     final db = AppDatabase(connection);
     addTearDown(db.close);
     await verifier.migrateAndValidate(db, 3);

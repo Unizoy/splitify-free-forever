@@ -8287,6 +8287,563 @@ class PendingUploadsCompanion extends UpdateCompanion<PendingUpload> {
   }
 }
 
+class RecordVersions extends Table with TableInfo<RecordVersions, LocalVersion> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  RecordVersions(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    $customConstraints: 'NOT NULL PRIMARY KEY',
+  );
+  static const VerificationMeta _tableName$Meta = const VerificationMeta('tableName\$');
+  late final GeneratedColumn<String> tableName$ = GeneratedColumn<String>(
+    'table_name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL',
+  );
+  static const VerificationMeta _recordIdMeta = const VerificationMeta('recordId');
+  late final GeneratedColumn<String> recordId = GeneratedColumn<String>(
+    'record_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL',
+  );
+  static const VerificationMeta _groupIdMeta = const VerificationMeta('groupId');
+  late final GeneratedColumn<String> groupId = GeneratedColumn<String>(
+    'group_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL',
+  );
+  static const VerificationMeta _opMeta = const VerificationMeta('op');
+  late final GeneratedColumn<String> op = GeneratedColumn<String>(
+    'op',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL',
+  );
+  static const VerificationMeta _snapshotMeta = const VerificationMeta('snapshot');
+  late final GeneratedColumn<String> snapshot = GeneratedColumn<String>(
+    'snapshot',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL',
+  );
+  static const VerificationMeta _changedByMeta = const VerificationMeta('changedBy');
+  late final GeneratedColumn<String> changedBy = GeneratedColumn<String>(
+    'changed_by',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    $customConstraints: '',
+  );
+  static const VerificationMeta _changedAtMeta = const VerificationMeta('changedAt');
+  late final GeneratedColumn<String> changedAt = GeneratedColumn<String>(
+    'changed_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL',
+  );
+  static const VerificationMeta _clientUpdatedAtMeta = const VerificationMeta('clientUpdatedAt');
+  late final GeneratedColumn<String> clientUpdatedAt = GeneratedColumn<String>(
+    'client_updated_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    $customConstraints: '',
+  );
+  static const VerificationMeta _seqMeta = const VerificationMeta('seq');
+  late final GeneratedColumn<int> seq = GeneratedColumn<int>(
+    'seq',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    $customConstraints: 'NOT NULL DEFAULT 0',
+    defaultValue: const CustomExpression('0'),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    tableName$,
+    recordId,
+    groupId,
+    op,
+    snapshot,
+    changedBy,
+    changedAt,
+    clientUpdatedAt,
+    seq,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'record_versions';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<LocalVersion> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('table_name')) {
+      context.handle(
+        _tableName$Meta,
+        tableName$.isAcceptableOrUnknown(data['table_name']!, _tableName$Meta),
+      );
+    } else if (isInserting) {
+      context.missing(_tableName$Meta);
+    }
+    if (data.containsKey('record_id')) {
+      context.handle(
+        _recordIdMeta,
+        recordId.isAcceptableOrUnknown(data['record_id']!, _recordIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_recordIdMeta);
+    }
+    if (data.containsKey('group_id')) {
+      context.handle(_groupIdMeta, groupId.isAcceptableOrUnknown(data['group_id']!, _groupIdMeta));
+    } else if (isInserting) {
+      context.missing(_groupIdMeta);
+    }
+    if (data.containsKey('op')) {
+      context.handle(_opMeta, op.isAcceptableOrUnknown(data['op']!, _opMeta));
+    } else if (isInserting) {
+      context.missing(_opMeta);
+    }
+    if (data.containsKey('snapshot')) {
+      context.handle(
+        _snapshotMeta,
+        snapshot.isAcceptableOrUnknown(data['snapshot']!, _snapshotMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_snapshotMeta);
+    }
+    if (data.containsKey('changed_by')) {
+      context.handle(
+        _changedByMeta,
+        changedBy.isAcceptableOrUnknown(data['changed_by']!, _changedByMeta),
+      );
+    }
+    if (data.containsKey('changed_at')) {
+      context.handle(
+        _changedAtMeta,
+        changedAt.isAcceptableOrUnknown(data['changed_at']!, _changedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_changedAtMeta);
+    }
+    if (data.containsKey('client_updated_at')) {
+      context.handle(
+        _clientUpdatedAtMeta,
+        clientUpdatedAt.isAcceptableOrUnknown(data['client_updated_at']!, _clientUpdatedAtMeta),
+      );
+    }
+    if (data.containsKey('seq')) {
+      context.handle(_seqMeta, seq.isAcceptableOrUnknown(data['seq']!, _seqMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  LocalVersion map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return LocalVersion(
+      id: attachedDatabase.typeMapping.read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      tableName$: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}table_name'],
+      )!,
+      recordId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}record_id'],
+      )!,
+      groupId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}group_id'],
+      )!,
+      op: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}op'])!,
+      snapshot: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}snapshot'],
+      )!,
+      changedBy: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}changed_by'],
+      ),
+      changedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}changed_at'],
+      )!,
+      clientUpdatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}client_updated_at'],
+      ),
+      seq: attachedDatabase.typeMapping.read(DriftSqlType.int, data['${effectivePrefix}seq'])!,
+    );
+  }
+
+  @override
+  RecordVersions createAlias(String alias) {
+    return RecordVersions(attachedDatabase, alias);
+  }
+
+  @override
+  bool get dontWriteConstraints => true;
+}
+
+class LocalVersion extends DataClass implements Insertable<LocalVersion> {
+  final int id;
+  final String tableName$;
+  final String recordId;
+  final String groupId;
+  final String op;
+  final String snapshot;
+  final String? changedBy;
+  final String changedAt;
+  final String? clientUpdatedAt;
+  final int seq;
+  const LocalVersion({
+    required this.id,
+    required this.tableName$,
+    required this.recordId,
+    required this.groupId,
+    required this.op,
+    required this.snapshot,
+    this.changedBy,
+    required this.changedAt,
+    this.clientUpdatedAt,
+    required this.seq,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['table_name'] = Variable<String>(tableName$);
+    map['record_id'] = Variable<String>(recordId);
+    map['group_id'] = Variable<String>(groupId);
+    map['op'] = Variable<String>(op);
+    map['snapshot'] = Variable<String>(snapshot);
+    if (!nullToAbsent || changedBy != null) {
+      map['changed_by'] = Variable<String>(changedBy);
+    }
+    map['changed_at'] = Variable<String>(changedAt);
+    if (!nullToAbsent || clientUpdatedAt != null) {
+      map['client_updated_at'] = Variable<String>(clientUpdatedAt);
+    }
+    map['seq'] = Variable<int>(seq);
+    return map;
+  }
+
+  RecordVersionsCompanion toCompanion(bool nullToAbsent) {
+    return RecordVersionsCompanion(
+      id: Value(id),
+      tableName$: Value(tableName$),
+      recordId: Value(recordId),
+      groupId: Value(groupId),
+      op: Value(op),
+      snapshot: Value(snapshot),
+      changedBy: changedBy == null && nullToAbsent ? const Value.absent() : Value(changedBy),
+      changedAt: Value(changedAt),
+      clientUpdatedAt: clientUpdatedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(clientUpdatedAt),
+      seq: Value(seq),
+    );
+  }
+
+  factory LocalVersion.fromJson(Map<String, dynamic> json, {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return LocalVersion(
+      id: serializer.fromJson<int>(json['id']),
+      tableName$: serializer.fromJson<String>(json['table_name']),
+      recordId: serializer.fromJson<String>(json['record_id']),
+      groupId: serializer.fromJson<String>(json['group_id']),
+      op: serializer.fromJson<String>(json['op']),
+      snapshot: serializer.fromJson<String>(json['snapshot']),
+      changedBy: serializer.fromJson<String?>(json['changed_by']),
+      changedAt: serializer.fromJson<String>(json['changed_at']),
+      clientUpdatedAt: serializer.fromJson<String?>(json['client_updated_at']),
+      seq: serializer.fromJson<int>(json['seq']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'table_name': serializer.toJson<String>(tableName$),
+      'record_id': serializer.toJson<String>(recordId),
+      'group_id': serializer.toJson<String>(groupId),
+      'op': serializer.toJson<String>(op),
+      'snapshot': serializer.toJson<String>(snapshot),
+      'changed_by': serializer.toJson<String?>(changedBy),
+      'changed_at': serializer.toJson<String>(changedAt),
+      'client_updated_at': serializer.toJson<String?>(clientUpdatedAt),
+      'seq': serializer.toJson<int>(seq),
+    };
+  }
+
+  LocalVersion copyWith({
+    int? id,
+    String? tableName$,
+    String? recordId,
+    String? groupId,
+    String? op,
+    String? snapshot,
+    Value<String?> changedBy = const Value.absent(),
+    String? changedAt,
+    Value<String?> clientUpdatedAt = const Value.absent(),
+    int? seq,
+  }) => LocalVersion(
+    id: id ?? this.id,
+    tableName$: tableName$ ?? this.tableName$,
+    recordId: recordId ?? this.recordId,
+    groupId: groupId ?? this.groupId,
+    op: op ?? this.op,
+    snapshot: snapshot ?? this.snapshot,
+    changedBy: changedBy.present ? changedBy.value : this.changedBy,
+    changedAt: changedAt ?? this.changedAt,
+    clientUpdatedAt: clientUpdatedAt.present ? clientUpdatedAt.value : this.clientUpdatedAt,
+    seq: seq ?? this.seq,
+  );
+  LocalVersion copyWithCompanion(RecordVersionsCompanion data) {
+    return LocalVersion(
+      id: data.id.present ? data.id.value : this.id,
+      tableName$: data.tableName$.present ? data.tableName$.value : this.tableName$,
+      recordId: data.recordId.present ? data.recordId.value : this.recordId,
+      groupId: data.groupId.present ? data.groupId.value : this.groupId,
+      op: data.op.present ? data.op.value : this.op,
+      snapshot: data.snapshot.present ? data.snapshot.value : this.snapshot,
+      changedBy: data.changedBy.present ? data.changedBy.value : this.changedBy,
+      changedAt: data.changedAt.present ? data.changedAt.value : this.changedAt,
+      clientUpdatedAt: data.clientUpdatedAt.present
+          ? data.clientUpdatedAt.value
+          : this.clientUpdatedAt,
+      seq: data.seq.present ? data.seq.value : this.seq,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LocalVersion(')
+          ..write('id: $id, ')
+          ..write('tableName\$: ${tableName$}, ')
+          ..write('recordId: $recordId, ')
+          ..write('groupId: $groupId, ')
+          ..write('op: $op, ')
+          ..write('snapshot: $snapshot, ')
+          ..write('changedBy: $changedBy, ')
+          ..write('changedAt: $changedAt, ')
+          ..write('clientUpdatedAt: $clientUpdatedAt, ')
+          ..write('seq: $seq')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    tableName$,
+    recordId,
+    groupId,
+    op,
+    snapshot,
+    changedBy,
+    changedAt,
+    clientUpdatedAt,
+    seq,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is LocalVersion &&
+          other.id == this.id &&
+          other.tableName$ == this.tableName$ &&
+          other.recordId == this.recordId &&
+          other.groupId == this.groupId &&
+          other.op == this.op &&
+          other.snapshot == this.snapshot &&
+          other.changedBy == this.changedBy &&
+          other.changedAt == this.changedAt &&
+          other.clientUpdatedAt == this.clientUpdatedAt &&
+          other.seq == this.seq);
+}
+
+class RecordVersionsCompanion extends UpdateCompanion<LocalVersion> {
+  final Value<int> id;
+  final Value<String> tableName$;
+  final Value<String> recordId;
+  final Value<String> groupId;
+  final Value<String> op;
+  final Value<String> snapshot;
+  final Value<String?> changedBy;
+  final Value<String> changedAt;
+  final Value<String?> clientUpdatedAt;
+  final Value<int> seq;
+  const RecordVersionsCompanion({
+    this.id = const Value.absent(),
+    this.tableName$ = const Value.absent(),
+    this.recordId = const Value.absent(),
+    this.groupId = const Value.absent(),
+    this.op = const Value.absent(),
+    this.snapshot = const Value.absent(),
+    this.changedBy = const Value.absent(),
+    this.changedAt = const Value.absent(),
+    this.clientUpdatedAt = const Value.absent(),
+    this.seq = const Value.absent(),
+  });
+  RecordVersionsCompanion.insert({
+    this.id = const Value.absent(),
+    required String tableName$,
+    required String recordId,
+    required String groupId,
+    required String op,
+    required String snapshot,
+    this.changedBy = const Value.absent(),
+    required String changedAt,
+    this.clientUpdatedAt = const Value.absent(),
+    this.seq = const Value.absent(),
+  }) : tableName$ = Value(tableName$),
+       recordId = Value(recordId),
+       groupId = Value(groupId),
+       op = Value(op),
+       snapshot = Value(snapshot),
+       changedAt = Value(changedAt);
+  static Insertable<LocalVersion> custom({
+    Expression<int>? id,
+    Expression<String>? tableName$,
+    Expression<String>? recordId,
+    Expression<String>? groupId,
+    Expression<String>? op,
+    Expression<String>? snapshot,
+    Expression<String>? changedBy,
+    Expression<String>? changedAt,
+    Expression<String>? clientUpdatedAt,
+    Expression<int>? seq,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (tableName$ != null) 'table_name': tableName$,
+      if (recordId != null) 'record_id': recordId,
+      if (groupId != null) 'group_id': groupId,
+      if (op != null) 'op': op,
+      if (snapshot != null) 'snapshot': snapshot,
+      if (changedBy != null) 'changed_by': changedBy,
+      if (changedAt != null) 'changed_at': changedAt,
+      if (clientUpdatedAt != null) 'client_updated_at': clientUpdatedAt,
+      if (seq != null) 'seq': seq,
+    });
+  }
+
+  RecordVersionsCompanion copyWith({
+    Value<int>? id,
+    Value<String>? tableName$,
+    Value<String>? recordId,
+    Value<String>? groupId,
+    Value<String>? op,
+    Value<String>? snapshot,
+    Value<String?>? changedBy,
+    Value<String>? changedAt,
+    Value<String?>? clientUpdatedAt,
+    Value<int>? seq,
+  }) {
+    return RecordVersionsCompanion(
+      id: id ?? this.id,
+      tableName$: tableName$ ?? this.tableName$,
+      recordId: recordId ?? this.recordId,
+      groupId: groupId ?? this.groupId,
+      op: op ?? this.op,
+      snapshot: snapshot ?? this.snapshot,
+      changedBy: changedBy ?? this.changedBy,
+      changedAt: changedAt ?? this.changedAt,
+      clientUpdatedAt: clientUpdatedAt ?? this.clientUpdatedAt,
+      seq: seq ?? this.seq,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (tableName$.present) {
+      map['table_name'] = Variable<String>(tableName$.value);
+    }
+    if (recordId.present) {
+      map['record_id'] = Variable<String>(recordId.value);
+    }
+    if (groupId.present) {
+      map['group_id'] = Variable<String>(groupId.value);
+    }
+    if (op.present) {
+      map['op'] = Variable<String>(op.value);
+    }
+    if (snapshot.present) {
+      map['snapshot'] = Variable<String>(snapshot.value);
+    }
+    if (changedBy.present) {
+      map['changed_by'] = Variable<String>(changedBy.value);
+    }
+    if (changedAt.present) {
+      map['changed_at'] = Variable<String>(changedAt.value);
+    }
+    if (clientUpdatedAt.present) {
+      map['client_updated_at'] = Variable<String>(clientUpdatedAt.value);
+    }
+    if (seq.present) {
+      map['seq'] = Variable<int>(seq.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('RecordVersionsCompanion(')
+          ..write('id: $id, ')
+          ..write('tableName\$: ${tableName$}, ')
+          ..write('recordId: $recordId, ')
+          ..write('groupId: $groupId, ')
+          ..write('op: $op, ')
+          ..write('snapshot: $snapshot, ')
+          ..write('changedBy: $changedBy, ')
+          ..write('changedAt: $changedAt, ')
+          ..write('clientUpdatedAt: $clientUpdatedAt, ')
+          ..write('seq: $seq')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class FxRates extends Table with TableInfo<FxRates, LocalFxRate> {
   @override
   final GeneratedDatabase attachedDatabase;
@@ -8933,6 +9490,11 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final SyncCursors syncCursors = SyncCursors(this);
   late final SyncMeta syncMeta = SyncMeta(this);
   late final PendingUploads pendingUploads = PendingUploads(this);
+  late final RecordVersions recordVersions = RecordVersions(this);
+  late final Index recordVersionsRecord = Index(
+    'record_versions_record',
+    'CREATE INDEX record_versions_record ON record_versions (record_id, seq)',
+  );
   late final FxRates fxRates = FxRates(this);
   late final Index fxRatesCurrencyDate = Index(
     'fx_rates_currency_date',
@@ -8963,6 +9525,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     syncCursors,
     syncMeta,
     pendingUploads,
+    recordVersions,
+    recordVersionsRecord,
     fxRates,
     fxRatesCurrencyDate,
     expenseSearch,
@@ -12472,6 +13036,250 @@ typedef $PendingUploadsProcessedTableManager =
       PendingUpload,
       PrefetchHooks Function()
     >;
+typedef $RecordVersionsCreateCompanionBuilder = RecordVersionsCompanion Function({
+  Value<int> id,
+  required String tableName$,
+  required String recordId,
+  required String groupId,
+  required String op,
+  required String snapshot,
+  Value<String?> changedBy,
+  required String changedAt,
+  Value<String?> clientUpdatedAt,
+  Value<int> seq,
+});
+typedef $RecordVersionsUpdateCompanionBuilder = RecordVersionsCompanion Function({
+  Value<int> id,
+  Value<String> tableName$,
+  Value<String> recordId,
+  Value<String> groupId,
+  Value<String> op,
+  Value<String> snapshot,
+  Value<String?> changedBy,
+  Value<String> changedAt,
+  Value<String?> clientUpdatedAt,
+  Value<int> seq,
+});
+
+class $RecordVersionsFilterComposer extends Composer<_$AppDatabase, RecordVersions> {
+  $RecordVersionsFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get tableName$ =>
+      $composableBuilder(column: $table.tableName$, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get recordId =>
+      $composableBuilder(column: $table.recordId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get groupId =>
+      $composableBuilder(column: $table.groupId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get op =>
+      $composableBuilder(column: $table.op, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get snapshot =>
+      $composableBuilder(column: $table.snapshot, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get changedBy =>
+      $composableBuilder(column: $table.changedBy, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get changedAt =>
+      $composableBuilder(column: $table.changedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get clientUpdatedAt => $composableBuilder(
+    column: $table.clientUpdatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get seq =>
+      $composableBuilder(column: $table.seq, builder: (column) => ColumnFilters(column));
+}
+
+class $RecordVersionsOrderingComposer extends Composer<_$AppDatabase, RecordVersions> {
+  $RecordVersionsOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get tableName$ =>
+      $composableBuilder(column: $table.tableName$, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get recordId =>
+      $composableBuilder(column: $table.recordId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get groupId =>
+      $composableBuilder(column: $table.groupId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get op =>
+      $composableBuilder(column: $table.op, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get snapshot =>
+      $composableBuilder(column: $table.snapshot, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get changedBy =>
+      $composableBuilder(column: $table.changedBy, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get changedAt =>
+      $composableBuilder(column: $table.changedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get clientUpdatedAt => $composableBuilder(
+    column: $table.clientUpdatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get seq =>
+      $composableBuilder(column: $table.seq, builder: (column) => ColumnOrderings(column));
+}
+
+class $RecordVersionsAnnotationComposer extends Composer<_$AppDatabase, RecordVersions> {
+  $RecordVersionsAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id => $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get tableName$ =>
+      $composableBuilder(column: $table.tableName$, builder: (column) => column);
+
+  GeneratedColumn<String> get recordId =>
+      $composableBuilder(column: $table.recordId, builder: (column) => column);
+
+  GeneratedColumn<String> get groupId =>
+      $composableBuilder(column: $table.groupId, builder: (column) => column);
+
+  GeneratedColumn<String> get op =>
+      $composableBuilder(column: $table.op, builder: (column) => column);
+
+  GeneratedColumn<String> get snapshot =>
+      $composableBuilder(column: $table.snapshot, builder: (column) => column);
+
+  GeneratedColumn<String> get changedBy =>
+      $composableBuilder(column: $table.changedBy, builder: (column) => column);
+
+  GeneratedColumn<String> get changedAt =>
+      $composableBuilder(column: $table.changedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get clientUpdatedAt =>
+      $composableBuilder(column: $table.clientUpdatedAt, builder: (column) => column);
+
+  GeneratedColumn<int> get seq =>
+      $composableBuilder(column: $table.seq, builder: (column) => column);
+}
+
+class $RecordVersionsTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          RecordVersions,
+          LocalVersion,
+          $RecordVersionsFilterComposer,
+          $RecordVersionsOrderingComposer,
+          $RecordVersionsAnnotationComposer,
+          $RecordVersionsCreateCompanionBuilder,
+          $RecordVersionsUpdateCompanionBuilder,
+          (LocalVersion, BaseReferences<_$AppDatabase, RecordVersions, LocalVersion>),
+          LocalVersion,
+          PrefetchHooks Function()
+        > {
+  $RecordVersionsTableManager(_$AppDatabase db, RecordVersions table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () => $RecordVersionsFilterComposer($db: db, $table: table),
+          createOrderingComposer: () => $RecordVersionsOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $RecordVersionsAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String> tableName$ = const Value.absent(),
+                Value<String> recordId = const Value.absent(),
+                Value<String> groupId = const Value.absent(),
+                Value<String> op = const Value.absent(),
+                Value<String> snapshot = const Value.absent(),
+                Value<String?> changedBy = const Value.absent(),
+                Value<String> changedAt = const Value.absent(),
+                Value<String?> clientUpdatedAt = const Value.absent(),
+                Value<int> seq = const Value.absent(),
+              }) => RecordVersionsCompanion(
+                id: id,
+                tableName$: tableName$,
+                recordId: recordId,
+                groupId: groupId,
+                op: op,
+                snapshot: snapshot,
+                changedBy: changedBy,
+                changedAt: changedAt,
+                clientUpdatedAt: clientUpdatedAt,
+                seq: seq,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required String tableName$,
+                required String recordId,
+                required String groupId,
+                required String op,
+                required String snapshot,
+                Value<String?> changedBy = const Value.absent(),
+                required String changedAt,
+                Value<String?> clientUpdatedAt = const Value.absent(),
+                Value<int> seq = const Value.absent(),
+              }) => RecordVersionsCompanion.insert(
+                id: id,
+                tableName$: tableName$,
+                recordId: recordId,
+                groupId: groupId,
+                op: op,
+                snapshot: snapshot,
+                changedBy: changedBy,
+                changedAt: changedAt,
+                clientUpdatedAt: clientUpdatedAt,
+                seq: seq,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<RecordVersions, LocalVersion>(table),
+                  BaseReferences<_$AppDatabase, RecordVersions, LocalVersion>(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $RecordVersionsProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      RecordVersions,
+      LocalVersion,
+      $RecordVersionsFilterComposer,
+      $RecordVersionsOrderingComposer,
+      $RecordVersionsAnnotationComposer,
+      $RecordVersionsCreateCompanionBuilder,
+      $RecordVersionsUpdateCompanionBuilder,
+      (LocalVersion, BaseReferences<_$AppDatabase, RecordVersions, LocalVersion>),
+      LocalVersion,
+      PrefetchHooks Function()
+    >;
 typedef $FxRatesCreateCompanionBuilder = FxRatesCompanion Function({
   required String date,
   required String currency,
@@ -12802,6 +13610,8 @@ class $AppDatabaseManager {
   $SyncMetaTableManager get syncMeta => $SyncMetaTableManager(_db, _db.syncMeta);
   $PendingUploadsTableManager get pendingUploads =>
       $PendingUploadsTableManager(_db, _db.pendingUploads);
+  $RecordVersionsTableManager get recordVersions =>
+      $RecordVersionsTableManager(_db, _db.recordVersions);
   $FxRatesTableManager get fxRates => $FxRatesTableManager(_db, _db.fxRates);
   $ExpenseSearchTableManager get expenseSearch =>
       $ExpenseSearchTableManager(_db, _db.expenseSearch);

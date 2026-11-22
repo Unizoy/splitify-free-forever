@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:drift/drift.dart' show driftRuntimeOptions;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:splitify/data/data_providers.dart';
 import 'package:splitify/data/local/app_database.dart';
 import 'package:splitify/data/remote/remote_providers.dart';
@@ -30,6 +31,7 @@ class ExpenseEnv {
   static Future<ExpenseEnv> create({
     List<String> others = const ['Asha', 'Ravi'],
     String? userId = 'u1',
+    List<Override> overrides = const [],
   }) async {
     driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
     final db = memoryDb();
@@ -43,6 +45,7 @@ class ExpenseEnv {
         remoteApiProvider.overrideWithValue(remote),
         clockProvider.overrideWithValue(clock),
         currentUserIdProvider.overrideWithValue(userId),
+        ...overrides,
         groups.currentUserIdProvider.overrideWithValue(userId),
       ],
     );
