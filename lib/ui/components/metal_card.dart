@@ -2,6 +2,7 @@ import 'dart:math';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
+import 'package:splitify/ui/components/pressable.dart';
 import 'package:splitify/ui/components/stat_grid.dart';
 import 'package:splitify/ui/theme/theme.dart';
 
@@ -52,13 +53,14 @@ class _MetalCardState extends State<MetalCard> with SingleTickerProviderStateMix
     return Semantics(
       button: widget.onTap != null,
       container: true,
-      child: ClipRRect(
+      child: Pressable(
+        onTap: widget.onTap,
         borderRadius: AppRadii.all32,
-        child: Material(
+        child: ClipRRect(
+        borderRadius: AppRadii.all32,
+        child: ColoredBox(
           color: c.metal,
-          child: InkWell(
-            onTap: widget.onTap,
-            child: Stack(
+          child: Stack(
               children: [
                 Positioned.fill(
                   child: RepaintBoundary(
@@ -103,8 +105,8 @@ class _MetalCardState extends State<MetalCard> with SingleTickerProviderStateMix
                 ),
               ],
             ),
-          ),
         ),
+      ),
       ),
     );
   }

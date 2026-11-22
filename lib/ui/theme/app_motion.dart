@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/physics.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
-/// Motion tokens (planning/06-design-system.md §5).
+/// Motion tokens (planning/06-design-system.md §5, retuned by S-260: crisp and springy, 90–320 ms).
 ///
 /// Read through `context.motion` so "remove animations" turns every duration
 /// into zero.
@@ -16,13 +19,37 @@ class AppMotion {
   /// True when the user asked the system to remove animations.
   final bool reduced;
 
+  static const _press = Duration(milliseconds: 90);
+  static const _release = Duration(milliseconds: 160);
   static const _fast = Duration(milliseconds: 150);
-  static const _base = Duration(milliseconds: 250);
-  static const _slow = Duration(milliseconds: 400);
-  static const _showcase = Duration(milliseconds: 800);
+  static const _base = Duration(milliseconds: 240);
+  static const _slow = Duration(milliseconds: 300);
+  static const _showcase = Duration(milliseconds: 300);
+  static const _route = Duration(milliseconds: 280);
+  static const _routeBack = Duration(milliseconds: 240);
+  static const _tab = Duration(milliseconds: 220);
+  static const _count = Duration(milliseconds: 350);
+  static const _entrance = Duration(milliseconds: 220);
+  static const _stagger = Duration(milliseconds: 30);
+  static const _shimmer = Duration(milliseconds: 1200);
+
+  /// How far a pressed control shrinks (Pressable, PillButton, icon buttons).
+  static const double pressScale = 0.97;
+
+  /// Rows that get the staggered entrance on a list's first load.
+  static const int entranceMax = 8;
 
   /// Standard curve for base/slow transitions.
   static const Curve standard = Cubic(0.2, 0, 0, 1);
+
+  /// Decelerating curve for things that arrive (entrances, routes).
+  static const Curve emphasized = Cubic(0.05, 0.7, 0.1, 1);
+
+  /// Finger down on a control: quick ease to [pressScale].
+  Duration get press => reduced ? Duration.zero : _press;
+
+  /// Finger up: spring back to rest.
+  Duration get release => reduced ? Duration.zero : _release;
 
   /// Presses and toggles.
   Duration get fast => reduced ? Duration.zero : _fast;
@@ -30,16 +57,33 @@ class AppMotion {
   /// Most transitions and accordions.
   Duration get base => reduced ? Duration.zero : _base;
 
-  /// Sheets and the hero/sheet reveal.
+  /// Sheets and the hero/sheet reveal (≤ 320 ms).
   Duration get slow => reduced ? Duration.zero : _slow;
 
-  /// Nav pill morph, stacked-card shuffle, celebration.
+  /// Nav pill morph and other spring moves.
   Duration get showcase => reduced ? Duration.zero : _showcase;
+
+  /// Push route (shared axis); [routeBack] for the pop.
+  Duration get route => reduced ? Duration.zero : _route;
+  Duration get routeBack => reduced ? Duration.zero : _routeBack;
+
+  /// Fade-through between bottom-nav tabs and in-page tabs.
+  Duration get tab => reduced ? Duration.zero : _tab;
+
+  /// Balance totals counting to a new value.
+  Duration get count => reduced ? Duration.zero : _count;
+
+  /// One list row's entrance; rows start [stagger] apart.
+  Duration get entrance => reduced ? Duration.zero : _entrance;
+  Duration get stagger => reduced ? Duration.zero : _stagger;
+
+  /// One sweep of the loading skeleton's shimmer (loops; static when reduced).
+  Duration get shimmer => _shimmer;
 
   /// Curve for presses and toggles.
   Curve get fastCurve => Curves.easeOut;
 
-  /// Spring (stiffness 300, damping 26) for showcase motion.
+  /// Spring (stiffness 300, damping 26) for showcase motion and the press release.
   Curve get spring => const SpringCurve();
 }
 
@@ -57,4 +101,17 @@ class SpringCurve extends Curve {
 
   @override
   double transformInternal(double t) => _sim.x(t * 0.8);
+}
+
+/// Haptics (§5): light ticks on toggles, tabs and primary actions, a firmer one on Save and Mark as paid.
+/// Never heavy.
+abstract final class AppHaptics {
+  /// Toggles, steps, tab switches, chips.
+  static void selection() => unawaited(HapticFeedback.selectionClick());
+
+  /// Primary buttons and FABs.
+  static void light() => unawaited(HapticFeedback.lightImpact());
+
+  /// Successful save, Mark as paid.
+  static void success() => unawaited(HapticFeedback.mediumImpact());
 }

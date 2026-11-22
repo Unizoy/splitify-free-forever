@@ -22,7 +22,7 @@ class CoverCache {
   /// Cache key for a cover.
   static String keyFor(CoverPainter p, Size size, double dpr) =>
       '${p.family.name}|${p.seed}|${size.width.round()}x${size.height.round()}@$dpr'
-      '|${p.dark}|${p.legibilityScrim}';
+      '|${p.dark}|${p.legibilityScrim}|${p.topFade}';
 
   /// The cached image for [key], if it is ready.
   ui.Image? get(String key) {
@@ -73,6 +73,7 @@ class CoverArt extends StatefulWidget {
     required this.seed,
     required this.family,
     this.legibilityScrim = true,
+    this.topFade = false,
     this.cache = true,
     super.key,
   });
@@ -80,6 +81,9 @@ class CoverArt extends StatefulWidget {
   final String seed;
   final CoverFamily family;
   final bool legibilityScrim;
+
+  /// See [CoverPainter.topFade].
+  final bool topFade;
 
   /// Turn off to always paint directly (golden tests, one-off art).
   final bool cache;
@@ -96,6 +100,7 @@ class _CoverArtState extends State<CoverArt> {
       family: widget.family,
       dark: context.isDark,
       legibilityScrim: widget.legibilityScrim,
+      topFade: widget.topFade,
     );
     return ExcludeSemantics(
       child: LayoutBuilder(

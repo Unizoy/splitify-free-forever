@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:splitify/ui/components/glass_card.dart';
+import 'package:splitify/ui/components/pressable.dart';
 import 'package:splitify/ui/painters/cover_cache.dart';
 import 'package:splitify/ui/theme/theme.dart';
 
@@ -63,12 +65,11 @@ class HeroHeader extends StatelessWidget {
               ));
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.light.copyWith(statusBarColor: AppPalette.clear),
-      child: Stack(
-        children: [
-          Positioned.fill(
-            child: _HeroBackground(art: art, photo: photo),
-          ),
-          Padding(
+      // The background never moves under the content: glass cards paint a pre-blurred slice of it.
+      child: GlassBackdropHost(
+        snapshot: photo == null,
+        background: _HeroBackground(art: art, photo: photo),
+        child: Padding(
             padding: EdgeInsets.fromLTRB(
               AppSpacing.screen,
               topInset + AppSpacing.s2,
@@ -106,7 +107,6 @@ class HeroHeader extends StatelessWidget {
               ],
             ),
           ),
-        ],
       ),
     );
   }
@@ -150,16 +150,8 @@ class _HeroBackground extends StatelessWidget {
             ),
           ),
         ] else if (art != null)
-          ShaderMask(
-            blendMode: BlendMode.dstIn,
-            shaderCallback: (rect) => const LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [AppPalette.clear, AppPalette.black, AppPalette.black],
-              stops: [0.28, 0.62, 1],
-            ).createShader(rect),
-            child: CoverArt(seed: art!.seed, family: art!.family, legibilityScrim: false),
-          ),
+          // Fades out toward the top; baked into the cached image (no live shader mask, S-267).
+          CoverArt(seed: art!.seed, family: art!.family, legibilityScrim: false, topFade: true),
         // Dark base so white text and the glass border stay readable.
         DecoratedBox(
           decoration: BoxDecoration(
@@ -219,9 +211,12 @@ class HeroIconButton extends StatelessWidget {
         button: true,
         label: semanticLabel ?? tooltip,
         excludeSemantics: true,
-        child: InkResponse(
+        child: Pressable(
           onTap: onPressed,
-          radius: 24,
+          circle: true,
+          scale: 0.9,
+          highlightColor: c.onHero,
+          haptic: PressHaptic.selection,
           child: SizedBox.square(
             dimension: AppSpacing.minTouch,
             child: Center(
@@ -299,9 +294,13 @@ class HeroTabs extends StatelessWidget {
             selected: i == index,
             label: tabs[i].label,
             excludeSemantics: true,
-            child: InkWell(
-              onTap: () => onChanged(i),
+            child: Pressable(
+              onTap: () {
+                if (i != index) AppHaptics.selection();
+                onChanged(i);
+              },
               borderRadius: AppRadii.all24,
+              highlightColor: c.onHero,
               child: Padding(
                 padding: const EdgeInsets.symmetric(
                   horizontal: AppSpacing.s3,

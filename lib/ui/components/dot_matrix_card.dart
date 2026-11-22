@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:splitify/ui/components/pressable.dart';
 import 'package:splitify/ui/components/stat_grid.dart';
 import 'package:splitify/ui/painters/dot_matrix_painter.dart';
 import 'package:splitify/ui/theme/theme.dart';
@@ -25,11 +26,12 @@ class DotMatrixCard extends StatelessWidget {
     return Semantics(
       button: onTap != null,
       container: true,
-      child: ClipRRect(
+      child: Pressable(
+        onTap: onTap,
         borderRadius: AppRadii.all32,
-        child: Material(
-          color: AppPalette.clear,
-          child: Ink(
+        child: ClipRRect(
+        borderRadius: AppRadii.all32,
+        child: DecoratedBox(
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
@@ -37,9 +39,7 @@ class DotMatrixCard extends StatelessWidget {
                 colors: [c.navyTop, c.navyBottom],
               ),
             ),
-            child: InkWell(
-              onTap: onTap,
-              child: Stack(
+            child: Stack(
                 children: [
                   Positioned(
                     right: -60,
@@ -84,9 +84,8 @@ class DotMatrixCard extends StatelessWidget {
                   ),
                 ],
               ),
-            ),
           ),
-        ),
+      ),
       ),
     );
   }

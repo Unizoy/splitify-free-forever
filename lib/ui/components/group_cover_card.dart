@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/components/money_tone.dart';
+import 'package:splitify/ui/components/pressable.dart';
 import 'package:splitify/ui/components/sync_marker.dart';
 import 'package:splitify/ui/painters/cover_cache.dart';
 import 'package:splitify/ui/theme/theme.dart';
@@ -68,13 +69,13 @@ class GroupCoverCard extends StatelessWidget {
         if (unsynced) AppLocalizations.of(context).notSyncedYet,
       ].join(', '),
       excludeSemantics: true,
-      child: ClipRRect(
+      child: Pressable(
+        onTap: onTap,
         borderRadius: AppRadii.all28,
-        child: Material(
-          color: AppPalette.clear,
-          child: InkWell(
-            onTap: onTap,
-            child: Stack(
+        // The press only scales the cached layer; the card itself is not re-recorded.
+        child: RepaintBoundary(child: ClipRRect(
+        borderRadius: AppRadii.all28,
+        child: Stack(
               fit: StackFit.expand,
               children: [
                 if (photo != null) ...[
@@ -136,8 +137,7 @@ class GroupCoverCard extends StatelessWidget {
                 ),
               ],
             ),
-          ),
-        ),
+      )),
       ),
     );
   }

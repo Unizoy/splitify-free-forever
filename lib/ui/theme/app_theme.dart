@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:splitify/ui/theme/app_colors.dart';
 import 'package:splitify/ui/theme/app_radii.dart';
 import 'package:splitify/ui/theme/app_text.dart';
+import 'package:splitify/ui/theme/app_transitions.dart';
 
 /// Builds the light and dark [ThemeData] from the tokens. Dynamic colour is off.
 abstract final class AppTheme {
@@ -91,8 +92,12 @@ abstract final class AppTheme {
       progressIndicatorTheme: ProgressIndicatorThemeData(color: c.primary),
       focusColor: c.primaryContainer,
       highlightColor: AppPalette.clear,
+      // Shared-axis push/pop on every platform (S-262).
       pageTransitionsTheme: const PageTransitionsTheme(
-        builders: {TargetPlatform.android: PredictiveBackPageTransitionsBuilder()},
+        builders: {
+          TargetPlatform.android: SharedAxisPageTransitionsBuilder(),
+          TargetPlatform.iOS: SharedAxisPageTransitionsBuilder(),
+        },
       ),
     );
   }
