@@ -16,7 +16,19 @@ Format:
 
 ## Open
 
-_None._
+## BLK-002 — Email sign-in code: one hands-on check needs a person            (open)
+- Phase: integrations (D-026) · Found: 2026-11-22
+- Missing: the agent asked the app for a code (Supabase `/otp` 200, sent through the owner's Gmail SMTP) and checked
+  wrong codes live (403 `otp_expired`), but reading the code in the emulator's Gmail app was refused by the
+  permission system, so the code length in the real email and "right code → signed in" / "used code → refused"
+  are unchecked. The app shows 6 boxes unless `EMAIL_OTP_LENGTH` says otherwise (S-232).
+- Owner steps (2 min): Supabase dashboard → Authentication → Sign In / Providers → Email → note **Email OTP
+  Length**. If it is not 6, add `"EMAIL_OTP_LENGTH": "<that number>"` to `secrets/env.dev.json` (and the release
+  env file later). Then on the phone: Get started → type your email → Send code → type the code from the
+  "Your Splitify code" email → you land in the app; sign out, ask for a new code, type the OLD code → "That code is
+  wrong or has expired…", type the new one → signed in. Or allow the agent to read that one email next time.
+- Workaround in place: default 6 = Supabase's documented default; wrong/used/expired codes all map to one message.
+- Detect fixed by: `EMAIL_OTP_LENGTH` present in `secrets/env.dev.json`, or a later report with the email check passed.
 
 ## Closed
 

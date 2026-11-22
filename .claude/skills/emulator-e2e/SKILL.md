@@ -100,6 +100,19 @@ Without a fingerprint (faster, used by phase 18): `powershell -File tool\e2e\run
 in `dumpsys window windows`, sends the app home and back, and clears the PIN in `finally`. Screenshots of a
 `FLAG_SECURE` window come out black — that is expected.
 
+## 8b. Real Google sign-in, email codes and push (D-026, S-235)
+
+The real app with the DNS pin, as a release x64 APK (signed with the debug key → the registered debug SHA-1 works):
+```powershell
+flutter build apk --release --target-platform android-x64 -t integration_test/support/pinned_main.dart `
+  --dart-define-from-file=secrets/env.dev.json "--dart-define=PIN_HOST_IP=$ip"
+```
+Install, `pm clear` + `pm revoke … POST_NOTIFICATIONS` for a first-run check, drive with uiautomator taps. Google:
+"Continue with Google" → "Choose an account" → (first time) "Agree and share". Push: the second person acts from the
+PC through the normal API (supabase-js as e2e-b: `join_group`, `apply_mutations`, `send_reminder`); check
+`net._http_response` for `{"outcome":"sent","delivered":1}`; "killed" = HOME + `am kill` (never `force-stop`: a
+stopped app gets no FCM). Never open another app's inbox; grey out the account email in kept screenshots.
+
 ## 9. Fake UPI handler (phase 11+)
 
 `tool/fake_upi_app/` (phase 11, S-126) is a tiny Java debug app (package `dev.splitify.fakeupi`) registered for

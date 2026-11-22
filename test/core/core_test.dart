@@ -53,6 +53,23 @@ void main() {
       );
       expect(env.hasGoogle, isFalse);
       expect(env.devLoginAvailable(releaseMode: false), isFalse);
+      expect(env.emailOtpLength, 6, reason: 'EMAIL_OTP_LENGTH missing → Supabase default');
+    });
+
+    test('S-232 EMAIL_OTP_LENGTH: 6 to 10 digits, anything else means 6', () {
+      Env env(String raw) => Env.fromValues(
+        supabaseUrl: 'https://x.example',
+        supabasePublishableKey: 'k',
+        googleWebClientId: '',
+        devLogin: 'false',
+        e2ePassword: '',
+        emailOtpLength: raw,
+      );
+      expect(env('8').emailOtpLength, 8);
+      expect(env(' 10 ').emailOtpLength, 10);
+      for (final bad in ['', 'eight', '5', '11', '-6']) {
+        expect(Env.parseOtpLength(bad), 6, reason: bad);
+      }
     });
 
     test('Env.load throws when no dart-defines are given', () {

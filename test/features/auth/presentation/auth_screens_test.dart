@@ -16,6 +16,7 @@ import 'package:splitify/data/repositories/profile_repository.dart';
 import 'package:splitify/features/account/presentation/profile_edit_screen.dart';
 import 'package:splitify/features/auth/application/auth_providers.dart';
 import 'package:splitify/l10n/app_localizations.dart';
+import 'package:splitify/ui/components/components.dart' show DotsPulse;
 import 'package:splitify/ui/components/option_tile.dart';
 import 'package:splitify/ui/theme/theme.dart';
 
@@ -40,6 +41,7 @@ Future<_Harness> _pump(
   bool google = false,
   bool gate = false,
   Uint8List? photo,
+  int codeLength = 6,
 }) async {
   FlutterSecureStorage.setMockInitialValues({});
   SharedPreferences.setMockInitialValues({});
@@ -67,6 +69,7 @@ Future<_Harness> _pump(
         profileRemoteProvider.overrideWithValue(remote),
         devLoginProvider.overrideWithValue(dev),
         googleConfiguredProvider.overrideWithValue(google),
+        emailCodeLengthProvider.overrideWithValue(codeLength),
         e2ePasswordProvider.overrideWithValue('pw'),
         photoPickerProvider.overrideWithValue(() async => photo),
         ...emptyGroupsOverrides(),
@@ -127,7 +130,16 @@ void main() {
 
     await tester.enterText(find.byKey(const Key('code-input')), '000000');
     await _settle(tester);
-    expect(find.textContaining('That code is not right'), findsOneWidget);
+    expect(find.textContaining('That code is wrong or has expired'), findsOneWidget);
+    // S-233: the refused code is cleared so the next try starts with empty boxes.
+    expect(find.bySemanticsLabel('6-digit code, 0 of 6 entered'), findsOneWidget);
+    await tester.enterText(find.byKey(const Key('code-input')), '1');
+    await _settle(tester);
+    expect(
+      find.textContaining('That code is wrong'),
+      findsNothing,
+      reason: 'typing clears the error',
+    );
 
     await tester.enterText(find.byKey(const Key('code-input')), '123456');
     await _settle(tester);
@@ -143,6 +155,52 @@ void main() {
     await _settle(tester);
     expect(h.remote.profile?.upiId, 'asha@ybl');
     expect(h.router.state.uri.path, Routes.groups);
+  });
+
+  testWidgets('S-232 an 8-digit project shows 8 boxes and verifies only 8 digits', (tester) async {
+    final h = await _pump(
+      tester,
+      '${Routes.signInCode}?email=asha%40splitify.test',
+      gate: true,
+      codeLength: 8,
+    );
+    h.auth.goodCode = '12345678';
+    expect(find.text('Enter the 8-digit code'), findsOneWidget);
+    expect(find.bySemanticsLabel('8-digit code, 0 of 8 entered'), findsOneWidget);
+    await tester.enterText(find.byKey(const Key('code-input')), '123456');
+    await _settle(tester);
+    expect(h.auth.calls.where((c) => c.startsWith('verify')), isEmpty, reason: '6 of 8 digits');
+    await tester.enterText(find.byKey(const Key('code-input')), '1234567890');
+    await _settle(tester);
+    expect(h.auth.calls, contains('verify:12345678'), reason: 'input stops at 8 digits');
+    expect(h.auth.currentUser, isNotNull);
+  });
+
+  testWidgets('offline verify keeps the typed code', (tester) async {
+    final h = await _pump(tester, '${Routes.signInCode}?email=asha%40splitify.test');
+    h.auth.fail = const AuthFailure(AuthFailureCode.offline);
+    await tester.enterText(find.byKey(const Key('code-input')), '123456');
+    await _settle(tester);
+    expect(find.textContaining('offline'), findsOneWidget);
+    expect(find.bySemanticsLabel('6-digit code, 6 of 6 entered'), findsOneWidget);
+  });
+
+  testWidgets('Google: the spinner is on the Google button while the sheet is open', (
+    tester,
+  ) async {
+    final h = await _pump(tester, Routes.signIn, google: true);
+    final gate = Completer<void>();
+    h.auth.googleGate = gate.future;
+    await tester.tap(find.text('Continue with Google'));
+    await tester.pump();
+    Finder dots(String key) =>
+        find.descendant(of: find.byKey(Key(key)), matching: find.byType(DotsPulse));
+    expect(dots('sign-in-google'), findsOneWidget);
+    expect(dots('sign-in-send'), findsNothing, reason: '"Send code" keeps its label');
+    gate.complete();
+    await _settle(tester);
+    expect(h.auth.calls, contains('google'));
+    expect(find.text('Continue with Google'), findsOneWidget);
   });
 
   testWidgets('dev login deep link signs in e2e-a and opens groups (T4)', (tester) async {
