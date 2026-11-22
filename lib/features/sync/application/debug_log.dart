@@ -24,6 +24,7 @@ String buildDebugLog({
   required SyncStatus? status,
   required List<SyncIssue> issues,
   required List<String> lines,
+  List<SyncUpload> uploads = const [],
 }) {
   final b = StringBuffer()
     ..writeln('Splitify debug log')
@@ -39,6 +40,11 @@ String buildDebugLog({
     b.writeln(
       'issue: seq=${i.seq} ${i.entity.wire} ${i.op.name} record=${i.recordId} '
       'group=${i.groupId} code=${i.code} attempts=${i.attempts}',
+    );
+  }
+  for (final u in uploads) {
+    b.writeln(
+      'upload: ${u.bucket} record=${u.recordId} attempts=${u.attempts}${u.skipped ? ' skipped' : ''}',
     );
   }
   b.writeln('--- log (${lines.length} lines) ---');

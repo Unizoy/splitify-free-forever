@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:splitify/data/data_providers.dart';
 import 'package:splitify/data/local/app_database.dart';
 import 'package:splitify/data/sync/sync_types.dart';
 import 'package:splitify/features/auth/application/auth_providers.dart' show profileProvider;
@@ -305,6 +306,8 @@ class _GroupGrid extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context);
+    // Any pending row of the group (not just the group row) marks its card (T2, phase 15).
+    final unsynced = ref.watch(unsyncedGroupIdsProvider).value ?? const <String>{};
     return GridView.count(
       crossAxisCount: 2,
       shrinkWrap: true,
@@ -315,7 +318,14 @@ class _GroupGrid extends ConsumerWidget {
       childAspectRatio: GroupCoverCard.aspectRatioFor(context),
       children: [
         for (final g in groups)
-          _groupCard(l, context, g, balances, photo: groupCoverImage(ref, g, width: 600)),
+          _groupCard(
+            l,
+            context,
+            g,
+            balances,
+            unsynced: g.syncState != SyncState.synced || unsynced.contains(g.id),
+            photo: groupCoverImage(ref, g, width: 600),
+          ),
       ],
     );
   }
@@ -327,6 +337,7 @@ Widget _groupCard(
   BuildContext context,
   LocalGroup g,
   Map<String, Map<String, int>> balances, {
+  required bool unsynced,
   ImageProvider? photo,
 }) {
   final raw = balances[g.id] ?? const <String, int>{};
@@ -344,7 +355,7 @@ Widget _groupCard(
         : statusText(l, status),
     amountText: mine.isEmpty ? null : amountsText(mine),
     tone: toneOf(status),
-    unsynced: g.syncState != SyncState.synced,
+    unsynced: unsynced,
     photo: photo,
     onTap: () => context.push('/groups/${g.id}'),
   );

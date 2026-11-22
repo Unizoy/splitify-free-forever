@@ -32,3 +32,9 @@ open BLK).
 > `entity = 'recurring'` to `private.sync_apply_recurring`) and `public.pull_changes` (adds the
 > `recurring_templates` rows). A migration that redefines either function must start from the 0019 body and keep
 > those lines; `private.sync_apply_one` was not changed. Templates are a synced entity (`SyncEntity.recurring`).
+
+> **Amendment (S-167, phase 15):** with 2,000 expenses, scrolling a group is smooth (0 missed frames in profile on the
+> emulator) but the frame that opens the group page costs ~265 ms: the page is one scroll view (overlap layout), so
+> the first 100 rows are built at once. Consider moving the group page to slivers (lazy rows) and re-run
+> `tool/e2e/perf.ps1`. The WorkManager background sync (S-160) was only scheduled on the device in phase 15; trigger a
+> real run once (`adb shell cmd jobscheduler run -f com.unizoy.splitify <job id>`) with the app closed.

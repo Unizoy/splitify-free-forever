@@ -5066,6 +5066,60 @@ abstract class AppLocalizations {
   /// **'Splitify debug log'**
   String get debugLogSubject;
 
+  /// One-time snackbar after a push where a local edit lost to a newer server edit (04 §3).
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Someone else\'s newer edit was kept. Your version is in the edit history.} other{Newer edits by others were kept for {count} changes. Your versions are in the edit history.}}'**
+  String syncSuperseded(int count);
+
+  /// Group expense list: loads the next page of older records (S-167).
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Show 1 older} other{Show {count} older}}'**
+  String expShowOlder(int count);
+
+  /// Sync issue card: opens the refused record so the person can fix it.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get syncIssueOpen;
+
+  /// No description provided for @syncUploadsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Photos'**
+  String get syncUploadsTitle;
+
+  /// No description provided for @syncUploadKind.
+  ///
+  /// In en, this message translates to:
+  /// **'{kind, select, receipt{Receipt photo} cover{Group cover} other{Photo}}'**
+  String syncUploadKind(String kind);
+
+  /// No description provided for @syncUploadWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting to upload'**
+  String get syncUploadWaiting;
+
+  /// No description provided for @syncUploadRetrying.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Upload failed once, trying again} other{Upload failed {count} times, trying again}}'**
+  String syncUploadRetrying(int count);
+
+  /// No description provided for @syncUploadSkipped.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload stopped after {count} tries'**
+  String syncUploadSkipped(int count);
+
+  /// No description provided for @syncUploadsWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 photo waiting} other{{count} photos waiting}}'**
+  String syncUploadsWaiting(int count);
+
   /// No description provided for @syncRowSynced.
   ///
   /// In en, this message translates to:

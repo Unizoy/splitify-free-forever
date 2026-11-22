@@ -27,6 +27,9 @@ class SupabaseRemoteApi implements RemoteApi {
       return r.cast<String, Object?>();
     } on PostgrestException catch (e) {
       throw mapPostgrest(e);
+    } on AuthRetryableFetchException catch (e) {
+      // Token refresh could not reach the server: offline, not signed out (04 §7).
+      throw NetworkException(e.message);
     } on AuthException {
       throw const AuthExpiredException();
     } on SocketException catch (e) {
@@ -71,6 +74,13 @@ class SupabaseRemoteApi implements RemoteApi {
   Future<void> refreshSession() async {
     try {
       await _refresh();
+    } on AuthRetryableFetchException catch (e) {
+      // Offline while refreshing: keep the session and retry later (04 §7).
+      throw NetworkException(e.message);
+    } on SocketException catch (e) {
+      throw NetworkException(e.message);
+    } on TimeoutException {
+      throw const NetworkException('timeout');
     } on Exception {
       throw const AuthExpiredException();
     }

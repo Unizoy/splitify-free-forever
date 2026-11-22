@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:splitify/core/config/app_info.dart';
 import 'package:splitify/data/data_providers.dart';
 import 'package:splitify/data/repositories/sync_repository.dart';
@@ -9,12 +10,14 @@ import 'package:splitify/data/sync/sync_types.dart';
 import 'package:splitify/features/sync/application/debug_log.dart';
 import 'package:splitify/features/sync/application/sync_texts.dart';
 import 'package:splitify/features/sync/presentation/sync_issue_card.dart';
+import 'package:splitify/features/sync/presentation/sync_uploads_card.dart';
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/components/components.dart';
 import 'package:splitify/ui/theme/theme.dart';
 
 /// "Sync & storage" (`/account/sync`, 04 §9, 07 §2): status card (last sync, waiting, need attention),
-/// "Sync now", refused changes with Retry / Discard, and "Export debug log".
+/// "Sync now", refused changes with Edit / Retry / Discard, photos waiting to upload (skipped ones with
+/// Retry, S-113), and "Export debug log".
 class SyncStorageScreen extends ConsumerStatefulWidget {
   const SyncStorageScreen({super.key});
 
@@ -25,6 +28,16 @@ class SyncStorageScreen extends ConsumerStatefulWidget {
 class _SyncStorageScreenState extends ConsumerState<SyncStorageScreen> {
   bool _syncing = false;
   final _busy = <int>{};
+  final _uploadBusy = <String>{};
+
+  Future<void> _retryUpload(SyncUpload u) async {
+    setState(() => _uploadBusy.add(u.id));
+    try {
+      await ref.read(syncRepositoryProvider).retryUpload(u.id);
+    } finally {
+      if (mounted) setState(() => _uploadBusy.remove(u.id));
+    }
+  }
 
   Future<void> _syncNow() async {
     setState(() => _syncing = true);
@@ -56,6 +69,7 @@ class _SyncStorageScreenState extends ConsumerState<SyncStorageScreen> {
       now: ref.read(clockProvider).now(),
       status: ref.read(syncStatusProvider).value,
       issues: ref.read(syncIssuesProvider).value ?? const [],
+      uploads: ref.read(syncUploadsProvider).value ?? const [],
       lines: ref.read(debugLogLinesProvider)(),
     );
     await ref.read(debugLogSharerProvider)(l.debugLogSubject, text);
@@ -67,6 +81,7 @@ class _SyncStorageScreenState extends ConsumerState<SyncStorageScreen> {
     final c = context.colors;
     final status = ref.watch(syncStatusProvider);
     final issues = ref.watch(syncIssuesProvider).value ?? const <SyncIssue>[];
+    final uploads = ref.watch(syncUploadsProvider).value ?? const <SyncUpload>[];
     final s = status.value;
     final syncing = _syncing || s?.phase == SyncPhase.syncing;
     return Scaffold(
@@ -116,10 +131,24 @@ class _SyncStorageScreenState extends ConsumerState<SyncStorageScreen> {
                 key: ValueKey('sync-issue-${i.seq}'),
                 issue: i,
                 busy: _busy.contains(i.seq),
+                onEdit: switch (syncIssueRoute(i)) {
+                  final route? => () => unawaited(context.push(route)),
+                  null => null,
+                },
                 onRetry: () => unawaited(_run(i.seq, (r) => r.retry(i.seq))),
                 onDiscard: () => unawaited(_discard(i)),
               ),
             ],
+          ],
+          if (uploads.isNotEmpty) ...[
+            const SizedBox(height: AppSpacing.s8),
+            _SectionLabel('${l.syncUploadsTitle} · ${l.syncUploadsWaiting(uploads.length)}'),
+            const SizedBox(height: AppSpacing.s3),
+            SyncUploadsCard(
+              uploads: uploads,
+              busy: _uploadBusy,
+              onRetry: (u) => unawaited(_retryUpload(u)),
+            ),
           ],
           const SizedBox(height: AppSpacing.s8),
           _SectionLabel(l.onThisPhone),

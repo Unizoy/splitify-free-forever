@@ -36,3 +36,17 @@ abstract class ChangeNudges {
 
   Future<void> dispose();
 }
+
+/// No Realtime (widget tests, dummy builds): never nudges.
+class NoChangeNudges implements ChangeNudges {
+  const NoChangeNudges();
+
+  @override
+  Stream<void> get nudges => const Stream.empty();
+
+  @override
+  Future<void> watchGroups(Set<String> groupIds) async {}
+
+  @override
+  Future<void> dispose() async {}
+}

@@ -97,6 +97,26 @@ void main() {
       expect(find.text('no balance'), findsOneWidget);
     });
 
+    // Phase 15 T7 (S-167): a long list shows 100 records, then "Show N older" adds 100 more.
+    testWidgets('a long list shows a page, Show older adds the next one', (t) async {
+      final many = [
+        for (var i = 0; i < 230; i++)
+          sampleView(sampleExpense(id: 'e$i', description: 'Item $i', date: '2026-11-20')),
+      ];
+      await _pumpList(t, AsyncData(many));
+      expect(find.byType(AmountRow, skipOffstage: false), findsNWidgets(ExpenseList.pageSize));
+      expect(find.text('Show 130 older', skipOffstage: false), findsOneWidget);
+      await t.ensureVisible(find.byKey(const Key('expenses-show-older')));
+      await t.tap(find.byKey(const Key('expenses-show-older')));
+      await settle(t);
+      expect(find.byType(AmountRow, skipOffstage: false), findsNWidgets(200));
+      await t.ensureVisible(find.byKey(const Key('expenses-show-older')));
+      await t.tap(find.byKey(const Key('expenses-show-older')));
+      await settle(t);
+      expect(find.byType(AmountRow, skipOffstage: false), findsNWidgets(230));
+      expect(find.byKey(const Key('expenses-show-older')), findsNothing);
+    });
+
     // TC-13-01
     testWidgets('only pending rows carry the not-synced marker', (t) async {
       await _pumpList(t, AsyncData(sampleViews()));

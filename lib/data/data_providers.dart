@@ -8,24 +8,40 @@ import 'package:splitify/data/repositories/recurring_repository.dart';
 import 'package:splitify/data/repositories/repositories.dart';
 import 'package:splitify/data/repositories/search_repository.dart';
 import 'package:splitify/data/repositories/sync_repository.dart';
+import 'package:splitify/data/sync/background_sync.dart';
 import 'package:splitify/data/sync/local_writer.dart';
+import 'package:splitify/data/sync/network_status.dart';
 import 'package:splitify/data/sync/sync_engine.dart';
 
 /// The local database, opened lazily on first use (`splitify.sqlite` in app documents). Tests override with
-/// `AppDatabase(NativeDatabase.memory())`.
+/// `AppDatabase(NativeDatabase.memory())`. Shared across isolates so a WorkManager run in the same process
+/// uses the app's connection (04 §8).
 final appDatabaseProvider = Provider<AppDatabase>((ref) {
-  final db = AppDatabase(driftDatabase(name: 'splitify'));
+  final db = AppDatabase(
+    driftDatabase(name: 'splitify', native: const DriftNativeOptions(shareAcrossIsolates: true)),
+  );
   ref.onDispose(db.close);
   return db;
 });
 
 final clockProvider = Provider<Clock>((ref) => const SystemClock());
 
+/// Network up/down (connectivity_plus). Bootstrap overrides it; widget tests assume online.
+final networkStatusProvider = Provider<NetworkStatus>((ref) => const AssumeOnlineNetworkStatus());
+
+/// WorkManager jobs (04 §8). Bootstrap overrides it once the plugin is initialised.
+final backgroundSyncProvider = Provider<BackgroundSync>((ref) => const NoBackgroundSync());
+
+/// Runs when the server still says 401 after one session refresh (04 §7): sign out **without** wiping the
+/// phone, so the same person signing in again resumes sync. Bootstrap wires it to the auth repository.
+final sessionExpiredProvider = Provider<Future<void> Function()>((ref) => () async {});
+
 final syncEngineProvider = Provider<SyncEngine>((ref) {
   final e = SyncEngine(
     db: ref.watch(appDatabaseProvider),
     remote: ref.watch(remoteApiProvider),
     clock: ref.watch(clockProvider),
+    onSignedOut: () => ref.read(sessionExpiredProvider)(),
     afterPush: () async {
       await ref.read(uploadQueueProvider).run();
     },
@@ -83,6 +99,16 @@ final syncStatusProvider = StreamProvider<SyncStatus>(
 /// Changes the server refused, oldest first.
 final syncIssuesProvider = StreamProvider<List<SyncIssue>>(
   (ref) => ref.watch(syncRepositoryProvider).watchIssues(),
+);
+
+/// Photos waiting to go up (Sync & storage, S-113/S-114).
+final syncUploadsProvider = StreamProvider<List<SyncUpload>>(
+  (ref) => ref.watch(syncRepositoryProvider).watchUploads(),
+);
+
+/// Groups with a row not on the server yet (Groups home cards).
+final unsyncedGroupIdsProvider = StreamProvider<Set<String>>(
+  (ref) => ref.watch(syncRepositoryProvider).watchUnsyncedGroupIds(),
 );
 
 /// True while anything on this phone is not on the server yet: overall balances show the `SyncMarker`.
