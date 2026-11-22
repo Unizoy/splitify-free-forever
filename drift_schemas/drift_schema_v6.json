@@ -2278,7 +2278,7 @@
       "references": [],
       "type": "table",
       "data": {
-        "name": "import_batches",
+        "name": "recurring_templates",
         "was_declared_in_moor": true,
         "columns": [
           {
@@ -2304,18 +2304,8 @@
             "dsl_features": []
           },
           {
-            "name": "source",
-            "getter_name": "source",
-            "moor_type": "string",
-            "nullable": false,
-            "customConstraints": "NOT NULL",
-            "default_dart": null,
-            "default_client_dart": null,
-            "dsl_features": []
-          },
-          {
-            "name": "file_name",
-            "getter_name": "fileName",
+            "name": "expense_id",
+            "getter_name": "expenseId",
             "moor_type": "string",
             "nullable": true,
             "customConstraints": "",
@@ -2324,32 +2314,62 @@
             "dsl_features": []
           },
           {
-            "name": "expense_ids",
-            "getter_name": "expenseIds",
+            "name": "interval",
+            "getter_name": "interval",
             "moor_type": "string",
             "nullable": false,
-            "customConstraints": "NOT NULL DEFAULT '[]'",
-            "default_dart": "const CustomExpression('\\'[]\\'')",
+            "customConstraints": "NOT NULL",
+            "default_dart": null,
             "default_client_dart": null,
             "dsl_features": []
           },
           {
-            "name": "payment_ids",
-            "getter_name": "paymentIds",
+            "name": "anchor_date",
+            "getter_name": "anchorDate",
             "moor_type": "string",
             "nullable": false,
-            "customConstraints": "NOT NULL DEFAULT '[]'",
-            "default_dart": "const CustomExpression('\\'[]\\'')",
+            "customConstraints": "NOT NULL",
+            "default_dart": null,
             "default_client_dart": null,
             "dsl_features": []
           },
           {
-            "name": "member_ids",
-            "getter_name": "memberIds",
+            "name": "next_date",
+            "getter_name": "nextDate",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": "",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "ends_on",
+            "getter_name": "endsOn",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": "",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "active",
+            "getter_name": "active",
+            "moor_type": "bool",
+            "nullable": false,
+            "customConstraints": "NOT NULL DEFAULT TRUE",
+            "default_dart": "const CustomExpression('TRUE')",
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "template",
+            "getter_name": "template",
             "moor_type": "string",
             "nullable": false,
-            "customConstraints": "NOT NULL DEFAULT '[]'",
-            "default_dart": "const CustomExpression('\\'[]\\'')",
+            "customConstraints": "NOT NULL",
+            "default_dart": null,
             "default_client_dart": null,
             "dsl_features": []
           },
@@ -2357,8 +2377,48 @@
             "name": "created_at",
             "getter_name": "createdAt",
             "moor_type": "string",
-            "nullable": false,
-            "customConstraints": "NOT NULL",
+            "nullable": true,
+            "customConstraints": "",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "created_by",
+            "getter_name": "createdBy",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": "",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "updated_at",
+            "getter_name": "updatedAt",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": "",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "updated_by",
+            "getter_name": "updatedBy",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": "",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "client_updated_at",
+            "getter_name": "clientUpdatedAt",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": "",
             "default_dart": null,
             "default_client_dart": null,
             "dsl_features": []
@@ -2370,6 +2430,36 @@
             "nullable": true,
             "customConstraints": "",
             "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "deleted_by",
+            "getter_name": "deletedBy",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": "",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "seq",
+            "getter_name": "seq",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": "NOT NULL DEFAULT 0",
+            "default_dart": "const CustomExpression('0')",
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "sync_state",
+            "getter_name": "syncState",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL DEFAULT 'synced'",
+            "default_dart": "const CustomExpression('\\'synced\\'')",
             "default_client_dart": null,
             "dsl_features": []
           }
@@ -2387,20 +2477,54 @@
       "type": "index",
       "data": {
         "on": 26,
-        "name": "import_batches_group",
-        "sql": "CREATE INDEX import_batches_group ON import_batches (group_id, created_at);",
+        "name": "recurring_templates_group",
+        "sql": "CREATE INDEX recurring_templates_group ON recurring_templates (group_id);",
         "unique": false,
         "columns": []
       }
     },
     {
       "id": 28,
+      "references": [
+        26
+      ],
+      "type": "index",
+      "data": {
+        "on": 26,
+        "name": "recurring_templates_expense",
+        "sql": "CREATE INDEX recurring_templates_expense ON recurring_templates (expense_id);",
+        "unique": false,
+        "columns": []
+      }
+    },
+    {
+      "id": 29,
       "references": [],
       "type": "table",
       "data": {
         "name": "expense_search",
         "was_declared_in_moor": true,
         "columns": [
+          {
+            "name": "expense_id",
+            "getter_name": "expenseId",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "group_id",
+            "getter_name": "groupId",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
           {
             "name": "description",
             "getter_name": "description",
@@ -2443,7 +2567,7 @@
           }
         ],
         "is_virtual": true,
-        "create_virtual_stmt": "CREATE VIRTUAL TABLE \"expense_search\" USING fts5(description, notes, member_names, amount_text)",
+        "create_virtual_stmt": "CREATE VIRTUAL TABLE \"expense_search\" USING fts5(expense_id UNINDEXED, group_id UNINDEXED, description, notes, member_names, amount_text)",
         "without_rowid": false,
         "constraints": []
       }
@@ -2685,20 +2809,29 @@
       ]
     },
     {
-      "name": "import_batches",
+      "name": "recurring_templates",
       "sql": [
         {
           "dialect": "sqlite",
-          "sql": "CREATE TABLE IF NOT EXISTS \"import_batches\" (\"id\" TEXT NOT NULL PRIMARY KEY, \"group_id\" TEXT NOT NULL, \"source\" TEXT NOT NULL, \"file_name\" TEXT, \"expense_ids\" TEXT NOT NULL DEFAULT '[]', \"payment_ids\" TEXT NOT NULL DEFAULT '[]', \"member_ids\" TEXT NOT NULL DEFAULT '[]', \"created_at\" TEXT NOT NULL, \"deleted_at\" TEXT);"
+          "sql": "CREATE TABLE IF NOT EXISTS \"recurring_templates\" (\"id\" TEXT NOT NULL PRIMARY KEY, \"group_id\" TEXT NOT NULL, \"expense_id\" TEXT, \"interval\" TEXT NOT NULL, \"anchor_date\" TEXT NOT NULL, \"next_date\" TEXT, \"ends_on\" TEXT, \"active\" INTEGER NOT NULL DEFAULT TRUE, \"template\" TEXT NOT NULL, \"created_at\" TEXT, \"created_by\" TEXT, \"updated_at\" TEXT, \"updated_by\" TEXT, \"client_updated_at\" TEXT, \"deleted_at\" TEXT, \"deleted_by\" TEXT, \"seq\" INTEGER NOT NULL DEFAULT 0, \"sync_state\" TEXT NOT NULL DEFAULT 'synced');"
         }
       ]
     },
     {
-      "name": "import_batches_group",
+      "name": "recurring_templates_group",
       "sql": [
         {
           "dialect": "sqlite",
-          "sql": "CREATE INDEX import_batches_group ON import_batches (group_id, created_at)"
+          "sql": "CREATE INDEX recurring_templates_group ON recurring_templates (group_id)"
+        }
+      ]
+    },
+    {
+      "name": "recurring_templates_expense",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE INDEX recurring_templates_expense ON recurring_templates (expense_id)"
         }
       ]
     },
@@ -2707,7 +2840,7 @@
       "sql": [
         {
           "dialect": "sqlite",
-          "sql": "CREATE VIRTUAL TABLE IF NOT EXISTS \"expense_search\" USING fts5(description, notes, member_names, amount_text);"
+          "sql": "CREATE VIRTUAL TABLE IF NOT EXISTS \"expense_search\" USING fts5(expense_id UNINDEXED, group_id UNINDEXED, description, notes, member_names, amount_text);"
         }
       ]
     }

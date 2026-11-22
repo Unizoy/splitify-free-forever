@@ -94,6 +94,7 @@ List<_Case> _cases() {
       'expense_detail',
       const ExpenseDetailScreen(expenseId: 'e1'),
       [
+        noRepeat('e1'),
         expenseViewProvider('e1').overrideWithValue(
           AsyncData(sampleView(sampleExpense(notes: 'Table by the window, paid by card.'))),
         ),
@@ -106,6 +107,7 @@ List<_Case> _cases() {
       'expense_detail_unsynced',
       const ExpenseDetailScreen(expenseId: 'e2'),
       [
+        noRepeat('e2'),
         expenseViewProvider('e2').overrideWithValue(AsyncData(views.first)),
         expenseGroupProvider(gid).overrideWith((ref) => Stream.value(null)),
         commentThreadProvider((groupId: gid, targetType: 'expense', targetId: 'e2'))

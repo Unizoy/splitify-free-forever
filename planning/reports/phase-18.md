@@ -30,7 +30,13 @@ balance, "Updated … ago" or "Not synced yet", with a "Hide amounts" option.
 
 ## Tests
 
-TESTS_SECTION
+- New tests: unit ~120 (import reader/mapping/rows/repository incl. TC-22-02 round trip, lock policy + controller,
+  widget data + sync, activity import rows, device-auth/window seams, Drift v6 migration) · widget 4 (TC-X1-03 full
+  flow) · golden 44 (11 scenarios × light/dark × 1.0/2.0) · integration 2 (`extras_import_widget_test.dart`,
+  `app_lock_test.dart`) · SQL 13 (`supabase/tests/180_import.test.sql`)
+- Coverage: COVERAGE_LINE
+- Test IDs now passing: TC-X1-01…04, TC-22-02, TC-X2-01, TC-X2-02 (device PIN instead of a fingerprint), TC-X3-01, TC-X3-02
+- Quarantined / skipped: `app_lock_test.dart` is skipped unless `LOCK_E2E=true` (needs the host script that types the PIN)
 
 ## Gates
 

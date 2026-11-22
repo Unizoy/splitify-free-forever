@@ -1553,13 +1553,28 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String actRecurringCreatedNamed(String actor, String description) {
+    return '$actor set “$description” to repeat';
+  }
+
+  @override
   String actRecurringUpdated(String actor) {
     return '$actor changed a recurring bill';
   }
 
   @override
+  String actRecurringUpdatedNamed(String actor, String description) {
+    return '$actor changed how “$description” repeats';
+  }
+
+  @override
   String actRecurringStopped(String actor) {
     return '$actor stopped a recurring bill';
+  }
+
+  @override
+  String actRecurringStoppedNamed(String actor, String description) {
+    return '$actor stopped repeating “$description”';
   }
 
   @override
@@ -3011,6 +3026,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'expense': 'Expense',
       'payment': 'Payment',
       'comment': 'Comment',
+      'recurring': 'Repeating expense',
       'other': 'Change',
     });
     return '$_temp0';
@@ -3379,6 +3395,237 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get loanAmountDone => 'Done';
+
+  @override
+  String get repeatLabel => 'Repeat';
+
+  @override
+  String get repeatNever => 'Never';
+
+  @override
+  String get repeatWeekly => 'Every week';
+
+  @override
+  String get repeatFortnightly => 'Every 2 weeks';
+
+  @override
+  String get repeatMonthly => 'Every month';
+
+  @override
+  String get repeatYearly => 'Every year';
+
+  @override
+  String get repeatEndsLabel => 'Ends';
+
+  @override
+  String get repeatStartsLabel => 'First date';
+
+  @override
+  String get repeatNoEnd => 'No end date';
+
+  @override
+  String repeatUntil(String date) {
+    return 'Until $date';
+  }
+
+  @override
+  String get repeatPickEnd => 'Pick an end date';
+
+  @override
+  String repeatEndBeforeStart(String date) {
+    return 'The end date can’t be before $date';
+  }
+
+  @override
+  String repeatNextHint(String date) {
+    return 'A copy is added automatically on each date. First copy: $date.';
+  }
+
+  @override
+  String get repeatNoCopiesHint => 'No copies: the end date is before the first one.';
+
+  @override
+  String get recurringChip => 'Repeats';
+
+  @override
+  String get recurringRowLabel => 'Repeats';
+
+  @override
+  String recurringNext(String date) {
+    return 'Next copy on $date';
+  }
+
+  @override
+  String recurringEndsOn(String date) {
+    return 'Ends on $date';
+  }
+
+  @override
+  String get recurringNoEnd => 'No end date';
+
+  @override
+  String get recurringFinished => 'No more copies';
+
+  @override
+  String get recurringStoppedValue => 'Stopped';
+
+  @override
+  String get recurringStoppedLine => 'Stopped repeating. Copies already added stay.';
+
+  @override
+  String get recurringCopyLine => 'Added automatically from a repeating expense';
+
+  @override
+  String get recurringEditFuture => 'Edit future copies';
+
+  @override
+  String get recurringStop => 'Stop repeating';
+
+  @override
+  String recurringStopTitle(String description) {
+    return 'Stop repeating “$description”?';
+  }
+
+  @override
+  String get recurringStopBody =>
+      'No more copies will be added. Copies already added stay as they are.';
+
+  @override
+  String get recurringStopKeep => 'Keep repeating';
+
+  @override
+  String get recurringStoppedSnack => 'Stopped repeating';
+
+  @override
+  String get recurringResume => 'Repeat again';
+
+  @override
+  String get recurringResumedSnack => 'Repeats again from today';
+
+  @override
+  String recurringEditPill(String group) {
+    return 'Future copies · $group';
+  }
+
+  @override
+  String get recurringEditNote =>
+      'Changes apply to copies added from now on. Copies already added stay as they are.';
+
+  @override
+  String get recurringSaved => 'Future copies updated';
+
+  @override
+  String get recurringNotFoundTitle => 'Not on this phone';
+
+  @override
+  String get recurringNotFoundBody => 'This repeating expense isn’t on this phone any more.';
+
+  @override
+  String get recurringDeleteAlsoStops => 'Deleted. It won’t repeat any more.';
+
+  @override
+  String actRecurringCopy(String description) {
+    return '“$description” was added (repeats)';
+  }
+
+  @override
+  String actRecurringStoppedAuto(String description) {
+    return '“$description” stopped repeating';
+  }
+
+  @override
+  String get searchTooltip => 'Search expenses';
+
+  @override
+  String get searchFieldHint => 'Description, person or amount';
+
+  @override
+  String get searchClear => 'Clear search';
+
+  @override
+  String get searchFilterGroup => 'Group';
+
+  @override
+  String get searchFilterPerson => 'Person';
+
+  @override
+  String get searchFilterDate => 'Date';
+
+  @override
+  String get searchFilterCategory => 'Category';
+
+  @override
+  String get searchAnyGroup => 'All groups';
+
+  @override
+  String get searchAnyPerson => 'Anyone';
+
+  @override
+  String get searchAnyDate => 'Any time';
+
+  @override
+  String get searchAnyCategory => 'All categories';
+
+  @override
+  String get searchThisMonth => 'This month';
+
+  @override
+  String get searchLastMonth => 'Last month';
+
+  @override
+  String get searchLast3Months => 'Last 3 months';
+
+  @override
+  String get searchThisYear => 'This year';
+
+  @override
+  String get searchPickDates => 'Pick dates';
+
+  @override
+  String get searchFromTitle => 'From';
+
+  @override
+  String get searchToTitle => 'To';
+
+  @override
+  String searchDateRange(String from, String to) {
+    return '$from – $to';
+  }
+
+  @override
+  String get searchStartTitle => 'Find any expense';
+
+  @override
+  String get searchStartBody =>
+      'Search by description, note, person or amount. It works offline too.';
+
+  @override
+  String get searchNoResultsTitle => 'No matches';
+
+  @override
+  String get searchNoResultsBody => 'Try another word, or remove a filter.';
+
+  @override
+  String searchResultCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count expenses',
+      one: '1 expense',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String searchLimited(int count) {
+    return 'Showing the newest $count';
+  }
+
+  @override
+  String get searchClearFilters => 'Clear filters';
+
+  @override
+  String get searchNoPeople => 'No people yet';
 
   @override
   String get impTitle => 'Import from Splitwise';

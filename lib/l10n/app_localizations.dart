@@ -2630,17 +2630,35 @@ abstract class AppLocalizations {
   /// **'{actor} set up a recurring bill'**
   String actRecurringCreated(String actor);
 
+  /// No description provided for @actRecurringCreatedNamed.
+  ///
+  /// In en, this message translates to:
+  /// **'{actor} set “{description}” to repeat'**
+  String actRecurringCreatedNamed(String actor, String description);
+
   /// No description provided for @actRecurringUpdated.
   ///
   /// In en, this message translates to:
   /// **'{actor} changed a recurring bill'**
   String actRecurringUpdated(String actor);
 
+  /// No description provided for @actRecurringUpdatedNamed.
+  ///
+  /// In en, this message translates to:
+  /// **'{actor} changed how “{description}” repeats'**
+  String actRecurringUpdatedNamed(String actor, String description);
+
   /// No description provided for @actRecurringStopped.
   ///
   /// In en, this message translates to:
   /// **'{actor} stopped a recurring bill'**
   String actRecurringStopped(String actor);
+
+  /// No description provided for @actRecurringStoppedNamed.
+  ///
+  /// In en, this message translates to:
+  /// **'{actor} stopped repeating “{description}”'**
+  String actRecurringStoppedNamed(String actor, String description);
 
   /// No description provided for @actImportCompleted.
   ///
@@ -4973,7 +4991,7 @@ abstract class AppLocalizations {
   /// No description provided for @syncIssueEntity.
   ///
   /// In en, this message translates to:
-  /// **'{entity, select, group{Group} member{Member} expense{Expense} payment{Payment} comment{Comment} other{Change}}'**
+  /// **'{entity, select, group{Group} member{Member} expense{Expense} payment{Payment} comment{Comment} recurring{Repeating expense} other{Change}}'**
   String syncIssueEntity(String entity);
 
   /// No description provided for @syncIssueOp.
@@ -5497,6 +5515,402 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Done'**
   String get loanAmountDone;
+
+  /// No description provided for @repeatLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Repeat'**
+  String get repeatLabel;
+
+  /// No description provided for @repeatNever.
+  ///
+  /// In en, this message translates to:
+  /// **'Never'**
+  String get repeatNever;
+
+  /// No description provided for @repeatWeekly.
+  ///
+  /// In en, this message translates to:
+  /// **'Every week'**
+  String get repeatWeekly;
+
+  /// No description provided for @repeatFortnightly.
+  ///
+  /// In en, this message translates to:
+  /// **'Every 2 weeks'**
+  String get repeatFortnightly;
+
+  /// No description provided for @repeatMonthly.
+  ///
+  /// In en, this message translates to:
+  /// **'Every month'**
+  String get repeatMonthly;
+
+  /// No description provided for @repeatYearly.
+  ///
+  /// In en, this message translates to:
+  /// **'Every year'**
+  String get repeatYearly;
+
+  /// No description provided for @repeatEndsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Ends'**
+  String get repeatEndsLabel;
+
+  /// No description provided for @repeatStartsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'First date'**
+  String get repeatStartsLabel;
+
+  /// No description provided for @repeatNoEnd.
+  ///
+  /// In en, this message translates to:
+  /// **'No end date'**
+  String get repeatNoEnd;
+
+  /// No description provided for @repeatUntil.
+  ///
+  /// In en, this message translates to:
+  /// **'Until {date}'**
+  String repeatUntil(String date);
+
+  /// No description provided for @repeatPickEnd.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick an end date'**
+  String get repeatPickEnd;
+
+  /// No description provided for @repeatEndBeforeStart.
+  ///
+  /// In en, this message translates to:
+  /// **'The end date can’t be before {date}'**
+  String repeatEndBeforeStart(String date);
+
+  /// No description provided for @repeatNextHint.
+  ///
+  /// In en, this message translates to:
+  /// **'A copy is added automatically on each date. First copy: {date}.'**
+  String repeatNextHint(String date);
+
+  /// No description provided for @repeatNoCopiesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'No copies: the end date is before the first one.'**
+  String get repeatNoCopiesHint;
+
+  /// No description provided for @recurringChip.
+  ///
+  /// In en, this message translates to:
+  /// **'Repeats'**
+  String get recurringChip;
+
+  /// No description provided for @recurringRowLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Repeats'**
+  String get recurringRowLabel;
+
+  /// No description provided for @recurringNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Next copy on {date}'**
+  String recurringNext(String date);
+
+  /// No description provided for @recurringEndsOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Ends on {date}'**
+  String recurringEndsOn(String date);
+
+  /// No description provided for @recurringNoEnd.
+  ///
+  /// In en, this message translates to:
+  /// **'No end date'**
+  String get recurringNoEnd;
+
+  /// No description provided for @recurringFinished.
+  ///
+  /// In en, this message translates to:
+  /// **'No more copies'**
+  String get recurringFinished;
+
+  /// No description provided for @recurringStoppedValue.
+  ///
+  /// In en, this message translates to:
+  /// **'Stopped'**
+  String get recurringStoppedValue;
+
+  /// No description provided for @recurringStoppedLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Stopped repeating. Copies already added stay.'**
+  String get recurringStoppedLine;
+
+  /// No description provided for @recurringCopyLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Added automatically from a repeating expense'**
+  String get recurringCopyLine;
+
+  /// No description provided for @recurringEditFuture.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit future copies'**
+  String get recurringEditFuture;
+
+  /// No description provided for @recurringStop.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop repeating'**
+  String get recurringStop;
+
+  /// No description provided for @recurringStopTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop repeating “{description}”?'**
+  String recurringStopTitle(String description);
+
+  /// No description provided for @recurringStopBody.
+  ///
+  /// In en, this message translates to:
+  /// **'No more copies will be added. Copies already added stay as they are.'**
+  String get recurringStopBody;
+
+  /// No description provided for @recurringStopKeep.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep repeating'**
+  String get recurringStopKeep;
+
+  /// No description provided for @recurringStoppedSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Stopped repeating'**
+  String get recurringStoppedSnack;
+
+  /// No description provided for @recurringResume.
+  ///
+  /// In en, this message translates to:
+  /// **'Repeat again'**
+  String get recurringResume;
+
+  /// No description provided for @recurringResumedSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Repeats again from today'**
+  String get recurringResumedSnack;
+
+  /// No description provided for @recurringEditPill.
+  ///
+  /// In en, this message translates to:
+  /// **'Future copies · {group}'**
+  String recurringEditPill(String group);
+
+  /// No description provided for @recurringEditNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Changes apply to copies added from now on. Copies already added stay as they are.'**
+  String get recurringEditNote;
+
+  /// No description provided for @recurringSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Future copies updated'**
+  String get recurringSaved;
+
+  /// No description provided for @recurringNotFoundTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Not on this phone'**
+  String get recurringNotFoundTitle;
+
+  /// No description provided for @recurringNotFoundBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This repeating expense isn’t on this phone any more.'**
+  String get recurringNotFoundBody;
+
+  /// No description provided for @recurringDeleteAlsoStops.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleted. It won’t repeat any more.'**
+  String get recurringDeleteAlsoStops;
+
+  /// No description provided for @actRecurringCopy.
+  ///
+  /// In en, this message translates to:
+  /// **'“{description}” was added (repeats)'**
+  String actRecurringCopy(String description);
+
+  /// No description provided for @actRecurringStoppedAuto.
+  ///
+  /// In en, this message translates to:
+  /// **'“{description}” stopped repeating'**
+  String actRecurringStoppedAuto(String description);
+
+  /// No description provided for @searchTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Search expenses'**
+  String get searchTooltip;
+
+  /// No description provided for @searchFieldHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Description, person or amount'**
+  String get searchFieldHint;
+
+  /// No description provided for @searchClear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear search'**
+  String get searchClear;
+
+  /// No description provided for @searchFilterGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Group'**
+  String get searchFilterGroup;
+
+  /// No description provided for @searchFilterPerson.
+  ///
+  /// In en, this message translates to:
+  /// **'Person'**
+  String get searchFilterPerson;
+
+  /// No description provided for @searchFilterDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get searchFilterDate;
+
+  /// No description provided for @searchFilterCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get searchFilterCategory;
+
+  /// No description provided for @searchAnyGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'All groups'**
+  String get searchAnyGroup;
+
+  /// No description provided for @searchAnyPerson.
+  ///
+  /// In en, this message translates to:
+  /// **'Anyone'**
+  String get searchAnyPerson;
+
+  /// No description provided for @searchAnyDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Any time'**
+  String get searchAnyDate;
+
+  /// No description provided for @searchAnyCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'All categories'**
+  String get searchAnyCategory;
+
+  /// No description provided for @searchThisMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'This month'**
+  String get searchThisMonth;
+
+  /// No description provided for @searchLastMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Last month'**
+  String get searchLastMonth;
+
+  /// No description provided for @searchLast3Months.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 3 months'**
+  String get searchLast3Months;
+
+  /// No description provided for @searchThisYear.
+  ///
+  /// In en, this message translates to:
+  /// **'This year'**
+  String get searchThisYear;
+
+  /// No description provided for @searchPickDates.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick dates'**
+  String get searchPickDates;
+
+  /// No description provided for @searchFromTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'From'**
+  String get searchFromTitle;
+
+  /// No description provided for @searchToTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'To'**
+  String get searchToTitle;
+
+  /// No description provided for @searchDateRange.
+  ///
+  /// In en, this message translates to:
+  /// **'{from} – {to}'**
+  String searchDateRange(String from, String to);
+
+  /// No description provided for @searchStartTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Find any expense'**
+  String get searchStartTitle;
+
+  /// No description provided for @searchStartBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Search by description, note, person or amount. It works offline too.'**
+  String get searchStartBody;
+
+  /// No description provided for @searchNoResultsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No matches'**
+  String get searchNoResultsTitle;
+
+  /// No description provided for @searchNoResultsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Try another word, or remove a filter.'**
+  String get searchNoResultsBody;
+
+  /// No description provided for @searchResultCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 expense} other{{count} expenses}}'**
+  String searchResultCount(int count);
+
+  /// No description provided for @searchLimited.
+  ///
+  /// In en, this message translates to:
+  /// **'Showing the newest {count}'**
+  String searchLimited(int count);
+
+  /// No description provided for @searchClearFilters.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear filters'**
+  String get searchClearFilters;
+
+  /// No description provided for @searchNoPeople.
+  ///
+  /// In en, this message translates to:
+  /// **'No people yet'**
+  String get searchNoPeople;
 
   /// No description provided for @impTitle.
   ///

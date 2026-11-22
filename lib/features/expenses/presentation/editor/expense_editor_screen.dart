@@ -30,10 +30,19 @@ enum EditorStep { amount, paidBy, split, details, review }
 /// · Split · Details · Review. "Save" is offered from step 1 once amount and description are set
 /// (defaults: you paid, the group's default split), so most expenses take one screen.
 class ExpenseEditorScreen extends ConsumerStatefulWidget {
-  const ExpenseEditorScreen({this.groupId, this.expenseId, this.initialStep, super.key});
+  const ExpenseEditorScreen({
+    this.groupId,
+    this.expenseId,
+    this.templateId,
+    this.initialStep,
+    super.key,
+  });
 
   final String? groupId;
   final String? expenseId;
+
+  /// "Edit future copies" of this repeating-expense template (#12) instead of one expense.
+  final String? templateId;
 
   /// Opens on this step (tests, deep links); default amount.
   final EditorStep? initialStep;
@@ -52,6 +61,11 @@ class _ExpenseEditorScreenState extends ConsumerState<ExpenseEditorScreen> {
 
   ExpenseEditorArgs get _args => (groupId: widget.groupId, expenseId: widget.expenseId);
 
+  AsyncNotifierProvider<ExpenseEditorController, ExpenseDraft> get _provider =>
+      widget.templateId == null
+      ? expenseEditorProvider(_args)
+      : templateEditorProvider(widget.templateId!);
+
   @override
   void dispose() {
     _description?.dispose();
@@ -60,7 +74,7 @@ class _ExpenseEditorScreenState extends ConsumerState<ExpenseEditorScreen> {
   }
 
   void _edit(ExpenseDraft Function(ExpenseDraft d) change) =>
-      ref.read(expenseEditorProvider(_args).notifier).edit(change);
+      ref.read(_provider.notifier).edit(change);
 
   Future<void> _pickCurrency(ExpenseDraft d) async {
     final code = await pickGroupCurrency(context, ref, groupId: d.groupId, selected: d.currency);
@@ -105,7 +119,7 @@ class _ExpenseEditorScreenState extends ConsumerState<ExpenseEditorScreen> {
     if (!d.fastPathReady) return EditorStep.amount;
     if (!d.payersOk) return EditorStep.paidBy;
     if (d.splitCheck is! SplitReady) return EditorStep.split;
-    if (d.notes.trim().length > maxNotes) return EditorStep.details;
+    if (d.notes.trim().length > maxNotes || d.repeatProblem) return EditorStep.details;
     return null;
   }
 
@@ -120,7 +134,7 @@ class _ExpenseEditorScreenState extends ConsumerState<ExpenseEditorScreen> {
     final l = AppLocalizations.of(context);
     final pause = context.motion.reduced ? Duration.zero : const Duration(milliseconds: 700);
     setState(() => _saving = true);
-    final id = await ref.read(expenseEditorProvider(_args).notifier).save();
+    final id = await ref.read(_provider.notifier).save();
     if (!mounted) return;
     if (id == null) {
       setState(() => _saving = false);
@@ -135,14 +149,19 @@ class _ExpenseEditorScreenState extends ConsumerState<ExpenseEditorScreen> {
     if (!mounted) return;
     messenger
       ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text(l.expSaved), duration: const Duration(seconds: 2)));
+      ..showSnackBar(
+        SnackBar(
+          content: Text(d.isTemplate ? l.recurringSaved : l.expSaved),
+          duration: const Duration(seconds: 2),
+        ),
+      );
     await _close();
   }
 
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    final state = ref.watch(expenseEditorProvider(_args));
+    final state = ref.watch(_provider);
     final offline = ref.watch(syncOfflineProvider).value ?? false;
     final draft = state.value;
 
@@ -158,8 +177,12 @@ class _ExpenseEditorScreenState extends ConsumerState<ExpenseEditorScreen> {
                         padding: const EdgeInsets.all(AppSpacing.screen),
                         child: EmptyState(
                           icon: AppIcons.receipt,
-                          title: l.expNotFoundTitle,
-                          message: l.expNotFoundBody,
+                          title: widget.templateId == null
+                              ? l.expNotFoundTitle
+                              : l.recurringNotFoundTitle,
+                          message: widget.templateId == null
+                              ? l.expNotFoundBody
+                              : l.recurringNotFoundBody,
                         ),
                       ),
                     )
@@ -203,7 +226,8 @@ class _ExpenseEditorScreenState extends ConsumerState<ExpenseEditorScreen> {
         onCategory: (k) => _edit((d) => d.copyWith(category: k)),
         onDate: (date) => _edit((d) => d.copyWith(date: date)),
         onNotes: (t) => _edit((d) => d.copyWith(notes: t)),
-        onReceipt: (r) => _edit((d) => d.copyWith(receipt: r)),
+        onReceipt: draft.isTemplate ? null : (r) => _edit((d) => d.copyWith(receipt: r)),
+        onRepeat: draft.canRepeat || draft.isTemplate ? (r) => _edit((d) => d.withRepeat(r)) : null,
       ),
       EditorStep.review => ReviewStep(
         draft: draft,
@@ -222,7 +246,13 @@ class _ExpenseEditorScreenState extends ConsumerState<ExpenseEditorScreen> {
           children: [
             Column(
               children: [
-                _header(l, groupName: draft.groupName, offline: offline, edit: draft.isEdit),
+                _header(
+                  l,
+                  groupName: draft.groupName,
+                  offline: offline,
+                  edit: draft.isEdit,
+                  template: draft.isTemplate,
+                ),
                 Expanded(
                   child: AnimatedSwitcher(
                     duration: context.motion.base,
@@ -245,10 +275,13 @@ class _ExpenseEditorScreenState extends ConsumerState<ExpenseEditorScreen> {
     required String groupName,
     required bool offline,
     bool edit = false,
+    bool template = false,
   }) {
     final status = offline
         ? l.expOfflinePill(groupName)
-        : (edit ? l.expEditPill(groupName) : groupName);
+        : (template
+              ? l.recurringEditPill(groupName)
+              : (edit ? l.expEditPill(groupName) : groupName));
     return StepHeader(
       steps: [
         StepItem(label: l.stepAmount, icon: AppIcons.stepAmount),
@@ -259,7 +292,7 @@ class _ExpenseEditorScreenState extends ConsumerState<ExpenseEditorScreen> {
       ],
       current: _step.index,
       statusText: status,
-      statusIcon: offline ? AppIcons.unsynced : AppIcons.receipt,
+      statusIcon: offline ? AppIcons.unsynced : (template ? AppIcons.repeat : AppIcons.receipt),
       onBack: _back,
       onHome: () => context.go('/groups'),
       onStepTap: (i) => _go(EditorStep.values[i]),

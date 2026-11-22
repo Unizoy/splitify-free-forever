@@ -2,6 +2,7 @@ import 'package:drift/drift.dart';
 import 'package:splitify/core/time/clock.dart';
 import 'package:splitify/data/local/app_database.dart';
 import 'package:splitify/data/local/daos/expense_parts_dao.dart';
+import 'package:splitify/data/local/daos/search_index_dao.dart';
 import 'package:splitify/data/sync/mutation_queue.dart';
 import 'package:splitify/data/sync/row_codec.dart';
 import 'package:splitify/data/sync/server_clock.dart';
@@ -64,7 +65,11 @@ class LocalWriter {
       } else {
         await insertRaw(db, table, values);
       }
-      if (entity == SyncEntity.expense) await rebuildExpenseParts(db, id);
+      if (entity == SyncEntity.expense) {
+        await rebuildExpenseParts(db, id);
+        await SearchIndex.expenses(db, [id]);
+      }
+      if (entity == SyncEntity.member) await SearchIndex.groups(db, [groupId]);
       await _queue.enqueue(
         entity: entity,
         op: op,

@@ -67,6 +67,11 @@ abstract final class AppIcons {
   static const IconData receipt = IconData(0xe3ec, fontFamily: _regular);
   static const IconData backspace = IconData(0xe0ae, fontFamily: _regular);
   static const IconData history = IconData(0xe1a0, fontFamily: _regular);
+  static const IconData repeat = IconData(0xe3f6, fontFamily: _regular);
+  static const IconData repeatBold = IconData(0xe3f6, fontFamily: _bold);
+  static const IconData filter = IconData(0xe268, fontFamily: _regular);
+  static const IconData clearCircle = IconData(0xe4f8, fontFamily: _fill);
+  static const IconData tag = IconData(0xe478, fontFamily: _regular);
   // Payments and balances (phase 09).
   static const IconData arrowRight = IconData(0xe06c, fontFamily: _bold);
   static const IconData swap = IconData(0xe0a0, fontFamily: _bold);

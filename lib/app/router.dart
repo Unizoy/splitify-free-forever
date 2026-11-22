@@ -33,6 +33,7 @@ import 'package:splitify/features/notifications/presentation/notifications_bindi
 import 'package:splitify/features/onboarding/presentation/welcome_screen.dart';
 import 'package:splitify/features/payments/presentation/payment_routes.dart';
 import 'package:splitify/features/sync/presentation/sync_storage_screen.dart';
+import 'package:splitify/features/search/presentation/search_screen.dart' show searchRoutes;
 
 /// Route paths (planning/07-screens-and-flows.md §1).
 abstract final class Routes {
@@ -236,6 +237,7 @@ GoRouter buildRouter({String initialLocation = Routes.welcome, AuthGate? gate}) 
     ...paymentRoutes(),
     ...insightsRoutes(),
     ...friendRoutes(),
+    ...searchRoutes(),
     ...notificationRoutes(),
     ...importRoutes(),
     ...securityRoutes(),

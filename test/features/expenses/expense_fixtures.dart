@@ -15,6 +15,9 @@ import 'package:splitify/features/expenses/application/expense_editor_controller
 import 'package:splitify/features/expenses/application/expense_providers.dart';
 import 'package:splitify/features/expenses/application/split_draft.dart';
 import 'package:splitify/features/payments/application/payment_providers.dart';
+import 'package:splitify/features/recurring/application/recurring_providers.dart'
+    show expenseRecurringProvider;
+import 'package:splitify/features/recurring/application/repeat_draft.dart';
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/theme/theme.dart';
 import 'package:splitify/features/groups/application/groups_providers.dart'
@@ -44,6 +47,9 @@ ExpenseDraft sampleDraft({
   String notes = '',
   String? expenseId = 'e1',
   SplitDraft? split,
+  bool canRepeat = false,
+  RepeatDraft repeat = RepeatDraft.never,
+  String? templateId,
 }) {
   final base = SplitDraft.initial(ids, 2);
   final s =
@@ -84,6 +90,9 @@ ExpenseDraft sampleDraft({
     description: description,
     category: category,
     notes: notes,
+    canRepeat: canRepeat,
+    repeat: repeat,
+    templateId: templateId,
   );
 }
 
@@ -271,3 +280,8 @@ Widget expenseApp(
     ),
   );
 }
+
+/// The detail screen reads the expense's repeat rule (#12) from the database; goldens have none.
+Override noRepeat(String expenseId) =>
+    expenseRecurringProvider((expenseId: expenseId, recurringId: null))
+        .overrideWith((ref) => Stream.value(null));

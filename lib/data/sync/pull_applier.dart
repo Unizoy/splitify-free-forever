@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 import 'package:splitify/data/local/app_database.dart';
 import 'package:splitify/data/local/daos/expense_parts_dao.dart';
+import 'package:splitify/data/local/daos/search_index_dao.dart';
 import 'package:splitify/data/local/daos/sync_dao.dart';
 import 'package:splitify/data/remote/remote_api.dart';
 import 'package:splitify/data/sync/row_codec.dart';
@@ -20,6 +21,7 @@ class PullApplier {
     'expenses',
     'payments',
     'comments',
+    'recurring_templates',
     'activity',
     'profiles',
   ];
@@ -28,9 +30,11 @@ class PullApplier {
     'expenses',
     'payments',
     'comments',
+    'recurring_templates',
     'activity',
     'expense_parts',
     'record_versions',
+    'expense_search',
   ];
 
   Future<void> apply(PullPage page) => db.transaction(() async {
@@ -39,6 +43,9 @@ class PullApplier {
       await forgetGroup(g);
     }
     final pending = {for (final o in await db.select(db.outbox).get()) o.recordId};
+    final indexExpenses = <String, String>{}; // expense id -> group id
+    final indexGroups = <String>{};
+    final profiles = <String>[];
     for (final name in tables) {
       final table = tableNamed(db, name);
       final hasState = table.$columns.any((c) => c.name == 'sync_state');
@@ -48,9 +55,26 @@ class PullApplier {
         final values = columnValues(table, row);
         if (hasState) values['sync_state'] = const Variable<Object>(SyncState.synced);
         await insertRaw(db, table, values, replace: true);
-        if (name == 'expenses') await rebuildExpenseParts(db, id);
+        if (name == 'expenses') {
+          await rebuildExpenseParts(db, id);
+          indexExpenses[id] = row['group_id']! as String;
+        }
+        if (name == 'group_members') indexGroups.add(row['group_id']! as String);
+        if (name == 'profiles') profiles.add(id);
       }
     }
+    // Offline search (#34): new names re-index their groups, other pulled expenses one by one.
+    if (profiles.isNotEmpty) {
+      final linked = await (db.select(
+        db.groupMembers,
+      )..where((m) => m.userId.isIn(profiles))).get();
+      indexGroups.addAll(linked.map((m) => m.groupId));
+    }
+    await SearchIndex.groups(db, indexGroups);
+    await SearchIndex.expenses(db, [
+      for (final e in indexExpenses.entries)
+        if (!indexGroups.contains(e.value)) e.key,
+    ]);
     for (final e in page.nextCursors.entries) {
       if (page.lostGroups.contains(e.key)) continue;
       await dao.setCursor(SyncDao.groupScope(e.key), e.value);

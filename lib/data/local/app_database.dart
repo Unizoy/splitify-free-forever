@@ -1,4 +1,5 @@
 import 'package:drift/drift.dart';
+import 'package:splitify/data/local/daos/search_index_dao.dart';
 
 part 'app_database.g.dart';
 
@@ -10,7 +11,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 6;
+  int get schemaVersion => 7;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -32,8 +33,17 @@ class AppDatabase extends _$AppDatabase {
         await m.createTable(fxRates);
         await m.createIndex(fxRatesCurrencyDate);
       }
-      // v6 (phase 18): imports done on this phone.
+      // v6 (phase 16): recurring templates; the search table gains expense/group ids and is filled.
       if (from < 6) {
+        await m.createTable(recurringTemplates);
+        await m.createIndex(recurringTemplatesGroup);
+        await m.createIndex(recurringTemplatesExpense);
+        await m.deleteTable('expense_search');
+        await m.create(expenseSearch);
+        await SearchIndex.all(this);
+      }
+      // v7 (phase 18): imports done on this phone.
+      if (from < 7) {
         await m.createTable(importBatches);
         await m.createIndex(importBatchesGroup);
       }

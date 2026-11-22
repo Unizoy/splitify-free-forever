@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:splitify/features/activity/application/activity_providers.dart';
 import 'package:splitify/features/activity/presentation/activity_feed.dart';
 import 'package:splitify/features/notifications/application/notifications_providers.dart';
+import 'package:splitify/features/search/presentation/search_screen.dart' show SearchRoutes;
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/components/components.dart';
 import 'package:splitify/ui/theme/theme.dart';
@@ -69,6 +70,12 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
             title: l.activityHero,
             art: (seed: 'activity-home', family: CoverFamily.trip),
             actions: [
+              HeroIconButton(
+                key: const Key('activity-search'),
+                icon: AppIcons.search,
+                tooltip: l.searchTooltip,
+                onPressed: () => unawaited(context.push(SearchRoutes.search())),
+              ),
               HeroIconButton(
                 key: const Key('activity-bell'),
                 icon: AppIcons.bell,

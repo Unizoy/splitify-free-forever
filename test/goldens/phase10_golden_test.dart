@@ -174,6 +174,7 @@ List<_Case> _cases(File photo) {
       [
         commentThreadProvider((groupId: gid, targetType: 'expense', targetId: 'e1'))
             .overrideWithValue(const AsyncData([])),
+        noRepeat('e1'),
         expenseViewProvider('e1').overrideWithValue(AsyncData(sampleView(withReceipt))),
         expenseGroupProvider(gid).overrideWith((ref) => Stream.value(sampleGroup())),
         ...storedReceipt(_receiptPath, photo, ready: _ready),

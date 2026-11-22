@@ -76,6 +76,7 @@ List<_Case> _cases() => [
     'expense_detail_comments',
     const ExpenseDetailScreen(expenseId: 'e1'),
     [
+      noRepeat('e1'),
       expenseViewProvider('e1').overrideWithValue(
         AsyncData(sampleView(sampleExpense(notes: 'Table by the window, paid by card.'))),
       ),

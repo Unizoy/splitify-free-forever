@@ -2172,11 +2172,11 @@ class FxRates extends Table with TableInfo {
   bool get dontWriteConstraints => true;
 }
 
-class ImportBatches extends Table with TableInfo {
+class RecurringTemplates extends Table with TableInfo {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
-  ImportBatches(this.attachedDatabase, [this._alias]);
+  RecurringTemplates(this.attachedDatabase, [this._alias]);
   late final GeneratedColumn<String> id = GeneratedColumn<String>(
     'id',
     aliasedName,
@@ -2193,56 +2193,102 @@ class ImportBatches extends Table with TableInfo {
     requiredDuringInsert: true,
     $customConstraints: 'NOT NULL',
   );
-  late final GeneratedColumn<String> source = GeneratedColumn<String>(
-    'source',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-    $customConstraints: 'NOT NULL',
-  );
-  late final GeneratedColumn<String> fileName = GeneratedColumn<String>(
-    'file_name',
+  late final GeneratedColumn<String> expenseId = GeneratedColumn<String>(
+    'expense_id',
     aliasedName,
     true,
     type: DriftSqlType.string,
     requiredDuringInsert: false,
     $customConstraints: '',
   );
-  late final GeneratedColumn<String> expenseIds = GeneratedColumn<String>(
-    'expense_ids',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: 'NOT NULL DEFAULT \'[]\'',
-    defaultValue: const CustomExpression('\'[]\''),
-  );
-  late final GeneratedColumn<String> paymentIds = GeneratedColumn<String>(
-    'payment_ids',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: 'NOT NULL DEFAULT \'[]\'',
-    defaultValue: const CustomExpression('\'[]\''),
-  );
-  late final GeneratedColumn<String> memberIds = GeneratedColumn<String>(
-    'member_ids',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    $customConstraints: 'NOT NULL DEFAULT \'[]\'',
-    defaultValue: const CustomExpression('\'[]\''),
-  );
-  late final GeneratedColumn<String> createdAt = GeneratedColumn<String>(
-    'created_at',
+  late final GeneratedColumn<String> interval = GeneratedColumn<String>(
+    'interval',
     aliasedName,
     false,
     type: DriftSqlType.string,
     requiredDuringInsert: true,
     $customConstraints: 'NOT NULL',
+  );
+  late final GeneratedColumn<String> anchorDate = GeneratedColumn<String>(
+    'anchor_date',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL',
+  );
+  late final GeneratedColumn<String> nextDate = GeneratedColumn<String>(
+    'next_date',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    $customConstraints: '',
+  );
+  late final GeneratedColumn<String> endsOn = GeneratedColumn<String>(
+    'ends_on',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    $customConstraints: '',
+  );
+  late final GeneratedColumn<int> active = GeneratedColumn<int>(
+    'active',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    $customConstraints: 'NOT NULL DEFAULT TRUE',
+    defaultValue: const CustomExpression('TRUE'),
+  );
+  late final GeneratedColumn<String> template = GeneratedColumn<String>(
+    'template',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL',
+  );
+  late final GeneratedColumn<String> createdAt = GeneratedColumn<String>(
+    'created_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    $customConstraints: '',
+  );
+  late final GeneratedColumn<String> createdBy = GeneratedColumn<String>(
+    'created_by',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    $customConstraints: '',
+  );
+  late final GeneratedColumn<String> updatedAt = GeneratedColumn<String>(
+    'updated_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    $customConstraints: '',
+  );
+  late final GeneratedColumn<String> updatedBy = GeneratedColumn<String>(
+    'updated_by',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    $customConstraints: '',
+  );
+  late final GeneratedColumn<String> clientUpdatedAt = GeneratedColumn<String>(
+    'client_updated_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    $customConstraints: '',
   );
   late final GeneratedColumn<String> deletedAt = GeneratedColumn<String>(
     'deleted_at',
@@ -2252,23 +2298,58 @@ class ImportBatches extends Table with TableInfo {
     requiredDuringInsert: false,
     $customConstraints: '',
   );
+  late final GeneratedColumn<String> deletedBy = GeneratedColumn<String>(
+    'deleted_by',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    $customConstraints: '',
+  );
+  late final GeneratedColumn<int> seq = GeneratedColumn<int>(
+    'seq',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    $customConstraints: 'NOT NULL DEFAULT 0',
+    defaultValue: const CustomExpression('0'),
+  );
+  late final GeneratedColumn<String> syncState = GeneratedColumn<String>(
+    'sync_state',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    $customConstraints: 'NOT NULL DEFAULT \'synced\'',
+    defaultValue: const CustomExpression('\'synced\''),
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
     groupId,
-    source,
-    fileName,
-    expenseIds,
-    paymentIds,
-    memberIds,
+    expenseId,
+    interval,
+    anchorDate,
+    nextDate,
+    endsOn,
+    active,
+    template,
     createdAt,
+    createdBy,
+    updatedAt,
+    updatedBy,
+    clientUpdatedAt,
     deletedAt,
+    deletedBy,
+    seq,
+    syncState,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
   String get actualTableName => $name;
-  static const String $name = 'import_batches';
+  static const String $name = 'recurring_templates';
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
@@ -2277,8 +2358,8 @@ class ImportBatches extends Table with TableInfo {
   }
 
   @override
-  ImportBatches createAlias(String alias) {
-    return ImportBatches(attachedDatabase, alias);
+  RecurringTemplates createAlias(String alias) {
+    return RecurringTemplates(attachedDatabase, alias);
   }
 
   @override
@@ -2290,6 +2371,22 @@ class ExpenseSearch extends Table with TableInfo, VirtualTableInfo {
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
   ExpenseSearch(this.attachedDatabase, [this._alias]);
+  late final GeneratedColumn<String> expenseId = GeneratedColumn<String>(
+    'expense_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    $customConstraints: '',
+  );
+  late final GeneratedColumn<String> groupId = GeneratedColumn<String>(
+    'group_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    $customConstraints: '',
+  );
   late final GeneratedColumn<String> description = GeneratedColumn<String>(
     'description',
     aliasedName,
@@ -2324,6 +2421,8 @@ class ExpenseSearch extends Table with TableInfo, VirtualTableInfo {
   );
   @override
   List<GeneratedColumn> get $columns => [
+    expenseId,
+    groupId,
     description,
     notes,
     memberNames,
@@ -2350,7 +2449,7 @@ class ExpenseSearch extends Table with TableInfo, VirtualTableInfo {
   bool get dontWriteConstraints => true;
   @override
   String get moduleAndArgs =>
-      'fts5(description, notes, member_names, amount_text)';
+      'fts5(expense_id UNINDEXED, group_id UNINDEXED, description, notes, member_names, amount_text)';
 }
 
 class DatabaseAtV6 extends GeneratedDatabase {
@@ -2413,10 +2512,14 @@ class DatabaseAtV6 extends GeneratedDatabase {
     'fx_rates_currency_date',
     'CREATE INDEX fx_rates_currency_date ON fx_rates (currency, date)',
   );
-  late final ImportBatches importBatches = ImportBatches(this);
-  late final Index importBatchesGroup = Index(
-    'import_batches_group',
-    'CREATE INDEX import_batches_group ON import_batches (group_id, created_at)',
+  late final RecurringTemplates recurringTemplates = RecurringTemplates(this);
+  late final Index recurringTemplatesGroup = Index(
+    'recurring_templates_group',
+    'CREATE INDEX recurring_templates_group ON recurring_templates (group_id)',
+  );
+  late final Index recurringTemplatesExpense = Index(
+    'recurring_templates_expense',
+    'CREATE INDEX recurring_templates_expense ON recurring_templates (expense_id)',
   );
   late final ExpenseSearch expenseSearch = ExpenseSearch(this);
   @override
@@ -2450,8 +2553,9 @@ class DatabaseAtV6 extends GeneratedDatabase {
     notificationSettings,
     fxRates,
     fxRatesCurrencyDate,
-    importBatches,
-    importBatchesGroup,
+    recurringTemplates,
+    recurringTemplatesGroup,
+    recurringTemplatesExpense,
     expenseSearch,
   ];
   @override

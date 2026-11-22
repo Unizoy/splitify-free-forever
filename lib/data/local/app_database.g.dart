@@ -10063,6 +10063,933 @@ class FxRatesCompanion extends UpdateCompanion<LocalFxRate> {
   }
 }
 
+class RecurringTemplates extends Table with TableInfo<RecurringTemplates, LocalRecurring> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  RecurringTemplates(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL PRIMARY KEY',
+  );
+  static const VerificationMeta _groupIdMeta = const VerificationMeta('groupId');
+  late final GeneratedColumn<String> groupId = GeneratedColumn<String>(
+    'group_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL',
+  );
+  static const VerificationMeta _expenseIdMeta = const VerificationMeta('expenseId');
+  late final GeneratedColumn<String> expenseId = GeneratedColumn<String>(
+    'expense_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    $customConstraints: '',
+  );
+  static const VerificationMeta _intervalMeta = const VerificationMeta('interval');
+  late final GeneratedColumn<String> interval = GeneratedColumn<String>(
+    'interval',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL',
+  );
+  static const VerificationMeta _anchorDateMeta = const VerificationMeta('anchorDate');
+  late final GeneratedColumn<String> anchorDate = GeneratedColumn<String>(
+    'anchor_date',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL',
+  );
+  static const VerificationMeta _nextDateMeta = const VerificationMeta('nextDate');
+  late final GeneratedColumn<String> nextDate = GeneratedColumn<String>(
+    'next_date',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    $customConstraints: '',
+  );
+  static const VerificationMeta _endsOnMeta = const VerificationMeta('endsOn');
+  late final GeneratedColumn<String> endsOn = GeneratedColumn<String>(
+    'ends_on',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    $customConstraints: '',
+  );
+  static const VerificationMeta _activeMeta = const VerificationMeta('active');
+  late final GeneratedColumn<bool> active = GeneratedColumn<bool>(
+    'active',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    $customConstraints: 'NOT NULL DEFAULT TRUE',
+    defaultValue: const CustomExpression('TRUE'),
+  );
+  static const VerificationMeta _templateMeta = const VerificationMeta('template');
+  late final GeneratedColumn<String> template = GeneratedColumn<String>(
+    'template',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL',
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta('createdAt');
+  late final GeneratedColumn<String> createdAt = GeneratedColumn<String>(
+    'created_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    $customConstraints: '',
+  );
+  static const VerificationMeta _createdByMeta = const VerificationMeta('createdBy');
+  late final GeneratedColumn<String> createdBy = GeneratedColumn<String>(
+    'created_by',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    $customConstraints: '',
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta('updatedAt');
+  late final GeneratedColumn<String> updatedAt = GeneratedColumn<String>(
+    'updated_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    $customConstraints: '',
+  );
+  static const VerificationMeta _updatedByMeta = const VerificationMeta('updatedBy');
+  late final GeneratedColumn<String> updatedBy = GeneratedColumn<String>(
+    'updated_by',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    $customConstraints: '',
+  );
+  static const VerificationMeta _clientUpdatedAtMeta = const VerificationMeta('clientUpdatedAt');
+  late final GeneratedColumn<String> clientUpdatedAt = GeneratedColumn<String>(
+    'client_updated_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    $customConstraints: '',
+  );
+  static const VerificationMeta _deletedAtMeta = const VerificationMeta('deletedAt');
+  late final GeneratedColumn<String> deletedAt = GeneratedColumn<String>(
+    'deleted_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    $customConstraints: '',
+  );
+  static const VerificationMeta _deletedByMeta = const VerificationMeta('deletedBy');
+  late final GeneratedColumn<String> deletedBy = GeneratedColumn<String>(
+    'deleted_by',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    $customConstraints: '',
+  );
+  static const VerificationMeta _seqMeta = const VerificationMeta('seq');
+  late final GeneratedColumn<int> seq = GeneratedColumn<int>(
+    'seq',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    $customConstraints: 'NOT NULL DEFAULT 0',
+    defaultValue: const CustomExpression('0'),
+  );
+  static const VerificationMeta _syncStateMeta = const VerificationMeta('syncState');
+  late final GeneratedColumn<String> syncState = GeneratedColumn<String>(
+    'sync_state',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    $customConstraints: 'NOT NULL DEFAULT \'synced\'',
+    defaultValue: const CustomExpression('\'synced\''),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    groupId,
+    expenseId,
+    interval,
+    anchorDate,
+    nextDate,
+    endsOn,
+    active,
+    template,
+    createdAt,
+    createdBy,
+    updatedAt,
+    updatedBy,
+    clientUpdatedAt,
+    deletedAt,
+    deletedBy,
+    seq,
+    syncState,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'recurring_templates';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<LocalRecurring> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('group_id')) {
+      context.handle(_groupIdMeta, groupId.isAcceptableOrUnknown(data['group_id']!, _groupIdMeta));
+    } else if (isInserting) {
+      context.missing(_groupIdMeta);
+    }
+    if (data.containsKey('expense_id')) {
+      context.handle(
+        _expenseIdMeta,
+        expenseId.isAcceptableOrUnknown(data['expense_id']!, _expenseIdMeta),
+      );
+    }
+    if (data.containsKey('interval')) {
+      context.handle(
+        _intervalMeta,
+        interval.isAcceptableOrUnknown(data['interval']!, _intervalMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_intervalMeta);
+    }
+    if (data.containsKey('anchor_date')) {
+      context.handle(
+        _anchorDateMeta,
+        anchorDate.isAcceptableOrUnknown(data['anchor_date']!, _anchorDateMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_anchorDateMeta);
+    }
+    if (data.containsKey('next_date')) {
+      context.handle(
+        _nextDateMeta,
+        nextDate.isAcceptableOrUnknown(data['next_date']!, _nextDateMeta),
+      );
+    }
+    if (data.containsKey('ends_on')) {
+      context.handle(_endsOnMeta, endsOn.isAcceptableOrUnknown(data['ends_on']!, _endsOnMeta));
+    }
+    if (data.containsKey('active')) {
+      context.handle(_activeMeta, active.isAcceptableOrUnknown(data['active']!, _activeMeta));
+    }
+    if (data.containsKey('template')) {
+      context.handle(
+        _templateMeta,
+        template.isAcceptableOrUnknown(data['template']!, _templateMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_templateMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
+    if (data.containsKey('created_by')) {
+      context.handle(
+        _createdByMeta,
+        createdBy.isAcceptableOrUnknown(data['created_by']!, _createdByMeta),
+      );
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    }
+    if (data.containsKey('updated_by')) {
+      context.handle(
+        _updatedByMeta,
+        updatedBy.isAcceptableOrUnknown(data['updated_by']!, _updatedByMeta),
+      );
+    }
+    if (data.containsKey('client_updated_at')) {
+      context.handle(
+        _clientUpdatedAtMeta,
+        clientUpdatedAt.isAcceptableOrUnknown(data['client_updated_at']!, _clientUpdatedAtMeta),
+      );
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(
+        _deletedAtMeta,
+        deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta),
+      );
+    }
+    if (data.containsKey('deleted_by')) {
+      context.handle(
+        _deletedByMeta,
+        deletedBy.isAcceptableOrUnknown(data['deleted_by']!, _deletedByMeta),
+      );
+    }
+    if (data.containsKey('seq')) {
+      context.handle(_seqMeta, seq.isAcceptableOrUnknown(data['seq']!, _seqMeta));
+    }
+    if (data.containsKey('sync_state')) {
+      context.handle(
+        _syncStateMeta,
+        syncState.isAcceptableOrUnknown(data['sync_state']!, _syncStateMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  LocalRecurring map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return LocalRecurring(
+      id: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      groupId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}group_id'],
+      )!,
+      expenseId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}expense_id'],
+      ),
+      interval: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}interval'],
+      )!,
+      anchorDate: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}anchor_date'],
+      )!,
+      nextDate: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}next_date'],
+      ),
+      endsOn: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}ends_on'],
+      ),
+      active: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}active'],
+      )!,
+      template: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}template'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}created_at'],
+      ),
+      createdBy: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}created_by'],
+      ),
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}updated_at'],
+      ),
+      updatedBy: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}updated_by'],
+      ),
+      clientUpdatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}client_updated_at'],
+      ),
+      deletedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}deleted_at'],
+      ),
+      deletedBy: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}deleted_by'],
+      ),
+      seq: attachedDatabase.typeMapping.read(DriftSqlType.int, data['${effectivePrefix}seq'])!,
+      syncState: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}sync_state'],
+      )!,
+    );
+  }
+
+  @override
+  RecurringTemplates createAlias(String alias) {
+    return RecurringTemplates(attachedDatabase, alias);
+  }
+
+  @override
+  bool get dontWriteConstraints => true;
+}
+
+class LocalRecurring extends DataClass implements Insertable<LocalRecurring> {
+  final String id;
+  final String groupId;
+  final String? expenseId;
+  final String interval;
+  final String anchorDate;
+  final String? nextDate;
+  final String? endsOn;
+  final bool active;
+  final String template;
+  final String? createdAt;
+  final String? createdBy;
+  final String? updatedAt;
+  final String? updatedBy;
+  final String? clientUpdatedAt;
+  final String? deletedAt;
+  final String? deletedBy;
+  final int seq;
+  final String syncState;
+  const LocalRecurring({
+    required this.id,
+    required this.groupId,
+    this.expenseId,
+    required this.interval,
+    required this.anchorDate,
+    this.nextDate,
+    this.endsOn,
+    required this.active,
+    required this.template,
+    this.createdAt,
+    this.createdBy,
+    this.updatedAt,
+    this.updatedBy,
+    this.clientUpdatedAt,
+    this.deletedAt,
+    this.deletedBy,
+    required this.seq,
+    required this.syncState,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['group_id'] = Variable<String>(groupId);
+    if (!nullToAbsent || expenseId != null) {
+      map['expense_id'] = Variable<String>(expenseId);
+    }
+    map['interval'] = Variable<String>(interval);
+    map['anchor_date'] = Variable<String>(anchorDate);
+    if (!nullToAbsent || nextDate != null) {
+      map['next_date'] = Variable<String>(nextDate);
+    }
+    if (!nullToAbsent || endsOn != null) {
+      map['ends_on'] = Variable<String>(endsOn);
+    }
+    map['active'] = Variable<bool>(active);
+    map['template'] = Variable<String>(template);
+    if (!nullToAbsent || createdAt != null) {
+      map['created_at'] = Variable<String>(createdAt);
+    }
+    if (!nullToAbsent || createdBy != null) {
+      map['created_by'] = Variable<String>(createdBy);
+    }
+    if (!nullToAbsent || updatedAt != null) {
+      map['updated_at'] = Variable<String>(updatedAt);
+    }
+    if (!nullToAbsent || updatedBy != null) {
+      map['updated_by'] = Variable<String>(updatedBy);
+    }
+    if (!nullToAbsent || clientUpdatedAt != null) {
+      map['client_updated_at'] = Variable<String>(clientUpdatedAt);
+    }
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<String>(deletedAt);
+    }
+    if (!nullToAbsent || deletedBy != null) {
+      map['deleted_by'] = Variable<String>(deletedBy);
+    }
+    map['seq'] = Variable<int>(seq);
+    map['sync_state'] = Variable<String>(syncState);
+    return map;
+  }
+
+  RecurringTemplatesCompanion toCompanion(bool nullToAbsent) {
+    return RecurringTemplatesCompanion(
+      id: Value(id),
+      groupId: Value(groupId),
+      expenseId: expenseId == null && nullToAbsent ? const Value.absent() : Value(expenseId),
+      interval: Value(interval),
+      anchorDate: Value(anchorDate),
+      nextDate: nextDate == null && nullToAbsent ? const Value.absent() : Value(nextDate),
+      endsOn: endsOn == null && nullToAbsent ? const Value.absent() : Value(endsOn),
+      active: Value(active),
+      template: Value(template),
+      createdAt: createdAt == null && nullToAbsent ? const Value.absent() : Value(createdAt),
+      createdBy: createdBy == null && nullToAbsent ? const Value.absent() : Value(createdBy),
+      updatedAt: updatedAt == null && nullToAbsent ? const Value.absent() : Value(updatedAt),
+      updatedBy: updatedBy == null && nullToAbsent ? const Value.absent() : Value(updatedBy),
+      clientUpdatedAt: clientUpdatedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(clientUpdatedAt),
+      deletedAt: deletedAt == null && nullToAbsent ? const Value.absent() : Value(deletedAt),
+      deletedBy: deletedBy == null && nullToAbsent ? const Value.absent() : Value(deletedBy),
+      seq: Value(seq),
+      syncState: Value(syncState),
+    );
+  }
+
+  factory LocalRecurring.fromJson(Map<String, dynamic> json, {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return LocalRecurring(
+      id: serializer.fromJson<String>(json['id']),
+      groupId: serializer.fromJson<String>(json['group_id']),
+      expenseId: serializer.fromJson<String?>(json['expense_id']),
+      interval: serializer.fromJson<String>(json['interval']),
+      anchorDate: serializer.fromJson<String>(json['anchor_date']),
+      nextDate: serializer.fromJson<String?>(json['next_date']),
+      endsOn: serializer.fromJson<String?>(json['ends_on']),
+      active: serializer.fromJson<bool>(json['active']),
+      template: serializer.fromJson<String>(json['template']),
+      createdAt: serializer.fromJson<String?>(json['created_at']),
+      createdBy: serializer.fromJson<String?>(json['created_by']),
+      updatedAt: serializer.fromJson<String?>(json['updated_at']),
+      updatedBy: serializer.fromJson<String?>(json['updated_by']),
+      clientUpdatedAt: serializer.fromJson<String?>(json['client_updated_at']),
+      deletedAt: serializer.fromJson<String?>(json['deleted_at']),
+      deletedBy: serializer.fromJson<String?>(json['deleted_by']),
+      seq: serializer.fromJson<int>(json['seq']),
+      syncState: serializer.fromJson<String>(json['sync_state']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'group_id': serializer.toJson<String>(groupId),
+      'expense_id': serializer.toJson<String?>(expenseId),
+      'interval': serializer.toJson<String>(interval),
+      'anchor_date': serializer.toJson<String>(anchorDate),
+      'next_date': serializer.toJson<String?>(nextDate),
+      'ends_on': serializer.toJson<String?>(endsOn),
+      'active': serializer.toJson<bool>(active),
+      'template': serializer.toJson<String>(template),
+      'created_at': serializer.toJson<String?>(createdAt),
+      'created_by': serializer.toJson<String?>(createdBy),
+      'updated_at': serializer.toJson<String?>(updatedAt),
+      'updated_by': serializer.toJson<String?>(updatedBy),
+      'client_updated_at': serializer.toJson<String?>(clientUpdatedAt),
+      'deleted_at': serializer.toJson<String?>(deletedAt),
+      'deleted_by': serializer.toJson<String?>(deletedBy),
+      'seq': serializer.toJson<int>(seq),
+      'sync_state': serializer.toJson<String>(syncState),
+    };
+  }
+
+  LocalRecurring copyWith({
+    String? id,
+    String? groupId,
+    Value<String?> expenseId = const Value.absent(),
+    String? interval,
+    String? anchorDate,
+    Value<String?> nextDate = const Value.absent(),
+    Value<String?> endsOn = const Value.absent(),
+    bool? active,
+    String? template,
+    Value<String?> createdAt = const Value.absent(),
+    Value<String?> createdBy = const Value.absent(),
+    Value<String?> updatedAt = const Value.absent(),
+    Value<String?> updatedBy = const Value.absent(),
+    Value<String?> clientUpdatedAt = const Value.absent(),
+    Value<String?> deletedAt = const Value.absent(),
+    Value<String?> deletedBy = const Value.absent(),
+    int? seq,
+    String? syncState,
+  }) => LocalRecurring(
+    id: id ?? this.id,
+    groupId: groupId ?? this.groupId,
+    expenseId: expenseId.present ? expenseId.value : this.expenseId,
+    interval: interval ?? this.interval,
+    anchorDate: anchorDate ?? this.anchorDate,
+    nextDate: nextDate.present ? nextDate.value : this.nextDate,
+    endsOn: endsOn.present ? endsOn.value : this.endsOn,
+    active: active ?? this.active,
+    template: template ?? this.template,
+    createdAt: createdAt.present ? createdAt.value : this.createdAt,
+    createdBy: createdBy.present ? createdBy.value : this.createdBy,
+    updatedAt: updatedAt.present ? updatedAt.value : this.updatedAt,
+    updatedBy: updatedBy.present ? updatedBy.value : this.updatedBy,
+    clientUpdatedAt: clientUpdatedAt.present ? clientUpdatedAt.value : this.clientUpdatedAt,
+    deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+    deletedBy: deletedBy.present ? deletedBy.value : this.deletedBy,
+    seq: seq ?? this.seq,
+    syncState: syncState ?? this.syncState,
+  );
+  LocalRecurring copyWithCompanion(RecurringTemplatesCompanion data) {
+    return LocalRecurring(
+      id: data.id.present ? data.id.value : this.id,
+      groupId: data.groupId.present ? data.groupId.value : this.groupId,
+      expenseId: data.expenseId.present ? data.expenseId.value : this.expenseId,
+      interval: data.interval.present ? data.interval.value : this.interval,
+      anchorDate: data.anchorDate.present ? data.anchorDate.value : this.anchorDate,
+      nextDate: data.nextDate.present ? data.nextDate.value : this.nextDate,
+      endsOn: data.endsOn.present ? data.endsOn.value : this.endsOn,
+      active: data.active.present ? data.active.value : this.active,
+      template: data.template.present ? data.template.value : this.template,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      createdBy: data.createdBy.present ? data.createdBy.value : this.createdBy,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      updatedBy: data.updatedBy.present ? data.updatedBy.value : this.updatedBy,
+      clientUpdatedAt: data.clientUpdatedAt.present
+          ? data.clientUpdatedAt.value
+          : this.clientUpdatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+      deletedBy: data.deletedBy.present ? data.deletedBy.value : this.deletedBy,
+      seq: data.seq.present ? data.seq.value : this.seq,
+      syncState: data.syncState.present ? data.syncState.value : this.syncState,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LocalRecurring(')
+          ..write('id: $id, ')
+          ..write('groupId: $groupId, ')
+          ..write('expenseId: $expenseId, ')
+          ..write('interval: $interval, ')
+          ..write('anchorDate: $anchorDate, ')
+          ..write('nextDate: $nextDate, ')
+          ..write('endsOn: $endsOn, ')
+          ..write('active: $active, ')
+          ..write('template: $template, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('createdBy: $createdBy, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('updatedBy: $updatedBy, ')
+          ..write('clientUpdatedAt: $clientUpdatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('deletedBy: $deletedBy, ')
+          ..write('seq: $seq, ')
+          ..write('syncState: $syncState')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    groupId,
+    expenseId,
+    interval,
+    anchorDate,
+    nextDate,
+    endsOn,
+    active,
+    template,
+    createdAt,
+    createdBy,
+    updatedAt,
+    updatedBy,
+    clientUpdatedAt,
+    deletedAt,
+    deletedBy,
+    seq,
+    syncState,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is LocalRecurring &&
+          other.id == this.id &&
+          other.groupId == this.groupId &&
+          other.expenseId == this.expenseId &&
+          other.interval == this.interval &&
+          other.anchorDate == this.anchorDate &&
+          other.nextDate == this.nextDate &&
+          other.endsOn == this.endsOn &&
+          other.active == this.active &&
+          other.template == this.template &&
+          other.createdAt == this.createdAt &&
+          other.createdBy == this.createdBy &&
+          other.updatedAt == this.updatedAt &&
+          other.updatedBy == this.updatedBy &&
+          other.clientUpdatedAt == this.clientUpdatedAt &&
+          other.deletedAt == this.deletedAt &&
+          other.deletedBy == this.deletedBy &&
+          other.seq == this.seq &&
+          other.syncState == this.syncState);
+}
+
+class RecurringTemplatesCompanion extends UpdateCompanion<LocalRecurring> {
+  final Value<String> id;
+  final Value<String> groupId;
+  final Value<String?> expenseId;
+  final Value<String> interval;
+  final Value<String> anchorDate;
+  final Value<String?> nextDate;
+  final Value<String?> endsOn;
+  final Value<bool> active;
+  final Value<String> template;
+  final Value<String?> createdAt;
+  final Value<String?> createdBy;
+  final Value<String?> updatedAt;
+  final Value<String?> updatedBy;
+  final Value<String?> clientUpdatedAt;
+  final Value<String?> deletedAt;
+  final Value<String?> deletedBy;
+  final Value<int> seq;
+  final Value<String> syncState;
+  final Value<int> rowid;
+  const RecurringTemplatesCompanion({
+    this.id = const Value.absent(),
+    this.groupId = const Value.absent(),
+    this.expenseId = const Value.absent(),
+    this.interval = const Value.absent(),
+    this.anchorDate = const Value.absent(),
+    this.nextDate = const Value.absent(),
+    this.endsOn = const Value.absent(),
+    this.active = const Value.absent(),
+    this.template = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.createdBy = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.updatedBy = const Value.absent(),
+    this.clientUpdatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.deletedBy = const Value.absent(),
+    this.seq = const Value.absent(),
+    this.syncState = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  RecurringTemplatesCompanion.insert({
+    required String id,
+    required String groupId,
+    this.expenseId = const Value.absent(),
+    required String interval,
+    required String anchorDate,
+    this.nextDate = const Value.absent(),
+    this.endsOn = const Value.absent(),
+    this.active = const Value.absent(),
+    required String template,
+    this.createdAt = const Value.absent(),
+    this.createdBy = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.updatedBy = const Value.absent(),
+    this.clientUpdatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.deletedBy = const Value.absent(),
+    this.seq = const Value.absent(),
+    this.syncState = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       groupId = Value(groupId),
+       interval = Value(interval),
+       anchorDate = Value(anchorDate),
+       template = Value(template);
+  static Insertable<LocalRecurring> custom({
+    Expression<String>? id,
+    Expression<String>? groupId,
+    Expression<String>? expenseId,
+    Expression<String>? interval,
+    Expression<String>? anchorDate,
+    Expression<String>? nextDate,
+    Expression<String>? endsOn,
+    Expression<bool>? active,
+    Expression<String>? template,
+    Expression<String>? createdAt,
+    Expression<String>? createdBy,
+    Expression<String>? updatedAt,
+    Expression<String>? updatedBy,
+    Expression<String>? clientUpdatedAt,
+    Expression<String>? deletedAt,
+    Expression<String>? deletedBy,
+    Expression<int>? seq,
+    Expression<String>? syncState,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (groupId != null) 'group_id': groupId,
+      if (expenseId != null) 'expense_id': expenseId,
+      if (interval != null) 'interval': interval,
+      if (anchorDate != null) 'anchor_date': anchorDate,
+      if (nextDate != null) 'next_date': nextDate,
+      if (endsOn != null) 'ends_on': endsOn,
+      if (active != null) 'active': active,
+      if (template != null) 'template': template,
+      if (createdAt != null) 'created_at': createdAt,
+      if (createdBy != null) 'created_by': createdBy,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (updatedBy != null) 'updated_by': updatedBy,
+      if (clientUpdatedAt != null) 'client_updated_at': clientUpdatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (deletedBy != null) 'deleted_by': deletedBy,
+      if (seq != null) 'seq': seq,
+      if (syncState != null) 'sync_state': syncState,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  RecurringTemplatesCompanion copyWith({
+    Value<String>? id,
+    Value<String>? groupId,
+    Value<String?>? expenseId,
+    Value<String>? interval,
+    Value<String>? anchorDate,
+    Value<String?>? nextDate,
+    Value<String?>? endsOn,
+    Value<bool>? active,
+    Value<String>? template,
+    Value<String?>? createdAt,
+    Value<String?>? createdBy,
+    Value<String?>? updatedAt,
+    Value<String?>? updatedBy,
+    Value<String?>? clientUpdatedAt,
+    Value<String?>? deletedAt,
+    Value<String?>? deletedBy,
+    Value<int>? seq,
+    Value<String>? syncState,
+    Value<int>? rowid,
+  }) {
+    return RecurringTemplatesCompanion(
+      id: id ?? this.id,
+      groupId: groupId ?? this.groupId,
+      expenseId: expenseId ?? this.expenseId,
+      interval: interval ?? this.interval,
+      anchorDate: anchorDate ?? this.anchorDate,
+      nextDate: nextDate ?? this.nextDate,
+      endsOn: endsOn ?? this.endsOn,
+      active: active ?? this.active,
+      template: template ?? this.template,
+      createdAt: createdAt ?? this.createdAt,
+      createdBy: createdBy ?? this.createdBy,
+      updatedAt: updatedAt ?? this.updatedAt,
+      updatedBy: updatedBy ?? this.updatedBy,
+      clientUpdatedAt: clientUpdatedAt ?? this.clientUpdatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      deletedBy: deletedBy ?? this.deletedBy,
+      seq: seq ?? this.seq,
+      syncState: syncState ?? this.syncState,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (groupId.present) {
+      map['group_id'] = Variable<String>(groupId.value);
+    }
+    if (expenseId.present) {
+      map['expense_id'] = Variable<String>(expenseId.value);
+    }
+    if (interval.present) {
+      map['interval'] = Variable<String>(interval.value);
+    }
+    if (anchorDate.present) {
+      map['anchor_date'] = Variable<String>(anchorDate.value);
+    }
+    if (nextDate.present) {
+      map['next_date'] = Variable<String>(nextDate.value);
+    }
+    if (endsOn.present) {
+      map['ends_on'] = Variable<String>(endsOn.value);
+    }
+    if (active.present) {
+      map['active'] = Variable<bool>(active.value);
+    }
+    if (template.present) {
+      map['template'] = Variable<String>(template.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<String>(createdAt.value);
+    }
+    if (createdBy.present) {
+      map['created_by'] = Variable<String>(createdBy.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<String>(updatedAt.value);
+    }
+    if (updatedBy.present) {
+      map['updated_by'] = Variable<String>(updatedBy.value);
+    }
+    if (clientUpdatedAt.present) {
+      map['client_updated_at'] = Variable<String>(clientUpdatedAt.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<String>(deletedAt.value);
+    }
+    if (deletedBy.present) {
+      map['deleted_by'] = Variable<String>(deletedBy.value);
+    }
+    if (seq.present) {
+      map['seq'] = Variable<int>(seq.value);
+    }
+    if (syncState.present) {
+      map['sync_state'] = Variable<String>(syncState.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('RecurringTemplatesCompanion(')
+          ..write('id: $id, ')
+          ..write('groupId: $groupId, ')
+          ..write('expenseId: $expenseId, ')
+          ..write('interval: $interval, ')
+          ..write('anchorDate: $anchorDate, ')
+          ..write('nextDate: $nextDate, ')
+          ..write('endsOn: $endsOn, ')
+          ..write('active: $active, ')
+          ..write('template: $template, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('createdBy: $createdBy, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('updatedBy: $updatedBy, ')
+          ..write('clientUpdatedAt: $clientUpdatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('deletedBy: $deletedBy, ')
+          ..write('seq: $seq, ')
+          ..write('syncState: $syncState, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class ImportBatches extends Table with TableInfo<ImportBatches, LocalImportBatch> {
   @override
   final GeneratedDatabase attachedDatabase;
@@ -10597,6 +11524,24 @@ class ExpenseSearch extends Table
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
   ExpenseSearch(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _expenseIdMeta = const VerificationMeta('expenseId');
+  late final GeneratedColumn<String> expenseId = GeneratedColumn<String>(
+    'expense_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: '',
+  );
+  static const VerificationMeta _groupIdMeta = const VerificationMeta('groupId');
+  late final GeneratedColumn<String> groupId = GeneratedColumn<String>(
+    'group_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: '',
+  );
   static const VerificationMeta _descriptionMeta = const VerificationMeta('description');
   late final GeneratedColumn<String> description = GeneratedColumn<String>(
     'description',
@@ -10634,7 +11579,14 @@ class ExpenseSearch extends Table
     $customConstraints: '',
   );
   @override
-  List<GeneratedColumn> get $columns => [description, notes, memberNames, amountText];
+  List<GeneratedColumn> get $columns => [
+    expenseId,
+    groupId,
+    description,
+    notes,
+    memberNames,
+    amountText,
+  ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -10647,6 +11599,19 @@ class ExpenseSearch extends Table
   }) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
+    if (data.containsKey('expense_id')) {
+      context.handle(
+        _expenseIdMeta,
+        expenseId.isAcceptableOrUnknown(data['expense_id']!, _expenseIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_expenseIdMeta);
+    }
+    if (data.containsKey('group_id')) {
+      context.handle(_groupIdMeta, groupId.isAcceptableOrUnknown(data['group_id']!, _groupIdMeta));
+    } else if (isInserting) {
+      context.missing(_groupIdMeta);
+    }
     if (data.containsKey('description')) {
       context.handle(
         _descriptionMeta,
@@ -10685,6 +11650,14 @@ class ExpenseSearch extends Table
   ExpenseSearchData map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return ExpenseSearchData(
+      expenseId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}expense_id'],
+      )!,
+      groupId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}group_id'],
+      )!,
       description: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}description'],
@@ -10712,15 +11685,20 @@ class ExpenseSearch extends Table
   @override
   bool get dontWriteConstraints => true;
   @override
-  String get moduleAndArgs => 'fts5(description, notes, member_names, amount_text)';
+  String get moduleAndArgs =>
+      'fts5(expense_id UNINDEXED, group_id UNINDEXED, description, notes, member_names, amount_text)';
 }
 
 class ExpenseSearchData extends DataClass implements Insertable<ExpenseSearchData> {
+  final String expenseId;
+  final String groupId;
   final String description;
   final String notes;
   final String memberNames;
   final String amountText;
   const ExpenseSearchData({
+    required this.expenseId,
+    required this.groupId,
     required this.description,
     required this.notes,
     required this.memberNames,
@@ -10729,6 +11707,8 @@ class ExpenseSearchData extends DataClass implements Insertable<ExpenseSearchDat
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
+    map['expense_id'] = Variable<String>(expenseId);
+    map['group_id'] = Variable<String>(groupId);
     map['description'] = Variable<String>(description);
     map['notes'] = Variable<String>(notes);
     map['member_names'] = Variable<String>(memberNames);
@@ -10738,6 +11718,8 @@ class ExpenseSearchData extends DataClass implements Insertable<ExpenseSearchDat
 
   ExpenseSearchCompanion toCompanion(bool nullToAbsent) {
     return ExpenseSearchCompanion(
+      expenseId: Value(expenseId),
+      groupId: Value(groupId),
       description: Value(description),
       notes: Value(notes),
       memberNames: Value(memberNames),
@@ -10748,6 +11730,8 @@ class ExpenseSearchData extends DataClass implements Insertable<ExpenseSearchDat
   factory ExpenseSearchData.fromJson(Map<String, dynamic> json, {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return ExpenseSearchData(
+      expenseId: serializer.fromJson<String>(json['expense_id']),
+      groupId: serializer.fromJson<String>(json['group_id']),
       description: serializer.fromJson<String>(json['description']),
       notes: serializer.fromJson<String>(json['notes']),
       memberNames: serializer.fromJson<String>(json['member_names']),
@@ -10758,6 +11742,8 @@ class ExpenseSearchData extends DataClass implements Insertable<ExpenseSearchDat
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
+      'expense_id': serializer.toJson<String>(expenseId),
+      'group_id': serializer.toJson<String>(groupId),
       'description': serializer.toJson<String>(description),
       'notes': serializer.toJson<String>(notes),
       'member_names': serializer.toJson<String>(memberNames),
@@ -10766,11 +11752,15 @@ class ExpenseSearchData extends DataClass implements Insertable<ExpenseSearchDat
   }
 
   ExpenseSearchData copyWith({
+    String? expenseId,
+    String? groupId,
     String? description,
     String? notes,
     String? memberNames,
     String? amountText,
   }) => ExpenseSearchData(
+    expenseId: expenseId ?? this.expenseId,
+    groupId: groupId ?? this.groupId,
     description: description ?? this.description,
     notes: notes ?? this.notes,
     memberNames: memberNames ?? this.memberNames,
@@ -10778,6 +11768,8 @@ class ExpenseSearchData extends DataClass implements Insertable<ExpenseSearchDat
   );
   ExpenseSearchData copyWithCompanion(ExpenseSearchCompanion data) {
     return ExpenseSearchData(
+      expenseId: data.expenseId.present ? data.expenseId.value : this.expenseId,
+      groupId: data.groupId.present ? data.groupId.value : this.groupId,
       description: data.description.present ? data.description.value : this.description,
       notes: data.notes.present ? data.notes.value : this.notes,
       memberNames: data.memberNames.present ? data.memberNames.value : this.memberNames,
@@ -10788,6 +11780,8 @@ class ExpenseSearchData extends DataClass implements Insertable<ExpenseSearchDat
   @override
   String toString() {
     return (StringBuffer('ExpenseSearchData(')
+          ..write('expenseId: $expenseId, ')
+          ..write('groupId: $groupId, ')
           ..write('description: $description, ')
           ..write('notes: $notes, ')
           ..write('memberNames: $memberNames, ')
@@ -10797,11 +11791,13 @@ class ExpenseSearchData extends DataClass implements Insertable<ExpenseSearchDat
   }
 
   @override
-  int get hashCode => Object.hash(description, notes, memberNames, amountText);
+  int get hashCode => Object.hash(expenseId, groupId, description, notes, memberNames, amountText);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is ExpenseSearchData &&
+          other.expenseId == this.expenseId &&
+          other.groupId == this.groupId &&
           other.description == this.description &&
           other.notes == this.notes &&
           other.memberNames == this.memberNames &&
@@ -10809,12 +11805,16 @@ class ExpenseSearchData extends DataClass implements Insertable<ExpenseSearchDat
 }
 
 class ExpenseSearchCompanion extends UpdateCompanion<ExpenseSearchData> {
+  final Value<String> expenseId;
+  final Value<String> groupId;
   final Value<String> description;
   final Value<String> notes;
   final Value<String> memberNames;
   final Value<String> amountText;
   final Value<int> rowid;
   const ExpenseSearchCompanion({
+    this.expenseId = const Value.absent(),
+    this.groupId = const Value.absent(),
     this.description = const Value.absent(),
     this.notes = const Value.absent(),
     this.memberNames = const Value.absent(),
@@ -10822,16 +11822,22 @@ class ExpenseSearchCompanion extends UpdateCompanion<ExpenseSearchData> {
     this.rowid = const Value.absent(),
   });
   ExpenseSearchCompanion.insert({
+    required String expenseId,
+    required String groupId,
     required String description,
     required String notes,
     required String memberNames,
     required String amountText,
     this.rowid = const Value.absent(),
-  }) : description = Value(description),
+  }) : expenseId = Value(expenseId),
+       groupId = Value(groupId),
+       description = Value(description),
        notes = Value(notes),
        memberNames = Value(memberNames),
        amountText = Value(amountText);
   static Insertable<ExpenseSearchData> custom({
+    Expression<String>? expenseId,
+    Expression<String>? groupId,
     Expression<String>? description,
     Expression<String>? notes,
     Expression<String>? memberNames,
@@ -10839,6 +11845,8 @@ class ExpenseSearchCompanion extends UpdateCompanion<ExpenseSearchData> {
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
+      if (expenseId != null) 'expense_id': expenseId,
+      if (groupId != null) 'group_id': groupId,
       if (description != null) 'description': description,
       if (notes != null) 'notes': notes,
       if (memberNames != null) 'member_names': memberNames,
@@ -10848,6 +11856,8 @@ class ExpenseSearchCompanion extends UpdateCompanion<ExpenseSearchData> {
   }
 
   ExpenseSearchCompanion copyWith({
+    Value<String>? expenseId,
+    Value<String>? groupId,
     Value<String>? description,
     Value<String>? notes,
     Value<String>? memberNames,
@@ -10855,6 +11865,8 @@ class ExpenseSearchCompanion extends UpdateCompanion<ExpenseSearchData> {
     Value<int>? rowid,
   }) {
     return ExpenseSearchCompanion(
+      expenseId: expenseId ?? this.expenseId,
+      groupId: groupId ?? this.groupId,
       description: description ?? this.description,
       notes: notes ?? this.notes,
       memberNames: memberNames ?? this.memberNames,
@@ -10866,6 +11878,12 @@ class ExpenseSearchCompanion extends UpdateCompanion<ExpenseSearchData> {
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
+    if (expenseId.present) {
+      map['expense_id'] = Variable<String>(expenseId.value);
+    }
+    if (groupId.present) {
+      map['group_id'] = Variable<String>(groupId.value);
+    }
     if (description.present) {
       map['description'] = Variable<String>(description.value);
     }
@@ -10887,6 +11905,8 @@ class ExpenseSearchCompanion extends UpdateCompanion<ExpenseSearchData> {
   @override
   String toString() {
     return (StringBuffer('ExpenseSearchCompanion(')
+          ..write('expenseId: $expenseId, ')
+          ..write('groupId: $groupId, ')
           ..write('description: $description, ')
           ..write('notes: $notes, ')
           ..write('memberNames: $memberNames, ')
@@ -10956,6 +11976,15 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     'fx_rates_currency_date',
     'CREATE INDEX fx_rates_currency_date ON fx_rates (currency, date)',
   );
+  late final RecurringTemplates recurringTemplates = RecurringTemplates(this);
+  late final Index recurringTemplatesGroup = Index(
+    'recurring_templates_group',
+    'CREATE INDEX recurring_templates_group ON recurring_templates (group_id)',
+  );
+  late final Index recurringTemplatesExpense = Index(
+    'recurring_templates_expense',
+    'CREATE INDEX recurring_templates_expense ON recurring_templates (expense_id)',
+  );
   late final ImportBatches importBatches = ImportBatches(this);
   late final Index importBatchesGroup = Index(
     'import_batches_group',
@@ -10993,6 +12022,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     notificationSettings,
     fxRates,
     fxRatesCurrencyDate,
+    recurringTemplates,
+    recurringTemplatesGroup,
+    recurringTemplatesExpense,
     importBatches,
     importBatchesGroup,
     expenseSearch,
@@ -15351,6 +16383,377 @@ typedef $FxRatesProcessedTableManager =
       LocalFxRate,
       PrefetchHooks Function()
     >;
+typedef $RecurringTemplatesCreateCompanionBuilder = RecurringTemplatesCompanion Function({
+  required String id,
+  required String groupId,
+  Value<String?> expenseId,
+  required String interval,
+  required String anchorDate,
+  Value<String?> nextDate,
+  Value<String?> endsOn,
+  Value<bool> active,
+  required String template,
+  Value<String?> createdAt,
+  Value<String?> createdBy,
+  Value<String?> updatedAt,
+  Value<String?> updatedBy,
+  Value<String?> clientUpdatedAt,
+  Value<String?> deletedAt,
+  Value<String?> deletedBy,
+  Value<int> seq,
+  Value<String> syncState,
+  Value<int> rowid,
+});
+typedef $RecurringTemplatesUpdateCompanionBuilder = RecurringTemplatesCompanion Function({
+  Value<String> id,
+  Value<String> groupId,
+  Value<String?> expenseId,
+  Value<String> interval,
+  Value<String> anchorDate,
+  Value<String?> nextDate,
+  Value<String?> endsOn,
+  Value<bool> active,
+  Value<String> template,
+  Value<String?> createdAt,
+  Value<String?> createdBy,
+  Value<String?> updatedAt,
+  Value<String?> updatedBy,
+  Value<String?> clientUpdatedAt,
+  Value<String?> deletedAt,
+  Value<String?> deletedBy,
+  Value<int> seq,
+  Value<String> syncState,
+  Value<int> rowid,
+});
+
+class $RecurringTemplatesFilterComposer extends Composer<_$AppDatabase, RecurringTemplates> {
+  $RecurringTemplatesFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get groupId =>
+      $composableBuilder(column: $table.groupId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get expenseId =>
+      $composableBuilder(column: $table.expenseId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get interval =>
+      $composableBuilder(column: $table.interval, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get anchorDate =>
+      $composableBuilder(column: $table.anchorDate, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get nextDate =>
+      $composableBuilder(column: $table.nextDate, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get endsOn =>
+      $composableBuilder(column: $table.endsOn, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get active =>
+      $composableBuilder(column: $table.active, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get template =>
+      $composableBuilder(column: $table.template, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get createdBy =>
+      $composableBuilder(column: $table.createdBy, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get updatedBy =>
+      $composableBuilder(column: $table.updatedBy, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get clientUpdatedAt => $composableBuilder(
+    column: $table.clientUpdatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get deletedBy =>
+      $composableBuilder(column: $table.deletedBy, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get seq =>
+      $composableBuilder(column: $table.seq, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get syncState =>
+      $composableBuilder(column: $table.syncState, builder: (column) => ColumnFilters(column));
+}
+
+class $RecurringTemplatesOrderingComposer extends Composer<_$AppDatabase, RecurringTemplates> {
+  $RecurringTemplatesOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get groupId =>
+      $composableBuilder(column: $table.groupId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get expenseId =>
+      $composableBuilder(column: $table.expenseId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get interval =>
+      $composableBuilder(column: $table.interval, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get anchorDate =>
+      $composableBuilder(column: $table.anchorDate, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get nextDate =>
+      $composableBuilder(column: $table.nextDate, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get endsOn =>
+      $composableBuilder(column: $table.endsOn, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get active =>
+      $composableBuilder(column: $table.active, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get template =>
+      $composableBuilder(column: $table.template, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get createdBy =>
+      $composableBuilder(column: $table.createdBy, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get updatedBy =>
+      $composableBuilder(column: $table.updatedBy, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get clientUpdatedAt => $composableBuilder(
+    column: $table.clientUpdatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get deletedBy =>
+      $composableBuilder(column: $table.deletedBy, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get seq =>
+      $composableBuilder(column: $table.seq, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get syncState =>
+      $composableBuilder(column: $table.syncState, builder: (column) => ColumnOrderings(column));
+}
+
+class $RecurringTemplatesAnnotationComposer extends Composer<_$AppDatabase, RecurringTemplates> {
+  $RecurringTemplatesAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get groupId =>
+      $composableBuilder(column: $table.groupId, builder: (column) => column);
+
+  GeneratedColumn<String> get expenseId =>
+      $composableBuilder(column: $table.expenseId, builder: (column) => column);
+
+  GeneratedColumn<String> get interval =>
+      $composableBuilder(column: $table.interval, builder: (column) => column);
+
+  GeneratedColumn<String> get anchorDate =>
+      $composableBuilder(column: $table.anchorDate, builder: (column) => column);
+
+  GeneratedColumn<String> get nextDate =>
+      $composableBuilder(column: $table.nextDate, builder: (column) => column);
+
+  GeneratedColumn<String> get endsOn =>
+      $composableBuilder(column: $table.endsOn, builder: (column) => column);
+
+  GeneratedColumn<bool> get active =>
+      $composableBuilder(column: $table.active, builder: (column) => column);
+
+  GeneratedColumn<String> get template =>
+      $composableBuilder(column: $table.template, builder: (column) => column);
+
+  GeneratedColumn<String> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<String> get createdBy =>
+      $composableBuilder(column: $table.createdBy, builder: (column) => column);
+
+  GeneratedColumn<String> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get updatedBy =>
+      $composableBuilder(column: $table.updatedBy, builder: (column) => column);
+
+  GeneratedColumn<String> get clientUpdatedAt =>
+      $composableBuilder(column: $table.clientUpdatedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get deletedBy =>
+      $composableBuilder(column: $table.deletedBy, builder: (column) => column);
+
+  GeneratedColumn<int> get seq =>
+      $composableBuilder(column: $table.seq, builder: (column) => column);
+
+  GeneratedColumn<String> get syncState =>
+      $composableBuilder(column: $table.syncState, builder: (column) => column);
+}
+
+class $RecurringTemplatesTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          RecurringTemplates,
+          LocalRecurring,
+          $RecurringTemplatesFilterComposer,
+          $RecurringTemplatesOrderingComposer,
+          $RecurringTemplatesAnnotationComposer,
+          $RecurringTemplatesCreateCompanionBuilder,
+          $RecurringTemplatesUpdateCompanionBuilder,
+          (LocalRecurring, BaseReferences<_$AppDatabase, RecurringTemplates, LocalRecurring>),
+          LocalRecurring,
+          PrefetchHooks Function()
+        > {
+  $RecurringTemplatesTableManager(_$AppDatabase db, RecurringTemplates table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () => $RecurringTemplatesFilterComposer($db: db, $table: table),
+          createOrderingComposer: () => $RecurringTemplatesOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $RecurringTemplatesAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> groupId = const Value.absent(),
+                Value<String?> expenseId = const Value.absent(),
+                Value<String> interval = const Value.absent(),
+                Value<String> anchorDate = const Value.absent(),
+                Value<String?> nextDate = const Value.absent(),
+                Value<String?> endsOn = const Value.absent(),
+                Value<bool> active = const Value.absent(),
+                Value<String> template = const Value.absent(),
+                Value<String?> createdAt = const Value.absent(),
+                Value<String?> createdBy = const Value.absent(),
+                Value<String?> updatedAt = const Value.absent(),
+                Value<String?> updatedBy = const Value.absent(),
+                Value<String?> clientUpdatedAt = const Value.absent(),
+                Value<String?> deletedAt = const Value.absent(),
+                Value<String?> deletedBy = const Value.absent(),
+                Value<int> seq = const Value.absent(),
+                Value<String> syncState = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => RecurringTemplatesCompanion(
+                id: id,
+                groupId: groupId,
+                expenseId: expenseId,
+                interval: interval,
+                anchorDate: anchorDate,
+                nextDate: nextDate,
+                endsOn: endsOn,
+                active: active,
+                template: template,
+                createdAt: createdAt,
+                createdBy: createdBy,
+                updatedAt: updatedAt,
+                updatedBy: updatedBy,
+                clientUpdatedAt: clientUpdatedAt,
+                deletedAt: deletedAt,
+                deletedBy: deletedBy,
+                seq: seq,
+                syncState: syncState,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String groupId,
+                Value<String?> expenseId = const Value.absent(),
+                required String interval,
+                required String anchorDate,
+                Value<String?> nextDate = const Value.absent(),
+                Value<String?> endsOn = const Value.absent(),
+                Value<bool> active = const Value.absent(),
+                required String template,
+                Value<String?> createdAt = const Value.absent(),
+                Value<String?> createdBy = const Value.absent(),
+                Value<String?> updatedAt = const Value.absent(),
+                Value<String?> updatedBy = const Value.absent(),
+                Value<String?> clientUpdatedAt = const Value.absent(),
+                Value<String?> deletedAt = const Value.absent(),
+                Value<String?> deletedBy = const Value.absent(),
+                Value<int> seq = const Value.absent(),
+                Value<String> syncState = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => RecurringTemplatesCompanion.insert(
+                id: id,
+                groupId: groupId,
+                expenseId: expenseId,
+                interval: interval,
+                anchorDate: anchorDate,
+                nextDate: nextDate,
+                endsOn: endsOn,
+                active: active,
+                template: template,
+                createdAt: createdAt,
+                createdBy: createdBy,
+                updatedAt: updatedAt,
+                updatedBy: updatedBy,
+                clientUpdatedAt: clientUpdatedAt,
+                deletedAt: deletedAt,
+                deletedBy: deletedBy,
+                seq: seq,
+                syncState: syncState,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<RecurringTemplates, LocalRecurring>(table),
+                  BaseReferences<_$AppDatabase, RecurringTemplates, LocalRecurring>(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $RecurringTemplatesProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      RecurringTemplates,
+      LocalRecurring,
+      $RecurringTemplatesFilterComposer,
+      $RecurringTemplatesOrderingComposer,
+      $RecurringTemplatesAnnotationComposer,
+      $RecurringTemplatesCreateCompanionBuilder,
+      $RecurringTemplatesUpdateCompanionBuilder,
+      (LocalRecurring, BaseReferences<_$AppDatabase, RecurringTemplates, LocalRecurring>),
+      LocalRecurring,
+      PrefetchHooks Function()
+    >;
 typedef $ImportBatchesCreateCompanionBuilder = ImportBatchesCompanion Function({
   required String id,
   required String groupId,
@@ -15584,6 +16987,8 @@ typedef $ImportBatchesProcessedTableManager =
       PrefetchHooks Function()
     >;
 typedef $ExpenseSearchCreateCompanionBuilder = ExpenseSearchCompanion Function({
+  required String expenseId,
+  required String groupId,
   required String description,
   required String notes,
   required String memberNames,
@@ -15591,6 +16996,8 @@ typedef $ExpenseSearchCreateCompanionBuilder = ExpenseSearchCompanion Function({
   Value<int> rowid,
 });
 typedef $ExpenseSearchUpdateCompanionBuilder = ExpenseSearchCompanion Function({
+  Value<String> expenseId,
+  Value<String> groupId,
   Value<String> description,
   Value<String> notes,
   Value<String> memberNames,
@@ -15606,6 +17013,12 @@ class $ExpenseSearchFilterComposer extends Composer<_$AppDatabase, ExpenseSearch
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
+  ColumnFilters<String> get expenseId =>
+      $composableBuilder(column: $table.expenseId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get groupId =>
+      $composableBuilder(column: $table.groupId, builder: (column) => ColumnFilters(column));
+
   ColumnFilters<String> get description =>
       $composableBuilder(column: $table.description, builder: (column) => ColumnFilters(column));
 
@@ -15627,6 +17040,12 @@ class $ExpenseSearchOrderingComposer extends Composer<_$AppDatabase, ExpenseSear
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
+  ColumnOrderings<String> get expenseId =>
+      $composableBuilder(column: $table.expenseId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get groupId =>
+      $composableBuilder(column: $table.groupId, builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<String> get description =>
       $composableBuilder(column: $table.description, builder: (column) => ColumnOrderings(column));
 
@@ -15648,6 +17067,12 @@ class $ExpenseSearchAnnotationComposer extends Composer<_$AppDatabase, ExpenseSe
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
+  GeneratedColumn<String> get expenseId =>
+      $composableBuilder(column: $table.expenseId, builder: (column) => column);
+
+  GeneratedColumn<String> get groupId =>
+      $composableBuilder(column: $table.groupId, builder: (column) => column);
+
   GeneratedColumn<String> get description =>
       $composableBuilder(column: $table.description, builder: (column) => column);
 
@@ -15687,12 +17112,16 @@ class $ExpenseSearchTableManager
               $ExpenseSearchAnnotationComposer($db: db, $table: table),
           updateCompanionCallback:
               ({
+                Value<String> expenseId = const Value.absent(),
+                Value<String> groupId = const Value.absent(),
                 Value<String> description = const Value.absent(),
                 Value<String> notes = const Value.absent(),
                 Value<String> memberNames = const Value.absent(),
                 Value<String> amountText = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => ExpenseSearchCompanion(
+                expenseId: expenseId,
+                groupId: groupId,
                 description: description,
                 notes: notes,
                 memberNames: memberNames,
@@ -15701,12 +17130,16 @@ class $ExpenseSearchTableManager
               ),
           createCompanionCallback:
               ({
+                required String expenseId,
+                required String groupId,
                 required String description,
                 required String notes,
                 required String memberNames,
                 required String amountText,
                 Value<int> rowid = const Value.absent(),
               }) => ExpenseSearchCompanion.insert(
+                expenseId: expenseId,
+                groupId: groupId,
                 description: description,
                 notes: notes,
                 memberNames: memberNames,
@@ -15764,6 +17197,8 @@ class $AppDatabaseManager {
   $NotificationSettingsTableManager get notificationSettings =>
       $NotificationSettingsTableManager(_db, _db.notificationSettings);
   $FxRatesTableManager get fxRates => $FxRatesTableManager(_db, _db.fxRates);
+  $RecurringTemplatesTableManager get recurringTemplates =>
+      $RecurringTemplatesTableManager(_db, _db.recurringTemplates);
   $ImportBatchesTableManager get importBatches =>
       $ImportBatchesTableManager(_db, _db.importBatches);
   $ExpenseSearchTableManager get expenseSearch =>

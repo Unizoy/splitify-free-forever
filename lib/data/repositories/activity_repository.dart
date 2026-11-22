@@ -14,6 +14,7 @@ class ActivitySources {
     required this.members,
     required this.expenses,
     required this.payments,
+    this.recurring = const {},
   });
 
   /// Server activity, newest first.
@@ -31,6 +32,9 @@ class ActivitySources {
   /// Expenses and payments the pending changes and comment rows point at, by id.
   final Map<String, LocalExpense> expenses;
   final Map<String, LocalPayment> payments;
+
+  /// Repeating-expense templates the pending changes point at, by id (phase 16).
+  final Map<String, LocalRecurring> recurring;
 }
 
 /// Local reads for the Activity tab and the group feed.
@@ -46,7 +50,15 @@ class ActivityRepository {
   Stream<ActivitySources> watch({String? groupId}) => db
       .customSelect(
         'SELECT 1',
-        readsFrom: {db.activity, db.outbox, db.groups, db.groupMembers, db.expenses, db.payments},
+        readsFrom: {
+          db.activity,
+          db.outbox,
+          db.groups,
+          db.groupMembers,
+          db.expenses,
+          db.payments,
+          db.recurringTemplates,
+        },
       )
       .watch()
       .asyncMap((_) => load(groupId: groupId));
@@ -75,6 +87,14 @@ class ActivityRepository {
         if (o.entity == SyncEntity.payment.wire) o.recordId,
       for (final a in activity) ?_commentTarget(a, 'payment'),
     };
+    final recurringIds = <String>{
+      for (final o in pending)
+        if (o.entity == SyncEntity.recurring.wire) o.recordId,
+    };
+    final recurring = recurringIds.isEmpty
+        ? const <LocalRecurring>[]
+        : await (db.select(db.recurringTemplates)..where((t) => t.id.isIn(recurringIds))).get();
+    expenseIds.addAll([for (final t in recurring) ?t.expenseId]);
     final expenses = expenseIds.isEmpty
         ? const <LocalExpense>[]
         : await (db.select(db.expenses)..where((e) => e.id.isIn(expenseIds))).get();
@@ -88,6 +108,7 @@ class ActivityRepository {
       members: {for (final m in members) m.id: m},
       expenses: {for (final e in expenses) e.id: e},
       payments: {for (final p in payments) p.id: p},
+      recurring: {for (final t in recurring) t.id: t},
     );
   }
 
