@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:splitify/app/router.dart';
 import 'package:splitify/core/config/preferences.dart';
@@ -11,6 +12,7 @@ import 'package:splitify/data/repositories/auth_repository.dart';
 import 'package:splitify/data/repositories/sync_repository.dart';
 import 'package:splitify/data/sync/sync_types.dart';
 import 'package:splitify/features/auth/application/auth_providers.dart';
+import 'package:splitify/features/auth/application/sign_in_controller.dart';
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/theme/theme.dart';
 
@@ -65,6 +67,24 @@ FakeSyncRepository _syncFor(String name) => switch (name) {
   ),
 };
 
+/// The code screen right after a refused code (S-233): empty red boxes and the message.
+class _WrongCodeController extends SignInController {
+  @override
+  SignInState build() => SignInState(
+    email: 'asha@splitify.test',
+    failure: AuthFailureCode.invalidCode,
+    wrongTries: 1,
+    codeSentAt: _now.subtract(const Duration(seconds: 20)),
+  );
+}
+
+/// Extra overrides per screen: an 8-digit project (S-232) and the refused-code state.
+List<Override> _extraFor(String name) => switch (name) {
+  'sign_in_code_8' => [emailCodeLengthProvider.overrideWithValue(8)],
+  'sign_in_code_wrong' => [signInControllerProvider.overrideWith(_WrongCodeController.new)],
+  _ => const [],
+};
+
 /// A whole app (router, themes) in a phone-sized frame with system-bar padding.
 class _PhoneApp extends StatelessWidget {
   const _PhoneApp({
@@ -73,6 +93,7 @@ class _PhoneApp extends StatelessWidget {
     required this.scale,
     required this.prefs,
     required this.sync,
+    this.extra = const [],
   });
 
   final String location;
@@ -80,6 +101,7 @@ class _PhoneApp extends StatelessWidget {
   final double scale;
   final SharedPreferences prefs;
   final FakeSyncRepository sync;
+  final List<Override> extra;
 
   @override
   Widget build(BuildContext context) {
@@ -97,6 +119,7 @@ class _PhoneApp extends StatelessWidget {
           clockProvider.overrideWithValue(FakeClock(_now)),
           // No database or server in goldens: the Groups tab shows its empty state.
           ...emptyGroupsOverrides(),
+          ...extra,
         ],
         child: MediaQuery(
           data: MediaQueryData(
@@ -141,6 +164,8 @@ void main() {
     ('appearance', Routes.appearance),
     ('sign_in', Routes.signIn),
     ('sign_in_code', '${Routes.signInCode}?email=asha%40splitify.test'),
+    ('sign_in_code_8', '${Routes.signInCode}?email=asha%40splitify.test'),
+    ('sign_in_code_wrong', '${Routes.signInCode}?email=asha%40splitify.test'),
     ('sign_in_profile', Routes.signInProfile),
     ('profile', Routes.profile),
     ('delete_account', Routes.deleteAccount),
@@ -166,6 +191,7 @@ void main() {
             scale: scale,
             prefs: prefs,
             sync: _syncFor(name),
+            extra: _extraFor(name),
           ),
         );
       }

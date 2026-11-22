@@ -20,6 +20,9 @@ class SignInScreen extends ConsumerStatefulWidget {
 class _SignInScreenState extends ConsumerState<SignInScreen> {
   final _email = TextEditingController();
 
+  /// The Google sheet is open: the spinner goes on the Google button, not on "Send code".
+  bool _googleBusy = false;
+
   @override
   void initState() {
     super.initState();
@@ -47,7 +50,12 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
         ..showSnackBar(SnackBar(content: Text(AppLocalizations.of(context).googleSoon)));
       return;
     }
-    await ref.read(signInControllerProvider.notifier).google();
+    setState(() => _googleBusy = true);
+    try {
+      await ref.read(signInControllerProvider.notifier).google();
+    } finally {
+      if (mounted) setState(() => _googleBusy = false);
+    }
   }
 
   @override
@@ -67,6 +75,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
           label: l.continueWithGoogle,
           icon: AppIcons.globe,
           variant: PillVariant.outline,
+          loading: _googleBusy,
           onPressed: state.busy ? null : _google,
         ),
         if (!google) ...[
@@ -105,8 +114,8 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
         PillButton(
           key: const Key('sign-in-send'),
           label: l.sendCode,
-          loading: state.busy,
-          onPressed: _send,
+          loading: state.busy && !_googleBusy,
+          onPressed: _googleBusy ? null : _send,
         ),
         if (ref.watch(devLoginProvider)) ...[
           const SizedBox(height: AppSpacing.s4),

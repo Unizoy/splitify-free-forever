@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:google_sign_in/google_sign_in.dart' show GoogleSignInExceptionCode;
 import 'package:mocktail/mocktail.dart';
 import 'package:splitify/data/remote/supabase_auth_repository.dart';
 import 'package:splitify/data/repositories/auth_repository.dart';
@@ -12,12 +13,28 @@ class _Auth extends Mock implements sb.GoTrueClient {}
 class _Functions extends Mock implements sb.FunctionsClient {}
 
 class _Google implements GoogleIdTokenSource {
-  _Google(this.token);
+  _Google(this.token, {this.failSignOut = false});
 
   final String? token;
+  final bool failSignOut;
+  int signOuts = 0;
 
   @override
   Future<String?> idToken() async => token;
+
+  @override
+  Future<void> signOut() async {
+    signOuts++;
+    if (failSignOut) throw StateError('no credential manager');
+  }
+}
+
+class _FailingGoogle implements GoogleIdTokenSource {
+  @override
+  Future<String?> idToken() async => throw const AuthFailure(AuthFailureCode.notConfigured);
+
+  @override
+  Future<void> signOut() async {}
 }
 
 final _user = sb.User(
@@ -89,6 +106,43 @@ void main() {
     expect(await _code(cancelled.signInWithGoogle()), AuthFailureCode.cancelled);
     final none = SupabaseAuthRepository(auth: auth, functions: functions);
     expect(await _code(none.signInWithGoogle()), AuthFailureCode.notConfigured);
+    // A Credential Manager error reaches the screen as a failure (no endless spinner, S-231).
+    final broken = SupabaseAuthRepository(
+      auth: auth,
+      functions: functions,
+      google: _FailingGoogle(),
+    );
+    expect(await _code(broken.signInWithGoogle()), AuthFailureCode.notConfigured);
+  });
+
+  test('Credential Manager errors map to failure codes (S-231)', () {
+    expect(googleFailure(GoogleSignInExceptionCode.canceled), isNull);
+    expect(
+      googleFailure(GoogleSignInExceptionCode.clientConfigurationError),
+      AuthFailureCode.notConfigured,
+    );
+    expect(
+      googleFailure(GoogleSignInExceptionCode.providerConfigurationError),
+      AuthFailureCode.notConfigured,
+    );
+    for (final c in [
+      GoogleSignInExceptionCode.unknownError,
+      GoogleSignInExceptionCode.interrupted,
+      GoogleSignInExceptionCode.uiUnavailable,
+      GoogleSignInExceptionCode.userMismatch,
+    ]) {
+      expect(googleFailure(c), AuthFailureCode.unknown);
+    }
+  });
+
+  test('sign out also clears the Google credential, best effort', () async {
+    final google = _Google('t');
+    await SupabaseAuthRepository(auth: auth, functions: functions, google: google).signOut();
+    expect(google.signOuts, 1);
+    final failing = _Google('t', failSignOut: true);
+    await SupabaseAuthRepository(auth: auth, functions: functions, google: failing).signOut();
+    expect(failing.signOuts, 1);
+    verify(() => auth.signOut(scope: sb.SignOutScope.local)).called(2);
   });
 
   test('email code: send and verify', () async {
@@ -132,7 +186,7 @@ void main() {
     );
     expect(
       await send(const sb.AuthException('m', code: 'otp_expired')),
-      AuthFailureCode.expiredCode,
+      AuthFailureCode.invalidCode,
     );
   });
 

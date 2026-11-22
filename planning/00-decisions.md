@@ -43,6 +43,7 @@ reason and the alternatives it rejected. It never asks the owner.
 | D-022 | CI (2026-11-21) | GitHub Actions workflow stays **disabled**; gates run locally and SQL tests run on the dev project via MCP. Re-enable with `gh workflow enable CI`. | Owner choice for speed. |
 | D-023 | Release scope (2026-11-21) | Build up to **phase 19**; stop before phase 20 and leave checklist R (prod project) for the owner. | |
 | D-024 | Google sign-in (2026-11-21) | Supabase Google provider not enabled yet → keep "Coming soon" (D-020 dummy mode); email code + dev login only. | |
+| D-026 | Real services (2026-11-22) | Owner configured Google OAuth (consent screen in Testing; test users only), Gmail SMTP email codes and Firebase/FCM; D-020 dummy mode and D-024 end for these. | Publish the consent screen before public release (needs privacy policy + home page links). |
 
 ## Technical decisions
 
