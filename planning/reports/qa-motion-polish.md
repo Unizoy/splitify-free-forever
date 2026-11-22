@@ -46,4 +46,22 @@ checklist.
 
 ## Gates
 
-GATES_TABLE
+Run after merging `origin/main` (qa/final-device, 3a06545); its semantics taps (`Semantics(onTap:)`) are kept on
+every Pressable control and its 48 dp currency-chip touch area stays.
+
+| Gate | Result |
+| --- | --- |
+| `dart format --set-exit-if-changed` | pass |
+| `flutter analyze --no-fatal-infos` | 0 errors, 0 warnings |
+| `dart run tool/guards.dart` | OK |
+| `flutter test --coverage` (excl. device/needs-owner/quarantine) | 3,144 passed; coverage 95.2 % overall, every floor met |
+| Goldens | all re-recorded after the merge (type scale), re-run clean; real-font review of groups, group page (2.0×), groups list, expense page |
+| Device | `perf_screens_test` before/after on emulator-5554 (all 4 screens open and scroll, tests pass) |
+| Debug APK / release arm64 test APK | built (debug key, updates the owner's test install) |
+| pgTAP / Edge Functions | SKIPPED: no SQL or function changes |
+
+## Left for the owner
+
+- Feel it on a real 90/120 Hz phone (the emulator rasterises in software, so its raster numbers are not phone numbers).
+- Predictive back's in-app peek is gone (it was never enabled in the manifest); say if you want it back.
+
