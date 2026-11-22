@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:splitify/ui/components/word_fit_text.dart';
 import 'package:splitify/ui/painters/folder_tab_painter.dart';
 import 'package:splitify/ui/theme/theme.dart';
 
@@ -23,6 +24,9 @@ class FolderTabs extends StatelessWidget {
 
   static const _slant = 26.0;
 
+  /// Start/end padding, icon and gap around a tab label.
+  static const _labelChrome = 48.0;
+
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
@@ -30,6 +34,12 @@ class FolderTabs extends StatelessWidget {
       builder: (context, constraints) {
         final n = tabs.length;
         final tabWidth = (constraints.maxWidth - _slant) / n;
+        final scaler = sharedLabelScaler(
+          context,
+          labels: [for (final t in tabs) t.label],
+          style: context.text.body.w(700),
+          maxWidth: tabWidth - _labelChrome,
+        );
         final order = [
           for (var i = 0; i < n; i++)
             if (i != index) i,
@@ -55,6 +65,7 @@ class FolderTabs extends StatelessWidget {
                   child: _Tab(
                     tab: tabs[i],
                     active: i == index,
+                    scaler: scaler,
                     onTap: () {
                       if (i == index) return;
                       HapticFeedback.selectionClick();
@@ -70,7 +81,7 @@ class FolderTabs extends StatelessWidget {
                   child: ExcludeSemantics(
                     child: SizedBox(
                       width: tabWidth,
-                      child: _TabLabel(tab: tabs[index], active: true),
+                      child: _TabLabel(tab: tabs[index], active: true, scaler: scaler),
                     ),
                   ),
                 ),
@@ -84,11 +95,12 @@ class FolderTabs extends StatelessWidget {
 }
 
 class _Tab extends StatelessWidget {
-  const _Tab({required this.tab, required this.active, required this.onTap});
+  const _Tab({required this.tab, required this.active, required this.onTap, required this.scaler});
 
   final FolderTab tab;
   final bool active;
   final VoidCallback onTap;
+  final TextScaler scaler;
 
   @override
   Widget build(BuildContext context) {
@@ -105,7 +117,7 @@ class _Tab extends StatelessWidget {
         child: InkWell(
           onTap: onTap,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(AppRadii.r24)),
-          child: _TabLabel(tab: tab, active: active),
+          child: _TabLabel(tab: tab, active: active, scaler: scaler),
         ),
       ),
     );
@@ -113,10 +125,11 @@ class _Tab extends StatelessWidget {
 }
 
 class _TabLabel extends StatelessWidget {
-  const _TabLabel({required this.tab, required this.active});
+  const _TabLabel({required this.tab, required this.active, required this.scaler});
 
   final FolderTab tab;
   final bool active;
+  final TextScaler scaler;
 
   @override
   Widget build(BuildContext context) {
@@ -134,7 +147,12 @@ class _TabLabel extends StatelessWidget {
               child: FittedBox(
                 fit: BoxFit.scaleDown,
                 alignment: AlignmentDirectional.centerStart,
-                child: Text(tab.label, style: context.text.body.w(700).copyWith(color: color)),
+                child: Text(
+                  tab.label,
+                  maxLines: 1,
+                  textScaler: scaler,
+                  style: context.text.body.w(700).copyWith(color: color),
+                ),
               ),
             ),
           ],

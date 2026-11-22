@@ -122,7 +122,7 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
                       label: l.impStepPreview,
                       icon: AppIcons.stepReview,
                     ),
-                    _ => StepItem(label: l.impStepDone, icon: AppIcons.checkCircle),
+                    _ => StepItem(label: l.impStepDone, icon: AppIcons.fileImport),
                   },
               ],
               current: _headerIndex(s.step),

@@ -220,7 +220,7 @@ class _GroupFormScreenState extends ConsumerState<GroupFormScreen> {
               key: const Key('group-currency'),
               icon: AppIcons.coins,
               label: l.mainCurrency,
-              value: '${cur.code} · ${cur.symbol}',
+              value: '${cur.code}\u00A0· ${cur.symbol}',
               valueColor: c.textSecondary,
               showDivider: false,
               onTap: () => unawaited(_pickCurrency(currency)),

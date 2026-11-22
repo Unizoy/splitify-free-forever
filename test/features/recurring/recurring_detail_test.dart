@@ -152,7 +152,7 @@ Future<void> _waitFor(
 
 void main() {
   group('Repeats row and sheet', () {
-    testWidgets('the expense a repeat started from shows Repeats · Every month', (t) async {
+    testWidgets('the expense a repeat started from shows Repeats\u00A0· Every month', (t) async {
       await _pump(t, sampleExpense());
       await reveal(t, find.byKey(const Key('expense-recurring')));
       expect(find.text('Repeats'), findsOneWidget);
@@ -172,8 +172,8 @@ void main() {
     ) async {
       await _pump(t, sampleExpense());
       await _openSheet(t);
-      expect(find.text('Next copy on 20 Dec 2026'), findsOneWidget);
-      expect(find.text('Ends on 31 Jan 2027'), findsOneWidget);
+      expect(find.text('Next copy on 20\u00A0Dec\u00A02026'), findsOneWidget);
+      expect(find.text('Ends on 31\u00A0Jan\u00A02027'), findsOneWidget);
       expect(find.byType(SyncMarker), findsWidgets);
       expect(find.byKey(const Key('recurring-edit-future')), findsOneWidget);
       expect(find.byKey(const Key('recurring-stop')), findsOneWidget);
@@ -190,7 +190,7 @@ void main() {
       );
       await _openSheet(t);
       expect(find.text('No end date'), findsOneWidget);
-      expect(find.text('Next copy on 20 Dec 2026'), findsOneWidget);
+      expect(find.text('Next copy on 20\u00A0Dec\u00A02026'), findsOneWidget);
       expect(find.byType(SyncMarker), findsNothing);
     });
 
@@ -209,7 +209,7 @@ void main() {
     testWidgets('read-only (archived group) shows the rule without buttons', (t) async {
       await _pump(t, sampleExpense(), archived: true);
       await _openSheet(t);
-      expect(find.text('Next copy on 20 Dec 2026'), findsOneWidget);
+      expect(find.text('Next copy on 20\u00A0Dec\u00A02026'), findsOneWidget);
       expect(find.byKey(const Key('recurring-edit-future')), findsNothing);
       expect(find.byKey(const Key('recurring-stop')), findsNothing);
       expect(find.byKey(const Key('recurring-resume')), findsNothing);
@@ -292,7 +292,7 @@ void main() {
       await settleReal(t, 4);
       expect(s.actions.calls, ['delete e1']);
       expect((await _template(t, s.db)).active, isFalse);
-      expect(find.text('Deleted. It won’t repeat any more.'), findsOneWidget);
+      expect(find.text("Deleted. It won't repeat any more."), findsOneWidget);
     });
 
     testWidgets('deleting a copy leaves the repeat running', (t) async {
@@ -302,7 +302,7 @@ void main() {
       expect(s.actions.calls, ['delete c1']);
       expect((await _template(t, s.db)).active, isTrue);
       expect(find.text('Expense deleted'), findsOneWidget);
-      expect(find.text('Deleted. It won’t repeat any more.'), findsNothing);
+      expect(find.text("Deleted. It won't repeat any more."), findsNothing);
     });
   });
 

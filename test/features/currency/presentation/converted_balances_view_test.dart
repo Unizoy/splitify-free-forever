@@ -180,11 +180,13 @@ void main() {
       expect(find.byKey(const Key('converted-missing')), findsOneWidget);
       expect(find.text('1 record needs a rate'), findsOneWidget);
       expect(
-        find.text('Balances in INR use the rate saved with each record. Convert these first.'),
+        find.text(
+          'Balances in INR use the rate saved with each record, so these need a rate first.',
+        ),
         findsOneWidget,
       );
       expect(find.byKey(const Key('convert-all')), findsOneWidget);
-      expect(find.text('Convert all at their dates\' rates'), findsOneWidget);
+      expect(find.text("Convert all at each date's rate"), findsOneWidget);
       final row = _rowOf(t, 'missing-eUSD');
       expect(row.title, 'Hotel');
       expect(row.amountText, r'$100');
@@ -219,7 +221,7 @@ void main() {
       expect(find.byKey(const Key('converted-missing')), findsNothing);
       expect(find.byKey(const Key('converted-balances')), findsOneWidget);
       expect(find.text('Everything in INR'), findsOneWidget);
-      expect(find.text('Every record counted at the rate saved with it.'), findsOneWidget);
+      expect(find.text('Each record is counted at the rate saved with it.'), findsOneWidget);
 
       // Oracle (paise): dinner m2 -10000, m3 -10000, m1 +20000; hotel m1 -375000, m2 +375000.
       final me = _net(t, 'm1');
@@ -251,7 +253,7 @@ void main() {
       await _tapKey(t, 'convert-all');
       await settle(t);
 
-      expect(find.text('1 converted · 1 needs a rate you type'), findsOneWidget);
+      expect(find.text('1 converted\u00A0· 1 needs a rate you type'), findsOneWidget);
       expect(find.text('1 record needs a rate'), findsOneWidget);
       expect(find.byKey(const Key('missing-eOld')), findsOneWidget);
       expect(find.byKey(const Key('missing-eUSD')), findsNothing);

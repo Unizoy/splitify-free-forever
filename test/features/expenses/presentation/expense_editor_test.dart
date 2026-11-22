@@ -276,14 +276,14 @@ void main() {
     // TC-13-01
     testWidgets('the header says whether you are editing or offline', (t) async {
       await pumpEditor(t, sampleDraft());
-      expect(find.text('Editing · Goa trip'), findsOneWidget);
+      expect(find.text('Editing\u00A0· Goa trip'), findsOneWidget);
       await pumpEditor(
         t,
         blank,
         args: newArgs,
         overrides: [syncOfflineProvider.overrideWith((ref) => Stream.value(true))],
       );
-      expect(find.text('Goa trip · saved offline'), findsOneWidget);
+      expect(find.text('Goa trip\u00A0· saved offline'), findsOneWidget);
     });
   });
 
@@ -320,12 +320,12 @@ void main() {
 
       await t.enterText(fieldIn('payer-amount-m1'), '800');
       await settle(t);
-      expect(footerText(t), '₹800 of ₹1,200 · ₹400 left');
+      expect(footerText(t), '₹800 of ₹1,200\u00A0· ₹400 left');
       expect(buttonEnabled(t, 'expense-save'), isFalse);
 
       await t.enterText(fieldIn('payer-amount-m2'), '500');
       await settle(t);
-      expect(footerText(t), '₹1,300 of ₹1,200 · ₹100 over');
+      expect(footerText(t), '₹1,300 of ₹1,200\u00A0· ₹100 over');
       expect(buttonEnabled(t, 'expense-save'), isFalse);
 
       await t.enterText(fieldIn('payer-amount-m2'), '400');
@@ -412,7 +412,7 @@ void main() {
       expect(find.byType(MonthCalendar), findsNothing);
       expect(h.draft.date, DateTime(2026, 12, 15));
       // The calendar chip now shows the chosen date.
-      expect(find.text('15 Dec 2026'), findsOneWidget);
+      expect(find.text('15\u00A0Dec\u00A02026'), findsOneWidget);
     });
 
     // TC-13-02
@@ -429,7 +429,7 @@ void main() {
       final handle = t.ensureSemantics();
       await pumpEditor(t, sampleDraft(), step: EditorStep.details);
       await tapKey(t, 'date-pick');
-      expect(find.bySemanticsLabel('21 Nov 2026'), findsWidgets);
+      expect(find.bySemanticsLabel('21\u00A0Nov\u00A02026'), findsWidgets);
       handle.dispose();
     });
 
@@ -447,7 +447,7 @@ void main() {
       expect(buttonEnabled(t, 'expense-save'), isTrue);
       await t.enterText(field, 'a' * 1001);
       await settle(t);
-      expect(find.text('Notes can be up to 1000 characters'), findsOneWidget);
+      expect(find.text('Use up to 1,000 characters'), findsOneWidget);
       expect(buttonEnabled(t, 'expense-save'), isFalse);
     });
   });
@@ -459,17 +459,17 @@ void main() {
       expect(find.text('All good?'), findsOneWidget);
       expect(find.text('Dinner at Thalassa'), findsOneWidget);
       expect(find.text('₹1,200.00'), findsWidgets);
-      expect(find.textContaining('21 Nov 2026'), findsOneWidget);
+      expect(find.textContaining('21\u00A0Nov\u00A02026'), findsOneWidget);
       final sentence = t.widget<Text>(find.byKey(const Key('review-sentence')));
       expect(sentence.textSpan!.toPlainText(), 'Paid by you and split equally between 3 people');
-      expect(find.text('owes ₹400.00'), findsNWidgets(3));
+      expect(find.text('share ₹400.00'), findsNWidgets(3));
       expect(find.text('paid ₹1,200.00'), findsOneWidget);
       // Priya is not part of it.
       expect(find.text('Priya Nair'), findsNothing);
       // No Next on the last step; the bar says Save expense and the summary line.
       expect(find.byKey(const Key('expense-next')), findsNothing);
       expect(find.text('Save expense'), findsOneWidget);
-      expect(find.text('₹1,200 · 3 people'), findsOneWidget);
+      expect(find.text('₹1,200\u00A0· 3 people'), findsOneWidget);
     });
 
     // TC-13-01
@@ -523,8 +523,8 @@ void main() {
         split: SplitDraft.initial(ids, 2).withValues(SplitKind.exact, {'m1': 50000}),
       );
       await pumpEditor(t, bad, step: EditorStep.review);
-      expect(find.text('₹500 of ₹1,200 · ₹700 left'), findsOneWidget);
-      expect(find.textContaining('owes ₹'), findsNothing);
+      expect(find.text('₹500 of ₹1,200\u00A0· ₹700 left'), findsOneWidget);
+      expect(find.textContaining('share ₹'), findsNothing);
     });
 
     // TC-13-01

@@ -71,10 +71,7 @@ class AmountStep extends StatelessWidget {
                 ),
                 const SizedBox(height: AppSpacing.s5),
                 Center(
-                  child: _CurrencyChip(
-                    code: draft.currency,
-                    onTap: onPickCurrency ?? () => showComingSoon(context),
-                  ),
+                  child: _CurrencyChip(code: draft.currency, onTap: onPickCurrency),
                 ),
                 const SizedBox(height: AppSpacing.s3),
                 Semantics(
@@ -142,10 +139,10 @@ class AmountStep extends StatelessWidget {
 
 /// "INR ▾" pill: the group's main currency (the full picker arrives in phase 14).
 class _CurrencyChip extends StatelessWidget {
-  const _CurrencyChip({required this.code, required this.onTap});
+  const _CurrencyChip({required this.code, this.onTap});
 
   final String code;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -202,8 +199,12 @@ class AmountKeypad extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
-    return ColoredBox(
-      color: c.bgSubtle,
+    return DecoratedBox(
+      // A hairline on top: content scrolling under the keypad reads as scrolled, not cut off.
+      decoration: BoxDecoration(
+        color: c.bgSubtle,
+        border: Border(top: BorderSide(color: c.border)),
+      ),
       child: Padding(
         padding: const EdgeInsets.fromLTRB(
           AppSpacing.s3,

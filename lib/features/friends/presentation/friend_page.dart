@@ -173,7 +173,7 @@ class _Hero extends StatelessWidget {
       ),
       BalanceStatus.mixed => StatusPill(
         key: const Key('friend-status-mixed'),
-        label: '${l.statusOwedAndOwe} · $amounts',
+        label: '${l.statusOwedAndOwe}\u00A0· $amounts',
         icon: AppIcons.coins,
         tone: StatusPillTone.glass,
       ),

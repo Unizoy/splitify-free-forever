@@ -31,7 +31,7 @@ class LockScreen extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const SizedBox(height: AppSpacing.s8),
-                    const BrandMark(size: 40),
+                    const BrandMark(size: 48, tile: true),
                     const SizedBox(height: AppSpacing.s10),
                     Container(
                       width: 104,
@@ -102,6 +102,6 @@ class LockCover extends StatelessWidget {
   Widget build(BuildContext context) => ColoredBox(
     key: const Key('lock-cover'),
     color: context.colors.bg,
-    child: const Center(child: BrandMark(size: 56)),
+    child: const Center(child: BrandMark(size: 64, tile: true)),
   );
 }

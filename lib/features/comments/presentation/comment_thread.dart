@@ -172,7 +172,7 @@ class _Bubble extends ConsumerWidget {
     final at = createdAt == null ? null : DateTime.tryParse(createdAt)?.toLocal();
     if (at == null) return null;
     final locale = Localizations.localeOf(context).toLanguageTag();
-    return '${dayMonth(context, at)}, ${DateFormat.jm(locale).format(at)}';
+    return '${dayMonth(context, at)}, ${unbroken(DateFormat.jm(locale).format(at))}';
   }
 }
 

@@ -19,9 +19,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get loading => 'Loading';
 
   @override
-  String get comingSoon => 'Coming soon';
-
-  @override
   String get back => 'Back';
 
   @override
@@ -61,7 +58,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'When someone adds an expense with you, pays you or sends a reminder, it shows up here.';
 
   @override
-  String get notifOffline => 'Offline · showing what\'s on this phone';
+  String get notifOffline => 'Offline · showing what\'s on this phone';
 
   @override
   String get notifSettingsTooltip => 'Notification settings';
@@ -127,7 +124,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get notifMutedHint => 'Muted groups still show in the bell, just without pushes.';
 
   @override
-  String get notifMutedOn => 'Muted · bell only';
+  String get notifMutedOn => 'Muted · bell only';
 
   @override
   String get notifMutedOff => 'Not muted';
@@ -137,7 +134,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get notifPushOffBuild =>
-      'Push notifications aren\'t set up in this version yet. Everything still shows in the bell.';
+      'Push notifications aren\'t set up in this build. Everything still shows in the bell.';
 
   @override
   String get notifPushBlocked =>
@@ -303,13 +300,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get welcomeHighlight => 'settle it.';
 
   @override
-  String get welcomeBadge => 'Free forever · no ads';
+  String get welcomeBadge => 'Free forever · no ads';
 
   @override
   String get getStarted => 'Get\nstarted';
 
   @override
-  String get welcomeFooter => 'Open source · made in India';
+  String get welcomeFooter => 'Open source · made in India';
 
   @override
   String get groupsHero => 'split it.\nsettle it.';
@@ -340,7 +337,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String activeGroups(int count) {
-    return 'Active groups · $count';
+    return 'Active groups · $count';
   }
 
   @override
@@ -377,7 +374,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get groupNameRequired => 'Enter a group name';
 
   @override
-  String get groupNameTooLong => 'Keep the name under 60 letters';
+  String get groupNameTooLong => 'Use up to 60 characters';
 
   @override
   String get groupTypeLabel => 'Type';
@@ -440,7 +437,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get groupBalancesEmptyTitle => 'Balances show up here';
 
   @override
-  String get groupBalancesEmptyBody => 'Once the group has expenses, you see who owes whom.';
+  String get groupBalancesEmptyBody => 'Once the group has expenses, you\'ll see who owes whom.';
 
   @override
   String get groupTotalsEmptyTitle => 'Totals show up here';
@@ -483,7 +480,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get memberNameLabel => 'Name';
 
   @override
-  String get memberNameInvalid => 'Enter a name (1 to 50 letters)';
+  String get memberNameInvalid => 'Enter a name (up to 50 characters)';
 
   @override
   String get memberColour => 'Colour';
@@ -551,7 +548,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deleteGroupBody =>
-      'Everyone loses access. You can restore it for 30 days from Account → Deleted groups.';
+      'Everyone loses access. You can restore it for 30 days from Account → Deleted groups.';
 
   @override
   String get groupDeletedDone => 'Group deleted';
@@ -582,13 +579,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deletedGroups => 'Deleted groups';
 
   @override
-  String get deletedGroupsBody => 'Groups you deleted. Restore one within 30 days.';
+  String get deletedGroupsBody => 'Groups you deleted. Restore one within 30 days.';
 
   @override
   String get deletedGroupsEmpty => 'No deleted groups';
 
   @override
-  String get deletedGroupsEmptyBody => 'Groups you delete show up here for 30 days.';
+  String get deletedGroupsEmptyBody => 'Groups you delete show up here for 30 days.';
 
   @override
   String get restore => 'Restore';
@@ -598,8 +595,8 @@ class AppLocalizationsEn extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       days,
       locale: localeName,
-      other: '$days days left',
-      one: '1 day left',
+      other: '$days days left',
+      one: '1 day left',
       zero: 'Last day to restore',
     );
     return '$_temp0';
@@ -615,7 +612,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get invitePeople => 'Invite people';
 
   @override
-  String get inviteBody => 'Friends scan this QR or type the code in Groups → Join.';
+  String get inviteBody => 'Friends scan this QR, or type the code under Join on the Groups tab.';
 
   @override
   String inviteQrLabel(String code) {
@@ -674,7 +671,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get joinInvalidCode => 'That code doesn\'t match any group';
 
   @override
-  String get joinRateLimited => 'Too many tries, wait a bit';
+  String get joinRateLimited => 'Too many tries. Wait a minute and try again.';
 
   @override
   String get joinNeedsInternet => 'Joining needs internet';
@@ -790,7 +787,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String friendItemCaption(String group, String date) {
-    return '$group · $date';
+    return '$group · $date';
   }
 
   @override
@@ -887,7 +884,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get upiCopyAmount => 'Copy amount';
 
   @override
-  String get upiShowQr => 'UPI QR';
+  String get upiShowQr => 'Show UPI QR';
 
   @override
   String get upiCopied => 'Copied';
@@ -977,7 +974,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get balBannerOwe => 'You owe here';
 
   @override
-  String get balBannerMixed => 'You are owed and owe here';
+  String get balBannerMixed => 'You are owed and you owe here';
 
   @override
   String get balBannerSettled => 'In this group';
@@ -1064,7 +1061,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String totPaidShare(String paid, String share) {
-    return 'paid $paid · share $share';
+    return 'paid $paid · share $share';
   }
 
   @override
@@ -1151,7 +1148,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String insAmountShare(String amount, String percent) {
-    return '$amount · $percent';
+    return '$amount · $percent';
   }
 
   @override
@@ -1290,7 +1287,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get settleGaugeNone => 'Nothing is owed between them. You can still record it.';
+  String get settleGaugeNone => 'Nothing is owed here right now. You can still record it.';
 
   @override
   String settleUseOwed(String owed) {
@@ -1323,7 +1320,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String settleNoteTooLong(int max) {
-    return 'Keep the note under $max characters';
+    return 'Use up to $max characters';
   }
 
   @override
@@ -1388,7 +1385,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String payRowCaption(String date) {
-    return 'Payment · $date';
+    return 'Payment · $date';
   }
 
   @override
@@ -1444,7 +1441,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String actGroupUnarchived(String actor) {
-    return '$actor brought the group back';
+    return '$actor unarchived the group';
   }
 
   @override
@@ -1604,8 +1601,8 @@ class AppLocalizationsEn extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count people owe you',
-      one: '1 person owes you',
+      other: '$count people owe you',
+      one: '1 person owes you',
     );
     return '$_temp0';
   }
@@ -1615,8 +1612,8 @@ class AppLocalizationsEn extends AppLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'you owe $count people',
-      one: 'you owe 1 person',
+      other: 'you owe $count people',
+      one: 'you owe 1 person',
     );
     return '$_temp0';
   }
@@ -1641,9 +1638,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get overallBalance => 'Overall balance';
-
-  @override
-  String get zeroRupees => '₹0';
 
   @override
   String acrossGroups(int count) {
@@ -1708,11 +1702,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aboutTitle => 'About';
 
   @override
-  String get aboutHeroTitle => 'split bills,\nfree forever';
+  String get aboutHeroTitle => 'split bills,\nfree forever.';
 
   @override
   String get aboutTagline =>
-      'A free, open-source app for sharing costs with friends, flatmates and trips. No ads, no limits, no paywalls.';
+      'A free, open-source app for splitting costs with friends and flatmates, on trips and at home. No ads, no limits, no paywalls.';
 
   @override
   String get aboutSectionProject => 'Project';
@@ -1745,11 +1739,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aboutCreditRates => 'Exchange rates from Frankfurter (European Central Bank data)';
 
   @override
-  String get aboutCopyright => 'MIT licence · © Unizoy';
+  String get aboutCopyright => 'MIT licence · © Unizoy';
 
   @override
   String aboutLinkFailed(String url) {
-    return 'Couldn\'t open the link. It is $url';
+    return 'Couldn\'t open the link: $url';
   }
 
   @override
@@ -1788,12 +1782,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String expEditPill(String group) {
-    return 'Editing · $group';
+    return 'Editing · $group';
   }
 
   @override
   String expOfflinePill(String group) {
-    return '$group · saved offline';
+    return '$group · saved offline';
   }
 
   @override
@@ -1809,7 +1803,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get expDescriptionMissing => 'Add a short description';
 
   @override
-  String get expDescriptionTooLong => 'Keep it under 120 characters';
+  String get expDescriptionTooLong => 'Use up to 120 characters';
 
   @override
   String expCurrencyLabel(String code) {
@@ -1823,7 +1817,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get curSearchLabel => 'Search currencies';
 
   @override
-  String get curSearchHint => 'Code or name, e.g. USD';
+  String get curSearchHint => 'Code or name';
 
   @override
   String get curGroupSection => 'Group currency';
@@ -1875,17 +1869,17 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String fxSourceFrankfurter(String date) {
-    return 'Frankfurter · $date';
+    return 'Frankfurter · $date';
   }
 
   @override
   String fxSourceFallback(String date, String asked) {
-    return 'Frankfurter · $date, the latest before $asked';
+    return 'Frankfurter · $date (latest before $asked)';
   }
 
   @override
   String fxSourceManual(String date) {
-    return 'Rate you typed · $date';
+    return 'Rate you typed · $date';
   }
 
   @override
@@ -1954,11 +1948,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String fxMissingBody(String code) {
-    return 'Balances in $code use the rate saved with each record. Convert these first.';
+    return 'Balances in $code use the rate saved with each record, so these need a rate first.';
   }
 
   @override
-  String get fxConvertAll => 'Convert all at their dates\' rates';
+  String get fxConvertAll => 'Convert all at each date\'s rate';
 
   @override
   String fxConvertedCount(int count) {
@@ -1984,7 +1978,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get fxConvertedNote => 'Every record counted at the rate saved with it.';
+  String get fxConvertedNote => 'Each record is counted at the rate saved with it.';
 
   @override
   String fxSectionInMain(String code) {
@@ -2068,10 +2062,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get expMultiplePeople => 'Multiple people';
 
   @override
-  String get expMultiplePaidNote =>
-      'Several people paid for this one. Changing who paid what arrives in a later update.';
-
-  @override
   String get expSplitQuestion => 'How should it be split?';
 
   @override
@@ -2140,7 +2130,7 @@ class AppLocalizationsEn extends AppLocalizations {
       other: '$count people',
       one: '1 person',
     );
-    return '$_temp0 · $amount each';
+    return '$_temp0 · $amount each';
   }
 
   @override
@@ -2156,31 +2146,31 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String expFooterLeft(String sum, String total, String left) {
-    return '$sum of $total · $left left';
+    return '$sum of $total · $left left';
   }
 
   @override
   String expFooterOver(String sum, String total, String over) {
-    return '$sum of $total · $over over';
+    return '$sum of $total · $over over';
   }
 
   @override
   String expFooterDone(String total) {
-    return '$total · done';
+    return '$total · done';
   }
 
   @override
   String expFooterPercentLeft(String sum, String left) {
-    return '$sum % of 100 % · $left % left';
+    return '$sum% of 100% · $left% left';
   }
 
   @override
   String expFooterPercentOver(String sum, String over) {
-    return '$sum % of 100 % · $over % over';
+    return '$sum% of 100% · $over% over';
   }
 
   @override
-  String get expFooterPercentDone => '100 % · done';
+  String get expFooterPercentDone => '100% · done';
 
   @override
   String expFooterShares(String count) {
@@ -2241,7 +2231,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get expNotesHint => 'Anything worth remembering';
 
   @override
-  String get expNotesTooLong => 'Notes can be up to 1000 characters';
+  String get expNotesTooLong => 'Use up to 1,000 characters';
 
   @override
   String get expToday => 'Today';
@@ -2298,7 +2288,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String expOwes(String amount) {
-    return 'owes $amount';
+    return 'share $amount';
   }
 
   @override
@@ -2307,7 +2297,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get expOwesNothing => 'owes nothing';
+  String get expOwesNothing => 'no share';
 
   @override
   String expReviewSummary(String amount, int count) {
@@ -2317,7 +2307,7 @@ class AppLocalizationsEn extends AppLocalizations {
       other: '$count people',
       one: '1 person',
     );
-    return '$amount · $_temp0';
+    return '$amount · $_temp0';
   }
 
   @override
@@ -2359,7 +2349,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String expSplitLabel(String kind) {
-    return 'Split · $kind';
+    return 'Split · $kind';
   }
 
   @override
@@ -2433,7 +2423,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String histLostChange(String name) {
-    return 'Change by $name';
+    return '$name\'s edit';
   }
 
   @override
@@ -2444,7 +2434,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String histWhen(String date, String time) {
-    return '$date · $time';
+    return '$date · $time';
   }
 
   @override
@@ -2540,7 +2530,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get histEmptyTitle => 'No history yet';
 
   @override
-  String get histEmptyBody => 'Changes show up here once they reach the server.';
+  String get histEmptyBody => 'Changes show up here once they\'re synced.';
 
   @override
   String get histRetry => 'Try again';
@@ -2577,7 +2567,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String cmtTooLong(int max) {
-    return 'Keep it under $max characters.';
+    final intl.NumberFormat maxNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String maxString = maxNumberFormat.format(max);
+
+    return 'Use up to $maxString characters';
   }
 
   @override
@@ -2606,7 +2599,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String delBy(String name, String date) {
-    return 'Deleted by $name · $date';
+    return 'Deleted by $name · $date';
   }
 
   @override
@@ -2652,7 +2645,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String expDefaultSplitBody(String group) {
-    return 'New expenses in $group start with this split. If the members change, they go back to equal.';
+    return 'New expenses in $group start with this split. If the members change, it goes back to equal.';
   }
 
   @override
@@ -2786,13 +2779,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get signInSubtitle =>
-      'Use Google or get a one-time code by email. The same email is always the same account.';
+      'Use Google or a one-time code sent by email. The same email always opens the same account.';
 
   @override
   String get continueWithGoogle => 'Continue with Google';
 
   @override
-  String get googleSoon => 'Google sign-in is coming soon. Use your email for now.';
+  String get googleSoon => 'Google sign-in isn\'t set up in this build. Use your email instead.';
+
+  @override
+  String get googleNotSetUp => 'Not set up in this build';
 
   @override
   String get orDivider => 'or';
@@ -2816,7 +2812,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String codeSentTo(String email) {
-    return 'We sent it to $email. It works for 10 minutes.';
+    return 'We sent it to $email. It works for 10 minutes.';
   }
 
   @override
@@ -2826,7 +2822,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String resendIn(int seconds) {
-    return 'Resend code in $seconds s';
+    return 'Resend code in $seconds s';
   }
 
   @override
@@ -2868,13 +2864,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get authErrorExpiredCode => 'This code has expired or is not right. Request a new code.';
 
   @override
-  String get authErrorTooManyTries => 'Too many tries, request a new code';
+  String get authErrorTooManyTries => 'Too many tries. Request a new code.';
 
   @override
   String get authErrorInvalidEmail => 'Enter an email like name@example.com';
 
   @override
-  String get authErrorOffline => 'You’re offline — connect once to sign in';
+  String get authErrorOffline => 'You\'re offline. Connect to the internet to sign in.';
 
   @override
   String get authErrorCancelled => 'Sign-in was cancelled';
@@ -2925,7 +2921,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get needsInternet => 'Needs internet. Connect and try again.';
 
   @override
-  String get nameInvalid => 'Enter your name (1 to 50 letters)';
+  String get nameInvalid => 'Enter your name (up to 50 characters)';
 
   @override
   String get upiInvalid => 'Enter a UPI ID like name@bank';
@@ -2969,7 +2965,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deleteAccountWarning => 'This works only online and cannot be undone.';
 
   @override
-  String get typeDeleteLabel => 'Type DELETE to confirm';
+  String get typeDeleteLabel => 'Type “DELETE” to confirm';
 
   @override
   String get deleteWord => 'DELETE';
@@ -3020,7 +3016,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get syncStateError => 'Sync did not finish. It tries again soon.';
+  String get syncStateError => 'Sync didn\'t finish. Splitify will try again soon.';
 
   @override
   String get syncStateSignedOut => 'Sign in again to sync';
@@ -3111,11 +3107,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get syncErrorRejected => 'The server did not accept this change.';
 
   @override
-  String syncErrorCode(String code) {
-    return 'Code $code';
-  }
-
-  @override
   String get retryLabel => 'Retry';
 
   @override
@@ -3196,13 +3187,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String syncUploadsWaiting(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count photos waiting',
-      one: '1 photo waiting',
-    );
-    return '$_temp0';
+    return '$count waiting';
   }
 
   @override
@@ -3484,7 +3469,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String repeatEndBeforeStart(String date) {
-    return 'The end date can’t be before $date';
+    return 'The end date can\'t be before $date';
   }
 
   @override
@@ -3555,7 +3540,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String recurringEditPill(String group) {
-    return 'Future copies · $group';
+    return 'Future copies · $group';
   }
 
   @override
@@ -3569,10 +3554,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get recurringNotFoundTitle => 'Not on this phone';
 
   @override
-  String get recurringNotFoundBody => 'This repeating expense isn’t on this phone any more.';
+  String get recurringNotFoundBody => 'This repeating expense isn\'t on this phone any more.';
 
   @override
-  String get recurringDeleteAlsoStops => 'Deleted. It won’t repeat any more.';
+  String get recurringDeleteAlsoStops => 'Deleted. It won\'t repeat any more.';
 
   @override
   String actRecurringCopy(String description) {
@@ -3588,7 +3573,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get searchTooltip => 'Search expenses';
 
   @override
-  String get searchFieldHint => 'Description, person or amount';
+  String get searchFieldHint => 'Search expenses';
 
   @override
   String get searchClear => 'Clear search';
@@ -3847,7 +3832,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get impNetZero => 'settled up';
 
   @override
-  String get impProblemSameMember => 'Two people of the file point to the same member.';
+  String get impProblemSameMember => 'Two people in the file are matched to the same member.';
 
   @override
   String get impProblemEmptyName => 'A new person needs a name.';
@@ -3889,13 +3874,37 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get impStatExpenses => 'Expenses';
+  String impStatExpenses(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Expenses',
+      one: 'Expense',
+    );
+    return '$_temp0';
+  }
 
   @override
-  String get impStatPayments => 'Payments';
+  String impStatPayments(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Payments',
+      one: 'Payment',
+    );
+    return '$_temp0';
+  }
 
   @override
-  String get impStatPeople => 'People';
+  String impStatPeople(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'People',
+      one: 'Person',
+    );
+    return '$_temp0';
+  }
 
   @override
   String get impTotalsTitle => 'Total balance check';
@@ -4022,7 +4031,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String actImportCounts(String expenses, String payments) {
-    return '$expenses · $payments';
+    return '$expenses · $payments';
   }
 
   @override
@@ -4057,7 +4066,8 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get lockAfterSub => 'in the background. Splitify always locks when it starts.';
+  String get lockAfterSub =>
+      'Splitify locks after this long in the background, and always when it starts.';
 
   @override
   String get lockRecentsNote =>
@@ -4092,10 +4102,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get lockTurnedOff => 'This phone has no screen lock any more, so app lock is off.';
 
   @override
-  String get widgetRow => 'Home-screen widget';
+  String get widgetRow => 'Home screen widget';
 
   @override
-  String get widgetTitle => 'Home-screen widget';
+  String get widgetTitle => 'Home screen widget';
 
   @override
   String get widgetHowTo =>
@@ -4229,7 +4239,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get captureGrant => 'Grant';
 
   @override
-  String get captureRestrictedTitle => 'Switch greyed out or \"Restricted setting\"?';
+  String get captureRestrictedTitle => 'Switch greyed out or “Restricted setting”?';
 
   @override
   String get captureRestrictedBody =>
@@ -4237,11 +4247,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get captureRestrictedStep1 =>
-      'Tap Grant and try the switch once. Android says \"Restricted setting\".';
+      'Tap Grant and try the switch once. Android says “Restricted setting”.';
 
   @override
   String get captureRestrictedStep2 =>
-      'Open App info, tap the three-dot menu at the top right, then \"Allow restricted settings\".';
+      'Open App info, tap the three-dot menu at the top right, then “Allow restricted settings”.';
 
   @override
   String get captureRestrictedStep3 => 'Come back here and tap Grant again.';
@@ -4302,7 +4312,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get paymentsToAddHint =>
-      'Payments this phone caught. Add each to a group or dismiss it. They go after 7 days.';
+      'Payments found on this phone. Add each one or dismiss it. They\'re removed after 7 days.';
 
   @override
   String capturePaidTo(String amount, String payee) {
@@ -4316,7 +4326,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String captureVia(String app, String time) {
-    return '$app · $time';
+    return '$app · $time';
   }
 
   @override

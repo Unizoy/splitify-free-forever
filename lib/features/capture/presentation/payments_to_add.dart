@@ -8,6 +8,7 @@ import 'package:splitify/core/money/money_formatter.dart';
 import 'package:splitify/domain/entities/payment_capture.dart';
 import 'package:splitify/features/capture/application/capture_providers.dart';
 import 'package:splitify/features/capture/presentation/capture_routes.dart';
+import 'package:splitify/features/expenses/presentation/expense_copy.dart' show unbroken;
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/components/components.dart';
 import 'package:splitify/ui/theme/theme.dart';
@@ -23,7 +24,9 @@ String captureViaText(AppLocalizations l, PaymentCapture c, DateTime now) {
   final t = c.capturedAt.toLocal();
   final n = now.toLocal();
   final sameDay = t.year == n.year && t.month == n.month && t.day == n.day;
-  final time = sameDay ? DateFormat.jm().format(t) : DateFormat('d MMM, h:mm a').format(t);
+  final time = unbroken(
+    sameDay ? DateFormat.jm().format(t) : DateFormat('d MMM, h:mm a').format(t),
+  );
   return l.captureVia(c.appName, time);
 }
 
@@ -253,7 +256,7 @@ class CaptureTile extends ConsumerWidget {
                     ),
                     const SizedBox(height: AppSpacing.s1),
                     Text(
-                      '${captureViaText(l, capture, now)} · ${captureSourceLabel(l, capture.source)}',
+                      '${captureViaText(l, capture, now)}\u00A0· ${captureSourceLabel(l, capture.source)}',
                       style: context.text.bodySmall.copyWith(color: c.textSecondary),
                     ),
                     const SizedBox(height: AppSpacing.s3),

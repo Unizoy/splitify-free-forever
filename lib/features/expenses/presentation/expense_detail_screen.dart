@@ -268,8 +268,8 @@ class _Body extends StatelessWidget {
         else
           DashedListRow(
             icon: categoryOf(e.category).icon,
-            label: l.category(e.category),
-            value: l.category(categoryOf(e.category).name),
+            label: l.expCategoryLabel,
+            value: categoryValue(l, e.category),
           ),
         DashedListRow(
           icon: AppIcons.calendar,
@@ -389,7 +389,7 @@ class _PersonRow extends StatelessWidget {
     final amount = Text(
       trailing,
       textAlign: TextAlign.end,
-      style: context.text.amount.copyWith(color: emphasis ? c.owedText : c.textPrimary),
+      style: context.text.amount.w(emphasis ? 700 : 600).copyWith(color: c.textPrimary),
     );
     // Large text (phase 19 polish): the amount goes under the name, so names never break inside a word.
     final stacked = MediaQuery.textScalerOf(context).scale(1) > 1.4;

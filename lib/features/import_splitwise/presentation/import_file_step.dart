@@ -105,8 +105,8 @@ class _HowRow extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          width: 28,
-          height: 28,
+          width: MediaQuery.textScalerOf(context).scale(28),
+          height: MediaQuery.textScalerOf(context).scale(28),
           alignment: Alignment.center,
           decoration: BoxDecoration(color: c.primaryContainer, shape: BoxShape.circle),
           child: Text(

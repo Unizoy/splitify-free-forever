@@ -120,7 +120,7 @@ void main() {
       expect(_key('group-card-g1'), findsOneWidget);
       expect(_key('group-card-g2'), findsOneWidget);
       expect(_key('group-card-g3'), findsNothing);
-      expect(find.text('ACTIVE GROUPS · 2'), findsOneWidget);
+      expect(find.text('ACTIVE GROUPS\u00A0· 2'), findsOneWidget);
       // Both Join and New stay available with groups present.
       expect(_key('groups-join'), findsOneWidget);
       expect(_key('groups-new'), findsOneWidget);
@@ -165,7 +165,7 @@ void main() {
       await pumpGroups(tester, '/groups/new', db: db);
       await _type(tester, 'group-name', 'a' * 61);
       await _tap(tester, 'group-save', db: true);
-      expect(find.text('Keep the name under 60 letters'), findsOneWidget);
+      expect(find.text('Use up to 60 characters'), findsOneWidget);
       expect(await real(tester, () => db.select(db.groups).get()), isEmpty);
     });
 
@@ -560,7 +560,7 @@ void main() {
       expect(find.text('Goa trip'), findsOneWidget);
       expect(find.text('Old trip'), findsOneWidget);
       expect(find.text('Too late to restore'), findsOneWidget);
-      expect(find.text('28 days left'), findsOneWidget);
+      expect(find.text('28\u00A0days left'), findsOneWidget);
       expect(tester.widget<PillButton>(_key('restore-g2')).onPressed, null);
 
       await _tap(tester, 'restore-g1', db: true);

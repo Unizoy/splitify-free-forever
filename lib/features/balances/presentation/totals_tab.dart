@@ -142,7 +142,7 @@ class _SpentCard extends StatelessWidget {
     final l = AppLocalizations.of(context);
     final c = context.colors;
     final me = view.meId;
-    final label = showCode ? '${l.totSpent} · ${totals.currency}' : l.totSpent;
+    final label = showCode ? '${l.totSpent}\u00A0· ${totals.currency}' : l.totSpent;
     Widget stat(String caption, int value, Key key) => Expanded(
       child: Column(
         key: key,
