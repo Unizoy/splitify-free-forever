@@ -1,25 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:splitify/features/activity/presentation/group_activity_screen.dart';
 import 'package:splitify/features/balances/presentation/balances_tab.dart';
 import 'package:splitify/features/balances/presentation/totals_tab.dart';
-import 'package:splitify/features/expenses/presentation/expense_list.dart';
 
-/// Expenses tab of the group detail: the phase 08 [ExpenseList] (month headers, expense and payment
-/// rows, empty state) and the group's recent activity (phase 09).
-class GroupExpensesTab extends StatelessWidget {
-  const GroupExpensesTab({required this.groupId, super.key});
-
-  final String groupId;
-
-  @override
-  Widget build(BuildContext context) => Column(
-    crossAxisAlignment: CrossAxisAlignment.stretch,
-    children: [
-      ExpenseList(groupId: groupId),
-      GroupActivitySection(groupId: groupId),
-    ],
-  );
-}
+// The Expenses tab is built by the group page itself as slivers (ExpenseListSliver + GroupActivitySection,
+// S-167).
 
 /// Balances tab (phase 09, #15): banner, who owes whom with Settle, everyone's net.
 class GroupBalancesTab extends StatelessWidget {

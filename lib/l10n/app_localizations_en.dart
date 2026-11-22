@@ -1705,6 +1705,54 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get aboutTitle => 'About';
+
+  @override
+  String get aboutHeroTitle => 'split bills,\nfree forever';
+
+  @override
+  String get aboutTagline =>
+      'A free, open-source app for sharing costs with friends, flatmates and trips. No ads, no limits, no paywalls.';
+
+  @override
+  String get aboutSectionProject => 'Project';
+
+  @override
+  String get aboutSourceCode => 'Source code';
+
+  @override
+  String get aboutSourceValue => 'GitHub';
+
+  @override
+  String get aboutPrivacy => 'Privacy policy';
+
+  @override
+  String get aboutReport => 'Report a problem';
+
+  @override
+  String get aboutLicencesRow => 'Open-source licences';
+
+  @override
+  String get aboutSectionCredits => 'Credits';
+
+  @override
+  String get aboutCreditFonts => 'Instrument Serif and Inter fonts, SIL Open Font License';
+
+  @override
+  String get aboutCreditIcons => 'Phosphor icons, MIT licence';
+
+  @override
+  String get aboutCreditRates => 'Exchange rates from Frankfurter (European Central Bank data)';
+
+  @override
+  String get aboutCopyright => 'MIT licence · © Unizoy';
+
+  @override
+  String aboutLinkFailed(String url) {
+    return 'Couldn\'t open the link. It is $url';
+  }
+
+  @override
   String get celebrationLead => 'all';
 
   @override

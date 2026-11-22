@@ -139,6 +139,7 @@ void main() {
     ('activity', Routes.activity),
     ('account', Routes.account),
     ('appearance', Routes.appearance),
+    ('about', Routes.about),
     ('sign_in', Routes.signIn),
     ('sign_in_code', '${Routes.signInCode}?email=asha%40splitify.test'),
     ('sign_in_profile', Routes.signInProfile),

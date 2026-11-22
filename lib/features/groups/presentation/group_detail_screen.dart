@@ -9,6 +9,8 @@ import 'package:splitify/features/balances/application/balance_views.dart';
 import 'package:splitify/features/balances/application/balances_providers.dart';
 import 'package:splitify/features/balances/presentation/balance_copy.dart';
 import 'package:splitify/features/groups/application/groups_providers.dart';
+import 'package:splitify/features/activity/presentation/group_activity_screen.dart';
+import 'package:splitify/features/expenses/presentation/expense_list.dart';
 import 'package:splitify/features/groups/presentation/group_tabs.dart';
 import 'package:splitify/features/groups/presentation/group_visuals.dart';
 import 'package:splitify/features/groups/presentation/invite_sheet.dart';
@@ -64,42 +66,63 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen> {
     final me = ref.watch(currentUserIdProvider);
     final balances = ref.watch(groupBalancesProvider(widget.groupId)).value;
     final archived = group.archivedAt != null;
+    final sides = EdgeInsets.symmetric(horizontal: AppSpacing.screen);
+    final bottomSpace = AppSpacing.s8 + MediaQuery.paddingOf(context).bottom + AppSpacing.s6;
+    // Slivers (S-167, phase 19): hero + sheet header first, then the Expenses tab's rows as a lazy list, so a
+    // group with thousands of records opens with one screen of rows built.
     return Scaffold(
-      body: SingleChildScrollView(
-        child: OverlapColumn(
-          top: _Hero(group: group, members: members, me: me, balances: balances),
-          bottom: OverlapSheet(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                if (archived) ...[
-                  _ArchivedBanner(groupId: group.id),
-                  const SizedBox(height: AppSpacing.s5),
-                ],
-                FolderTabs(
-                  index: _tab,
-                  onChanged: (i) => setState(() => _tab = i),
-                  tabs: [
-                    FolderTab(label: l.groupTabExpenses, icon: AppIcons.receipt),
-                    FolderTab(label: l.groupTabBalances, icon: AppIcons.coins),
-                    FolderTab(label: l.groupTabTotals, icon: AppIcons.chart),
+      body: CustomScrollView(
+        slivers: [
+          SliverToBoxAdapter(
+            child: OverlapColumn(
+              top: _Hero(group: group, members: members, me: me, balances: balances),
+              bottom: OverlapSheet(
+                padding: const EdgeInsets.fromLTRB(
+                  AppSpacing.screen,
+                  AppSpacing.s6 + AppSpacing.s1,
+                  AppSpacing.screen,
+                  0,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    if (archived) ...[
+                      _ArchivedBanner(groupId: group.id),
+                      const SizedBox(height: AppSpacing.s5),
+                    ],
+                    FolderTabs(
+                      index: _tab,
+                      onChanged: (i) => setState(() => _tab = i),
+                      tabs: [
+                        FolderTab(label: l.groupTabExpenses, icon: AppIcons.receipt),
+                        FolderTab(label: l.groupTabBalances, icon: AppIcons.coins),
+                        FolderTab(label: l.groupTabTotals, icon: AppIcons.chart),
+                      ],
+                    ),
+                    if (unsynced) ...[
+                      const SizedBox(height: AppSpacing.s3),
+                      const Align(alignment: AlignmentDirectional.centerStart, child: SyncMarker()),
+                    ],
+                    const SizedBox(height: AppSpacing.s2),
+                    if (_tab == 1) GroupBalancesTab(groupId: group.id),
+                    if (_tab == 2) GroupTotalsTab(groupId: group.id),
                   ],
                 ),
-                if (unsynced) ...[
-                  const SizedBox(height: AppSpacing.s3),
-                  const Align(alignment: AlignmentDirectional.centerStart, child: SyncMarker()),
-                ],
-                const SizedBox(height: AppSpacing.s2),
-                switch (_tab) {
-                  0 => GroupExpensesTab(groupId: group.id),
-                  1 => GroupBalancesTab(groupId: group.id),
-                  _ => GroupTotalsTab(groupId: group.id),
-                },
-                const SizedBox(height: AppSpacing.s8),
-              ],
+              ),
             ),
           ),
-        ),
+          if (_tab == 0) ...[
+            SliverPadding(
+              padding: sides,
+              sliver: ExpenseListSliver(groupId: group.id),
+            ),
+            SliverPadding(
+              padding: sides,
+              sliver: SliverToBoxAdapter(child: GroupActivitySection(groupId: group.id)),
+            ),
+          ],
+          SliverToBoxAdapter(child: SizedBox(height: bottomSpace)),
+        ],
       ),
       bottomNavigationBar: archived ? null : _ActionBar(groupId: widget.groupId),
     );

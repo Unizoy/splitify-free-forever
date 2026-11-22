@@ -63,13 +63,14 @@ class ExpenseList extends ConsumerWidget {
   }
 }
 
-/// The newest [ExpenseList.pageSize] records, then "Show older" adds a page: the group page is one scroll
-/// view, so every shown row is built and laid out on each change (T7: 2,000 expenses, S-167).
+/// The newest [ExpenseList.pageSize] records, then "Show older" adds a page. [ExpenseList] builds every shown
+/// row (it sits in a plain column); [ExpenseListSliver] builds only the rows on screen (S-167, phase 19).
 class _Rows extends StatefulWidget {
-  const _Rows({required this.views, this.payments = const []});
+  const _Rows({required this.views, this.payments = const [], this.sliver = false});
 
   final List<ExpenseView> views;
   final List<PaymentView> payments;
+  final bool sliver;
 
   @override
   State<_Rows> createState() => _RowsState();
@@ -78,8 +79,8 @@ class _Rows extends StatefulWidget {
 class _RowsState extends State<_Rows> {
   int _limit = ExpenseList.pageSize;
 
-  @override
-  Widget build(BuildContext context) {
+  /// Month headers, rows and the "Show older" button, in order, built only when asked for.
+  List<WidgetBuilder> _entries(BuildContext context) {
     final views = widget.views;
     final payments = widget.payments;
     // Expenses and payments by date, newest first (both lists already are; merge keeps that).
@@ -98,23 +99,28 @@ class _RowsState extends State<_Rows> {
         items.add((v.payment.date, (d) => PaymentRow(view: v, showDivider: d)));
       }
     }
-    final children = <Widget>[];
+    final entries = <WidgetBuilder>[];
     final shown = items.length < _limit ? items.length : _limit;
+    final headers = [
+      for (var i = 0; i < items.length && i <= shown; i++)
+        monthHeader(context, parseIsoDate(items[i].$1)),
+    ];
     String? month;
     for (var i = 0; i < shown; i++) {
-      final header = monthHeader(context, parseIsoDate(items[i].$1));
+      final header = headers[i];
       if (header != month) {
         month = header;
-        children.add(_MonthHeader(text: header, first: i == 0));
+        final first = i == 0;
+        entries.add((_) => _MonthHeader(text: header, first: first));
       }
-      final nextSameMonth =
-          i + 1 < items.length && monthHeader(context, parseIsoDate(items[i + 1].$1)) == header;
-      children.add(items[i].$2(nextSameMonth && i + 1 < shown));
+      final divider = i + 1 < shown && headers[i + 1] == header;
+      final row = items[i].$2;
+      entries.add((_) => row(divider));
     }
     final hidden = items.length - shown;
     if (hidden > 0) {
-      children.add(
-        Padding(
+      entries.add(
+        (context) => Padding(
           padding: const EdgeInsets.only(top: AppSpacing.s4),
           child: PillButton(
             key: const Key('expenses-show-older'),
@@ -127,7 +133,44 @@ class _RowsState extends State<_Rows> {
         ),
       );
     }
-    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: children);
+    return entries;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final entries = _entries(context);
+    if (widget.sliver) {
+      return SliverList.builder(
+        itemCount: entries.length,
+        itemBuilder: (context, i) => entries[i](context),
+      );
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [for (final build in entries) build(context)],
+    );
+  }
+}
+
+/// [ExpenseList] as a sliver for the group page's [CustomScrollView]: the same states, but rows are built
+/// lazily as they scroll in, so opening a group with thousands of records costs one screen of rows.
+class ExpenseListSliver extends ConsumerWidget {
+  const ExpenseListSliver({required this.groupId, super.key});
+
+  final String groupId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final views = ref.watch(groupExpenseViewsProvider(groupId));
+    final payments = ref.watch(groupPaymentViewsProvider(groupId)).value ?? const <PaymentView>[];
+    return switch (views) {
+      AsyncData(:final value) when value.isNotEmpty || payments.isNotEmpty => _Rows(
+        views: value,
+        payments: payments,
+        sliver: true,
+      ),
+      _ => SliverToBoxAdapter(child: ExpenseList(groupId: groupId)),
+    };
   }
 }
 

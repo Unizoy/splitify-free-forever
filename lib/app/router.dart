@@ -5,6 +5,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:splitify/app/shell/app_shell.dart';
+import 'package:splitify/features/account/presentation/about_screen.dart';
 import 'package:splitify/features/account/presentation/account_screen.dart';
 import 'package:splitify/features/account/presentation/appearance_screen.dart';
 import 'package:splitify/features/account/presentation/delete_account_screen.dart';
@@ -52,6 +53,7 @@ abstract final class Routes {
   static const profile = '/account/profile';
   static const deleteAccount = '/account/delete';
   static const syncStorage = '/account/sync';
+  static const about = '/account/about';
   static const gallery = '/debug/gallery';
 
   static String group(String id) => '/groups/$id';
@@ -220,6 +222,11 @@ GoRouter buildRouter({String initialLocation = Routes.welcome, AuthGate? gate}) 
                   path: 'sync',
                   parentNavigatorKey: _rootKey,
                   builder: (context, state) => const SyncStorageScreen(),
+                ),
+                GoRoute(
+                  path: 'about',
+                  parentNavigatorKey: _rootKey,
+                  builder: (context, state) => const AboutScreen(),
                 ),
                 GoRoute(
                   path: 'deleted-groups',
