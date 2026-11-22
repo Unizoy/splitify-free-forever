@@ -206,12 +206,17 @@ void main() {
     await tester.pump();
     expect(h.auth.calls, isNot(contains('delete')));
 
-    h.auth.fail = const AuthFailure(AuthFailureCode.offline);
+    h.auth.fail = const AuthFailure(AuthFailureCode.unknown);
     await tester.enterText(find.byType(TextField), 'DELETE');
     await tester.pump();
     await tester.tap(button);
     await _settle(tester);
     expect(find.textContaining('Could not delete your account'), findsOneWidget);
+    // Offline: "Needs internet" (rule 9).
+    h.auth.fail = const AuthFailure(AuthFailureCode.offline);
+    await tester.tap(button);
+    await _settle(tester);
+    expect(find.text('Needs internet. Connect and try again.'), findsOneWidget);
 
     await tester.tap(button);
     await _settle(tester);

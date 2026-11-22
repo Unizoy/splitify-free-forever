@@ -36,6 +36,30 @@ FakeSyncRepository _syncFor(String name) => switch (name) {
     ],
     unsynced: true,
   ),
+  // Phase 15: photos waiting (one retrying) and a refused expense edit with its Edit button.
+  'sync_storage_uploads' => FakeSyncRepository(
+    status: SyncStatus(
+      phase: SyncPhase.offline,
+      waiting: 2,
+      failed: 1,
+      lastSync: _now.subtract(const Duration(minutes: 40)),
+      lastError: 'offline',
+    ),
+    issues: [sampleIssue()],
+    uploads: const [
+      SyncUpload(id: 'u1', bucket: 'receipts', recordId: 'e1', attempts: 0),
+      SyncUpload(id: 'u2', bucket: 'group-covers', recordId: 'g1', attempts: 3),
+    ],
+    unsynced: true,
+  ),
+  // Phase 15: a photo the queue gave up on, with Retry.
+  'sync_storage_skipped' => FakeSyncRepository(
+    status: SyncStatus(phase: SyncPhase.idle, lastSync: _now.subtract(const Duration(minutes: 5))),
+    uploads: const [
+      SyncUpload(id: 'u3', bucket: 'receipts', recordId: 'e2', attempts: 8),
+      SyncUpload(id: 'u1', bucket: 'receipts', recordId: 'e1', attempts: 0),
+    ],
+  ),
   _ => FakeSyncRepository(
     status: SyncStatus(phase: SyncPhase.idle, lastSync: _now.subtract(const Duration(minutes: 5))),
   ),
@@ -122,6 +146,8 @@ void main() {
     ('delete_account', Routes.deleteAccount),
     ('sync_storage', Routes.syncStorage),
     ('sync_storage_issues', Routes.syncStorage),
+    ('sync_storage_uploads', Routes.syncStorage),
+    ('sync_storage_skipped', Routes.syncStorage),
   ];
 
   // One golden per mode: the router uses a shared navigator key, so two apps cannot

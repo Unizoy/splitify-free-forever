@@ -5,12 +5,13 @@ import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/components/components.dart';
 import 'package:splitify/ui/theme/theme.dart';
 
-/// One refused change: what it was, why, how often it was tried, and Retry / Discard.
+/// One refused change: what it was, why, how often it was tried, and Edit / Retry / Discard.
 class SyncIssueCard extends StatelessWidget {
   const SyncIssueCard({
     required this.issue,
     required this.onRetry,
     required this.onDiscard,
+    this.onEdit,
     this.busy = false,
     super.key,
   });
@@ -18,6 +19,9 @@ class SyncIssueCard extends StatelessWidget {
   final SyncIssue issue;
   final VoidCallback onRetry;
   final VoidCallback onDiscard;
+
+  /// Opens the record to fix it; null when there is nothing to open (a refused delete).
+  final VoidCallback? onEdit;
 
   /// An action for this change is running.
   final bool busy;
@@ -43,6 +47,16 @@ class SyncIssueCard extends StatelessWidget {
       size: PillSize.medium,
       onPressed: busy ? null : onDiscard,
     );
+    final edit = onEdit == null
+        ? null
+        : PillButton(
+            key: Key('sync-edit-${issue.seq}'),
+            label: l.syncIssueOpen,
+            icon: AppIcons.edit,
+            variant: PillVariant.outline,
+            size: PillSize.medium,
+            onPressed: busy ? null : onEdit,
+          );
     return Container(
       padding: const EdgeInsets.all(AppSpacing.s5),
       decoration: BoxDecoration(
@@ -93,12 +107,23 @@ class SyncIssueCard extends StatelessWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                if (edit != null) ...[edit, const SizedBox(height: AppSpacing.s2)],
                 retry,
                 const SizedBox(height: AppSpacing.s2),
                 discard,
               ],
             )
-          else
+          else if (edit != null) ...[
+            Row(
+              children: [
+                Expanded(child: edit),
+                const SizedBox(width: AppSpacing.s3),
+                Expanded(child: retry),
+              ],
+            ),
+            const SizedBox(height: AppSpacing.s1),
+            SizedBox(width: double.infinity, child: discard),
+          ] else
             Row(
               children: [
                 Expanded(child: retry),
