@@ -64,7 +64,7 @@ Future<_RecordingActions> _pump(
 }
 
 VoidCallback? _sendTap(WidgetTester t) =>
-    t.widget<InkWell>(find.byKey(const Key('comment-send'))).onTap;
+    t.widget<Pressable>(find.byKey(const Key('comment-send'))).onTap;
 
 void main() {
   group('CommentThread', () {
@@ -146,7 +146,7 @@ void main() {
       await settle(t);
       expect(find.text('Delete this comment?'), findsNothing);
       expect(
-        find.descendant(of: find.byKey(const Key('comment-c1')), matching: find.byType(InkWell)),
+        find.descendant(of: find.byKey(const Key('comment-c1')), matching: find.byType(Pressable)),
         findsNothing,
       );
       expect(actions.deleted, isEmpty);

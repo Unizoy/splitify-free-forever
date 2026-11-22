@@ -126,10 +126,15 @@ class GlassBackdropHostState extends State<GlassBackdropHost> {
 
   void _invalidate() {
     _generation++;
-    final old = _snapshot.value;
+    _retire(_snapshot.value);
     _snapshot.value = null;
-    old?.image.dispose();
     _schedule();
+  }
+
+  /// Disposes [old] after the current frame: a plate may still paint it before it rebuilds.
+  void _retire(_Snapshot? old) {
+    if (old == null) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) => old.image.dispose());
   }
 
   void _schedule() {
@@ -169,7 +174,7 @@ class GlassBackdropHostState extends State<GlassBackdropHost> {
         blurred.dispose();
         return;
       }
-      _snapshot.value?.image.dispose();
+      _retire(_snapshot.value);
       _snapshot.value = _Snapshot(blurred, size, scale);
     } on Object {
       // No snapshot: the cards keep the live blur.
@@ -206,8 +211,11 @@ class GlassBackdropHostState extends State<GlassBackdropHost> {
         children: [
           Positioned.fill(
             child: NotificationListener<SizeChangedLayoutNotification>(
+              // Sent during layout: act after the frame.
               onNotification: (_) {
-                _invalidate();
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  if (mounted) _invalidate();
+                });
                 return true;
               },
               child: SizeChangedLayoutNotifier(
