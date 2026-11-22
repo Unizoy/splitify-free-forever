@@ -2,6 +2,7 @@
 // shimmer, fade-in and the pre-blurred glass card.
 import 'dart:async';
 
+import 'package:flutter/gestures.dart' show kPressTimeout;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:splitify/ui/components/components.dart';
@@ -16,8 +17,11 @@ Widget _app(Widget child, {bool reduced = false}) => MaterialApp(
 );
 
 double _scaleOf(WidgetTester t, Finder of) {
-  final transforms = t.widgetList<Transform>(find.descendant(of: of, matching: find.byType(Transform)));
-  return transforms.first.transform.getMaxScaleOnAxis();
+  // storage[0] is the x scale (getMaxScaleOnAxis also counts z, always 1).
+  final transforms = t.widgetList<Transform>(
+    find.descendant(of: of, matching: find.byType(Transform)),
+  );
+  return transforms.first.transform.storage[0];
 }
 
 String _text(WidgetTester t, Key key) => t.widget<Text>(find.byKey(key)).data!;
@@ -35,10 +39,8 @@ class _CounterState extends State<_Counter> {
   int n = 0;
 
   @override
-  Widget build(BuildContext context) => TextButton(
-    onPressed: () => setState(() => n++),
-    child: Text('${widget.label} $n'),
-  );
+  Widget build(BuildContext context) =>
+      TextButton(onPressed: () => setState(() => n++), child: Text('${widget.label} $n'));
 }
 
 void main() {
@@ -56,6 +58,7 @@ void main() {
       );
       final g = await t.startGesture(t.getCenter(find.byKey(const Key('p'))));
       await t.pump(kPressTimeout);
+      await t.pump();
       await t.pump(const Duration(milliseconds: 120));
       expect(_scaleOf(t, find.byKey(const Key('p'))), closeTo(AppMotion.pressScale, 0.001));
       expect(taps, 0);
@@ -68,9 +71,16 @@ void main() {
 
     testWidgets('a quick tap still shows the whole press, then rests', (t) async {
       await t.pumpWidget(
-        _app(Pressable(key: const Key('p'), onTap: () {}, child: const SizedBox(width: 80, height: 48))),
+        _app(
+          Pressable(
+            key: const Key('p'),
+            onTap: () {},
+            child: const SizedBox(width: 80, height: 48),
+          ),
+        ),
       );
       await t.tap(find.byKey(const Key('p')));
+      await t.pump();
       await t.pump(const Duration(milliseconds: 60));
       expect(_scaleOf(t, find.byKey(const Key('p'))), lessThan(1));
       await t.pumpAndSettle();
@@ -114,7 +124,11 @@ void main() {
     testWidgets('reduced motion: no scale animation runs', (t) async {
       await t.pumpWidget(
         _app(
-          Pressable(key: const Key('p'), onTap: () {}, child: const SizedBox(width: 80, height: 48)),
+          Pressable(
+            key: const Key('p'),
+            onTap: () {},
+            child: const SizedBox(width: 80, height: 48),
+          ),
           reduced: true,
         ),
       );
@@ -126,10 +140,18 @@ void main() {
     testWidgets('AppIconButton presses in through its states', (t) async {
       var taps = 0;
       await t.pumpWidget(
-        _app(AppIconButton(key: const Key('i'), icon: const Icon(AppIcons.add), tooltip: 'Add', onPressed: () => taps++)),
+        _app(
+          AppIconButton(
+            key: const Key('i'),
+            icon: const Icon(AppIcons.add),
+            tooltip: 'Add',
+            onPressed: () => taps++,
+          ),
+        ),
       );
       final g = await t.startGesture(t.getCenter(find.byKey(const Key('i'))));
       await t.pump(kPressTimeout);
+      await t.pump();
       await t.pump(const Duration(milliseconds: 120));
       expect(_scaleOf(t, find.byKey(const Key('i'))), closeTo(AppIconButton.pressedScale, 0.001));
       await g.up();
@@ -140,9 +162,12 @@ void main() {
 
     testWidgets('PillButton presses in and still fires', (t) async {
       var taps = 0;
-      await t.pumpWidget(_app(PillButton(key: const Key('b'), label: 'Save', onPressed: () => taps++)));
+      await t.pumpWidget(
+        _app(PillButton(key: const Key('b'), label: 'Save', onPressed: () => taps++)),
+      );
       final g = await t.startGesture(t.getCenter(find.byKey(const Key('b'))));
       await t.pump(kPressTimeout);
+      await t.pump();
       await t.pump(const Duration(milliseconds: 120));
       expect(_scaleOf(t, find.byKey(const Key('b'))), closeTo(AppMotion.pressScale, 0.001));
       await g.up();
@@ -154,12 +179,8 @@ void main() {
   group('AnimatedAmount', () {
     String fmt(int m) => 'Rs $m';
 
-    Widget amount(int minor, {String currency = 'INR'}) => AnimatedAmount(
-      textKey: const Key('amt'),
-      minor: minor,
-      currency: currency,
-      format: fmt,
-    );
+    Widget amount(int minor, {String currency = 'INR'}) =>
+        AnimatedAmount(textKey: const Key('amt'), minor: minor, currency: currency, format: fmt);
 
     testWidgets('shows the first value as is, then counts in integers to a new one', (t) async {
       await t.pumpWidget(_app(amount(100)));
@@ -185,9 +206,13 @@ void main() {
   });
 
   group('Entrance', () {
-    Opacity opacityOf(WidgetTester t, String label) => t.widget<Opacity>(
-      find.ancestor(of: find.text(label), matching: find.byType(Opacity)).first,
+    Finder inEntrance(String label, Type type) => find.descendant(
+      of: find.ancestor(of: find.text(label), matching: find.byType(Entrance)),
+      matching: find.byType(type),
     );
+
+    Opacity opacityOf(WidgetTester t, String label) =>
+        t.widget<Opacity>(inEntrance(label, Opacity).first);
 
     testWidgets('rows rise in on first show only, staggered, first 8 rows', (t) async {
       await t.pumpWidget(
@@ -202,21 +227,18 @@ void main() {
       );
       await t.pump(const Duration(milliseconds: 60));
       expect(opacityOf(t, 'row 0').opacity, greaterThan(opacityOf(t, 'row 3').opacity));
-      expect(
-        find.ancestor(of: find.text('row 9'), matching: find.byType(Opacity)),
-        findsNothing,
-      );
+      expect(inEntrance('row 9', Opacity), findsNothing);
       await t.pumpAndSettle();
       expect(opacityOf(t, 'row 3').opacity, 1);
     });
 
     testWidgets('without a scope (or reduced motion) rows just appear', (t) async {
       await t.pumpWidget(_app(const Entrance(index: 0, child: Text('solo'))));
-      expect(find.ancestor(of: find.text('solo'), matching: find.byType(Opacity)), findsNothing);
+      expect(inEntrance('solo', Opacity), findsNothing);
       await t.pumpWidget(
         _app(const EntranceScope(child: Entrance(index: 0, child: Text('calm'))), reduced: true),
       );
-      expect(find.ancestor(of: find.text('calm'), matching: find.byType(Opacity)), findsNothing);
+      expect(inEntrance('calm', Opacity), findsNothing);
     });
 
     testWidgets('FadeIn fades its child in once', (t) async {
@@ -267,7 +289,11 @@ void main() {
           home: const Scaffold(body: Text('home')),
         ),
       );
-      unawaited(nav.currentState!.push(MaterialPageRoute<void>(builder: (_) => const Scaffold(body: Text('next')))));
+      unawaited(
+        nav.currentState!.push(
+          MaterialPageRoute<void>(builder: (_) => const Scaffold(body: Text('next'))),
+        ),
+      );
       await t.pump();
       await t.pump(const Duration(milliseconds: 60));
       final opacity = t.widget<Opacity>(
@@ -288,15 +314,13 @@ void main() {
       await t.pumpWidget(_app(const Shimmer(child: SkeletonBox(width: 100, height: 20))));
       expect(find.byType(ShaderMask), findsOneWidget);
       await t.pumpAndSettle();
-      await t.pumpWidget(
-        _app(const Shimmer(child: SkeletonRow()), reduced: true),
-      );
+      await t.pumpWidget(_app(const Shimmer(child: SkeletonRow()), reduced: true));
       expect(find.byType(ShaderMask), findsNothing);
     });
   });
 
   group('GlassCard', () {
-    testWidgets('in a hero it blurs live until the pre-blurred snapshot is ready', (t) async {
+    testWidgets('in a hero it paints the pre-blurred snapshot instead of a live blur', (t) async {
       await t.pumpWidget(
         _app(
           const SizedBox(
@@ -311,11 +335,31 @@ void main() {
       );
       await t.pump();
       BackdropFilter filter() => t.widget<BackdropFilter>(find.byType(BackdropFilter));
-      expect(filter().enabled, isTrue);
-      await t.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 300)));
-      await t.pump();
+      // The snapshot and the blur are two engine round trips.
+      for (var i = 0; i < 6 && filter().enabled; i++) {
+        await t.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 100)));
+        await t.pump();
+      }
       expect(filter().enabled, isFalse);
       expect(find.text('glass'), findsOneWidget);
+      // A new size retakes the snapshot.
+      await t.pumpWidget(
+        _app(
+          const SizedBox(
+            width: 300,
+            height: 420,
+            child: GlassBackdropHost(
+              background: ColoredBox(color: AppPalette.black),
+              child: Center(child: GlassCard(child: Text('glass'))),
+            ),
+          ),
+        ),
+      );
+      for (var i = 0; i < 6; i++) {
+        await t.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 100)));
+        await t.pump();
+      }
+      expect(filter().enabled, isFalse);
     });
   });
 }
