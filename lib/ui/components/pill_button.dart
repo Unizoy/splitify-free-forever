@@ -20,6 +20,9 @@ enum PillVariant {
 
   /// Text only.
   ghost,
+
+  /// Red pill for actions that cannot be undone (Delete my account; final QA).
+  danger,
 }
 
 /// Button heights: 56 (primary) or 44 (secondary).
@@ -34,6 +37,7 @@ class PillButton extends StatefulWidget {
     this.variant = PillVariant.ink,
     this.size = PillSize.large,
     this.icon,
+    this.leading,
     this.loading = false,
     this.expand = true,
     super.key,
@@ -46,6 +50,9 @@ class PillButton extends StatefulWidget {
   final PillVariant variant;
   final PillSize size;
   final IconData? icon;
+
+  /// Drawn before the label instead of [icon] (the Google "G", which keeps its own colours).
+  final Widget? leading;
 
   /// Shows the 3-dot pulse instead of the label and ignores taps.
   final bool loading;
@@ -91,11 +98,19 @@ class _PillButtonState extends State<PillButton> with SingleTickerProviderStateM
       PillVariant.money => (c.money, c.onMoney, null),
       PillVariant.outline => (AppPalette.clear, c.primary, c.primary),
       PillVariant.ghost => (AppPalette.clear, c.textPrimary, null),
+      PillVariant.danger =>
+        context.isDark
+            ? (c.chipDarkRed, c.onChipDarkRed, null)
+            : (c.oweText, AppPalette.white, null),
     };
     final solid = widget.variant == PillVariant.ink || widget.variant == PillVariant.money;
     if (disabledSolid && solid) {
       bg = c.primaryDisabled;
       fg = context.isDark ? c.textSecondary : c.onPrimaryFill;
+    }
+    if (disabledSolid && widget.variant == PillVariant.danger) {
+      bg = c.chip;
+      fg = c.textTertiary;
     }
     if (_pressed && enabled) {
       bg = switch (widget.variant) {
@@ -116,7 +131,10 @@ class _PillButtonState extends State<PillButton> with SingleTickerProviderStateM
         : Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              if (widget.icon != null) ...[
+              if (widget.leading case final leading?) ...[
+                leading,
+                const SizedBox(width: AppSpacing.s3),
+              ] else if (widget.icon != null) ...[
                 Icon(widget.icon, size: 20, color: fg),
                 const SizedBox(width: AppSpacing.s2),
               ],

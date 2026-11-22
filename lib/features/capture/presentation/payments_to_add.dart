@@ -52,6 +52,7 @@ class PaymentsToAddPill extends ConsumerWidget {
         button: true,
         label: l.paymentsToAdd(n),
         excludeSemantics: true,
+        onTap: () => unawaited(showPaymentsToAdd(context)),
         child: Pressable(
           key: const Key('payments-to-add-pill'),
           onTap: () => unawaited(showPaymentsToAdd(context)),

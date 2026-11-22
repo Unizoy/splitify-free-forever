@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:splitify/core/time/clock.dart';
 import 'package:splitify/data/data_providers.dart' show clockProvider;
 import 'package:splitify/data/local/app_database.dart';
 import 'package:splitify/data/repositories/search_repository.dart';
@@ -46,8 +47,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   }
 
   DateTime get _today {
-    final now = ref.read(clockProvider).now();
-    return DateTime(now.year, now.month, now.day);
+    return ref.read(clockProvider).today();
   }
 
   @override

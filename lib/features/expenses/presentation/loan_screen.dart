@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:splitify/core/time/clock.dart';
 import 'package:splitify/core/money/currencies.dart';
 import 'package:splitify/core/money/money_formatter.dart';
 import 'package:splitify/data/data_providers.dart';
@@ -110,7 +111,6 @@ class _LoanScreenState extends ConsumerState<LoanScreen> {
     final note = _note ??= TextEditingController(text: d.note);
     final keyboardOpen = MediaQuery.viewInsetsOf(context).bottom > 0;
     final keypad = (_keypad ??= d.amountText.isEmpty) && !keyboardOpen && d.others.isNotEmpty;
-    final now = ref.read(clockProvider).now();
     return Scaffold(
       appBar: _bar(l),
       body: Column(
@@ -142,7 +142,7 @@ class _LoanScreenState extends ConsumerState<LoanScreen> {
                     title: title,
                     note: note,
                     showErrors: _showErrors,
-                    today: DateTime(now.year, now.month, now.day),
+                    today: ref.read(clockProvider).today(),
                     keypadOpen: keypad,
                     onEdit: _edit,
                     onAmountTap: () {
@@ -281,34 +281,38 @@ class _Form extends StatelessWidget {
           value: d.total == null ? text : MoneyFormatter.detail.format(d.total!, d.currency),
           liveRegion: true,
           excludeSemantics: true,
+          onTap: keypadOpen ? null : onAmountTap,
           child: Pressable(
             key: const Key('loan-amount-tap'),
             onTap: keypadOpen ? null : onAmountTap,
             borderRadius: AppRadii.all16,
-            child: Column(
-              children: [
-                FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Text(
-                    '$symbol${text.isEmpty ? '0' : KeypadInput.display(text)}',
-                    key: const Key('loan-amount'),
-                    maxLines: 1,
-                    textAlign: TextAlign.center,
-                    style: context.text.amountHero.copyWith(
-                      color: text.isEmpty ? c.textTertiary : c.textPrimary,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: AppSpacing.minTouch),
+              child: Column(
+                children: [
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      '$symbol${text.isEmpty ? '0' : KeypadInput.display(text)}',
+                      key: const Key('loan-amount'),
+                      maxLines: 1,
+                      textAlign: TextAlign.center,
+                      style: context.text.amountHero.copyWith(
+                        color: text.isEmpty ? c.textTertiary : c.textPrimary,
+                      ),
                     ),
                   ),
-                ),
-                AnimatedContainer(
-                  duration: context.motion.fast,
-                  width: keypadOpen ? 56 : 32,
-                  height: 3,
-                  decoration: BoxDecoration(
-                    color: keypadOpen ? c.primary : c.divider,
-                    borderRadius: AppRadii.allPill,
+                  AnimatedContainer(
+                    duration: context.motion.fast,
+                    width: keypadOpen ? 56 : 32,
+                    height: 3,
+                    decoration: BoxDecoration(
+                      color: keypadOpen ? c.primary : c.divider,
+                      borderRadius: AppRadii.allPill,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),

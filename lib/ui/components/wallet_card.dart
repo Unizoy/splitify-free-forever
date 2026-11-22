@@ -43,6 +43,7 @@ class WalletCard extends StatelessWidget {
       button: onTap != null,
       label: label,
       excludeSemantics: true,
+      onTap: onTap,
       child: Pressable(
         onTap: onTap,
         scale: 0.98,

@@ -283,11 +283,17 @@ class _TickCircle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
+    void tap() {
+      HapticFeedback.selectionClick();
+      onTap();
+    }
+
     return Semantics(
       checked: selected,
       label: label,
       button: true,
       excludeSemantics: true,
+      onTap: tap,
       child: Pressable(
         onTap: () {
           HapticFeedback.selectionClick();

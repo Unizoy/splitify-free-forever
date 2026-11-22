@@ -54,11 +54,7 @@ String groupFailureText(AppLocalizations l, GroupFailureCode code) => switch (co
 };
 
 /// Shows [message] in a snackbar.
-void showGroupMessage(BuildContext context, String message) {
-  ScaffoldMessenger.of(context)
-    ..hideCurrentSnackBar()
-    ..showSnackBar(SnackBar(content: Text(message)));
-}
+void showGroupMessage(BuildContext context, String message) => showAppMessage(context, message);
 
 /// Display name of a member, "You" when it is the viewer's own spot with no name yet.
 String memberName(AppLocalizations l, LocalMember m, String? me) =>

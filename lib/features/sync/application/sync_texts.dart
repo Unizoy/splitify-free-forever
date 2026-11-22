@@ -12,7 +12,10 @@ enum SyncTone { ok, busy, waiting, problem }
 typedef SyncHeadline = ({IconData icon, String title, String? hint, SyncTone tone});
 
 /// Picks the one thing to say about [s]; problems win over waiting, waiting over "all synced".
-SyncHeadline describeSync(AppLocalizations l, SyncStatus s) {
+///
+/// Photos count too (final QA): an upload that stopped after its tries is a problem, waiting photos are
+/// waiting — "Everything is synced" only when no photo is left on the phone.
+SyncHeadline describeSync(AppLocalizations l, SyncStatus s, {List<SyncUpload> uploads = const []}) {
   if (s.phase == SyncPhase.syncing) {
     return (icon: AppIcons.sync, title: l.syncing, hint: null, tone: SyncTone.busy);
   }
@@ -21,6 +24,15 @@ SyncHeadline describeSync(AppLocalizations l, SyncStatus s) {
       icon: AppIcons.warning,
       title: l.syncStateFailed(s.failed),
       hint: null,
+      tone: SyncTone.problem,
+    );
+  }
+  final stopped = uploads.where((u) => u.skipped).length;
+  if (stopped > 0) {
+    return (
+      icon: AppIcons.warning,
+      title: l.syncStatePhotosStopped(stopped),
+      hint: l.syncStatePhotosStoppedHint,
       tone: SyncTone.problem,
     );
   }
@@ -49,6 +61,12 @@ SyncHeadline describeSync(AppLocalizations l, SyncStatus s) {
       hint: null,
       tone: SyncTone.waiting,
     ),
+    _ when uploads.isNotEmpty => (
+      icon: AppIcons.unsynced,
+      title: l.syncStatePhotosWaiting(uploads.length),
+      hint: null,
+      tone: SyncTone.waiting,
+    ),
     _ => (icon: AppIcons.synced, title: l.syncStateSynced, hint: null, tone: SyncTone.ok),
   };
 }
@@ -72,9 +90,11 @@ String lastSyncText(AppLocalizations l, MaterialLocalizations m, DateTime? last,
 }
 
 /// Value of the "Sync & storage" settings row; null while loading.
-String? syncRowValue(AppLocalizations l, SyncStatus? s) {
+String? syncRowValue(AppLocalizations l, SyncStatus? s, {List<SyncUpload> uploads = const []}) {
   if (s == null) return null;
   if (s.failed > 0) return l.syncRowProblems(s.failed);
+  final stopped = uploads.where((u) => u.skipped).length;
+  if (stopped > 0) return l.syncRowPhotosStopped(stopped);
   if (s.waiting > 0) return l.syncRowWaiting(s.waiting);
   return l.syncRowSynced;
 }

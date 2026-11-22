@@ -452,6 +452,7 @@ class _MemberNameFormState extends State<MemberNameForm> {
             required: true,
             controller: _name,
             autofocus: true,
+            textCapitalization: TextCapitalization.words,
             textInputAction: TextInputAction.done,
             errorText: _showError && GroupRules.memberName(_name.text) != null
                 ? l.memberNameInvalid
@@ -473,6 +474,7 @@ class _MemberNameFormState extends State<MemberNameForm> {
                     selected: i == _tint,
                     label: l.memberColourOption(i + 1),
                     excludeSemantics: true,
+                    onTap: () => setState(() => _tint = i),
                     child: Pressable(
                       key: Key('member-tint-$i'),
                       onTap: () => setState(() => _tint = i),

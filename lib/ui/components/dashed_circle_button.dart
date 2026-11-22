@@ -45,15 +45,18 @@ class _DashedCircleButtonState extends State<DashedCircleButton>
     final color = widget.color ?? context.colors.onHero;
     final scale = MediaQuery.textScalerOf(context).scale(1).clamp(1.0, 2.0);
     final diameter = 120 * (1 + (scale - 1) * 0.5);
+    void tap() {
+      HapticFeedback.selectionClick();
+      widget.onPressed();
+    }
+
     return Semantics(
       button: true,
       label: widget.label.replaceAll('\n', ' '),
       excludeSemantics: true,
+      onTap: tap,
       child: Pressable(
-        onTap: () {
-          HapticFeedback.selectionClick();
-          widget.onPressed();
-        },
+        onTap: tap,
         circle: true,
         scale: 0.95,
         highlightColor: color,

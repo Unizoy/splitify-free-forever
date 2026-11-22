@@ -120,7 +120,7 @@ void main() {
       expect(find.text('Settle'), findsNWidgets(2));
 
       final me = _net(t, 'INR', 'm1');
-      expect((me.title, me.amountText, me.amountCaption), ('You', '₹900', 'gets back'));
+      expect((me.title, me.amountText, me.amountCaption), ('You', '₹900', 'get back'));
       final asha = _net(t, 'INR', 'm2');
       expect((asha.title, asha.amountText, asha.amountCaption), ('Asha Rao', '₹1,200', 'owes'));
       final rahul = _net(t, 'INR', 'm3');
@@ -137,7 +137,7 @@ void main() {
       await _pump(t, AsyncData(goaOwe()));
       expect(_bannerText(t), 'You owe here|₹300');
       expect(find.byType(TransferRow), findsOneWidget);
-      expect(_net(t, 'INR', 'm1').amountCaption, 'owes');
+      expect(_net(t, 'INR', 'm1').amountCaption, 'owe'); // "You … owe" (S-252)
       // Members with no net and still active stay listed as settled.
       expect(_net(t, 'INR', 'm4').amountCaption, 'settled up');
     });
@@ -249,7 +249,7 @@ void main() {
       expect(_inRow('transfer-USD-m1-m3', find.text('\$20')), findsOneWidget);
       expect(_net(t, 'INR', 'm1').amountText, '₹900');
       expect(_net(t, 'USD', 'm1').amountText, '\$20');
-      expect(_net(t, 'USD', 'm1').amountCaption, 'owes');
+      expect(_net(t, 'USD', 'm1').amountCaption, 'owe');
       expect(find.text('WHO OWES WHOM'), findsNWidgets(2));
     });
 

@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:splitify/core/config/app_info.dart';
 import 'package:splitify/data/data_providers.dart';
+import 'package:splitify/data/remote/push_messaging.dart' show PushPermission;
 import 'package:splitify/features/account/application/theme_mode_controller.dart';
 import 'package:splitify/features/app_lock/application/app_lock_controller.dart';
 import 'package:splitify/features/app_lock/presentation/security_routes.dart';
@@ -75,6 +76,7 @@ class AccountSettingsBody extends ConsumerWidget {
     final mode = ref.watch(themeModeControllerProvider);
     final profile = ref.watch(profileProvider).value;
     final sync = ref.watch(syncStatusProvider).value;
+    final uploads = ref.watch(syncUploadsProvider).value ?? const [];
     void openProfile() {
       Navigator.of(context).pop();
       unawaited(context.push('/account/profile'));
@@ -119,7 +121,12 @@ class AccountSettingsBody extends ConsumerWidget {
             ),
             AccordionRow(
               label: l.notifications,
-              value: ref.watch(pushMessagingProvider).available ? l.notifRowOn : l.notifRowBellOnly,
+              // "On" only when Android lets pushes through (final QA: it said On while not allowed).
+              value:
+                  ref.watch(pushMessagingProvider).available &&
+                      ref.watch(pushStateProvider).value?.permission == PushPermission.granted
+                  ? l.notifRowOn
+                  : l.notifRowBellOnly,
               onTap: () {
                 Navigator.of(context).pop();
                 unawaited(context.push('/account/notifications'));
@@ -169,8 +176,10 @@ class AccountSettingsBody extends ConsumerWidget {
           key: const Key('settings-sync'),
           icon: AppIcons.sync,
           label: l.syncStorage,
-          value: syncRowValue(l, sync),
-          valueColor: sync == null || sync.allSynced ? c.textSecondary : c.unsynced,
+          value: syncRowValue(l, sync, uploads: uploads),
+          valueColor: sync == null || (sync.allSynced && uploads.every((u) => !u.skipped))
+              ? c.textSecondary
+              : c.unsynced,
           onTap: () {
             Navigator.of(context).pop();
             unawaited(context.push('/account/sync'));

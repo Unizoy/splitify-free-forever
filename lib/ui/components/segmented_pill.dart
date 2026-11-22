@@ -125,6 +125,7 @@ class _Segment<T> extends StatelessWidget {
       inMutuallyExclusiveGroup: true,
       label: item.semanticLabel,
       excludeSemantics: item.semanticLabel != null,
+      onTap: item.semanticLabel != null ? onTap : null,
       child: Pressable(
         onTap: onTap,
         borderRadius: AppRadii.allPill,

@@ -246,6 +246,7 @@ class NotificationRow extends StatelessWidget {
       button: true,
       label: [if (n.unread) l.notifUnread, n.body, caption].join(', '),
       excludeSemantics: true,
+      onTap: onTap,
       child: Pressable(
         key: ValueKey('notification-${n.id}'),
         onTap: onTap,

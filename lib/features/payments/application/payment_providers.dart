@@ -11,7 +11,12 @@ const paymentMethods = ['cash', 'upi', 'bank', 'other'];
 
 /// One payment as the list and the detail screen show it.
 final class PaymentView {
-  const PaymentView({required this.payment, required this.names, this.meId});
+  const PaymentView({
+    required this.payment,
+    required this.names,
+    this.meId,
+    this.userNames = const {},
+  });
 
   final LocalPayment payment;
 
@@ -20,6 +25,9 @@ final class PaymentView {
 
   /// The viewer's member id in this group, if any.
   final String? meId;
+
+  /// Display names by account id (who recorded the payment; final QA: the detail said only "Added on").
+  final Map<String, String> userNames;
 
   String nameOf(String memberId) => names[memberId] ?? '';
 
@@ -34,13 +42,20 @@ List<PaymentView> paymentViews(
   String? userId,
 ) {
   final names = {for (final m in members) m.id: m.displayName};
+  final userNames = {
+    for (final m in members)
+      if (m.userId != null) m.userId!: m.displayName,
+  };
   final meId = members
       .where(
         (m) => userId != null && m.userId == userId && m.deletedAt == null && m.status == 'active',
       )
       .map((m) => m.id)
       .firstOrNull;
-  return [for (final p in payments) PaymentView(payment: p, names: names, meId: meId)];
+  return [
+    for (final p in payments)
+      PaymentView(payment: p, names: names, meId: meId, userNames: userNames),
+  ];
 }
 
 final _groupPaymentsProvider = StreamProvider.autoDispose.family<List<LocalPayment>, String>(

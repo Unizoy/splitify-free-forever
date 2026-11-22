@@ -225,6 +225,7 @@ class HeroIconButton extends StatelessWidget {
         button: true,
         label: semanticLabel ?? tooltip,
         excludeSemantics: true,
+        onTap: onPressed,
         child: Pressable(
           onTap: onPressed,
           circle: true,
@@ -308,6 +309,7 @@ class HeroTabs extends StatelessWidget {
             selected: i == index,
             label: tabs[i].label,
             excludeSemantics: true,
+            onTap: () => onChanged(i),
             child: Pressable(
               onTap: () {
                 if (i != index) AppHaptics.selection();

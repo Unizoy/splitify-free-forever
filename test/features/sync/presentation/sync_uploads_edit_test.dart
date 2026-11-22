@@ -101,6 +101,9 @@ void main() {
 
   testWidgets('large text: the skipped row stacks Retry under the text', (tester) async {
     await _pump(tester, uploads: [_skipped], scale: 2);
+    // The status card now names the stopped photo too (final QA), so the row sits lower: scroll to it.
+    await tester.scrollUntilVisible(find.text('Receipt photo'), 200);
+    await tester.pump();
     final title = tester.getTopLeft(find.text('Receipt photo'));
     final retry = tester.getTopLeft(find.byKey(const Key('sync-upload-retry-u-skip')));
     expect(retry.dy, greaterThan(title.dy));

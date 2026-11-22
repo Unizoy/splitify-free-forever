@@ -273,6 +273,9 @@ class _Body extends StatelessWidget {
     final created = view.payment.createdAt;
     final at = created == null ? null : DateTime.tryParse(created)?.toLocal();
     if (at == null) return null;
-    return l.expAddedOn(shortDate(context, at));
+    final by = view.payment.createdBy;
+    final who = by == null ? l.you : view.userNames[by];
+    final date = shortDate(context, at);
+    return who == null ? l.expAddedOn(date) : l.expAddedBy(who, date);
   }
 }

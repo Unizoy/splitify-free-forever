@@ -23,7 +23,7 @@ class UnderlineField extends StatefulWidget {
     this.focusNode,
     this.autofocus = false,
     this.maxLines = 1,
-    this.textCapitalization = TextCapitalization.sentences,
+    this.textCapitalization,
     super.key,
   });
 
@@ -45,7 +45,20 @@ class UnderlineField extends StatefulWidget {
 
   /// Lines before the field scrolls; null grows with the text (notes).
   final int? maxLines;
-  final TextCapitalization textCapitalization;
+
+  /// Defaults to sentences, but none for e-mail, URL, number, phone and code fields (S-253: the keyboard
+  /// must not turn "you@bank" into "You@bank").
+  final TextCapitalization? textCapitalization;
+
+  bool get _literal => switch (keyboardType?.index) {
+    final i? =>
+      i == TextInputType.emailAddress.index ||
+          i == TextInputType.url.index ||
+          i == TextInputType.visiblePassword.index ||
+          i == TextInputType.number.index ||
+          i == TextInputType.phone.index,
+    null => false,
+  };
 
   @override
   State<UnderlineField> createState() => _UnderlineFieldState();
@@ -116,7 +129,13 @@ class _UnderlineFieldState extends State<UnderlineField> {
                       style: inputStyle,
                       maxLines: widget.maxLines,
                       minLines: 1,
-                      textCapitalization: widget.textCapitalization,
+                      textCapitalization:
+                          widget.textCapitalization ??
+                          (widget._literal
+                              ? TextCapitalization.none
+                              : TextCapitalization.sentences),
+                      autocorrect: !widget._literal,
+                      enableSuggestions: !widget._literal,
                       decoration: InputDecoration(
                         isDense: true,
                         border: InputBorder.none,

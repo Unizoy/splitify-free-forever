@@ -73,7 +73,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
         PillButton(
           key: const Key('sign-in-google'),
           label: l.continueWithGoogle,
-          icon: AppIcons.globe,
+          leading: const GoogleMark(),
           variant: PillVariant.outline,
           loading: _googleBusy,
           onPressed: state.busy ? null : _google,

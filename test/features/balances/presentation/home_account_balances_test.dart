@@ -223,15 +223,14 @@ void main() {
     });
 
     // TC-25-02
-    testWidgets('with nothing to settle it says so in a snackbar', (t) async {
+    testWidgets('with nothing to settle there is no Settle up button (final QA)', (t) async {
       await pumpGroups(
         t,
         '/groups',
         overrides: _data(groups: [_goa], balances: {gid: goaSettled()}),
       );
-      await _tap(t, 'groups-settle');
-      expect(find.text("You're all settled up"), findsOneWidget);
-      expect(find.text('Settle up with'), findsNothing);
+      expect(_key('groups-status-settled'), findsOneWidget);
+      expect(_key('groups-settle'), findsNothing);
     });
   });
 

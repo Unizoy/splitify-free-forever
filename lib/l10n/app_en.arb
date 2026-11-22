@@ -1477,5 +1477,22 @@
   "@captureNotesSms": {"placeholders": {"ref": {"type": "String"}}},
   "captureNotesSmsNoRef": "From a bank SMS",
   "captureRef": "UPI ref {ref}",
-  "@captureRef": {"placeholders": {"ref": {"type": "String"}}}
+  "@captureRef": {"placeholders": {"ref": {"type": "String"}}},
+  "linkNotFoundTitle": "This link doesn't open anything",
+  "@linkNotFoundTitle": {"description": "Shown when a splitify:// link or a route does not exist (final QA, S-250)."},
+  "linkNotFoundBody": "It may be old or mistyped. Your groups are one tap away.",
+  "linkNotFoundAction": "Go to groups",
+  "balYouGetBack": "get back",
+  "@balYouGetBack": {"description": "Caption under your own net in Balances (“You … get back”)."},
+  "balYouOwe": "owe",
+  "@balYouOwe": {"description": "Caption under your own net in Balances (“You … owe”)."},
+  "syncStatePhotosStopped": "{count, plural, =1{1 photo stopped uploading} other{{count} photos stopped uploading}}",
+  "@syncStatePhotosStopped": {"description": "Sync & storage headline when photo uploads gave up (final QA).", "placeholders": {"count": {"type": "int"}}},
+  "syncStatePhotosStoppedHint": "Tap Retry under Photos below.",
+  "syncStatePhotosWaiting": "{count, plural, =1{1 photo waiting to upload} other{{count} photos waiting to upload}}",
+  "@syncStatePhotosWaiting": {"placeholders": {"count": {"type": "int"}}},
+  "syncRowPhotosStopped": "{count, plural, =1{1 photo stopped} other{{count} photos stopped}}",
+  "@syncRowPhotosStopped": {"placeholders": {"count": {"type": "int"}}},
+  "notifOpenSettings": "Open phone settings",
+  "@notifOpenSettings": {"description": "Button on the blocked-push banner: opens Android's notification settings for Splitify (final QA)."}
 }

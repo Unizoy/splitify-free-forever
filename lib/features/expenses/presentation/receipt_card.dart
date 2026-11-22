@@ -70,6 +70,7 @@ class ReceiptCard extends ConsumerWidget {
       button: true,
       label: l.photoView,
       excludeSemantics: true,
+      onTap: () => unawaited(_open(context, ref)),
       child: Pressable(
         key: const Key('expense-receipt'),
         onTap: () => unawaited(_open(context, ref)),

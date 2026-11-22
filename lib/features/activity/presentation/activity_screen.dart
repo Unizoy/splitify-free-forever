@@ -8,6 +8,7 @@ import 'package:splitify/features/activity/presentation/activity_feed.dart';
 import 'package:splitify/features/capture/presentation/payments_to_add.dart';
 import 'package:splitify/features/notifications/application/notifications_providers.dart';
 import 'package:splitify/features/search/presentation/search_screen.dart' show SearchRoutes;
+import 'package:splitify/features/sync/presentation/sync_refresh.dart';
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/components/components.dart';
 import 'package:splitify/ui/theme/theme.dart';
@@ -120,19 +121,22 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
       ),
     );
     return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          SliverToBoxAdapter(child: header),
-          if (feed != null) ...[
-            EntranceScope(
-              child: SliverPadding(
-                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
-                sliver: feed,
+      body: SyncRefresh(
+        child: CustomScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          slivers: [
+            SliverToBoxAdapter(child: header),
+            if (feed != null) ...[
+              EntranceScope(
+                child: SliverPadding(
+                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
+                  sliver: feed,
+                ),
               ),
-            ),
-            const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.navReserve)),
+              const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.navReserve)),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }

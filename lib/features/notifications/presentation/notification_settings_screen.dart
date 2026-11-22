@@ -5,6 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:splitify/data/local/app_database.dart';
 import 'package:splitify/data/remote/push_messaging.dart';
 import 'package:splitify/domain/entities/notification_prefs.dart';
+import 'package:splitify/features/capture/application/capture_providers.dart'
+    show captureBridgeProvider;
 import 'package:splitify/features/groups/application/groups_providers.dart';
 import 'package:splitify/features/groups/presentation/group_visuals.dart'
     show PageTitle, SectionLabel;
@@ -17,12 +19,33 @@ import 'package:splitify/ui/theme/theme.dart';
 
 /// Notification settings (`/account/notifications`, #19): per kind push / in-app switches and muted groups.
 /// Saved on the phone at once (offline too) and sent with the next refresh; a banner explains when this
-/// phone gets no pushes (not set up in this build, or blocked in Android).
-class NotificationSettingsScreen extends ConsumerWidget {
+/// phone gets no pushes (not set up in this build, or blocked in Android). While push is blocked or missing
+/// the push switches are shown disabled and the banner offers Android's settings; the state is read again
+/// when the person comes back (final QA).
+class NotificationSettingsScreen extends ConsumerStatefulWidget {
   const NotificationSettingsScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<NotificationSettingsScreen> createState() => _NotificationSettingsScreenState();
+}
+
+class _NotificationSettingsScreenState extends ConsumerState<NotificationSettingsScreen> {
+  late final AppLifecycleListener _lifecycle;
+
+  @override
+  void initState() {
+    super.initState();
+    _lifecycle = AppLifecycleListener(onResume: () => ref.invalidate(pushStateProvider));
+  }
+
+  @override
+  void dispose() {
+    _lifecycle.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     final prefs = ref.watch(notificationPrefsProvider).value ?? const NotificationPrefs();
     final pending = ref.watch(notificationPrefsPendingProvider).value ?? false;
@@ -32,6 +55,7 @@ class NotificationSettingsScreen extends ConsumerWidget {
         if (g.archivedAt == null && g.deletedAt == null && g.type != 'direct') g,
     ];
     final actions = ref.read(notificationActionsProvider);
+    final pushOff = push != null && (!push.available || push.permission == PushPermission.denied);
     List<Widget> kindRows(NotificationChannel ch) => [
       for (final k in NotificationKind.values)
         ToggleRow(
@@ -41,7 +65,9 @@ class NotificationSettingsScreen extends ConsumerWidget {
           subtitle: kindHint(l, k),
           value: prefs.isOn(k, ch),
           showDivider: k != NotificationKind.values.last,
-          onChanged: (on) => unawaited(actions.setKind(k, ch, on: on)),
+          onChanged: ch == NotificationChannel.push && pushOff
+              ? null
+              : (on) => unawaited(actions.setKind(k, ch, on: on)),
         ),
     ];
     return Scaffold(
@@ -138,6 +164,17 @@ class _PushBanner extends ConsumerWidget {
               ),
             ],
           ),
+          if (available && permission == PushPermission.denied) ...[
+            const SizedBox(height: AppSpacing.s3),
+            PillButton(
+              key: const Key('notif-open-settings'),
+              label: l.notifOpenSettings,
+              icon: AppIcons.settings,
+              size: PillSize.medium,
+              expand: false,
+              onPressed: () => unawaited(ref.read(captureBridgeProvider).open('postNotifications')),
+            ),
+          ],
           if (available && permission == PushPermission.notAsked) ...[
             const SizedBox(height: AppSpacing.s3),
             PillButton(

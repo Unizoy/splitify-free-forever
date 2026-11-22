@@ -113,7 +113,7 @@ class _SyncStorageScreenState extends ConsumerState<SyncStorageScreen> {
           if (status.hasError && s == null)
             EmptyState(icon: AppIcons.warning, title: l.syncStateError)
           else
-            SyncStatusCard(status: s, now: ref.watch(clockProvider).now()),
+            SyncStatusCard(status: s, now: ref.watch(clockProvider).now(), uploads: uploads),
           const SizedBox(height: AppSpacing.s5),
           PillButton(
             key: const Key('sync-now'),
@@ -183,17 +183,25 @@ class _SectionLabel extends StatelessWidget {
 
 /// Status headline, last sync time and the two counts. [status] null = still loading.
 class SyncStatusCard extends StatelessWidget {
-  const SyncStatusCard({required this.status, required this.now, super.key});
+  const SyncStatusCard({
+    required this.status,
+    required this.now,
+    this.uploads = const [],
+    super.key,
+  });
 
   final SyncStatus? status;
   final DateTime now;
+
+  /// Photos still on the phone (a stopped upload is not "Everything is synced").
+  final List<SyncUpload> uploads;
 
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     final c = context.colors;
     final s = status;
-    final head = s == null ? null : describeSync(l, s);
+    final head = s == null ? null : describeSync(l, s, uploads: uploads);
     final tone = head == null ? c.textTertiary : syncToneColor(c, head.tone);
     String count(int? n) => n?.toString() ?? '–';
     return Container(

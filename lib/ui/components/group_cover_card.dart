@@ -75,6 +75,7 @@ class GroupCoverCard extends StatelessWidget {
         if (unsynced) AppLocalizations.of(context).notSyncedYet,
       ].join(', '),
       excludeSemantics: true,
+      onTap: onTap,
       child: Pressable(
         onTap: onTap,
         borderRadius: AppRadii.all28,

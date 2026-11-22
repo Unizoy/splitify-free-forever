@@ -10,15 +10,19 @@ import 'package:splitify/ui/theme/theme.dart';
 
 /// Opens the currency picker (#14): search by code or name; the group's currency on top, then recently
 /// used ones, then every currency. Returns the chosen code (null when dismissed).
+///
+/// Without [groupCurrency] (group form, profile: final QA S-253) there is no group section; the same
+/// searchable list replaced a 160-row list of buttons without search.
 Future<String?> showCurrencyPicker(
   BuildContext context, {
   required String selected,
-  required String groupCurrency,
+  String? groupCurrency,
+  String? title,
 }) {
   final l = AppLocalizations.of(context);
   return showAppSheet<String>(
     context,
-    title: l.curPickerTitle,
+    title: title ?? l.curPickerTitle,
     builder: (_) => CurrencyPicker(selected: selected, groupCurrency: groupCurrency),
   );
 }
@@ -58,10 +62,12 @@ List<Currency> searchCurrencies(String query) {
 
 /// The picker body (inside an [AppSheet]); pops with the chosen code.
 class CurrencyPicker extends ConsumerStatefulWidget {
-  const CurrencyPicker({required this.selected, required this.groupCurrency, super.key});
+  const CurrencyPicker({required this.selected, this.groupCurrency, super.key});
 
   final String selected;
-  final String groupCurrency;
+
+  /// Shown on top as "Group currency"; null = no group section.
+  final String? groupCurrency;
 
   @override
   ConsumerState<CurrencyPicker> createState() => _CurrencyPickerState();
@@ -97,7 +103,7 @@ class _CurrencyPickerState extends ConsumerState<CurrencyPicker> {
     final List<Widget> rows;
     if (_query.trim().isEmpty) {
       rows = [
-        if (Currencies.all[widget.groupCurrency] case final g?) ...[
+        if (Currencies.all[widget.groupCurrency ?? ''] case final g?) ...[
           SectionLabel(l.curGroupSection),
           row(g, 'group'),
           const SizedBox(height: AppSpacing.s4),
@@ -179,6 +185,7 @@ class CurrencyRow extends StatelessWidget {
       selected: selected,
       label: selected ? '$label, ${l.curSelected}' : label,
       excludeSemantics: true,
+      onTap: onTap,
       child: Pressable(
         onTap: onTap,
         borderRadius: AppRadii.all16,
@@ -234,7 +241,8 @@ class CurrencyRow extends StatelessWidget {
   }
 }
 
-/// "USD ▾" pill that opens the picker (expense editor, Settle up).
+/// "USD ▾" pill that opens the picker (expense editor, Settle up). The pill stays 36 dp tall; the tap area
+/// around it is 48 dp (final QA S-258: a 36 dp target failed the touch-size check once TalkBack could press it).
 class CurrencyChip extends StatelessWidget {
   const CurrencyChip({required this.code, required this.onTap, super.key});
 
@@ -249,6 +257,7 @@ class CurrencyChip extends StatelessWidget {
       button: onTap != null,
       label: l.expCurrencyLabel(code),
       excludeSemantics: true,
+      onTap: onTap,
       child: Pressable(
         onTap: onTap,
         borderRadius: AppRadii.allPill,
