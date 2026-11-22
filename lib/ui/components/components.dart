@@ -21,6 +21,7 @@ export 'empty_state.dart';
 export 'feedback.dart';
 export 'folder_tabs.dart';
 export 'glass_card.dart';
+export 'google_mark.dart';
 export 'group_cover_card.dart';
 export 'hero_header.dart';
 export 'icon_chip.dart';

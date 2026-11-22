@@ -275,8 +275,10 @@ class SettleController extends AsyncNotifier<SettleDraft> {
   void swap() => _set((d) => _people(d, d.to, d.from));
 
   /// Another currency: the amount follows what is owed in it unless it was typed.
+  /// UPI is for rupees only (rule 13): another currency drops a chosen UPI method back to cash.
   void setCurrency(String code) => _set((d) {
-    final next = d.withCurrency(code);
+    var next = d.withCurrency(code);
+    if (code != 'INR' && next.method == 'upi') next = next.copyWith(method: 'cash');
     return d.amountEdited ? next : next.copyWith(amountText: _owedText(next));
   });
 

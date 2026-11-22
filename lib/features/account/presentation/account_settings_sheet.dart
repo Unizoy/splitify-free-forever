@@ -75,6 +75,7 @@ class AccountSettingsBody extends ConsumerWidget {
     final mode = ref.watch(themeModeControllerProvider);
     final profile = ref.watch(profileProvider).value;
     final sync = ref.watch(syncStatusProvider).value;
+    final uploads = ref.watch(syncUploadsProvider).value ?? const [];
     void openProfile() {
       Navigator.of(context).pop();
       unawaited(context.push('/account/profile'));
@@ -169,8 +170,10 @@ class AccountSettingsBody extends ConsumerWidget {
           key: const Key('settings-sync'),
           icon: AppIcons.sync,
           label: l.syncStorage,
-          value: syncRowValue(l, sync),
-          valueColor: sync == null || sync.allSynced ? c.textSecondary : c.unsynced,
+          value: syncRowValue(l, sync, uploads: uploads),
+          valueColor: sync == null || (sync.allSynced && uploads.every((u) => !u.skipped))
+              ? c.textSecondary
+              : c.unsynced,
           onTap: () {
             Navigator.of(context).pop();
             unawaited(context.push('/account/sync'));

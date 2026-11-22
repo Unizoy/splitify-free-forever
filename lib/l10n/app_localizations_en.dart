@@ -4404,4 +4404,43 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get balYouOwe => 'owe';
+
+  @override
+  String syncStatePhotosStopped(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count photos stopped uploading',
+      one: '1 photo stopped uploading',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get syncStatePhotosStoppedHint => 'Tap Retry under Photos below.';
+
+  @override
+  String syncStatePhotosWaiting(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count photos waiting to upload',
+      one: '1 photo waiting to upload',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String syncRowPhotosStopped(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count photos stopped',
+      one: '1 photo stopped',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get notifOpenSettings => 'Open phone settings';
 }

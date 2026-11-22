@@ -59,6 +59,9 @@ class _SettleUpScreenState extends ConsumerState<SettleUpScreen> {
   bool _filled = false;
   bool _saving = false;
 
+  /// The person picked a method chip: Cash / Bank / Other then mean "record", not "pay via UPI" (final QA).
+  bool _methodPicked = false;
+
   @override
   void dispose() {
     _amount.dispose();
@@ -153,6 +156,13 @@ class _SettleUpScreenState extends ConsumerState<SettleUpScreen> {
     final upi = canPayByUpi(d, vpa)
         ? upiLinkFor(d, vpa: vpa!, name: payeeName, note: l.upiNote(d.groupName))
         : null;
+    // The amber "Pay via UPI" bar stays until another method is picked (final QA: with Cash picked it still
+    // said "Pay ₹500 via UPI"). UPI is a method only for rupees (rule 13).
+    final upiBar = upi != null && (!_methodPicked || d.method == 'upi');
+    final methods = [
+      for (final m in paymentMethods)
+        if (m != 'upi' || d.currency == 'INR') m,
+    ];
     return Scaffold(
       body: SafeArea(
         bottom: false,
@@ -211,13 +221,16 @@ class _SettleUpScreenState extends ConsumerState<SettleUpScreen> {
                 spacing: AppSpacing.s2,
                 runSpacing: AppSpacing.s2,
                 children: [
-                  for (final m in paymentMethods)
+                  for (final m in methods)
                     IconChip(
                       key: Key('method-$m'),
                       label: methodLabel(l, m),
                       icon: methodIcon(m),
                       selected: d.method == m,
-                      onTap: () => _ctrl.setMethod(m),
+                      onTap: () {
+                        setState(() => _methodPicked = true);
+                        _ctrl.setMethod(m);
+                      },
                     ),
                 ],
               ),
@@ -246,7 +259,7 @@ class _SettleUpScreenState extends ConsumerState<SettleUpScreen> {
           ),
         ),
       ),
-      bottomNavigationBar: upi == null
+      bottomNavigationBar: !upiBar
           ? StickyActionBar(
               primary: PillButton(
                 key: const Key('settle-save'),

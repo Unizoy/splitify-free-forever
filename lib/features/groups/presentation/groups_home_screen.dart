@@ -241,6 +241,7 @@ class _Hero extends ConsumerWidget {
                   label: status == BalanceStatus.settled ? l.allSettled : statusText(l, status),
                   icon: status == BalanceStatus.settled ? AppIcons.checkCircle : AppIcons.coins,
                   tone: StatusPillTone.flat,
+                  iconColor: status == BalanceStatus.settled ? null : toneOf(status).onDarkColor(c),
                 ),
               ],
             ),
@@ -272,7 +273,8 @@ class _Hero extends ConsumerWidget {
             ],
             // Payment bubble (phase 18b): "N payments to add" while some wait.
             const PaymentsToAddPill(),
-            if (groupCount > 0) ...[
+            // Nothing to settle when everything is settled (final QA).
+            if (groupCount > 0 && status != BalanceStatus.settled) ...[
               const SizedBox(height: AppSpacing.s4),
               PillButton(
                 key: const Key('groups-settle'),

@@ -8,7 +8,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:splitify/app/not_found_screen.dart';
 import 'package:splitify/app/router.dart';
 import 'package:splitify/core/utils/member_tints.dart';
+import 'package:splitify/data/repositories/sync_repository.dart';
+import 'package:splitify/data/sync/sync_types.dart';
+import 'package:splitify/data/sync/uploads.dart' show UploadQueue;
 import 'package:splitify/features/expenses/application/expense_providers.dart';
+import 'package:splitify/features/sync/application/sync_texts.dart';
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/components/components.dart';
 import 'package:splitify/ui/theme/theme.dart';
@@ -269,6 +273,82 @@ void main() {
       );
       final v = expenseViews([e], members, 'u1').single;
       expect(v.owed.keys, ['m-me', 'm-rahul', 'm-vikram']);
+    });
+  });
+
+  group('final QA follow-ups from the text pass', () {
+    test('a stopped photo upload is not "Everything is synced"', () {
+      final l = lookupAppLocalizations(const Locale('en'));
+      const synced = SyncStatus(phase: SyncPhase.idle);
+      const stopped = SyncUpload(
+        id: 'p1',
+        bucket: 'receipts',
+        recordId: 'e1',
+        attempts: UploadQueue.skipAfter,
+      );
+      const waiting = SyncUpload(id: 'p2', bucket: 'receipts', recordId: 'e2', attempts: 1);
+      expect(describeSync(l, synced).title, l.syncStateSynced);
+      final head = describeSync(l, synced, uploads: const [stopped, waiting]);
+      expect(head.title, '1 photo stopped uploading');
+      expect(head.tone, SyncTone.problem);
+      expect(describeSync(l, synced, uploads: const [waiting]).title, '1 photo waiting to upload');
+      expect(syncRowValue(l, synced, uploads: const [stopped]), '1 photo stopped');
+      expect(syncRowValue(l, synced, uploads: const [waiting]), l.syncRowSynced);
+    });
+
+    testWidgets('Delete my account is a red (danger) button; disabled until armed', (tester) async {
+      await tester.pumpWidget(
+        _app(
+          Column(
+            children: [
+              PillButton(
+                key: const Key('on'),
+                label: 'Delete my account',
+                variant: PillVariant.danger,
+                onPressed: () {},
+              ),
+              const PillButton(
+                key: Key('off'),
+                label: 'Delete my account',
+                variant: PillVariant.danger,
+                onPressed: null,
+              ),
+            ],
+          ),
+        ),
+      );
+      Color fill(String key) => tester
+          .widget<Material>(
+            find.descendant(of: find.byKey(Key(key)), matching: find.byType(Material)).first,
+          )
+          .color!;
+      final c = AppTheme.light().extension<AppColors>()!;
+      expect(fill('on'), c.oweText);
+      expect(fill('off'), c.chip);
+    });
+
+    testWidgets('the Google button carries the four-colour G', (tester) async {
+      await tester.pumpWidget(
+        _app(
+          PillButton(
+            label: 'Continue with Google',
+            leading: const GoogleMark(),
+            variant: PillVariant.outline,
+            onPressed: () {},
+          ),
+        ),
+      );
+      final mark = find.byType(GoogleMark);
+      expect(mark, findsOneWidget);
+      expect(tester.getSize(mark), const Size(20, 20));
+      expect(
+        find.descendant(of: mark, matching: find.byType(CustomPaint)),
+        paints
+          ..path(color: AppPalette.googleRed)
+          ..path(color: AppPalette.googleBlue)
+          ..path(color: AppPalette.googleYellow)
+          ..path(color: AppPalette.googleGreen),
+      );
     });
   });
 }
