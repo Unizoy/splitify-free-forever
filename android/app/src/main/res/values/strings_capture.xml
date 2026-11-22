@@ -25,5 +25,6 @@
     <string name="capture_bubble_settings">Bubble settings</string>
     <string name="capture_bubble_back">Back</string>
     <string name="capture_bubble_target">Drop here to hide the bubble</string>
+    <string name="capture_sms_app">Bank SMS</string>
     <string name="capture_notification_text">%1$s · Add it to Splitify?</string>
 </resources>

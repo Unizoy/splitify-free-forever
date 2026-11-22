@@ -95,13 +95,13 @@ key is the UPI ref when present, else amount + normalised payee within 10 minute
 - [x] T1 Kotlin capture core: recipe loader, parser to paise, de-dup, the allow-list. JUnit tests for the shared
       vectors (≥ 40 cases including the ignore cases). Plus a Dart test of the same vectors through a small Dart
       validator used by the deep-link handler.
-- [ ] T2 `PaymentNotificationListener` (source ①) and `SmartCaptureService` (source ②, package-limited, no
+- [x] T2 `PaymentNotificationListener` (source ①) and `SmartCaptureService` (source ②, package-limited, no
       PIN/password fields), both writing captures through one `CaptureStore` (SharedPreferences/JSON, read by
       Flutter at start and on resume into `payment_captures`).
-- [ ] T3 Native bubble overlay service and the heads-up notification fallback, matching the design tokens (light
+- [x] T3 Native bubble overlay service and the heads-up notification fallback, matching the design tokens (light
       and dark), including the recent group/friend chips. The app writes recent groups for the chips, like the
       home widget does.
-- [ ] T4 Flutter side:
+- [x] T4 Flutter side:
       - the `splitify://capture` route, the editor prefill and `source='capture'` (migration 0023 if the server
         check needs it, plus pgTAP);
       - the "Payments to add" list on the Groups hero and the Activity tab;

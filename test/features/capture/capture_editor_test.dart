@@ -1,9 +1,7 @@
 // TC-X4-06 (unit part): the expense editor prefilled from a captured payment, and saved with source 'capture'.
 import 'dart:convert';
 
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:splitify/data/data_providers.dart';
 import 'package:splitify/features/capture/application/capture_providers.dart';
 import 'package:splitify/features/expenses/application/expense_draft.dart';
 import 'package:splitify/features/expenses/application/expense_editor_controller.dart';
@@ -73,6 +71,32 @@ void main() {
     test('no ref: notes say only the app', () async {
       await import(rawCapture(ref: null, at: capturedAt));
       expect((await open()).notes, 'Paid via Google Pay');
+    });
+
+    // TC-X4-06: a bank SMS names the source, not the SMS app.
+    test('bank SMS: notes say it came from a bank SMS', () async {
+      await import(
+        rawCapture(
+          package: 'com.google.android.apps.messaging',
+          appName: 'Bank SMS',
+          source: 'sms',
+          at: capturedAt,
+        ),
+      );
+      expect((await open()).notes, 'From a bank SMS · UPI ref 612345678901');
+    });
+
+    test('bank SMS without a ref', () async {
+      await import(
+        rawCapture(
+          package: 'com.google.android.apps.messaging',
+          appName: 'Bank SMS',
+          source: 'sms',
+          ref: null,
+          at: capturedAt,
+        ),
+      );
+      expect((await open()).notes, 'From a bank SMS');
     });
 
     // TC-X4-06

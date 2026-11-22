@@ -4315,4 +4315,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get paymentsToAddEmpty => 'Nothing to add right now.';
+
+  @override
+  String captureNotesSms(String ref) {
+    return 'From a bank SMS · UPI ref $ref';
+  }
+
+  @override
+  String get captureNotesSmsNoRef => 'From a bank SMS';
 }

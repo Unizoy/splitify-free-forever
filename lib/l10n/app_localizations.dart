@@ -7009,6 +7009,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Nothing to add right now.'**
   String get paymentsToAddEmpty;
+
+  /// No description provided for @captureNotesSms.
+  ///
+  /// In en, this message translates to:
+  /// **'From a bank SMS · UPI ref {ref}'**
+  String captureNotesSms(String ref);
+
+  /// No description provided for @captureNotesSmsNoRef.
+  ///
+  /// In en, this message translates to:
+  /// **'From a bank SMS'**
+  String get captureNotesSmsNoRef;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

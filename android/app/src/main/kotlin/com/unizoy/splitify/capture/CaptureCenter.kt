@@ -6,6 +6,7 @@ import android.content.SharedPreferences
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.util.Log
+import com.unizoy.splitify.R
 import java.util.UUID
 
 /** SharedPreferences behind [CaptureStore] (file `splitify_capture`, separate from Flutter's prefs). */
@@ -70,7 +71,9 @@ class CaptureCenter private constructor(private val context: Context) {
     }
 
     private fun keep(p: ParsedPayment, app: RecipeApp, at: Long) {
-        val capture = Capture(UUID.randomUUID().toString(), p.amountPaise, p.payee, null, p.ref, app.packageName, app.name, p.source, at)
+        // A bank SMS is shown by the SMS app: name the source, not "Messages".
+        val appName = if (p.source == CaptureSource.SMS) context.getString(R.string.capture_sms_app) else app.name
+        val capture = Capture(UUID.randomUUID().toString(), p.amountPaise, p.payee, null, p.ref, app.packageName, appName, p.source, at)
         when (val added = store.add(capture)) {
             is CaptureStore.AddResult.Added -> {
                 log("capture added ${capture.id} ${p.source.wire} ${p.rule}")

@@ -9,6 +9,7 @@ import 'package:splitify/data/data_providers.dart';
 import 'package:splitify/data/local/app_database.dart';
 import 'package:splitify/data/media_providers.dart';
 import 'package:splitify/data/repositories/expense_reads.dart';
+import 'package:splitify/domain/entities/payment_capture.dart' show CaptureSource;
 import 'package:splitify/domain/entities/prepared_image.dart';
 import 'package:splitify/domain/rules/default_split.dart';
 import 'package:splitify/domain/rules/expense_categories.dart';
@@ -234,7 +235,12 @@ class ExpenseEditorController extends AsyncNotifier<ExpenseDraft> {
       amountText: ScaledInput.format(c.amount, Currencies.exponentOf(c.currency)),
       description: c.note ?? c.payee ?? c.appName,
       category: inr.category,
-      notes: c.ref == null ? l.captureNotesNoRef(c.appName) : l.captureNotes(c.appName, c.ref!),
+      notes: switch ((c.source, c.ref)) {
+        (CaptureSource.sms, null) => l.captureNotesSmsNoRef,
+        (CaptureSource.sms, final ref?) => l.captureNotesSms(ref),
+        (_, null) => l.captureNotesNoRef(c.appName),
+        (_, final ref?) => l.captureNotes(c.appName, ref),
+      },
       canRepeat: inr.canRepeat,
       captureId: c.id,
     );

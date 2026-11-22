@@ -1458,5 +1458,8 @@
   "captureSourceLabelSms": "Bank SMS",
   "captureSourceLabelScreen": "Smart capture",
   "captureSeeAll": "See all",
-  "paymentsToAddEmpty": "Nothing to add right now."
+  "paymentsToAddEmpty": "Nothing to add right now.",
+  "captureNotesSms": "From a bank SMS · UPI ref {ref}",
+  "@captureNotesSms": {"placeholders": {"ref": {"type": "String"}}},
+  "captureNotesSmsNoRef": "From a bank SMS"
 }
