@@ -4721,7 +4721,7 @@ abstract class AppLocalizations {
   /// No description provided for @syncIssueEntity.
   ///
   /// In en, this message translates to:
-  /// **'{entity, select, group{Group} member{Member} expense{Expense} payment{Payment} comment{Comment} other{Change}}'**
+  /// **'{entity, select, group{Group} member{Member} expense{Expense} payment{Payment} comment{Comment} recurring{Repeating expense} other{Change}}'**
   String syncIssueEntity(String entity);
 
   /// No description provided for @syncIssueOp.

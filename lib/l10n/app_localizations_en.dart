@@ -2844,6 +2844,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'expense': 'Expense',
       'payment': 'Payment',
       'comment': 'Comment',
+      'recurring': 'Repeating expense',
       'other': 'Change',
     });
     return '$_temp0';

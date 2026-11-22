@@ -12,41 +12,63 @@ void main() {
 
   setUpAll(() => verifier = SchemaVerifier(GeneratedHelper()));
 
-  test('schema v5 matches the dumped schema', () async {
-    final connection = await verifier.startAt(5);
+  test('schema v6 matches the dumped schema', () async {
+    final connection = await verifier.startAt(6);
     final db = AppDatabase(connection);
     addTearDown(db.close);
-    await verifier.migrateAndValidate(db, 5);
-    expect(db.schemaVersion, 5);
+    await verifier.migrateAndValidate(db, 6);
+    expect(db.schemaVersion, 6);
   });
 
-  test('v1 -> v5 adds the history (12), bell (13) and exchange-rate (14) caches', () async {
+  test('v5 -> v6 adds recurring templates and fills the rebuilt search table (phase 16)', () async {
+    final schema = await verifier.schemaAt(5);
+    schema.rawDatabase
+      ..execute("INSERT INTO \"groups\" (id, name) VALUES ('g1', 'Flat')")
+      ..execute("INSERT INTO group_members (id, group_id, display_name) VALUES ('m1', 'g1', 'Asha')")
+      ..execute(
+        'INSERT INTO expenses (id, group_id, description, date, currency, total, payers, shares) '
+        "VALUES ('e1', 'g1', 'Dinner', '2026-11-01', 'INR', 120000, '{\"m1\":120000}', '{\"m1\":120000}')",
+      );
+    final connection = schema.newConnection();
+    final db = AppDatabase(connection);
+    addTearDown(db.close);
+    await verifier.migrateAndValidate(db, 6);
+    expect(await db.select(db.recurringTemplates).get(), isEmpty);
+    final rows = await db.customSelect('SELECT * FROM expense_search').get();
+    expect(rows, hasLength(1));
+    expect(rows.single.read<String>('expense_id'), 'e1');
+    expect(rows.single.read<String>('member_names'), 'Asha');
+    expect(rows.single.read<String>('amount_text'), '1200 1,200');
+  });
+
+  test('v1 -> v6 adds the history (12), bell (13) and exchange-rate (14) caches', () async {
     final connection = await verifier.startAt(1);
     final db = AppDatabase(connection);
     addTearDown(db.close);
-    await verifier.migrateAndValidate(db, 5);
+    await verifier.migrateAndValidate(db, 6);
     expect(await db.select(db.recordVersions).get(), isEmpty);
     expect(await db.select(db.notifications).get(), isEmpty);
     expect(await db.select(db.fxRates).get(), isEmpty);
   });
 
   test(
-    'v2 -> v5 adds the notifications cache and settings (phase 13) and rates (phase 14)',
+    'v2 -> v6 adds the notifications cache and settings (phase 13) and rates (phase 14)',
     () async {
       final connection = await verifier.startAt(2);
       final db = AppDatabase(connection);
       addTearDown(db.close);
-      await verifier.migrateAndValidate(db, 5);
+      await verifier.migrateAndValidate(db, 6);
       expect(await db.select(db.notificationSettings).get(), isEmpty);
       expect(await db.select(db.fxRates).get(), isEmpty);
     },
   );
 
-  test('v4 -> v5 adds the exchange-rate cache (phase 14)', () async {
+  test('v4 -> v6 adds the exchange-rate cache (phase 14)', () async {
     final connection = await verifier.startAt(4);
     final db = AppDatabase(connection);
     addTearDown(db.close);
-    await verifier.migrateAndValidate(db, 5);
+    await verifier.migrateAndValidate(db, 6);
     expect(await db.select(db.fxRates).get(), isEmpty);
   });
 }
+

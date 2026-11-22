@@ -267,5 +267,40 @@ CREATE TABLE fx_rates (
 
 CREATE INDEX fx_rates_currency_date ON fx_rates (currency, date);
 
--- Offline search (#34); filled from phase 16.
-CREATE VIRTUAL TABLE expense_search USING fts5(description, notes, member_names, amount_text);
+-- Recurring bills (phase 16, 08 #12, S-170): repeat rules as on the server; `template` = the expense fields
+-- of every copy (TEXT JSON). The server adds the copies (expenses with source 'recurring') and keeps next_date;
+-- a pending row shows the phone's own guess until the pull brings the server's.
+CREATE TABLE recurring_templates (
+  id TEXT NOT NULL PRIMARY KEY,
+  group_id TEXT NOT NULL,
+  expense_id TEXT,
+  "interval" TEXT NOT NULL,
+  anchor_date TEXT NOT NULL,
+  next_date TEXT,
+  ends_on TEXT,
+  active BOOLEAN NOT NULL DEFAULT TRUE,
+  template TEXT NOT NULL,
+  created_at TEXT,
+  created_by TEXT,
+  updated_at TEXT,
+  updated_by TEXT,
+  client_updated_at TEXT,
+  deleted_at TEXT,
+  deleted_by TEXT,
+  seq INT NOT NULL DEFAULT 0,
+  sync_state TEXT NOT NULL DEFAULT 'synced'
+) AS LocalRecurring;
+
+CREATE INDEX recurring_templates_group ON recurring_templates (group_id);
+CREATE INDEX recurring_templates_expense ON recurring_templates (expense_id);
+
+-- Offline search (#34, phase 16, S-175): one row per live expense, rebuilt with every expense write or pull and
+-- when member names change (lib/data/local/daos/search_index_dao.dart).
+CREATE VIRTUAL TABLE expense_search USING fts5(
+  expense_id UNINDEXED,
+  group_id UNINDEXED,
+  description,
+  notes,
+  member_names,
+  amount_text
+);

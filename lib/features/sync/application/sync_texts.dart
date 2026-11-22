@@ -89,4 +89,5 @@ IconData syncEntityIcon(SyncEntity e) => switch (e) {
   SyncEntity.expense => AppIcons.receipt,
   SyncEntity.payment => AppIcons.coins,
   SyncEntity.comment => AppIcons.chat,
+  SyncEntity.recurring => AppIcons.repeat,
 };

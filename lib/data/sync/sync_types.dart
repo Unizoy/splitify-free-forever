@@ -4,7 +4,8 @@ enum SyncEntity {
   member('member', 'group_members'),
   expense('expense', 'expenses'),
   payment('payment', 'payments'),
-  comment('comment', 'comments');
+  comment('comment', 'comments'),
+  recurring('recurring', 'recurring_templates');
 
   const SyncEntity(this.wire, this.table);
 

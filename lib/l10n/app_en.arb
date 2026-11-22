@@ -988,7 +988,7 @@
   "syncFailedLabel": "Need attention",
   "syncNow": "Sync now",
   "syncIssuesTitle": "Needs attention",
-  "syncIssueEntity": "{entity, select, group{Group} member{Member} expense{Expense} payment{Payment} comment{Comment} other{Change}}",
+  "syncIssueEntity": "{entity, select, group{Group} member{Member} expense{Expense} payment{Payment} comment{Comment} recurring{Repeating expense} other{Change}}",
   "@syncIssueEntity": {"placeholders": {"entity": {"type": "String"}}},
   "syncIssueOp": "{op, select, delete{Delete} restore{Restore} other{Edit}}",
   "@syncIssueOp": {"placeholders": {"op": {"type": "String"}}},
