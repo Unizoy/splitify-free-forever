@@ -86,7 +86,7 @@ key is the UPI ref when present, else amount + normalised payee within 10 minute
 
 ## Tasks
 
-- [ ] T0 Research (web): current Android 14–16 rules for notification listener, accessibility
+- [x] T0 Research (web): current Android 14–16 rules for notification listener, accessibility
       (`accessibilityDataSensitive`, `isAccessibilityTool`, restricted settings for sideloaded apps), overlay
       limits (untrusted touches, background starts); real notification and SMS formats of GPay, PhonePe, Paytm,
       BHIM, Amazon Pay, CRED and the top 6 banks' debit SMS; how Wispr Flow, Truecaller, Walnut/Axio/Fold-style
@@ -133,3 +133,19 @@ key is the UPI ref when present, else amount + normalised payee within 10 minute
 - TC-X4-06: Add gives the prefilled editor, and saving syncs.
 - TC-X4-07: ignore cases give no bubble.
 - TC-X4-08: permissions and settings screen states.
+
+## Amendment (S-220…S-229, T0 research, 2026-11-22)
+
+Facts in `planning/research/09-payment-capture.md` change these details of the spec above:
+- **Restricted settings** (Android 15 CDD) also covers *display over other apps* for sideloaded APKs, so the guide
+  card applies to all three accesses (S-220).
+- **During payment** the bubble may be hidden by the UPI app itself (`HIDE_OVERLAY_WINDOWS` on PIN screens) and
+  smart capture may see nothing where views are `accessibilityDataSensitive`; we also hide the bubble on any
+  "UPI PIN" screen and never read editable/password nodes. A success screen counts only after a pay screen of the
+  same app in the last 10 minutes (phantom receipts) (S-220).
+- **SMS** comes only through the messaging apps' notifications; phone-number senders are ignored in release (S-223).
+- **Dedup** also merges a no-ref notification with the bank SMS of the same amount (S-222).
+- **Drag to ✕** hides the bubble but keeps the capture in "Payments to add"; **Not now** removes it (S-225).
+- **Server**: 0023 adds `'capture'` without copying `sync_apply_one` (S-226). Phase 19 must keep the
+  `source = 'capture'` dispatch line if it redefines `public.apply_mutations`.
+- **Expenses have no time**: the prefill uses the capture's local date (S-227).

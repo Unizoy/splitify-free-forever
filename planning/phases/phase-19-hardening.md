@@ -42,3 +42,9 @@ open BLK).
 > **Amendment (D-025, 2026-11-22):** also harden phase 18b's payment bubble: privacy review of the notification
 > listener / accessibility service (allow-list only, no raw text stored, PIN fields never read), battery check,
 > overlay never blocks the UPI app's Pay/PIN buttons, and its strings/goldens in the final polish.
+
+## Amendment (S-226, phase 18b)
+
+Migration 0023 redefines `public.apply_mutations` (0019 body + `source = 'capture'` expense mutations →
+`private.sync_apply_capture`). If this phase redefines `apply_mutations` again, keep both the `recurring` and the
+`capture` dispatch lines. Also audit the payment-bubble feature (X4): services off by default, no raw text stored.
