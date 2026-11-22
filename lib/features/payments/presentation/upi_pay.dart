@@ -72,7 +72,7 @@ class UpiResultSheet extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(l.settlePaidSentence(l.you, payeeName), style: context.text.body.w(600)),
+              Text(l.upiPayTo(payeeName), style: context.text.body.w(600)),
               const SizedBox(height: AppSpacing.s1),
               Text(
                 listMoney(amountMinor, UpiLinkBuilder.currency),

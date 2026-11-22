@@ -1274,6 +1274,18 @@ abstract class AppLocalizations {
   /// **'Pay from another app'**
   String get upiOtherWays;
 
+  /// No description provided for @upiRecordInstead.
+  ///
+  /// In en, this message translates to:
+  /// **'Record without UPI'**
+  String get upiRecordInstead;
+
+  /// No description provided for @upiPayTo.
+  ///
+  /// In en, this message translates to:
+  /// **'To {name}'**
+  String upiPayTo(String name);
+
   /// No description provided for @upiCopyId.
   ///
   /// In en, this message translates to:

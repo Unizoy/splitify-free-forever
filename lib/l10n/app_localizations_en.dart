@@ -690,6 +690,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get upiOtherWays => 'Pay from another app';
 
   @override
+  String get upiRecordInstead => 'Record without UPI';
+
+  @override
+  String upiPayTo(String name) {
+    return 'To $name';
+  }
+
+  @override
   String get upiCopyId => 'Copy UPI ID';
 
   @override

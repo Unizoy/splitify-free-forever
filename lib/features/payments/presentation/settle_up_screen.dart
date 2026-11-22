@@ -246,21 +246,30 @@ class _SettleUpScreenState extends ConsumerState<SettleUpScreen> {
               ),
             )
           : StickyActionBar(
-              primary: PillButton(
-                key: const Key('settle-upi'),
-                label: l.upiPay(listMoney(d.amount!, d.currency)),
-                icon: AppIcons.qr,
-                variant: PillVariant.money,
-                loading: _saving,
-                onPressed: d.canSave && !_saving
-                    ? () => unawaited(_payByUpi(d, upi, payeeName))
-                    : null,
-              ),
-              secondary: PillButton(
-                key: const Key('settle-save'),
-                label: l.settleRecord,
-                variant: PillVariant.outline,
-                onPressed: d.canSave && !_saving ? () => unawaited(_save(d)) : null,
+              // Amber "Pay ₹x via UPI" with a quiet "Record payment" text button under it (07 §2).
+              primary: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  PillButton(
+                    key: const Key('settle-upi'),
+                    label: l.upiPay(listMoney(d.amount!, d.currency)),
+                    icon: AppIcons.qr,
+                    variant: PillVariant.money,
+                    loading: _saving,
+                    onPressed: d.canSave && !_saving
+                        ? () => unawaited(_payByUpi(d, upi, payeeName))
+                        : null,
+                  ),
+                  const SizedBox(height: AppSpacing.s1),
+                  PillButton(
+                    key: const Key('settle-save'),
+                    label: l.upiRecordInstead,
+                    variant: PillVariant.ghost,
+                    size: PillSize.medium,
+                    onPressed: d.canSave && !_saving ? () => unawaited(_save(d)) : null,
+                  ),
+                ],
               ),
             ),
     );

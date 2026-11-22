@@ -193,7 +193,12 @@ class _Hero extends StatelessWidget {
         child: Avatar(name: f.name, seed: f.seed, tint: f.tint, size: AvatarSize.s96, ring: true),
       ),
       title: f.name,
-      child: MediaQuery.withClampedTextScaling(maxScaleFactor: AppText.maxSerifScale, child: pill),
+      child: Center(
+        child: MediaQuery.withClampedTextScaling(
+          maxScaleFactor: AppText.maxSerifScale,
+          child: pill,
+        ),
+      ),
     );
   }
 }

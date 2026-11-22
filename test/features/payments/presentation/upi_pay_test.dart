@@ -138,22 +138,23 @@ Future<List<OutboxItem>> _outbox(WidgetTester t, AppDatabase db) =>
 void main() {
   group('Pay via UPI is offered only when it can work', () {
     // TC-26-04
-    testWidgets('rupees to someone with a UPI ID: "Pay ₹500 via UPI", Record payment beside it', (
-      t,
-    ) async {
-      final db = await _seed(t);
-      await _open(t, db, _settleUrl());
-      expect(_key('settle-upi'), findsOneWidget);
-      expect(find.text('Pay ₹500 via UPI'), findsOneWidget);
-      // The manual way stays: an outline "Record payment".
-      expect(_key('settle-save'), findsOneWidget);
-      expect(find.text('Record payment'), findsOneWidget);
-      // The fallbacks sit in the form.
-      expect(find.text('PAY FROM ANOTHER APP'), findsOneWidget);
-      expect(_key('upi-copy-id'), findsOneWidget);
-      expect(_key('upi-copy-amount'), findsOneWidget);
-      expect(_key('upi-qr'), findsOneWidget);
-    });
+    testWidgets(
+      'rupees to someone with a UPI ID: "Pay ₹500 via UPI", Record without UPI under it',
+      (t) async {
+        final db = await _seed(t);
+        await _open(t, db, _settleUrl());
+        expect(_key('settle-upi'), findsOneWidget);
+        expect(find.text('Pay ₹500 via UPI'), findsOneWidget);
+        // The manual way stays: a quiet "Record without UPI" under it.
+        expect(_key('settle-save'), findsOneWidget);
+        expect(find.text('Record without UPI'), findsOneWidget);
+        // The fallbacks sit in the form.
+        expect(find.text('PAY FROM ANOTHER APP'), findsOneWidget);
+        expect(_key('upi-copy-id'), findsOneWidget);
+        expect(_key('upi-copy-amount'), findsOneWidget);
+        expect(_key('upi-qr'), findsOneWidget);
+      },
+    );
 
     // TC-26-04
     testWidgets('the label follows the amount that is typed', (t) async {
@@ -254,7 +255,7 @@ void main() {
       expect(_key('upi-mark-paid'), findsOneWidget);
       expect(_key('upi-not-yet'), findsOneWidget);
       expect(find.text('UPI ID asha@okaxis'), findsOneWidget);
-      expect(find.text('You paid Asha'), findsWidgets);
+      expect(find.text('To Asha'), findsWidgets);
       // The app never says whether the payment went through, so nothing is saved yet (rule 13).
       expect(await _payments(t, db), isEmpty);
     });
