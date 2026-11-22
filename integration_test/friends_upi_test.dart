@@ -323,6 +323,14 @@ void main() {
       note: 'Splitify: $groupName',
     );
     debugPrint('UPI-EXPECT ${link.uri}');
+    // The fake UPI app takes the foreground (Splitify pauses) and hands back after 1.5 s.
+    var leftApp = false;
+    final lifecycle = AppLifecycleListener(
+      onStateChange: (s) {
+        if (s != AppLifecycleState.resumed) leftApp = true;
+      },
+    );
+    addTearDown(lifecycle.dispose);
     await t.tap(find.byKey(const Key('settle-upi')));
     if (_fakeUpi == 'absent') {
       // TC-26-03: nothing answers upi://pay → the fallback sheet.
@@ -335,11 +343,18 @@ void main() {
       expect(none, isEmpty, reason: 'nothing is recorded without "Mark as paid"');
     } else {
       // TC-26-02: the fake app gets the link, comes back; Mark as paid records it.
+      // Wait (real time, no pumping while paused) until the app went away and came back.
+      final back = DateTime.now().add(const Duration(seconds: 45));
+      while (!(leftApp && WidgetsBinding.instance.lifecycleState == AppLifecycleState.resumed) &&
+          DateTime.now().isBefore(back)) {
+        await Future<void>.delayed(const Duration(milliseconds: 250));
+      }
+      expect(leftApp, isTrue, reason: 'the fake UPI app opened');
       await _waitFor(t, find.byKey(const Key('upi-return')), seconds: 30);
-      await _pumpFor(t, const Duration(seconds: 3)); // the fake app holds 1.5 s, then returns
+      await _pumpFor(t, const Duration(seconds: 1));
       await _capture(t, 'upi-return');
       await _tap(t, find.byKey(const Key('upi-mark-paid')));
-      await _waitFor(t, find.byKey(const Key('settled-celebration')));
+      await _waitFor(t, find.byKey(const Key('settled-celebration')), seconds: 10);
       final paid = await (db.select(db.payments)..where((p) => p.groupId.equals(gid))).get();
       expect(paid, hasLength(1));
       expect((paid.single.method, paid.single.amount, paid.single.fromMember), ('upi', 30000, a));

@@ -1,6 +1,6 @@
 # Phase 11 report — Friends, simplify debts, Pay via UPI
 
-- Date: 2026-11-22 · Branch: `phase/11-friends-simplify-upi` · Base: `origin/main` (phases 01–09; phases 10 and 12
+- Date: 2026-11-22 · Branch: `phase/11-friends-simplify-upi` · Base: `origin/main` (phases 01–09; phases 10, 12 and 13
   merged in on the way)
 - Commits: `5382659..` (see `git log origin/main..phase/11-friends-simplify-upi`) · Status: done
 
@@ -9,7 +9,7 @@
 The Friends tab lists everyone you share a group with and the total with each of them per currency (search, amber
 "Add friend expense": pick a friend or add someone new who has no account). Each friend has a page with the total,
 what every shared group shows between you, every shared expense, payment and loan across groups, and Settle up /
-Add expense / Record a loan (Invite for a name-only friend). Groups can turn on Simplify debts (logged as a settings
+Add expense / Record a loan (Invite for a name-only friend), with Remind on each group where they owe you. Groups can turn on Simplify debts (logged as a settings
 change). When you owe someone in rupees who has a UPI ID, Settle up offers "Pay ₹x via UPI": it opens the UPI app,
 asks "Did the payment go through?" and records a UPI payment only on "Mark as paid", with copy / QR fallbacks; a
 payment that settles a person plays the "all settled" celebration.
@@ -38,9 +38,9 @@ payment that settles a person plays the "all settled" celebration.
 
 - New tests: unit 67 · widget 87 · golden 9 scenarios × 4 variants (36 CI images) · integration 1 (two modes) ·
   SQL 1 file (17 assertions) · e2e: `tool/fake_upi_app/run_upi_e2e.ps1`
-- Coverage: COVERAGE
+- Coverage (after merging phase 13): overall 96.5 % · domain 100 % · money 100 % · sync 100 % · core 96.6 % · data 92.3 % · application 97.1 % · presentation 96.4 %
 - Test IDs now passing: TC-2-01, TC-2-02, TC-2-03, TC-16-02, TC-17-03, TC-26-01 (pre-built), TC-26-02, TC-26-03,
-  TC-26-04. TC-26-05 stays manual-opt (real UPI app on a phone; no phone, D-005).
+  TC-26-04, plus TC-23-02's friend-page part (Remind on group rows). TC-26-05 stays manual-opt (real UPI app on a phone; no phone, D-005).
 - Quarantined / skipped: none.
 
 ## Gates
@@ -48,9 +48,9 @@ payment that settles a person plays the "all settled" celebration.
 | Gate | Result | Evidence |
 | --- | --- | --- |
 | G1 Static | PASS | format (lib test integration_test tool) 0 changes; `flutter analyze --no-fatal-infos` 0 errors/warnings; `dart run tool/guards.dart` OK |
-| G2 Tests | G2RESULT | `flutter test --coverage --exclude-tags device,needs-owner,quarantine --concurrency=1`: G2COUNT; `tool/coverage_check.dart` G2COV |
+| G2 Tests | PASS | `flutter test --coverage --exclude-tags device,needs-owner,quarantine --concurrency=1`: 2143 passed, 0 failed (after merging phase 13); `tool/coverage_check.dart` all floors PASS |
 | G3 Backend | PASS | 0014 applied via MCP (after 0010; 0013/0015 already there); pgTAP 110 17/17 on dev in a rolled-back transaction; security advisor: no new kinds (the SECURITY DEFINER RPC warning is by design, T-013; leaked-password protection is an owner setting); no Edge Functions touched |
-| G4 Build | G4RESULT | `flutter build apk --debug --dart-define-from-file=secrets/env.dev.json` |
+| G4 Build | PASS | `flutter build apk --debug --dart-define-from-file=secrets/env.dev.json` |
 | G5 Device | PASS | `run_upi_e2e.ps1` on emulator-5554: installed path (TC-2-02, TC-26-02: logcat `FAKE_UPI` = `upi://pay?pa=e2e.b@okaxis&pn=E2E%20B&am=300.00&cu=INR&tn=Splitify%3A%20E2E%20Friends%20…`, Mark as paid → UPI payment on the server, `settings_changed` on the server) and absent path (TC-26-03) green; UI review screenshots light/dark/200 % in `C:\Users\mohit\OneDrive\Desktop\theCode\splitify-artifacts\phase-11\` |
 | G6 Docs | PASS | phase ticks, test catalog rows, S-120…S-126, LEARNINGS, emulator-e2e skill §9, phase 13 amendment, this report, PROGRESS |
 
@@ -73,7 +73,7 @@ stretched across the hero → centred.
 
 S-120 direct groups (RPC for linked friends, outbox for name-only) · S-121 friends model and `/friends/:key` ·
 S-122 `settings_changed` by triggers · S-123 Pay via UPI rules and layout · S-124 celebration rule · S-125 friend
-page content (Remind left to phase 13, amendment added) · S-126 fake UPI app and host-side logcat check.
+page content (Remind = phase 13's `RemindButton` on "By group" rows, added after merging phase 13) · S-126 fake UPI app and host-side logcat check.
 
 ## Blockers (BLK-xxx)
 
@@ -93,5 +93,5 @@ commit a sub-agent's partial work. Skill `emulator-e2e` §9 rewritten for the re
 
 ## Next phase
 
-13 (Notifications and reminders) — add Remind to the friend page (phase 13 amendment S-125). Phases 14/15 next per
-PROGRESS.
+14 (Currencies and conversion) / 15 (Offline polish) per PROGRESS. Phase 13 is merged into this branch; Remind
+on the friend page already uses its `RemindButton`.
