@@ -4,6 +4,7 @@
 //   flutter drive --profile --driver=test_driver/perf_driver.dart --target=integration_test/perf_test.dart \
 //     -d emulator-5554 --dart-define-from-file=secrets/env.dev.json
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
@@ -206,7 +207,7 @@ void main() {
       }
     }, reportKey: 'scroll_timeline');
 
-    binding.reportData!.addAll({
+    final numbers = <String, Object>{
       'expenses': _expenses,
       'seed_ms': seed.elapsedMilliseconds,
       'ledger_load_cold_ms': load,
@@ -215,8 +216,10 @@ void main() {
       'balance_max_ms': runs.last,
       'change_to_balances_ms': recompute,
       'open_group_ms': open.elapsedMilliseconds,
-    });
-    debugPrint('PERF ${binding.reportData}');
+    };
+    binding.reportData!.addAll(numbers);
+    // Only the numbers: printing the timelines through debugPrint takes minutes (it is throttled).
+    debugPrint('PERF-NUMBERS ${jsonEncode(numbers)}');
     await t.runAsync(db.close);
   });
 }

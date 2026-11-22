@@ -28,16 +28,16 @@ try {
   if (-not $SkipDrive) {
     $log = Join-Path $out 'perf-drive.log'
     flutter drive --profile --no-dds --driver=test_driver/perf_driver.dart --target=integration_test/perf_test.dart `
-      -d emulator-5554 --dart-define-from-file=secrets/env.dev.json *> $log
+      -d emulator-5554 --dart-define-from-file=secrets/env.dev.json 2>&1 | Out-File -Encoding utf8 $log
     Write-Host "drive exit $LASTEXITCODE"
-    Get-Content $log | Select-String -Pattern 'PERF|All tests passed|Some tests failed|Exception' |
+    Get-Content $log | Select-String -Pattern '^PERF|PERF-NUMBERS|All tests passed|Some tests failed|Exception' |
       ForEach-Object { Write-Host "  $($_.Line.Trim())" }
   }
   if (-not $SkipColdStart) {
     $e = Get-Content secrets\env.dev.json -Raw | ConvertFrom-Json
     $ip = (Resolve-DnsName ([Uri]$e.SUPABASE_URL).Host -Type A | Where-Object IPAddress | Select-Object -First 1).IPAddress
     flutter build apk --release --target-platform android-x64 --dart-define-from-file=secrets/env.dev.json `
-      "--dart-define=PIN_HOST_IP=$ip" *> (Join-Path $out 'perf-release-build.log')
+      "--dart-define=PIN_HOST_IP=$ip" 2>&1 | Out-File -Encoding utf8 (Join-Path $out 'perf-release-build.log')
     & $adb install -r build\app\outputs\flutter-apk\app-release.apk | Out-Null
     $times = @()
     for ($i = 0; $i -lt 6; $i++) {
