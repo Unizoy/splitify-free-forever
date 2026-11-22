@@ -25,7 +25,7 @@ Current phase: _none in progress_ (05 + 06 leftovers finished 2026-11-22 on `pha
 | 15 | [Offline polish](phases/phase-15-offline-polish.md) | 10, 11, 12, 14 | 00 | todo | phase/15-offline-polish | | | |
 | 16 | [Recurring bills and search](phases/phase-16-recurring-search.md) | 15 | 00 | todo | phase/16-recurring-search | | | |
 | 17 | [Charts and CSV export](phases/phase-17-charts-export.md) | 14 | 00 | todo | phase/17-charts-export | | | |
-| 18 | [Splitwise import, app lock, home widget](phases/phase-18-extras.md) | 15 | 00 | todo | phase/18-extras | | | |
+| 18 | [Splitwise import, app lock, home widget](phases/phase-18-extras.md) | 15 | 00 | in-progress | phase/18-extras | | | |
 | 19 | [Hardening and polish](phases/phase-19-hardening.md) | 13, 16, 17, 18 | 00 | todo | phase/19-hardening | | | |
 | 20 | [Release (signed APK, draft GitHub Release)](phases/phase-20-release.md) | 19 | checklist R (prod project) | todo | phase/20-release | | | |
 
