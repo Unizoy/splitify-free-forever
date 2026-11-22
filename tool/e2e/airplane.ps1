@@ -13,7 +13,7 @@ param(
   [int]$Hold = 8,
   [switch]$NoLock
 )
-$ErrorActionPreference = 'Stop'
+$ErrorActionPreference = 'Continue'   # adb writes to stderr; failures are checked by exit codes
 $repo = (Resolve-Path "$PSScriptRoot\..\..").Path
 Set-Location $repo
 . "$repo\tool\env.ps1"
@@ -117,7 +117,7 @@ try {
   Set-Dark $false
   Set-Airplane $false
   $ip = Get-PinIp
-  if ($Stages -contains 'A1') { & $adb shell pm clear $app 2>$null | Out-Null }   # fresh phone for TC-27-11
+  if ($Stages -contains 'A1') { cmd /c "`"$adb`" shell pm clear $app 2>nul" | Out-Null }   # fresh phone for TC-27-11
   foreach ($s in $Stages) {
     $code = Invoke-Stage $s $ip
     $results[$s] = $code

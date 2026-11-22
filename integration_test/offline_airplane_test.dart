@@ -30,6 +30,8 @@ import 'package:splitify/data/repositories/history_repository.dart';
 import 'package:splitify/data/sync/network_status.dart';
 import 'package:splitify/data/sync/sync_types.dart';
 import 'package:splitify/domain/entities/prepared_image.dart';
+import 'package:splitify/features/currency/application/currency_providers.dart'
+    show fxAutoRefreshProvider;
 import 'package:splitify/features/photos/application/photo_compression.dart';
 import 'package:splitify/features/photos/application/photo_providers.dart';
 import 'package:splitify/ui/components/sync_marker.dart';
@@ -92,10 +94,21 @@ Future<(ProviderContainer, RemoteServices)> _app(WidgetTester t, Env env) async 
   final prefs = (await t.runAsync(SharedPreferences.getInstance))!;
   final remote = (await t.runAsync(() => initRemote(env)))!;
   final container = ProviderContainer(
-    overrides: appOverrides(env: env, prefs: prefs, remote: remote, network: _network),
+    overrides: [
+      ...appOverrides(env: env, prefs: prefs, remote: remote, network: _network),
+      // Exchange rates are not part of these scenarios; their download would outlive the stage.
+      fxAutoRefreshProvider.overrideWith((ref) {}),
+    ],
   );
   addTearDown(container.dispose);
   return (container, remote);
+}
+
+/// Unmounts the app and lets in-flight work (notifications refresh, sync) finish before the container and
+/// its database close.
+Future<void> _finish(WidgetTester t) async {
+  await t.pumpWidget(const SizedBox());
+  await _pumpFor(t, const Duration(seconds: 3));
 }
 
 Future<void> _show(WidgetTester t, ProviderContainer c, [String? location]) async {
@@ -199,6 +212,7 @@ void main() {
       () => prefs.setString(_stateKey, jsonEncode({'gid': gid, 'me': me, 'bina': bina})),
     );
     debugPrint('E2E-GID $gid');
+    await _finish(t);
   });
 
   testWidgets(
@@ -276,10 +290,12 @@ void main() {
       await _capture(t, 'airplane-groups');
       c.read(routerProvider).go(Routes.syncStorage);
       await _pumpFor(t, const Duration(seconds: 2));
-      expect(find.text('9 changes waiting to sync'), findsOneWidget);
+      expect(find.text('You are offline'), findsOneWidget);
+      expect(find.text('9'), findsOneWidget, reason: 'waiting count');
       expect(find.byKey(const Key('sync-uploads-card')), findsOneWidget);
       await _capture(t, 'airplane-sync');
       debugPrint('A2 done: 9 changes and 1 photo waiting; the script now kills the app');
+      await _finish(t);
     },
   );
 
@@ -389,6 +405,7 @@ void main() {
         () async => await _count(db, 'SELECT COUNT(*) AS n FROM outbox') == 0,
         reason: 'tidy pushed',
       );
+      await _finish(t);
     },
   );
 
@@ -499,6 +516,7 @@ void main() {
       () async => await _count(db, 'SELECT COUNT(*) AS n FROM outbox') == 0,
       reason: 'tidy pushed',
     );
+    await _finish(t);
   });
 
   // ---------------------------------------------------------------- TC-27-13 conflict UX
@@ -533,6 +551,7 @@ void main() {
       final c = ProviderContainer(
         overrides: [
           ...appOverrides(env: env, prefs: prefs, remote: remote, network: _network),
+          fxAutoRefreshProvider.overrideWith((ref) {}),
           appDatabaseProvider.overrideWithValue(db),
         ],
       );
@@ -608,6 +627,7 @@ void main() {
       await t.runAsync(b.dispose);
       await t.runAsync(() => c.read(groupsRepositoryProvider).delete(gid, gid));
       await t.runAsync(c.read(syncRepositoryProvider).syncNow);
+      await _finish(t);
     },
   );
 }

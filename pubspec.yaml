@@ -49,6 +49,8 @@ dependencies:
 dev_dependencies:
   flutter_test: {sdk: flutter}
   integration_test: {sdk: flutter}
+  # S-166: host driver for the profile-mode frame timings (T7); Flutter SDK package.
+  flutter_driver: {sdk: flutter}
   build_runner: ^2.17.1
   drift_dev: ^2.35.3
   riverpod_generator: ^4.0.10

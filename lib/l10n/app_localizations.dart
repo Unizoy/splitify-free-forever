@@ -5054,6 +5054,12 @@ abstract class AppLocalizations {
   /// **'{count, plural, =1{Someone else\'s newer edit was kept. Your version is in the edit history.} other{Newer edits by others were kept for {count} changes. Your versions are in the edit history.}}'**
   String syncSuperseded(int count);
 
+  /// Group expense list: loads the next page of older records (S-167).
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Show 1 older} other{Show {count} older}}'**
+  String expShowOlder(int count);
+
   /// Sync issue card: opens the refused record so the person can fix it.
   ///
   /// In en, this message translates to:

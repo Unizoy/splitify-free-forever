@@ -3082,6 +3082,17 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String expShowOlder(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Show $count older',
+      one: 'Show 1 older',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get syncIssueOpen => 'Edit';
 
   @override
