@@ -4517,7 +4517,7 @@ abstract class AppLocalizations {
   /// No description provided for @signInSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Use Google or get a 6-digit code by email. The same email is always the same account.'**
+  /// **'Use Google or get a one-time code by email. The same email is always the same account.'**
   String get signInSubtitle;
 
   /// No description provided for @continueWithGoogle.
@@ -4565,8 +4565,8 @@ abstract class AppLocalizations {
   /// No description provided for @codeTitle.
   ///
   /// In en, this message translates to:
-  /// **'Enter the 6-digit code'**
-  String get codeTitle;
+  /// **'Enter the {digits}-digit code'**
+  String codeTitle(int digits);
 
   /// No description provided for @codeSentTo.
   ///
@@ -4577,8 +4577,8 @@ abstract class AppLocalizations {
   /// No description provided for @codeBoxes.
   ///
   /// In en, this message translates to:
-  /// **'6-digit code, {count} of 6 entered'**
-  String codeBoxes(int count);
+  /// **'{digits}-digit code, {count} of {digits} entered'**
+  String codeBoxes(int count, int digits);
 
   /// No description provided for @resendIn.
   ///
@@ -4649,7 +4649,7 @@ abstract class AppLocalizations {
   /// No description provided for @authErrorInvalidCode.
   ///
   /// In en, this message translates to:
-  /// **'That code is not right. Check it and try again.'**
+  /// **'That code is wrong or has expired. Check your newest email, or tap Resend code.'**
   String get authErrorInvalidCode;
 
   /// No description provided for @authErrorExpiredCode.

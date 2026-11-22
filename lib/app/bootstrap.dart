@@ -84,6 +84,7 @@ List<Override> appOverrides({
   ),
   pushMessagingProvider.overrideWithValue(push),
   googleConfiguredProvider.overrideWithValue(env.hasGoogle),
+  emailCodeLengthProvider.overrideWithValue(env.emailOtpLength),
   devLoginProvider.overrideWithValue(devLogin ?? env.devLoginAvailable(releaseMode: kReleaseMode)),
   e2ePasswordProvider.overrideWithValue(kReleaseMode ? '' : env.e2ePassword),
 ];

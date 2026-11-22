@@ -2738,7 +2738,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get signInSubtitle =>
-      'Use Google or get a 6-digit code by email. The same email is always the same account.';
+      'Use Google or get a one-time code by email. The same email is always the same account.';
 
   @override
   String get continueWithGoogle => 'Continue with Google';
@@ -2762,7 +2762,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get devSignIn => 'Developer sign-in';
 
   @override
-  String get codeTitle => 'Enter the 6-digit code';
+  String codeTitle(int digits) {
+    return 'Enter the $digits-digit code';
+  }
 
   @override
   String codeSentTo(String email) {
@@ -2770,8 +2772,8 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String codeBoxes(int count) {
-    return '6-digit code, $count of 6 entered';
+  String codeBoxes(int count, int digits) {
+    return '$digits-digit code, $count of $digits entered';
   }
 
   @override
@@ -2811,7 +2813,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get continueLabel => 'Continue';
 
   @override
-  String get authErrorInvalidCode => 'That code is not right. Check it and try again.';
+  String get authErrorInvalidCode =>
+      'That code is wrong or has expired. Check your newest email, or tap Resend code.';
 
   @override
   String get authErrorExpiredCode => 'This code has expired or is not right. Request a new code.';

@@ -2,37 +2,66 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:logging/logging.dart';
 import 'package:splitify/data/repositories/auth_repository.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as sb;
 
+final _log = Logger('auth');
+
 /// Gets a Google ID token from Credential Manager; null when cancelled.
+/// Other failures throw an [AuthFailure].
 abstract interface class GoogleIdTokenSource {
   Future<String?> idToken();
+
+  /// Forgets the chosen account (Credential Manager `clearCredentialState`).
+  Future<void> signOut();
 }
 
 /// `google_sign_in` 7.x (research 04): initialize once with the web client
-/// id, then `authenticate()` -> `authentication.idToken`.
+/// id, then `authenticate()` -> `authentication.idToken`. On Android that is
+/// Credential Manager's "Sign in with Google" sheet (`GetSignInWithGoogleOption`,
+/// web client id as server client id, every account on the phone, no nonce:
+/// Supabase "Skip nonce checks" is on; S-230).
 class GoogleSignInIdTokenSource implements GoogleIdTokenSource {
   GoogleSignInIdTokenSource(this.serverClientId);
 
   final String serverClientId;
   bool _ready = false;
 
+  Future<void> _init() async {
+    if (_ready) return;
+    await GoogleSignIn.instance.initialize(serverClientId: serverClientId);
+    _ready = true;
+  }
+
   @override
   Future<String?> idToken() async {
-    if (!_ready) {
-      await GoogleSignIn.instance.initialize(serverClientId: serverClientId);
-      _ready = true;
-    }
+    await _init();
     try {
       final account = await GoogleSignIn.instance.authenticate();
       return account.authentication.idToken;
     } on GoogleSignInException catch (e) {
-      if (e.code == GoogleSignInExceptionCode.canceled) return null;
-      rethrow;
+      final code = googleFailure(e.code);
+      if (code == null) return null;
+      _log.warning('Google sign-in failed: ${e.code.name} ${e.description ?? ''}');
+      throw AuthFailure(code);
     }
   }
+
+  @override
+  Future<void> signOut() async {
+    await _init();
+    await GoogleSignIn.instance.signOut();
+  }
 }
+
+/// Credential Manager errors -> [AuthFailureCode]; null = the person closed the sheet (S-231).
+AuthFailureCode? googleFailure(GoogleSignInExceptionCode code) => switch (code) {
+  GoogleSignInExceptionCode.canceled => null,
+  GoogleSignInExceptionCode.clientConfigurationError ||
+  GoogleSignInExceptionCode.providerConfigurationError => AuthFailureCode.notConfigured,
+  _ => AuthFailureCode.unknown,
+};
 
 /// [AuthRepository] over Supabase Auth + the `delete-account` Edge Function.
 class SupabaseAuthRepository implements AuthRepository {
@@ -83,7 +112,15 @@ class SupabaseAuthRepository implements AuthRepository {
       });
 
   @override
-  Future<void> signOut() => _guard(() => auth.signOut(scope: sb.SignOutScope.local));
+  Future<void> signOut() => _guard(() async {
+    await auth.signOut(scope: sb.SignOutScope.local);
+    try {
+      await google?.signOut();
+    } on Object catch (e) {
+      // Best effort: the Supabase session is what signs the person out.
+      _log.info('Google sign-out failed: $e');
+    }
+  });
 
   @override
   Future<void> deleteAccount() => _guard(() async {
@@ -114,8 +151,10 @@ class SupabaseAuthRepository implements AuthRepository {
 /// Supabase Auth error codes -> [AuthFailureCode].
 AuthFailureCode mapAuthError(sb.AuthException e) {
   switch (e.code) {
+    // Supabase answers 403 `otp_expired` ("Token has expired or is invalid") for a mistyped, a used and an
+    // expired code alike (seen live 2026-11-22), so it counts as a wrong try (S-233).
     case 'otp_expired':
-      return AuthFailureCode.expiredCode;
+      return AuthFailureCode.invalidCode;
     case 'otp_disabled' || 'email_provider_disabled' || 'provider_disabled':
       return AuthFailureCode.notConfigured;
     case 'over_request_rate_limit' || 'over_email_send_rate_limit':

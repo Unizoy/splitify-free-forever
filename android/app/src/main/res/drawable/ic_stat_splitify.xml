@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Status-bar icon for notifications (white, Android tints it): a coin split by a diagonal cut. -->
+<!-- Status-bar icon for notifications (white, Android tints it): the brand mark, two half coins split by a
+     vertical gap, the right half a little lower (S-234; the old diagonal cut read as a "blocked" sign). -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="24dp"
     android:height="24dp"
@@ -7,6 +8,5 @@
     android:viewportHeight="24">
     <path
         android:fillColor="#FFFFFFFF"
-        android:fillType="evenOdd"
-        android:pathData="M12,3a9,9 0,1 1,0 18a9,9 0,1 1,0 -18z M6.2,16.4 L16.4,6.2 L17.8,7.6 L7.6,17.8 z" />
+        android:pathData="M11.3,2.6 A8.2,8.2 0,0 0,11.3 19 Z M12.7,5 A8.2,8.2 0,0 1,12.7 21.4 Z" />
 </vector>

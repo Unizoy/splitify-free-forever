@@ -34,9 +34,12 @@ Total: 121 test ids (TC-18-03 golden added in phase 09; TC-19-06..09 in phase 13
 | 05 | TC-B1-04 | integ | sign-out wipes local DB and token | pass (2026-11-22, `auth_profile_test.dart`: outbox pushed first, session + prefs + Drift rows gone) |
 | 05 | TC-B1-05 | edge | delete-account converts memberships to name-only and deletes user | pass (deno `delete-account/handler_test.ts`; deployed v1 called live with a throwaway user 2026-11-22, `auth_profile_test.dart`) |
 | 05 | TC-B1-06 | sql | deleted | pass (`supabase/tests/024_auth_profile.test.sql`, CI db job) |
-| 05 | TC-B1-07 | integ | Google sign-in (only if emulator has Google account) | needs-owner (D-020: no Google client id) |
+| 05 | TC-B1-07 | integ | Google sign-in (only if emulator has Google account) | pass (2026-11-22, D-026, real Google on emulator-5554: Credential Manager sheet → account → `auth.identities` provider google → Groups; restart keeps the session; sign-out → welcome; `planning/reports/integrations.md`) |
 | 05 | TC-B1-08 | unit | release config has no dev login | pass (`test/core/core_test.dart`; route is `kDebugMode`-only) |
-| 05 | TC-B1-09 | manual-opt | email code arrives from owner domain. | manual-opt |
+| 05 | TC-B1-09 | manual-opt | email code arrives from owner domain. | partial (2026-11-22: `/otp` 200 through the owner's Gmail SMTP; reading the code in the emulator's Gmail was refused by the permission system → code entry + OTP length needs-owner BLK-002) |
+| int | TC-B1-10 | widget+device | wrong or used code → Supabase `otp_expired` → "wrong or has expired" copy, counts as a try, boxes emptied and red; offline keeps digits | pass (`auth_screens_test.dart`, `auth_repository_test.dart`, golden `screen_sign_in_code_wrong_*`; device: 403 `otp_expired` seen live) |
+| int | TC-B1-11 | unit+widget+golden | `EMAIL_OTP_LENGTH` 6–10 (else 6) drives boxes, title, semantics and auto-verify | pass (`core_test.dart`, `auth_screens_test.dart`, golden `screen_sign_in_code_8_*`) |
+| int | TC-B1-12 | unit+widget | Credential Manager errors → AuthFailure (no endless spinner); sign-out clears the Google credential; spinner on the Google button | pass (`auth_repository_test.dart`, `auth_screens_test.dart`) |
 | 05 | TC-B2-01 | unit | UPI regex accepts/rejects table | pass (`test/domain/profile_test.dart`) |
 | 05 | TC-B2-02 | unit | UPI QR parser | pass (`test/domain/profile_test.dart`) |
 | 05 | TC-B2-03 | widget | profile form | pass (`auth_screens_test.dart`) |
@@ -100,7 +103,8 @@ Total: 121 test ids (TC-18-03 golden added in phase 09; TC-19-06..09 in phase 13
 | 13 | TC-19-01 | sql | fan-out recipients exclude actor/muted | pass (`130_notifications.test.sql` 80/80 on dev) |
 | 13 | TC-19-02 | edge | send-push idempotent + token cleanup | pass (deno 45/45; deployed, live `skipped` without FCM secret) |
 | 13 | TC-19-03 | widget | bell badge | pass |
-| 13 | TC-19-04 | integ | notification appears in dumpsys after B adds expense | pass in-app (`integration_test/notifications_test.dart`: bell, tap opens the expense, live `push_status = skipped`) · dumpsys part needs-owner (Firebase, D-020) |
+| 13 | TC-19-04 | integ | notification appears in dumpsys after B adds expense | pass in-app (`integration_test/notifications_test.dart`) · dumpsys part pass (2026-11-22, D-026: real FCM push in `dumpsys notification`, channel per kind; TC-19-10) |
+| int | TC-19-10 | device | real push end to end: permission after pre-prompt → token saved per device → B joins / adds expense / reminds → send-push `sent, delivered 1` (FCM 200) → shown in foreground (local), background and killed (system tray) → tap opens the expense / the group's Balances tab; sign-out removes the token | pass (2026-11-22, `planning/reports/integrations.md`) |
 | 13 | TC-19-05 | unit | settings model. | pass |
 | 13 | TC-19-06 | widget | notifications list: day groups, unread dot, mark all read, tap opens + marks read, empty/offline | pass |
 | 13 | TC-19-07 | widget | notification settings: push/in-app per kind, muted groups, push banners; ToggleRow | pass |
