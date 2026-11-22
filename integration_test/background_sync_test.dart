@@ -122,6 +122,8 @@ void main() {
       final rows = await Supabase.instance.client.from('groups').select('id').eq('id', gid);
       expect(rows, hasLength(1), reason: 'the server has the group');
       debugPrint('W1 done: server has $gid');
+    // Keep the process alive until WorkManager's run finishes, so its result lands in logcat as evidence.
+    await Future<void>.delayed(const Duration(seconds: 20));
     },
   );
 }

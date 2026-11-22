@@ -23,6 +23,8 @@ settle up. It works offline. No ads, no limits, free forever.
 - Import from Splitwise.
 - App lock (biometric or device PIN).
 - Home-screen balance widget.
+- Optional payment bubble (off by default): after you pay with a UPI app, offers to add the payment. Parsed on the
+  phone, nothing is sent until you save. See [Privacy](docs/PRIVACY.md).
 
 ## Screenshots
 

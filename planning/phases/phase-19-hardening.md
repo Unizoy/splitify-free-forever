@@ -48,3 +48,11 @@ open BLK).
 Migration 0023 redefines `public.apply_mutations` (0019 body + `source = 'capture'` expense mutations →
 `private.sync_apply_capture`). If this phase redefines `apply_mutations` again, keep both the `recurring` and the
 `capture` dispatch lines. Also audit the payment-bubble feature (X4): services off by default, no raw text stored.
+
+> **Done (phase 19, S-208):** the D-025 / S-226 amendments — payment-bubble privacy review (allow-list before any
+> read, parsed fields only, PIN never read), battery (event-driven, no polling/foreground service), overlay (right
+> edge, hidden on PIN screens, never over the bottom Pay button); hardening: sign-out switches the feature off,
+> Amazon's shopping app starts off; its goldens pass the a11y sweep; `docs/PRIVACY.md` has the section. 0022/0024
+> do not touch `apply_mutations` (0023's capture dispatch stays). S-167 slivers (S-204) and the real WorkManager run
+> (S-160, `tool/e2e/background_sync.ps1`) are done.
+

@@ -22,11 +22,15 @@ function Set-Airplane([bool]$on) {
 
 function Invoke-AppJobs {
   $dump = & $adb shell dumpsys jobscheduler
-  $ids = [regex]::Matches(($dump -join "`n"), "JOB #u0a\d+/(\d+): [0-9a-f]+ $app/") |
-    ForEach-Object { $_.Groups[1].Value } | Sort-Object -Unique
-  foreach ($id in $ids) {
-    $r = & $adb shell cmd jobscheduler run -f $app $id
-    Write-Host "job $id forced: $r"
+  # Android 16 prints "JOB androidx.work.systemjobscheduler:u0a322/1: a20a0d @…@com.unizoy.splitify/…" (namespace
+  # before the uid); older versions "JOB #u0a322/1: a20a0d com.unizoy.splitify/…".
+  $pattern = "JOB (?:#|([\w.]+):)u0a\d+/(\d+): [0-9a-f]+\s+\S*$([regex]::Escape($app))/"
+  $ids = [regex]::Matches(($dump -join "`n"), $pattern) |
+    ForEach-Object { "$($_.Groups[1].Value)|$($_.Groups[2].Value)" } | Sort-Object -Unique
+  foreach ($j in $ids) {
+    $ns, $id = $j -split '\|'
+    $r = if ($ns) { & $adb shell cmd jobscheduler run -f -n $ns $app $id } else { & $adb shell cmd jobscheduler run -f $app $id }
+    Write-Host "job $ns/$id forced: $r"
   }
   if (-not $ids) { Write-Host 'no scheduled job of the app found' }
 }
@@ -69,7 +73,7 @@ try {
   }
   $p.WaitForExit()
   Write-Host "flutter test exit $($p.ExitCode)"
-  & $adb logcat -d | Select-String -Pattern 'WM-|BackgroundWorker|flutter.*(sync|W1)' | Out-File (Join-Path $out 'background-sync-logcat.txt')
+  & $adb logcat -d | Select-String -Pattern 'WM-|BackgroundWorker|flutter.*(sync|W1)' | ForEach-Object { $_.Line } | Set-Content -Encoding utf8 (Join-Path $out 'background-sync-logcat.txt')
   Get-Content $log | Select-String -Pattern 'W1 |All tests passed|Some tests failed|Expected|Actual|Timed out' |
     Select-Object -Last 10 | ForEach-Object { Write-Host "  $($_.Line.Trim())" }
   Get-Content (Join-Path $out 'background-sync-logcat.txt') | Select-String -Pattern 'Worker result|WorkerWrapper' |

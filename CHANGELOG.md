@@ -24,6 +24,8 @@ Versions are git tags (for example `v1.0.0`), not branches.
 - **Splitwise import** from CSV.
 - **App lock** with biometrics or the device PIN.
 - **Home-screen widget** with a balance summary.
+- **Payment bubble** (optional, off by default): payment alerts from allow-listed UPI/bank apps offer "Add to
+  Splitify"; everything is parsed on the phone.
 - **Payment bubble** (optional, off by default, on the device only) to add UPI payments to Splitify.
 - **Backend** in `supabase/`: migrations, three Edge Functions and SQL tests, so anyone can self-host.
 - A privacy policy in `docs/PRIVACY.md`.
