@@ -227,6 +227,34 @@ CREATE TABLE record_versions (
 
 CREATE INDEX record_versions_record ON record_versions (record_id, seq);
 
+-- Bell (phase 13, S-142): the signed-in person's notifications as the server sent them (only rows shown in
+-- the app), fetched by seq; read_pending = marked read on this phone, not on the server yet.
+CREATE TABLE notifications (
+  id TEXT NOT NULL PRIMARY KEY,
+  group_id TEXT,
+  activity_id TEXT,
+  kind TEXT NOT NULL,
+  type TEXT NOT NULL,
+  title TEXT NOT NULL,
+  body TEXT NOT NULL,
+  data TEXT NOT NULL DEFAULT '{}',
+  read_at TEXT,
+  created_at TEXT,
+  seq INT NOT NULL DEFAULT 0,
+  read_pending INT NOT NULL DEFAULT 0
+) AS LocalNotification;
+
+CREATE INDEX notifications_seq ON notifications (seq);
+
+-- Notification settings of the signed-in person (one row, key 'me'): kinds {kind: {push, inapp}} and muted group
+-- ids as JSON text; sync_state 'pending' until upsert_notification_settings succeeds.
+CREATE TABLE notification_settings (
+  "key" TEXT NOT NULL PRIMARY KEY,
+  kinds TEXT NOT NULL DEFAULT '{}',
+  muted_group_ids TEXT NOT NULL DEFAULT '[]',
+  sync_state TEXT NOT NULL DEFAULT 'synced'
+) AS LocalNotificationSettings;
+
 -- Cache of the server's `fx_rates` (05 §6, phase 14): units of `currency` per 1 EUR on `date`, rate as exact
 -- decimal TEXT. Pulled by FxRatesRepository (not the change feed: the table is shared, not group-scoped).
 CREATE TABLE fx_rates (

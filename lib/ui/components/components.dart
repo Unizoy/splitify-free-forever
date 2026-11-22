@@ -39,5 +39,6 @@ export 'step_header.dart';
 export 'sticky_action_bar.dart';
 export 'sync_marker.dart';
 export 'tag_chip.dart';
+export 'toggle_row.dart';
 export 'underline_field.dart';
 export 'wallet_card.dart';

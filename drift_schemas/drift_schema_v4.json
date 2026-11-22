@@ -1998,59 +1998,135 @@
       "references": [],
       "type": "table",
       "data": {
-        "name": "fx_rates",
+        "name": "notifications",
         "was_declared_in_moor": true,
         "columns": [
           {
-            "name": "date",
-            "getter_name": "date",
+            "name": "id",
+            "getter_name": "id",
             "moor_type": "string",
             "nullable": false,
-            "customConstraints": "NOT NULL",
+            "customConstraints": "NOT NULL PRIMARY KEY",
             "default_dart": null,
             "default_client_dart": null,
-            "dsl_features": []
+            "dsl_features": [
+              "primary-key"
+            ]
           },
           {
-            "name": "currency",
-            "getter_name": "currency",
-            "moor_type": "string",
-            "nullable": false,
-            "customConstraints": "NOT NULL",
-            "default_dart": null,
-            "default_client_dart": null,
-            "dsl_features": []
-          },
-          {
-            "name": "rate",
-            "getter_name": "rate",
-            "moor_type": "string",
-            "nullable": false,
-            "customConstraints": "NOT NULL",
-            "default_dart": null,
-            "default_client_dart": null,
-            "dsl_features": []
-          },
-          {
-            "name": "fetched_at",
-            "getter_name": "fetchedAt",
+            "name": "group_id",
+            "getter_name": "groupId",
             "moor_type": "string",
             "nullable": true,
             "customConstraints": "",
             "default_dart": null,
             "default_client_dart": null,
             "dsl_features": []
+          },
+          {
+            "name": "activity_id",
+            "getter_name": "activityId",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": "",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "kind",
+            "getter_name": "kind",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "type",
+            "getter_name": "type",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "title",
+            "getter_name": "title",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "body",
+            "getter_name": "body",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "data",
+            "getter_name": "data",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL DEFAULT '{}'",
+            "default_dart": "const CustomExpression('\\'{}\\'')",
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "read_at",
+            "getter_name": "readAt",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": "",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "created_at",
+            "getter_name": "createdAt",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": "",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "seq",
+            "getter_name": "seq",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": "NOT NULL DEFAULT 0",
+            "default_dart": "const CustomExpression('0')",
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "read_pending",
+            "getter_name": "readPending",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": "NOT NULL DEFAULT 0",
+            "default_dart": "const CustomExpression('0')",
+            "default_client_dart": null,
+            "dsl_features": []
           }
         ],
         "is_virtual": false,
         "without_rowid": false,
-        "constraints": [
-          "PRIMARY KEY(date, currency)"
-        ],
-        "explicit_pk": [
-          "date",
-          "currency"
-        ]
+        "constraints": []
       }
     },
     {
@@ -2061,14 +2137,70 @@
       "type": "index",
       "data": {
         "on": 21,
-        "name": "fx_rates_currency_date",
-        "sql": "CREATE INDEX fx_rates_currency_date ON fx_rates (currency, date);",
+        "name": "notifications_seq",
+        "sql": "CREATE INDEX notifications_seq ON notifications (seq);",
         "unique": false,
         "columns": []
       }
     },
     {
       "id": 23,
+      "references": [],
+      "type": "table",
+      "data": {
+        "name": "notification_settings",
+        "was_declared_in_moor": true,
+        "columns": [
+          {
+            "name": "key",
+            "getter_name": "key",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL PRIMARY KEY",
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              "primary-key"
+            ]
+          },
+          {
+            "name": "kinds",
+            "getter_name": "kinds",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL DEFAULT '{}'",
+            "default_dart": "const CustomExpression('\\'{}\\'')",
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "muted_group_ids",
+            "getter_name": "mutedGroupIds",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL DEFAULT '[]'",
+            "default_dart": "const CustomExpression('\\'[]\\'')",
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "sync_state",
+            "getter_name": "syncState",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": "NOT NULL DEFAULT 'synced'",
+            "default_dart": "const CustomExpression('\\'synced\\'')",
+            "default_client_dart": null,
+            "dsl_features": []
+          }
+        ],
+        "is_virtual": false,
+        "without_rowid": false,
+        "constraints": []
+      }
+    },
+    {
+      "id": 24,
       "references": [],
       "type": "table",
       "data": {
@@ -2314,20 +2446,29 @@
       ]
     },
     {
-      "name": "fx_rates",
+      "name": "notifications",
       "sql": [
         {
           "dialect": "sqlite",
-          "sql": "CREATE TABLE IF NOT EXISTS \"fx_rates\" (\"date\" TEXT NOT NULL, \"currency\" TEXT NOT NULL, \"rate\" TEXT NOT NULL, \"fetched_at\" TEXT, PRIMARY KEY(date, currency));"
+          "sql": "CREATE TABLE IF NOT EXISTS \"notifications\" (\"id\" TEXT NOT NULL PRIMARY KEY, \"group_id\" TEXT, \"activity_id\" TEXT, \"kind\" TEXT NOT NULL, \"type\" TEXT NOT NULL, \"title\" TEXT NOT NULL, \"body\" TEXT NOT NULL, \"data\" TEXT NOT NULL DEFAULT '{}', \"read_at\" TEXT, \"created_at\" TEXT, \"seq\" INTEGER NOT NULL DEFAULT 0, \"read_pending\" INTEGER NOT NULL DEFAULT 0);"
         }
       ]
     },
     {
-      "name": "fx_rates_currency_date",
+      "name": "notifications_seq",
       "sql": [
         {
           "dialect": "sqlite",
-          "sql": "CREATE INDEX fx_rates_currency_date ON fx_rates (currency, date)"
+          "sql": "CREATE INDEX notifications_seq ON notifications (seq)"
+        }
+      ]
+    },
+    {
+      "name": "notification_settings",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TABLE IF NOT EXISTS \"notification_settings\" (\"key\" TEXT NOT NULL PRIMARY KEY, \"kinds\" TEXT NOT NULL DEFAULT '{}', \"muted_group_ids\" TEXT NOT NULL DEFAULT '[]', \"sync_state\" TEXT NOT NULL DEFAULT 'synced');"
         }
       ]
     },

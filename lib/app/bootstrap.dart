@@ -10,9 +10,11 @@ import 'package:splitify/core/config/preferences.dart';
 import 'package:splitify/core/logging/logger.dart';
 import 'package:splitify/data/fx_providers.dart';
 import 'package:splitify/data/media_providers.dart';
+import 'package:splitify/data/remote/push_messaging.dart';
 import 'package:splitify/data/remote/remote_providers.dart';
 import 'package:splitify/data/remote/supabase_client.dart';
 import 'package:splitify/features/auth/application/auth_providers.dart';
+import 'package:splitify/features/notifications/application/notifications_providers.dart';
 
 /// Starts logging and error handlers, validates the build settings, loads
 /// local preferences (theme mode) and returns the root widget. Later phases
@@ -27,8 +29,9 @@ Future<Widget> bootstrap() async {
     final env = Env.load();
     final prefs = await SharedPreferences.getInstance();
     final remote = await initRemote(env);
+    final push = await initPush();
     return ProviderScope(
-      overrides: appOverrides(env: env, prefs: prefs, remote: remote),
+      overrides: appOverrides(env: env, prefs: prefs, remote: remote, push: push),
       child: const App(),
     );
   } on EnvException catch (e) {
@@ -42,6 +45,7 @@ List<Override> appOverrides({
   required Env env,
   required SharedPreferences prefs,
   required RemoteServices remote,
+  PushMessaging push = const DisabledPushMessaging(),
   bool? devLogin,
 }) => [
   envProvider.overrideWithValue(env),
@@ -54,6 +58,8 @@ List<Override> appOverrides({
   historyRemoteProvider.overrideWithValue(remote.history),
   balancesRemoteProvider.overrideWithValue(remote.balances),
   fxRatesRemoteProvider.overrideWithValue(remote.fxRates),
+  notificationsRemoteProvider.overrideWithValue(remote.notifications),
+  pushMessagingProvider.overrideWithValue(push),
   googleConfiguredProvider.overrideWithValue(env.hasGoogle),
   devLoginProvider.overrideWithValue(devLogin ?? env.devLoginAvailable(releaseMode: kReleaseMode)),
   e2ePasswordProvider.overrideWithValue(kReleaseMode ? '' : env.e2ePassword),

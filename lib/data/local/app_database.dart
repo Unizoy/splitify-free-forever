@@ -10,7 +10,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -21,8 +21,14 @@ class AppDatabase extends _$AppDatabase {
         await m.createTable(recordVersions);
         await m.createIndex(recordVersionsRecord);
       }
-      // v3 (phase 14): exchange-rate cache.
-      if (from < 3) {
+      // v4 (phase 13): bell cache + notification settings. (v3 was never used.)
+      if (from < 4) {
+        await m.createTable(notifications);
+        await m.createIndex(notificationsSeq);
+        await m.createTable(notificationSettings);
+      }
+      // v5 (phase 14): exchange-rate cache.
+      if (from < 5) {
         await m.createTable(fxRates);
         await m.createIndex(fxRatesCurrencyDate);
       }

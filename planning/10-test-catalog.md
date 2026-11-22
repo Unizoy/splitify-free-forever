@@ -4,7 +4,7 @@ Generated from `08-feature-specs.md` (2026-11-21); sessions update **Status** (`
 `needs-owner (BLK-xxx)` / `manual-opt`). New tests a session adds get the next number in the same feature and a row here.
 Cross-cutting suites (sync engine, a11y, goldens of every component, migration tests) are listed in each phase file.
 
-Total: 117 test ids (TC-18-03 golden added in phase 09).
+Total: 121 test ids (TC-18-03 golden added in phase 09; TC-19-06..09 in phase 13).
 
 | Phase | ID | Type | Description | Status |
 | --- | --- | --- | --- | --- |
@@ -97,13 +97,17 @@ Total: 117 test ids (TC-18-03 golden added in phase 09).
 | 12 | TC-20-02 | unit | diff builder | pass (`version_diff_test.dart`, prep) |
 | 12 | TC-20-03 | widget | history timeline | pass (`history_screen_test.dart`, `history_providers_test.dart`, goldens `history_comments_golden_test.dart`) |
 | 12 | TC-20-04 | integ | delete → restore round trip. | pass (`integration_test/history_comments_test.dart` on emulator + dev; widget `deleted_items_screen_test.dart`) |
-| 13 | TC-19-01 | sql | fan-out recipients exclude actor/muted | todo |
-| 13 | TC-19-02 | edge | send-push idempotent + token cleanup | todo |
-| 13 | TC-19-03 | widget | bell badge | todo |
-| 13 | TC-19-04 | integ | notification appears in dumpsys after B adds expense | todo |
-| 13 | TC-19-05 | unit | settings model. | todo |
-| 13 | TC-23-01 | sql | throttle + recipient | todo |
-| 13 | TC-23-02 | widget | remind button states. | todo |
+| 13 | TC-19-01 | sql | fan-out recipients exclude actor/muted | pass (`130_notifications.test.sql` 80/80 on dev) |
+| 13 | TC-19-02 | edge | send-push idempotent + token cleanup | pass (deno 45/45; deployed, live `skipped` without FCM secret) |
+| 13 | TC-19-03 | widget | bell badge | pass |
+| 13 | TC-19-04 | integ | notification appears in dumpsys after B adds expense | pass in-app (`integration_test/notifications_test.dart`: bell, tap opens the expense, live `push_status = skipped`) · dumpsys part needs-owner (Firebase, D-020) |
+| 13 | TC-19-05 | unit | settings model. | pass |
+| 13 | TC-19-06 | widget | notifications list: day groups, unread dot, mark all read, tap opens + marks read, empty/offline | pass |
+| 13 | TC-19-07 | widget | notification settings: push/in-app per kind, muted groups, push banners; ToggleRow | pass |
+| 13 | TC-19-08 | widget | push pre-prompt: once, only with push + permission not asked | pass |
+| 13 | TC-19-09 | widget | notifications binding: token register, foreground display, tap → route | pass |
+| 13 | TC-23-01 | sql | throttle + recipient | pass (pgTAP + live in the device test) |
+| 13 | TC-23-02 | widget | remind button states. | pass |
 | 14 | TC-14-02 | widget | multi-currency balance sections | pass (phase 09 `balances_tab_test.dart`; phase 14 goldens `currency_balances_by_currency_*`) |
 | 14 | TC-14-04 | widget | currency picker: group currency first, recent, search, pick (editor + Settle up chips) | pass (`currency_picker_test.dart`, `expense_editor_test.dart`, `settle_up_screen_test.dart`) |
 | 14 | TC-14-05 | sql | fx_rates RLS/keys, currency parity, saved-conversion checks, fetch-rates cron wiring | pass (`140_fx.test.sql`, 22/22 on dev via MCP) |

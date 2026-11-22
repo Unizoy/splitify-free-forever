@@ -1907,6 +1907,209 @@ class RecordVersions extends Table with TableInfo {
   bool get dontWriteConstraints => true;
 }
 
+class Notifications extends Table with TableInfo {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  Notifications(this.attachedDatabase, [this._alias]);
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL PRIMARY KEY',
+  );
+  late final GeneratedColumn<String> groupId = GeneratedColumn<String>(
+    'group_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    $customConstraints: '',
+  );
+  late final GeneratedColumn<String> activityId = GeneratedColumn<String>(
+    'activity_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    $customConstraints: '',
+  );
+  late final GeneratedColumn<String> kind = GeneratedColumn<String>(
+    'kind',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL',
+  );
+  late final GeneratedColumn<String> type = GeneratedColumn<String>(
+    'type',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL',
+  );
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+    'title',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL',
+  );
+  late final GeneratedColumn<String> body = GeneratedColumn<String>(
+    'body',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL',
+  );
+  late final GeneratedColumn<String> data = GeneratedColumn<String>(
+    'data',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    $customConstraints: 'NOT NULL DEFAULT \'{}\'',
+    defaultValue: const CustomExpression('\'{}\''),
+  );
+  late final GeneratedColumn<String> readAt = GeneratedColumn<String>(
+    'read_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    $customConstraints: '',
+  );
+  late final GeneratedColumn<String> createdAt = GeneratedColumn<String>(
+    'created_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    $customConstraints: '',
+  );
+  late final GeneratedColumn<int> seq = GeneratedColumn<int>(
+    'seq',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    $customConstraints: 'NOT NULL DEFAULT 0',
+    defaultValue: const CustomExpression('0'),
+  );
+  late final GeneratedColumn<int> readPending = GeneratedColumn<int>(
+    'read_pending',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    $customConstraints: 'NOT NULL DEFAULT 0',
+    defaultValue: const CustomExpression('0'),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    groupId,
+    activityId,
+    kind,
+    type,
+    title,
+    body,
+    data,
+    readAt,
+    createdAt,
+    seq,
+    readPending,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'notifications';
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  Never map(Map<String, dynamic> data, {String? tablePrefix}) {
+    throw UnsupportedError('TableInfo.map in schema verification code');
+  }
+
+  @override
+  Notifications createAlias(String alias) {
+    return Notifications(attachedDatabase, alias);
+  }
+
+  @override
+  bool get dontWriteConstraints => true;
+}
+
+class NotificationSettings extends Table with TableInfo {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  NotificationSettings(this.attachedDatabase, [this._alias]);
+  late final GeneratedColumn<String> key = GeneratedColumn<String>(
+    'key',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL PRIMARY KEY',
+  );
+  late final GeneratedColumn<String> kinds = GeneratedColumn<String>(
+    'kinds',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    $customConstraints: 'NOT NULL DEFAULT \'{}\'',
+    defaultValue: const CustomExpression('\'{}\''),
+  );
+  late final GeneratedColumn<String> mutedGroupIds = GeneratedColumn<String>(
+    'muted_group_ids',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    $customConstraints: 'NOT NULL DEFAULT \'[]\'',
+    defaultValue: const CustomExpression('\'[]\''),
+  );
+  late final GeneratedColumn<String> syncState = GeneratedColumn<String>(
+    'sync_state',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    $customConstraints: 'NOT NULL DEFAULT \'synced\'',
+    defaultValue: const CustomExpression('\'synced\''),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [key, kinds, mutedGroupIds, syncState];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'notification_settings';
+  @override
+  Set<GeneratedColumn> get $primaryKey => {key};
+  @override
+  Never map(Map<String, dynamic> data, {String? tablePrefix}) {
+    throw UnsupportedError('TableInfo.map in schema verification code');
+  }
+
+  @override
+  NotificationSettings createAlias(String alias) {
+    return NotificationSettings(attachedDatabase, alias);
+  }
+
+  @override
+  bool get dontWriteConstraints => true;
+}
+
 class FxRates extends Table with TableInfo {
   @override
   final GeneratedDatabase attachedDatabase;
@@ -2037,8 +2240,8 @@ class ExpenseSearch extends Table with TableInfo, VirtualTableInfo {
       'fts5(description, notes, member_names, amount_text)';
 }
 
-class DatabaseAtV3 extends GeneratedDatabase {
-  DatabaseAtV3(QueryExecutor e) : super(e);
+class DatabaseAtV5 extends GeneratedDatabase {
+  DatabaseAtV5(QueryExecutor e) : super(e);
   late final Profiles profiles = Profiles(this);
   late final Groups groups = Groups(this);
   late final GroupMembers groupMembers = GroupMembers(this);
@@ -2084,6 +2287,14 @@ class DatabaseAtV3 extends GeneratedDatabase {
     'record_versions_record',
     'CREATE INDEX record_versions_record ON record_versions (record_id, seq)',
   );
+  late final Notifications notifications = Notifications(this);
+  late final Index notificationsSeq = Index(
+    'notifications_seq',
+    'CREATE INDEX notifications_seq ON notifications (seq)',
+  );
+  late final NotificationSettings notificationSettings = NotificationSettings(
+    this,
+  );
   late final FxRates fxRates = FxRates(this);
   late final Index fxRatesCurrencyDate = Index(
     'fx_rates_currency_date',
@@ -2116,12 +2327,15 @@ class DatabaseAtV3 extends GeneratedDatabase {
     pendingUploads,
     recordVersions,
     recordVersionsRecord,
+    notifications,
+    notificationsSeq,
+    notificationSettings,
     fxRates,
     fxRatesCurrencyDate,
     expenseSearch,
   ];
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 5;
   @override
   DriftDatabaseOptions get options =>
       const DriftDatabaseOptions(storeDateTimeAsText: true);

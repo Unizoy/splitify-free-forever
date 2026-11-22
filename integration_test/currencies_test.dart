@@ -109,9 +109,9 @@ String _serverCrossRate(List<Map<String, dynamic>> rows, String from, String to,
     if (d.compareTo(date) > 0) continue;
     (byDate[d] ??= {})[(r['currency']! as String).trim()] = r['rate']! as String;
   }
-  final days = byDate.keys.where((d) => byDate[d]!.containsKey(from) && byDate[d]!.containsKey(to))
-      .toList()
-    ..sort();
+  final days =
+      byDate.keys.where((d) => byDate[d]!.containsKey(from) && byDate[d]!.containsKey(to)).toList()
+        ..sort();
   final day = byDate[days.last]!;
   // rate(A→B) = eur[B] / eur[A], half away from zero to 10 decimals, done here with integers.
   BigInt scaled(String v) {
@@ -264,8 +264,13 @@ void main() {
           .select('date,currency,rate::text')
           .inFilter('currency', ['USD', 'INR'])
           .lte('date', date)
-          .gte('date', DateTime.parse(date).subtract(const Duration(days: 10)).toIso8601String()
-              .substring(0, 10)),
+          .gte(
+            'date',
+            DateTime.parse(date)
+                .subtract(const Duration(days: 10))
+                .toIso8601String()
+                .substring(0, 10),
+          ),
     ))!;
     final expected = _serverCrossRate(serverRates, 'USD', 'INR', date);
     expect(parseRate(server['fx_rate']! as String), parseRate(expected));

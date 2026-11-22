@@ -9,6 +9,7 @@ import 'package:splitify/domain/rules/invite_code.dart';
 import 'package:splitify/features/account/presentation/upi_scan_screen.dart';
 import 'package:splitify/features/groups/application/groups_providers.dart';
 import 'package:splitify/features/groups/presentation/group_visuals.dart';
+import 'package:splitify/features/notifications/application/notifications_providers.dart';
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/components/components.dart';
 import 'package:splitify/ui/theme/theme.dart';
@@ -132,6 +133,8 @@ class _JoinScreenState extends ConsumerState<JoinScreen> {
           ? p.groupId
           : await ref.read(groupActionsProvider).join(_code!, claimMemberId: claim?.id);
       if (p.alreadyMember) unawaited(ref.read(syncNowProvider)().catchError((Object _) {}));
+      // First group: the shell may ask about push notifications (08 #19).
+      if (!p.alreadyMember) ref.read(pushPrePromptRequestsProvider.notifier).request();
       router.go('/groups/$id');
       if (!p.alreadyMember) {
         messenger.showSnackBar(SnackBar(content: Text(l.joinedGroup(p.name))));
