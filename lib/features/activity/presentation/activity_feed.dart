@@ -62,6 +62,8 @@ String activitySentence(AppLocalizations l, ActivityItem i) {
     'recurring_updated' => l.actRecurringUpdated(a),
     'recurring_stopped' => l.actRecurringStopped(a),
     'import_completed' => l.actImportCompleted(a),
+    'import_completed_file' => l.actImportCompletedFile(a),
+    'import_undone' => l.actImportUndone(a),
     _ => l.actUnknown(a),
   };
 }

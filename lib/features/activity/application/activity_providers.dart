@@ -5,6 +5,7 @@ import 'package:splitify/features/activity/application/settings_activity.dart';
 import 'package:splitify/data/data_providers.dart';
 import 'package:splitify/data/local/app_database.dart';
 import 'package:splitify/data/repositories/activity_repository.dart';
+import 'package:splitify/data/repositories/import_repository.dart';
 import 'package:splitify/features/groups/application/groups_providers.dart';
 
 /// Filter chips of the feed (#18).
@@ -69,7 +70,7 @@ class ActivityItem {
   static ActivityFilter filterOf(String type) {
     if (type.startsWith('expense_') ||
         type.startsWith('recurring_') ||
-        type == 'import_completed') {
+        type.startsWith('import_')) {
       return ActivityFilter.expenses;
     }
     if (type.startsWith('payment_') || type == 'reminder_sent') return ActivityFilter.payments;
@@ -193,6 +194,32 @@ ActivityItem? _pendingItem(
     _ => isNew ? added : 'edited',
   };
   final base = (id: 'pending-${o.seq}', at: _time(o.createdAt), groupId: o.groupId);
+  // An import is one entry (0021): its summary / undo note stands for the batch, other rows are quiet.
+  if (payload['source'] == 'import') {
+    final values = payload['split_values'];
+    final note = values is Map ? values : const {};
+    final String type;
+    if (note[importUndoKey] != null) {
+      type = 'import_undone';
+    } else if (note[importSummaryKey] is Map) {
+      type = (note[importSummaryKey] as Map)['source'] == 'splitify'
+          ? 'import_completed_file'
+          : 'import_completed';
+    } else {
+      return null;
+    }
+    return ActivityItem(
+      id: base.id,
+      type: type,
+      groupId: base.groupId,
+      groupName: groupName,
+      at: base.at,
+      actor: me,
+      targetType: 'group',
+      targetId: o.groupId,
+      pending: true,
+    );
+  }
   switch (o.entity) {
     case 'expense':
       final e = s.expenses[o.recordId];
