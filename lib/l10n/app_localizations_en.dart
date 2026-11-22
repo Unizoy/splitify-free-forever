@@ -941,8 +941,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get insPercentSmall => '<1%';
 
   @override
-  String insCategoryChip(String name, String percent) {
-    return '$name · $percent';
+  String insAmountShare(String amount, String percent) {
+    return '$amount · $percent';
   }
 
   @override

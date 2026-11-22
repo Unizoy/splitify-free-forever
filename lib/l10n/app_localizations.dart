@@ -1706,11 +1706,11 @@ abstract class AppLocalizations {
   /// **'<1%'**
   String get insPercentSmall;
 
-  /// No description provided for @insCategoryChip.
+  /// No description provided for @insAmountShare.
   ///
   /// In en, this message translates to:
-  /// **'{name} · {percent}'**
-  String insCategoryChip(String name, String percent);
+  /// **'{amount} · {percent}'**
+  String insAmountShare(String amount, String percent);
 
   /// No description provided for @insCategoryOfTotal.
   ///

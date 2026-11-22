@@ -1,11 +1,13 @@
+import 'dart:async';
+
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:splitify/features/balances/presentation/balance_copy.dart' show listMoney;
 import 'package:splitify/features/expenses/presentation/expense_copy.dart';
 import 'package:splitify/features/insights/domain/aggregations.dart';
 import 'package:splitify/l10n/app_localizations.dart';
-import 'package:splitify/ui/components/components.dart';
 import 'package:splitify/ui/theme/theme.dart';
 
 /// The chart colour and icon of a top-level category key (06 §2: chart colours = category colours).
@@ -92,14 +94,16 @@ class CategoryDonut extends StatelessWidget {
   final String? selected;
   final ValueChanged<String?> onSelect;
 
-  static const double _size = 228;
-  static const double _hole = 70;
   static const double _ring = 30;
 
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     final parts = summary.byCategory;
+    // A bigger hole at large text sizes keeps the centre text readable.
+    final large = MediaQuery.textScalerOf(context).scale(1) >= 1.5;
+    final hole = large ? 92.0 : 70.0;
+    final size = (hole + _ring + 10) * 2;
     final pick = parts.where((p) => p.category == selected).firstOrNull;
     final semantics = l.insDonutLabel(
       parts
@@ -116,7 +120,7 @@ class CategoryDonut extends StatelessWidget {
       PieChartData(
         startDegreeOffset: -90,
         sectionsSpace: parts.length > 1 ? 3 : 0,
-        centerSpaceRadius: _hole,
+        centerSpaceRadius: hole,
         sections: [
           for (final p in parts)
             PieChartSectionData(
@@ -160,14 +164,14 @@ class CategoryDonut extends StatelessWidget {
             container: true,
             child: SizedBox.square(
               key: const Key('insights-donut'),
-              dimension: _size,
+              dimension: size,
               child: Stack(
                 alignment: Alignment.center,
                 children: [
                   ExcludeSemantics(child: donut),
                   IgnorePointer(
                     child: SizedBox.square(
-                      dimension: _hole * 2 - AppSpacing.s4,
+                      dimension: hole * 2 - AppSpacing.s4,
                       child: Center(child: centre),
                     ),
                   ),
@@ -177,25 +181,118 @@ class CategoryDonut extends StatelessWidget {
           ),
         ),
         const SizedBox(height: AppSpacing.s5),
-        Wrap(
-          spacing: AppSpacing.s2,
-          runSpacing: AppSpacing.s2,
-          children: [
-            for (final p in parts)
-              IconChip(
-                key: Key('insights-chip-${p.category}'),
-                label: l.insCategoryChip(
-                  l.category(p.category),
-                  percentText(l, p.minor, summary.total),
-                ),
-                icon: categoryOfKey(p.category).icon,
-                iconColor: categoryOfKey(p.category).color,
-                selected: p == pick,
-                onTap: () => onSelect(p == pick ? null : p.category),
-              ),
-          ],
-        ),
+        for (final p in parts) ...[
+          LegendChip(
+            key: Key('insights-chip-${p.category}'),
+            part: p,
+            currency: summary.currency,
+            percent: percentText(l, p.minor, summary.total),
+            selected: p == pick,
+            onTap: () => onSelect(p == pick ? null : p.category),
+          ),
+          if (p != parts.last) const SizedBox(height: AppSpacing.s2),
+        ],
       ],
+    );
+  }
+}
+
+/// One legend chip under the donut (442 chip look, full width): category icon circle, name, amount
+/// and share; filled `ink` when picked. Two lines at large text sizes, so nothing is cut.
+class LegendChip extends StatelessWidget {
+  const LegendChip({
+    required this.part,
+    required this.currency,
+    required this.percent,
+    required this.selected,
+    required this.onTap,
+    super.key,
+  });
+
+  final CategorySpend part;
+  final String currency;
+  final String percent;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final c = context.colors;
+    final cat = categoryOfKey(part.category);
+    final large = MediaQuery.textScalerOf(context).scale(1) >= 1.3;
+    final fg = selected ? c.onInk : c.textPrimary;
+    final sub = selected ? c.onInk.withValues(alpha: 0.72) : c.textSecondary;
+    final name = Text(
+      l.category(part.category),
+      style: context.text.body.w(600).copyWith(color: fg),
+    );
+    final amount = listMoney(part.minor, currency);
+    return Semantics(
+      button: true,
+      selected: selected,
+      child: Material(
+        color: selected ? c.ink : c.surface,
+        shape: RoundedRectangleBorder(
+          borderRadius: AppRadii.all24,
+          side: BorderSide(color: selected ? c.ink : c.border, width: 1.2),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: () {
+            unawaited(HapticFeedback.selectionClick());
+            onTap();
+          },
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 52),
+            child: Padding(
+              padding: const EdgeInsetsDirectional.fromSTEB(
+                AppSpacing.s2,
+                AppSpacing.s2,
+                AppSpacing.s4,
+                AppSpacing.s2,
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    width: 34,
+                    height: 34,
+                    decoration: BoxDecoration(color: cat.color, shape: BoxShape.circle),
+                    child: Icon(cat.icon, size: 18, color: c.onPrimaryFill),
+                  ),
+                  const SizedBox(width: AppSpacing.s3),
+                  if (large)
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          name,
+                          Text(
+                            l.insAmountShare(amount, percent),
+                            style: context.text.bodySmall.copyWith(color: sub),
+                          ),
+                        ],
+                      ),
+                    )
+                  else ...[
+                    Expanded(child: name),
+                    const SizedBox(width: AppSpacing.s2),
+                    Text(amount, style: context.text.body.w(600).copyWith(color: fg)),
+                    ConstrainedBox(
+                      constraints: const BoxConstraints(minWidth: 48),
+                      child: Text(
+                        percent,
+                        textAlign: TextAlign.end,
+                        style: context.text.bodySmall.copyWith(color: sub),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
@@ -219,28 +316,25 @@ class _Centre extends StatelessWidget {
     final c = context.colors;
     return FittedBox(
       fit: BoxFit.scaleDown,
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 160),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              caption,
-              textAlign: TextAlign.center,
-              maxLines: 1,
-              style: context.text.caption.w(600).copyWith(color: captionColor ?? c.textSecondary),
-            ),
-            const SizedBox(height: 2),
-            Text(amount, maxLines: 1, style: context.text.headline.copyWith(color: c.textPrimary)),
-            const SizedBox(height: 2),
-            Text(
-              footer,
-              textAlign: TextAlign.center,
-              maxLines: 1,
-              style: context.text.caption.copyWith(color: c.textSecondary),
-            ),
-          ],
-        ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            caption,
+            textAlign: TextAlign.center,
+            maxLines: 1,
+            style: context.text.caption.w(600).copyWith(color: captionColor ?? c.textSecondary),
+          ),
+          const SizedBox(height: 2),
+          Text(amount, maxLines: 1, style: context.text.headline.copyWith(color: c.textPrimary)),
+          const SizedBox(height: 2),
+          Text(
+            footer,
+            textAlign: TextAlign.center,
+            maxLines: 1,
+            style: context.text.caption.copyWith(color: c.textSecondary),
+          ),
+        ],
       ),
     );
   }

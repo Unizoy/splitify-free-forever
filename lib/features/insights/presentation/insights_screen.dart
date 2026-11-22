@@ -228,7 +228,8 @@ class _InsightsScreenState extends ConsumerState<InsightsScreen> {
     final picked = await showAppSheet<({String? id})>(
       context,
       title: l.insPickGroup,
-      builder: (sheet) => _GroupOptions(view: v, onPick: (id) => Navigator.of(sheet).pop((id: id))),
+      builder: (sheet) =>
+          InsightsGroupOptions(view: v, onPick: (id) => Navigator.of(sheet).pop((id: id))),
     );
     if (picked != null && mounted) _setGroup(picked.id);
   }
@@ -323,8 +324,8 @@ class _GroupThumb extends StatelessWidget {
 }
 
 /// Picker sheet: in Me mode "All groups and friends" first, then every group (archived last).
-class _GroupOptions extends StatelessWidget {
-  const _GroupOptions({required this.view, required this.onPick});
+class InsightsGroupOptions extends StatelessWidget {
+  const InsightsGroupOptions({required this.view, required this.onPick});
 
   final InsightsView view;
   final ValueChanged<String?> onPick;
