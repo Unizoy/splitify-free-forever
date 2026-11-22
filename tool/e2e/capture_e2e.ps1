@@ -253,7 +253,8 @@ try {
   $ip = (Resolve-DnsName $supabaseHost -Type A | Where-Object IPAddress | Select-Object -First 1).IPAddress
   $log = Join-Path $out 'e2e-flutter.log'
   Remove-Item $log -ErrorAction SilentlyContinue
-  $argv = @('test', 'integration_test/capture_bubble_test.dart', '-d', $Device, '--no-uninstall',
+  # The payment bubble exists only in the `full` flavour (D-028).
+  $argv = @('test', 'integration_test/capture_bubble_test.dart', '-d', $Device, '--flavor', 'full', '--no-uninstall',
     '--dart-define-from-file=secrets/env.dev.json', "--dart-define=PIN_HOST_IP=$ip", '--dart-define=E2E_CAPTURE=true')
   $p = Start-Process -FilePath 'flutter.bat' -NoNewWindow -PassThru -RedirectStandardOutput $log -ArgumentList $argv
   $null = $p.Handle

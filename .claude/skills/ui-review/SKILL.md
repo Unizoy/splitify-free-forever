@@ -16,7 +16,7 @@ not render on this emulator), install it, run the capture script:
 ```powershell
 . .\tool\env.ps1
 flutter build apk --release --target-platform android-x64 --dart-define-from-file=secrets/env.dev.json
-& "$env:LOCALAPPDATA\Android\Sdk\platform-tools\adb.exe" install -r build\app\outputs\flutter-apk\app-release.apk
+& "$env:LOCALAPPDATA\Android\Sdk\platform-tools\adb.exe" install -r build\app\outputs\flutter-apk\app-standard-release.apk
 powershell -File .claude\skills\ui-review\scripts\capture_shell.ps1 -Phase NN   # light, dark, text 2.0
 ```
 `scripts/ui.ps1` gives `Invoke-TapLabel '<accessibility label>'` (uiautomator, no hard-coded coordinates),

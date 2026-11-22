@@ -34,12 +34,14 @@ try {
     $name = [IO.Path]::GetFileNameWithoutExtension($f)
     $path = if ($f -like 'integration_test/*') { $f } else { "integration_test/$name.dart" }
     $log = Join-Path $out "it-$name.log"
+    # Payment-bubble files need the `full` flavour (D-028); the rest run the default `standard` build.
+    $flavor = if ($name -like '*capture*') { 'full' } else { 'standard' }
     $t0 = Get-Date
-    cmd /c "flutter test $path -d emulator-5554 --dart-define-from-file=secrets/env.dev.json --dart-define=PIN_HOST_IP=$ip > `"$log`" 2>&1"
+    cmd /c "flutter test $path -d emulator-5554 --flavor $flavor --dart-define-from-file=secrets/env.dev.json --dart-define=PIN_HOST_IP=$ip > `"$log`" 2>&1"
     $code = $LASTEXITCODE
     if ($code -ne 0 -and (Select-String -Path $log -Pattern 'Failed to start Dart Development Service|did not complete|loading' -Quiet)) {
       Write-Host "$name : tool/loading failure, one re-run (LEARNINGS phase 01/07)"
-      cmd /c "flutter test $path -d emulator-5554 --dart-define-from-file=secrets/env.dev.json --dart-define=PIN_HOST_IP=$ip > `"$log`" 2>&1"
+      cmd /c "flutter test $path -d emulator-5554 --flavor $flavor --dart-define-from-file=secrets/env.dev.json --dart-define=PIN_HOST_IP=$ip > `"$log`" 2>&1"
       $code = $LASTEXITCODE
     }
     $secs = [int]((Get-Date) - $t0).TotalSeconds
