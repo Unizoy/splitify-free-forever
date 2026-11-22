@@ -12,11 +12,13 @@ extension ExpenseReads on ExpensesRepository {
             ..orderBy([(m) => OrderingTerm.asc(m.position), (m) => OrderingTerm.asc(m.id)]))
           .watch();
 
-  /// Category of the group's newest live expense, suggested first for the next one (#13).
+  /// Category of the group's newest live expense (loans left out), suggested first for the next one (#13).
   Future<String?> lastCategory(String groupId) async {
     final row =
         await (db.select(db.expenses)
-              ..where((e) => e.groupId.equals(groupId) & e.deletedAt.isNull())
+              ..where(
+                (e) => e.groupId.equals(groupId) & e.deletedAt.isNull() & e.kind.equals('expense'),
+              )
               ..orderBy([(e) => OrderingTerm.desc(e.createdAt), (e) => OrderingTerm.desc(e.id)])
               ..limit(1))
             .getSingleOrNull();

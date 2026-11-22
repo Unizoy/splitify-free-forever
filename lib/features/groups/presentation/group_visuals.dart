@@ -1,10 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:splitify/data/local/app_database.dart';
 import 'package:splitify/data/remote/groups_remote.dart';
+import 'package:splitify/domain/entities/prepared_image.dart';
+import 'package:splitify/features/photos/application/photo_providers.dart';
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/components/components.dart';
 import 'package:splitify/ui/painters/cover_cache.dart';
 import 'package:splitify/ui/theme/theme.dart';
+
+/// The group's photo cover (S-073), decoded about [width] px wide; null for generated covers and while
+/// the photo is loading or not reachable (the generated art shows instead).
+ImageProvider? groupCoverImage(WidgetRef ref, LocalGroup g, {int? width}) {
+  final path = g.coverPath;
+  if (g.coverKind != 'photo' || path == null) return null;
+  final file = ref
+      .watch(storedPhotoProvider((bucket: MediaBuckets.groupCovers, path: path, thumb: false)))
+      .value;
+  if (file == null) return null;
+  final image = FileImage(file);
+  return width == null ? image : ResizeImage(image, width: width);
+}
 
 /// Cover family for a group `type` (trip/home/couple/other/direct).
 CoverFamily coverFamilyFor(String type) => switch (type) {
@@ -120,6 +136,7 @@ class CoverBanner extends StatelessWidget {
     this.caption,
     this.height = 168,
     this.showName = true,
+    this.photo,
     super.key,
   });
 
@@ -131,6 +148,9 @@ class CoverBanner extends StatelessWidget {
 
   /// False when the page title already shows the name (join preview).
   final bool showName;
+
+  /// A photo cover instead of the generated art.
+  final ImageProvider? photo;
 
   @override
   Widget build(BuildContext context) {
@@ -147,7 +167,15 @@ class CoverBanner extends StatelessWidget {
           child: Stack(
             children: [
               Positioned.fill(
-                child: CoverArt(seed: seed, family: family),
+                child: photo == null
+                    ? CoverArt(seed: seed, family: family)
+                    : Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          Image(image: photo!, fit: BoxFit.cover, gaplessPlayback: true),
+                          ColoredBox(color: AppPalette.black.withValues(alpha: 0.32)),
+                        ],
+                      ),
               ),
               Container(
                 width: double.infinity,

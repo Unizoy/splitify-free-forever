@@ -35,7 +35,8 @@ Use `execute_sql` only for reads, tests and one-off data checks — never for sc
   select * from finish();
   rollback;
   ```
-- Run each file's full content with `mcp__supabase__execute_sql`. Pass = no row starting with `not ok` and the
+- Run each file with `mcp__supabase__execute_sql` after `python .claude/skills/supabase-dev/scripts/tapify.py <file> <out>`
+  (collects every result into one row; paste `<out>`). Pass = no row starting with `not ok` and the
   plan count matches. The guard allows destructive statements only inside `begin … rollback`.
 - `pgtap` is enabled by migration 0001 (schema `extensions`); call functions unqualified after
   `set local search_path = public, extensions;` if needed.

@@ -79,6 +79,8 @@ abstract final class AppIcons {
   static const IconData notes = IconData(0xe34c, fontFamily: _regular);
   static const IconData calendar = IconData(0xe10a, fontFamily: _regular);
   static const IconData chat = IconData(0xe16c, fontFamily: _regular);
+  // Comment composer send button (paper-plane-right, 636; phase 12).
+  static const IconData send = IconData(0xe396, fontFamily: _fill);
   static const IconData coins = IconData(0xe78e, fontFamily: _regular);
   static const IconData chart = IconData(0xe158, fontFamily: _fill);
   static const IconData globe = IconData(0xe28a, fontFamily: _fill);
@@ -109,6 +111,18 @@ abstract final class AppIcons {
   static const IconData shopping = IconData(0xe416, fontFamily: _fill);
   static const IconData entertainment = IconData(0xe8c2, fontFamily: _fill);
   static const IconData otherCategory = IconData(0xe47a, fontFamily: _fill);
+
+  // Phase 10: loans (hand-deposit), photos (image, images, camera-plus, image-broken, magnifying-glass-plus,
+  // arrows-counter-clockwise, cloud-arrow-up).
+  static const IconData loan = IconData(0xee82, fontFamily: _regular);
+  static const IconData loanFill = IconData(0xee82, fontFamily: _fill);
+  static const IconData image = IconData(0xe2ca, fontFamily: _regular);
+  static const IconData images = IconData(0xe836, fontFamily: _regular);
+  static const IconData cameraPlus = IconData(0xec58, fontFamily: _regular);
+  static const IconData imageBroken = IconData(0xe7a8, fontFamily: _regular);
+  static const IconData zoomIn = IconData(0xe310, fontFamily: _regular);
+  static const IconData replace = IconData(0xe096, fontFamily: _regular);
+  static const IconData cloudUpload = IconData(0xe1ae, fontFamily: _regular);
 }
 
 /// Starting categories with their icon and colour (D-016, §2).

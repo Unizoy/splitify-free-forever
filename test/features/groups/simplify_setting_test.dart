@@ -11,7 +11,6 @@ import 'package:splitify/features/balances/application/balance_views.dart';
 import 'package:splitify/features/balances/application/balances_providers.dart';
 import 'package:splitify/features/groups/presentation/simplify_setting.dart';
 
-import '../../support/group_fakes.dart';
 import '../../support/group_harness.dart';
 import '../../support/ledger_seed.dart';
 

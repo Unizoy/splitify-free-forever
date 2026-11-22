@@ -12,11 +12,19 @@ void main() {
 
   setUpAll(() => verifier = SchemaVerifier(GeneratedHelper()));
 
-  test('schema v1 matches the dumped schema', () async {
+  test('schema v2 matches the dumped schema', () async {
+    final connection = await verifier.startAt(2);
+    final db = AppDatabase(connection);
+    addTearDown(db.close);
+    await verifier.migrateAndValidate(db, 2);
+    expect(db.schemaVersion, 2);
+  });
+
+  test('v1 -> v2 adds the edit-history cache (phase 12)', () async {
     final connection = await verifier.startAt(1);
     final db = AppDatabase(connection);
     addTearDown(db.close);
-    await verifier.migrateAndValidate(db, 1);
-    expect(db.schemaVersion, 1);
+    await verifier.migrateAndValidate(db, 2);
+    expect(await db.select(db.recordVersions).get(), isEmpty);
   });
 }

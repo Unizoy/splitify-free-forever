@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:splitify/data/remote/balances_remote.dart';
 import 'package:splitify/data/remote/friends_remote.dart';
 import 'package:splitify/data/remote/groups_remote.dart';
+import 'package:splitify/data/remote/history_remote.dart';
 import 'package:splitify/data/remote/remote_api.dart';
 import 'package:splitify/data/remote/supabase_nudges.dart';
 import 'package:splitify/data/sync/sync_triggers.dart';
@@ -17,6 +18,9 @@ final groupsRemoteProvider = Provider<GroupsRemote>((ref) => const UnconfiguredG
 
 /// Online-only friend RPC (phase 11). Bootstrap overrides it with `RemoteServices.friends`.
 final friendsRemoteProvider = Provider<FriendsRemote>((ref) => const UnconfiguredFriendsRemote());
+
+/// Edit-history reads (phase 12). Bootstrap overrides it with `RemoteServices.history`; tests use a fake.
+final historyRemoteProvider = Provider<HistoryRemote>((ref) => const UnconfiguredHistoryRemote());
 
 /// Server balances (`group_balances`, `my_overview`; rule 3). Bootstrap overrides it with
 /// `RemoteServices.balances`; without settings and in widget tests every call fails like being offline.

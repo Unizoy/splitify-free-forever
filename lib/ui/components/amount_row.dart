@@ -14,6 +14,7 @@ class AmountRow extends StatelessWidget {
     this.caption,
     this.amountCaption,
     this.leading,
+    this.badge,
     this.unsynced = false,
     this.onTap,
     this.showDivider = true,
@@ -30,6 +31,9 @@ class AmountRow extends StatelessWidget {
   /// Small line under the amount ("you lent").
   final String? amountCaption;
   final Widget? leading;
+
+  /// Small tag after the title ("LOAN", a receipt icon); wraps under it when there is no room.
+  final Widget? badge;
   final bool unsynced;
   final VoidCallback? onTap;
   final bool showDivider;
@@ -45,7 +49,18 @@ class AmountRow extends StatelessWidget {
     final left = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(title, style: context.text.title.w(500)),
+        if (badge == null)
+          Text(title, style: context.text.title.w(500))
+        else
+          Wrap(
+            spacing: AppSpacing.s2,
+            runSpacing: AppSpacing.s1,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              Text(title, style: context.text.title.w(500)),
+              badge!,
+            ],
+          ),
         if (caption != null) ...[
           const SizedBox(height: 2),
           Text(caption!, style: context.text.bodySmall.copyWith(color: c.textSecondary)),

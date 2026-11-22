@@ -5,10 +5,12 @@ import 'package:flutter_riverpod/misc.dart' show StreamProviderFamily;
 import 'package:splitify/core/time/clock.dart';
 import 'package:splitify/data/data_providers.dart';
 import 'package:splitify/data/local/app_database.dart';
+import 'package:splitify/data/media_providers.dart';
 import 'package:splitify/data/remote/groups_remote.dart';
 import 'package:splitify/data/remote/remote_providers.dart';
 import 'package:splitify/data/repositories/repositories.dart';
 import 'package:splitify/data/sync/sync_types.dart';
+import 'package:splitify/domain/entities/prepared_image.dart';
 import 'package:splitify/features/auth/application/auth_providers.dart' hide clockProvider;
 
 /// The signed-in user's id, or null.
@@ -106,6 +108,21 @@ class GroupActions {
     required String type,
     required String currency,
   }) => _groups.update(id, {'name': name.trim(), 'type': type, 'main_currency': currency});
+
+  /// Photo cover (S-073): saved offline, uploaded by the queue once the group is on the server.
+  Future<void> setCoverPhoto(String id, PreparedImage image, {String? oldPath}) async {
+    final media = _ref.read(mediaRepositoryProvider);
+    if (oldPath != null) await media.discardPending(MediaBuckets.groupCovers, oldPath);
+    await media.saveGroupCover(id, image);
+  }
+
+  /// Back to the generated cover; a photo that never went up is forgotten.
+  Future<void> useGeneratedCover(String id, {String? oldPath}) async {
+    if (oldPath != null) {
+      await _ref.read(mediaRepositoryProvider).discardPending(MediaBuckets.groupCovers, oldPath);
+    }
+    await _groups.update(id, {'cover_kind': 'generated', 'cover_path': null});
+  }
 
   Future<void> setArchived(String id, {required bool archived}) =>
       _groups.setArchived(id, archived: archived);
