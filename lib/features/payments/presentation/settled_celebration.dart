@@ -49,9 +49,14 @@ class _SettledCelebrationState extends State<_SettledCelebration> {
     super.dispose();
   }
 
+  /// Closes this dialog only while it is still the top route (the person may have left already, e.g. a
+  /// deep link replaced the stack; popping then would close someone else's screen or hit a dead route).
   void _close() {
     _timer?.cancel();
-    if (mounted) Navigator.of(context).maybePop();
+    if (!mounted) return;
+    final route = ModalRoute.of(context);
+    if (route == null || !route.isActive || !route.isCurrent) return;
+    Navigator.of(context).pop();
   }
 
   @override

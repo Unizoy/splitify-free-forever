@@ -355,6 +355,13 @@ void main() {
       await _capture(t, 'upi-return');
       await _tap(t, find.byKey(const Key('upi-mark-paid')));
       await _waitFor(t, find.byKey(const Key('settled-celebration')), seconds: 10);
+      // It closes itself, then Settle up closes.
+      final gone = DateTime.now().add(const Duration(seconds: 10));
+      while (find.byKey(const Key('settled-celebration')).evaluate().isNotEmpty &&
+          DateTime.now().isBefore(gone)) {
+        await t.pump(const Duration(milliseconds: 200));
+      }
+      expect(find.byKey(const Key('settled-celebration')), findsNothing);
       final paid = await (db.select(db.payments)..where((p) => p.groupId.equals(gid))).get();
       expect(paid, hasLength(1));
       expect((paid.single.method, paid.single.amount, paid.single.fromMember), ('upi', 30000, a));
