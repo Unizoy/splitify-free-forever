@@ -120,7 +120,11 @@ class ImportPreviewStep extends StatelessWidget {
               key: Key('import-net-$name'),
               title: name,
               caption: _target(l, name),
-              amountText: importNetsLine(l, result.nets, name) ?? l.impNetZero,
+              // One line per currency, so long multi-currency balances never squeeze the name.
+              amountText: (importNetsLine(l, result.nets, name) ?? l.impNetZero).replaceAll(
+                ' · ',
+                '\n',
+              ),
               leading: Avatar(name: name, seed: 'import-$name'),
               showDivider: i < preview.file.members.length - 1,
             ),

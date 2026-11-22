@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:alchemist/alchemist.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:splitify/data/local/app_database.dart' show LocalImportBatch;
 import 'package:splitify/features/app_lock/application/app_lock_controller.dart';
