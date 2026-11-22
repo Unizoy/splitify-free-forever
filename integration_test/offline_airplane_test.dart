@@ -632,7 +632,7 @@ void main() {
       expect(find.text('Not applied (a newer edit won)', skipOffstage: false), findsOneWidget);
       await _capture(t, 'conflict-history');
 
-      await t.runAsync(() => b.client.rpc<Object?>('leave_group', params: {'group_id': gid}));
+      // B stays a member (leaving needs a zero balance); A soft-deletes the test group.
       await t.runAsync(b.dispose);
       await t.runAsync(() => c.read(groupsRepositoryProvider).delete(gid, gid));
       await t.runAsync(c.read(syncRepositoryProvider).syncNow);
