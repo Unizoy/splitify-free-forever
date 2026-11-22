@@ -9,7 +9,6 @@ import 'package:splitify/data/local/app_database.dart';
 import 'package:splitify/data/sync/sync_types.dart';
 import 'package:splitify/domain/rules/recurrence.dart';
 import 'package:splitify/features/comments/application/comments_providers.dart';
-import 'package:splitify/features/expenses/application/expense_draft.dart';
 import 'package:splitify/features/expenses/application/expense_editor_controller.dart';
 import 'package:splitify/features/expenses/application/expense_providers.dart';
 import 'package:splitify/features/expenses/presentation/editor/expense_editor_screen.dart';
