@@ -1,6 +1,6 @@
 # Phase 19 — Hardening and polish
 
-- Depends on: 13, 16, 17, 18 · Owner setup: 00 (`secrets/key.properties` for the release build) ·
+- Depends on: 13, 16, 17, 18, 18b · Owner setup: 00 (`secrets/key.properties` for the release build) ·
   Branch: `phase/19-hardening`
 - Goal: release quality — security, privacy, accessibility, performance, visual polish, docs, release build config.
 
@@ -38,3 +38,13 @@ open BLK).
 > the first 100 rows are built at once. Consider moving the group page to slivers (lazy rows) and re-run
 > `tool/e2e/perf.ps1`. The WorkManager background sync (S-160) was only scheduled on the device in phase 15; trigger a
 > real run once (`adb shell cmd jobscheduler run -f com.unizoy.splitify <job id>`) with the app closed.
+
+> **Amendment (D-025, 2026-11-22):** also harden phase 18b's payment bubble: privacy review of the notification
+> listener / accessibility service (allow-list only, no raw text stored, PIN fields never read), battery check,
+> overlay never blocks the UPI app's Pay/PIN buttons, and its strings/goldens in the final polish.
+
+## Amendment (S-226, phase 18b)
+
+Migration 0023 redefines `public.apply_mutations` (0019 body + `source = 'capture'` expense mutations →
+`private.sync_apply_capture`). If this phase redefines `apply_mutations` again, keep both the `recurring` and the
+`capture` dispatch lines. Also audit the payment-bubble feature (X4): services off by default, no raw text stored.

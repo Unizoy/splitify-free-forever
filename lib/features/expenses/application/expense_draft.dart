@@ -63,6 +63,7 @@ final class ExpenseDraft {
     this.repeat = RepeatDraft.never,
     this.canRepeat = false,
     this.templateId,
+    this.captureId,
   });
 
   final String groupId;
@@ -104,6 +105,10 @@ final class ExpenseDraft {
   /// Set when the editor edits a repeating expense's future copies (its template, #12) instead of one
   /// expense; [date] is then the template's first date and only the repeat can change it.
   final String? templateId;
+
+  /// The captured payment (payment bubble, phase 18b) this new expense starts from: saved with
+  /// `source = 'capture'` and the capture is removed from "Payments to add" (S-227).
+  final String? captureId;
 
   bool get isEdit => expenseId != null;
 
@@ -230,12 +235,15 @@ final class ExpenseDraft {
       'shares': check.shares,
       'split_kind': split.kind.name,
       'split_values': split.storedValues,
+      if (captureId != null && expenseId == null) 'source': 'capture',
     };
   }
 
   /// The expense fields every copy of a repeating expense gets (#12): [toRow] without the date, the
   /// receipt and conversions (those belong to one expense).
-  Map<String, Object?> templateFields() => {...toRow()}..remove('date');
+  Map<String, Object?> templateFields() => {...toRow()}
+    ..remove('date')
+    ..remove('source');
 
   /// Another repeat choice.
   ExpenseDraft withRepeat(RepeatDraft r) =>
@@ -261,6 +269,7 @@ final class ExpenseDraft {
     repeat: repeat,
     canRepeat: canRepeat,
     templateId: templateId,
+    captureId: captureId,
   );
 
   /// One payer for the whole amount.
@@ -324,6 +333,7 @@ final class ExpenseDraft {
     repeat: repeat ?? this.repeat,
     canRepeat: canRepeat,
     templateId: templateId,
+    captureId: captureId,
   );
 }
 

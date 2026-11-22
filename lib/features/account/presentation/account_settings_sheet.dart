@@ -9,6 +9,8 @@ import 'package:splitify/features/account/application/theme_mode_controller.dart
 import 'package:splitify/features/app_lock/application/app_lock_controller.dart';
 import 'package:splitify/features/app_lock/presentation/security_routes.dart';
 import 'package:splitify/features/auth/application/auth_providers.dart';
+import 'package:splitify/features/capture/application/capture_providers.dart';
+import 'package:splitify/features/capture/presentation/capture_routes.dart' show CaptureRoutes;
 import 'package:splitify/features/import_splitwise/presentation/import_routes.dart';
 import 'package:splitify/features/notifications/application/notifications_providers.dart';
 import 'package:splitify/features/sync/application/sync_texts.dart';
@@ -121,6 +123,16 @@ class AccountSettingsBody extends ConsumerWidget {
               onTap: () {
                 Navigator.of(context).pop();
                 unawaited(context.push('/account/notifications'));
+              },
+            ),
+            AccordionRow(
+              label: l.captureRow,
+              value: (ref.watch(captureSettingsProvider).value?.enabled ?? false)
+                  ? l.captureRowOn
+                  : l.captureRowOff,
+              onTap: () {
+                Navigator.of(context).pop();
+                unawaited(context.push(CaptureRoutes.settings));
               },
             ),
           ],

@@ -11,7 +11,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 7;
+  int get schemaVersion => 8;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -46,6 +46,11 @@ class AppDatabase extends _$AppDatabase {
       if (from < 7) {
         await m.createTable(importBatches);
         await m.createIndex(importBatchesGroup);
+      }
+      // v8 (phase 18b): local-only payments to add (payment bubble).
+      if (from < 8) {
+        await m.createTable(paymentCaptures);
+        await m.createIndex(paymentCapturesTime);
       }
     },
     beforeOpen: (details) async {

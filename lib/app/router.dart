@@ -34,6 +34,7 @@ import 'package:splitify/features/onboarding/presentation/welcome_screen.dart';
 import 'package:splitify/features/payments/presentation/payment_routes.dart';
 import 'package:splitify/features/sync/presentation/sync_storage_screen.dart';
 import 'package:splitify/features/search/presentation/search_screen.dart' show searchRoutes;
+import 'package:splitify/features/capture/presentation/capture_routes.dart' show captureRoutes;
 
 /// Route paths (planning/07-screens-and-flows.md §1).
 abstract final class Routes {
@@ -66,10 +67,8 @@ abstract final class Routes {
 /// link `splitify://dev/login?user=e2e-a` opens the developer sign-in (T4).
 String? authRedirect(Uri uri, {required bool signedIn, bool debug = kDebugMode}) {
   final path = uri.path;
-  // Invite QR / share link `splitify://join?code=…` (host `join`) → the join screen.
-  if (uri.host == 'join' && path != Routes.join) {
-    return Uri(path: Routes.join, queryParameters: _code(uri)).toString();
-  }
+  final link = linkRedirect(uri);
+  if (link != null) return link;
   if (debug && (path == '/login' || path == '/dev/login')) {
     return Uri(
       path: Routes.devLogin,
@@ -81,6 +80,19 @@ String? authRedirect(Uri uri, {required bool signedIn, bool debug = kDebugMode})
   if (!signedIn) return public ? null : Routes.welcome;
   if (path == Routes.signInCode) return Routes.signInProfile;
   if (path == Routes.welcome || path == Routes.signIn) return Routes.groups;
+  return null;
+}
+
+/// App links by host: invite QR / share link `splitify://join?code=…` → the join screen; payment bubble
+/// `splitify://capture?id=…[&group=…]` (phase 18b) → the capture screen. Null for everything else.
+String? linkRedirect(Uri uri) {
+  final path = uri.path;
+  if (uri.host == 'capture' && path != '/capture') {
+    return Uri(path: '/capture', queryParameters: uri.queryParameters).toString();
+  }
+  if (uri.host == 'join' && path != Routes.join) {
+    return Uri(path: Routes.join, queryParameters: _code(uri)).toString();
+  }
   return null;
 }
 
@@ -119,9 +131,8 @@ GoRouter buildRouter({String initialLocation = Routes.welcome, AuthGate? gate}) 
   navigatorKey: _rootKey,
   initialLocation: initialLocation,
   refreshListenable: gate,
-  redirect: gate == null
-      ? null
-      : (context, state) => authRedirect(state.uri, signedIn: gate.signedIn),
+  redirect: (context, state) =>
+      gate == null ? linkRedirect(state.uri) : authRedirect(state.uri, signedIn: gate.signedIn),
   routes: [
     GoRoute(path: Routes.welcome, builder: (context, state) => const WelcomeScreen()),
     GoRoute(
@@ -239,6 +250,7 @@ GoRouter buildRouter({String initialLocation = Routes.welcome, AuthGate? gate}) 
     ...friendRoutes(),
     ...searchRoutes(),
     ...notificationRoutes(),
+    ...captureRoutes(),
     ...importRoutes(),
     ...securityRoutes(),
     if (kDebugMode) ...[

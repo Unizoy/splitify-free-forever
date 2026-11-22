@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:splitify/features/capture/presentation/capture_binding.dart';
 import 'package:splitify/features/currency/presentation/fx_rates_keeper.dart';
 import 'package:splitify/features/expenses/presentation/expense_routes.dart';
 import 'package:splitify/features/notifications/presentation/notifications_binding.dart';
@@ -25,7 +26,9 @@ class AppShell extends StatelessWidget {
     return Scaffold(
       extendBody: true,
       body: SyncBinding(
-        child: NotificationsBinding(child: FxRatesKeeper(child: shell)),
+        child: NotificationsBinding(
+          child: FxRatesKeeper(child: CaptureBinding(child: shell)),
+        ),
       ),
       bottomNavigationBar: CapsuleNavBar(
         currentIndex: index,

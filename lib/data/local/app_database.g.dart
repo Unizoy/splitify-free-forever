@@ -11516,6 +11516,553 @@ class ImportBatchesCompanion extends UpdateCompanion<LocalImportBatch> {
   }
 }
 
+class PaymentCaptures extends Table with TableInfo<PaymentCaptures, LocalPaymentCapture> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  PaymentCaptures(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL PRIMARY KEY',
+  );
+  static const VerificationMeta _amountMeta = const VerificationMeta('amount');
+  late final GeneratedColumn<int> amount = GeneratedColumn<int>(
+    'amount',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL',
+  );
+  static const VerificationMeta _currencyMeta = const VerificationMeta('currency');
+  late final GeneratedColumn<String> currency = GeneratedColumn<String>(
+    'currency',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    $customConstraints: 'NOT NULL DEFAULT \'INR\'',
+    defaultValue: const CustomExpression('\'INR\''),
+  );
+  static const VerificationMeta _payeeMeta = const VerificationMeta('payee');
+  late final GeneratedColumn<String> payee = GeneratedColumn<String>(
+    'payee',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    $customConstraints: '',
+  );
+  static const VerificationMeta _noteMeta = const VerificationMeta('note');
+  late final GeneratedColumn<String> note = GeneratedColumn<String>(
+    'note',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    $customConstraints: '',
+  );
+  static const VerificationMeta _refMeta = const VerificationMeta('ref');
+  late final GeneratedColumn<String> ref = GeneratedColumn<String>(
+    'ref',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    $customConstraints: '',
+  );
+  static const VerificationMeta _appPackageMeta = const VerificationMeta('appPackage');
+  late final GeneratedColumn<String> appPackage = GeneratedColumn<String>(
+    'app_package',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL',
+  );
+  static const VerificationMeta _appNameMeta = const VerificationMeta('appName');
+  late final GeneratedColumn<String> appName = GeneratedColumn<String>(
+    'app_name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL',
+  );
+  static const VerificationMeta _sourceMeta = const VerificationMeta('source');
+  late final GeneratedColumn<String> source = GeneratedColumn<String>(
+    'source',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL',
+  );
+  static const VerificationMeta _capturedAtMeta = const VerificationMeta('capturedAt');
+  late final GeneratedColumn<String> capturedAt = GeneratedColumn<String>(
+    'captured_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL',
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    amount,
+    currency,
+    payee,
+    note,
+    ref,
+    appPackage,
+    appName,
+    source,
+    capturedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'payment_captures';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<LocalPaymentCapture> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('amount')) {
+      context.handle(_amountMeta, amount.isAcceptableOrUnknown(data['amount']!, _amountMeta));
+    } else if (isInserting) {
+      context.missing(_amountMeta);
+    }
+    if (data.containsKey('currency')) {
+      context.handle(
+        _currencyMeta,
+        currency.isAcceptableOrUnknown(data['currency']!, _currencyMeta),
+      );
+    }
+    if (data.containsKey('payee')) {
+      context.handle(_payeeMeta, payee.isAcceptableOrUnknown(data['payee']!, _payeeMeta));
+    }
+    if (data.containsKey('note')) {
+      context.handle(_noteMeta, note.isAcceptableOrUnknown(data['note']!, _noteMeta));
+    }
+    if (data.containsKey('ref')) {
+      context.handle(_refMeta, ref.isAcceptableOrUnknown(data['ref']!, _refMeta));
+    }
+    if (data.containsKey('app_package')) {
+      context.handle(
+        _appPackageMeta,
+        appPackage.isAcceptableOrUnknown(data['app_package']!, _appPackageMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_appPackageMeta);
+    }
+    if (data.containsKey('app_name')) {
+      context.handle(_appNameMeta, appName.isAcceptableOrUnknown(data['app_name']!, _appNameMeta));
+    } else if (isInserting) {
+      context.missing(_appNameMeta);
+    }
+    if (data.containsKey('source')) {
+      context.handle(_sourceMeta, source.isAcceptableOrUnknown(data['source']!, _sourceMeta));
+    } else if (isInserting) {
+      context.missing(_sourceMeta);
+    }
+    if (data.containsKey('captured_at')) {
+      context.handle(
+        _capturedAtMeta,
+        capturedAt.isAcceptableOrUnknown(data['captured_at']!, _capturedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_capturedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  LocalPaymentCapture map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return LocalPaymentCapture(
+      id: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      amount: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}amount'],
+      )!,
+      currency: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}currency'],
+      )!,
+      payee: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}payee'],
+      ),
+      note: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}note']),
+      ref: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}ref']),
+      appPackage: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}app_package'],
+      )!,
+      appName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}app_name'],
+      )!,
+      source: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}source'],
+      )!,
+      capturedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}captured_at'],
+      )!,
+    );
+  }
+
+  @override
+  PaymentCaptures createAlias(String alias) {
+    return PaymentCaptures(attachedDatabase, alias);
+  }
+
+  @override
+  bool get dontWriteConstraints => true;
+}
+
+class LocalPaymentCapture extends DataClass implements Insertable<LocalPaymentCapture> {
+  final String id;
+  final int amount;
+  final String currency;
+  final String? payee;
+  final String? note;
+  final String? ref;
+  final String appPackage;
+  final String appName;
+  final String source;
+  final String capturedAt;
+  const LocalPaymentCapture({
+    required this.id,
+    required this.amount,
+    required this.currency,
+    this.payee,
+    this.note,
+    this.ref,
+    required this.appPackage,
+    required this.appName,
+    required this.source,
+    required this.capturedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['amount'] = Variable<int>(amount);
+    map['currency'] = Variable<String>(currency);
+    if (!nullToAbsent || payee != null) {
+      map['payee'] = Variable<String>(payee);
+    }
+    if (!nullToAbsent || note != null) {
+      map['note'] = Variable<String>(note);
+    }
+    if (!nullToAbsent || ref != null) {
+      map['ref'] = Variable<String>(ref);
+    }
+    map['app_package'] = Variable<String>(appPackage);
+    map['app_name'] = Variable<String>(appName);
+    map['source'] = Variable<String>(source);
+    map['captured_at'] = Variable<String>(capturedAt);
+    return map;
+  }
+
+  PaymentCapturesCompanion toCompanion(bool nullToAbsent) {
+    return PaymentCapturesCompanion(
+      id: Value(id),
+      amount: Value(amount),
+      currency: Value(currency),
+      payee: payee == null && nullToAbsent ? const Value.absent() : Value(payee),
+      note: note == null && nullToAbsent ? const Value.absent() : Value(note),
+      ref: ref == null && nullToAbsent ? const Value.absent() : Value(ref),
+      appPackage: Value(appPackage),
+      appName: Value(appName),
+      source: Value(source),
+      capturedAt: Value(capturedAt),
+    );
+  }
+
+  factory LocalPaymentCapture.fromJson(Map<String, dynamic> json, {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return LocalPaymentCapture(
+      id: serializer.fromJson<String>(json['id']),
+      amount: serializer.fromJson<int>(json['amount']),
+      currency: serializer.fromJson<String>(json['currency']),
+      payee: serializer.fromJson<String?>(json['payee']),
+      note: serializer.fromJson<String?>(json['note']),
+      ref: serializer.fromJson<String?>(json['ref']),
+      appPackage: serializer.fromJson<String>(json['app_package']),
+      appName: serializer.fromJson<String>(json['app_name']),
+      source: serializer.fromJson<String>(json['source']),
+      capturedAt: serializer.fromJson<String>(json['captured_at']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'amount': serializer.toJson<int>(amount),
+      'currency': serializer.toJson<String>(currency),
+      'payee': serializer.toJson<String?>(payee),
+      'note': serializer.toJson<String?>(note),
+      'ref': serializer.toJson<String?>(ref),
+      'app_package': serializer.toJson<String>(appPackage),
+      'app_name': serializer.toJson<String>(appName),
+      'source': serializer.toJson<String>(source),
+      'captured_at': serializer.toJson<String>(capturedAt),
+    };
+  }
+
+  LocalPaymentCapture copyWith({
+    String? id,
+    int? amount,
+    String? currency,
+    Value<String?> payee = const Value.absent(),
+    Value<String?> note = const Value.absent(),
+    Value<String?> ref = const Value.absent(),
+    String? appPackage,
+    String? appName,
+    String? source,
+    String? capturedAt,
+  }) => LocalPaymentCapture(
+    id: id ?? this.id,
+    amount: amount ?? this.amount,
+    currency: currency ?? this.currency,
+    payee: payee.present ? payee.value : this.payee,
+    note: note.present ? note.value : this.note,
+    ref: ref.present ? ref.value : this.ref,
+    appPackage: appPackage ?? this.appPackage,
+    appName: appName ?? this.appName,
+    source: source ?? this.source,
+    capturedAt: capturedAt ?? this.capturedAt,
+  );
+  LocalPaymentCapture copyWithCompanion(PaymentCapturesCompanion data) {
+    return LocalPaymentCapture(
+      id: data.id.present ? data.id.value : this.id,
+      amount: data.amount.present ? data.amount.value : this.amount,
+      currency: data.currency.present ? data.currency.value : this.currency,
+      payee: data.payee.present ? data.payee.value : this.payee,
+      note: data.note.present ? data.note.value : this.note,
+      ref: data.ref.present ? data.ref.value : this.ref,
+      appPackage: data.appPackage.present ? data.appPackage.value : this.appPackage,
+      appName: data.appName.present ? data.appName.value : this.appName,
+      source: data.source.present ? data.source.value : this.source,
+      capturedAt: data.capturedAt.present ? data.capturedAt.value : this.capturedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LocalPaymentCapture(')
+          ..write('id: $id, ')
+          ..write('amount: $amount, ')
+          ..write('currency: $currency, ')
+          ..write('payee: $payee, ')
+          ..write('note: $note, ')
+          ..write('ref: $ref, ')
+          ..write('appPackage: $appPackage, ')
+          ..write('appName: $appName, ')
+          ..write('source: $source, ')
+          ..write('capturedAt: $capturedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, amount, currency, payee, note, ref, appPackage, appName, source, capturedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is LocalPaymentCapture &&
+          other.id == this.id &&
+          other.amount == this.amount &&
+          other.currency == this.currency &&
+          other.payee == this.payee &&
+          other.note == this.note &&
+          other.ref == this.ref &&
+          other.appPackage == this.appPackage &&
+          other.appName == this.appName &&
+          other.source == this.source &&
+          other.capturedAt == this.capturedAt);
+}
+
+class PaymentCapturesCompanion extends UpdateCompanion<LocalPaymentCapture> {
+  final Value<String> id;
+  final Value<int> amount;
+  final Value<String> currency;
+  final Value<String?> payee;
+  final Value<String?> note;
+  final Value<String?> ref;
+  final Value<String> appPackage;
+  final Value<String> appName;
+  final Value<String> source;
+  final Value<String> capturedAt;
+  final Value<int> rowid;
+  const PaymentCapturesCompanion({
+    this.id = const Value.absent(),
+    this.amount = const Value.absent(),
+    this.currency = const Value.absent(),
+    this.payee = const Value.absent(),
+    this.note = const Value.absent(),
+    this.ref = const Value.absent(),
+    this.appPackage = const Value.absent(),
+    this.appName = const Value.absent(),
+    this.source = const Value.absent(),
+    this.capturedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  PaymentCapturesCompanion.insert({
+    required String id,
+    required int amount,
+    this.currency = const Value.absent(),
+    this.payee = const Value.absent(),
+    this.note = const Value.absent(),
+    this.ref = const Value.absent(),
+    required String appPackage,
+    required String appName,
+    required String source,
+    required String capturedAt,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       amount = Value(amount),
+       appPackage = Value(appPackage),
+       appName = Value(appName),
+       source = Value(source),
+       capturedAt = Value(capturedAt);
+  static Insertable<LocalPaymentCapture> custom({
+    Expression<String>? id,
+    Expression<int>? amount,
+    Expression<String>? currency,
+    Expression<String>? payee,
+    Expression<String>? note,
+    Expression<String>? ref,
+    Expression<String>? appPackage,
+    Expression<String>? appName,
+    Expression<String>? source,
+    Expression<String>? capturedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (amount != null) 'amount': amount,
+      if (currency != null) 'currency': currency,
+      if (payee != null) 'payee': payee,
+      if (note != null) 'note': note,
+      if (ref != null) 'ref': ref,
+      if (appPackage != null) 'app_package': appPackage,
+      if (appName != null) 'app_name': appName,
+      if (source != null) 'source': source,
+      if (capturedAt != null) 'captured_at': capturedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  PaymentCapturesCompanion copyWith({
+    Value<String>? id,
+    Value<int>? amount,
+    Value<String>? currency,
+    Value<String?>? payee,
+    Value<String?>? note,
+    Value<String?>? ref,
+    Value<String>? appPackage,
+    Value<String>? appName,
+    Value<String>? source,
+    Value<String>? capturedAt,
+    Value<int>? rowid,
+  }) {
+    return PaymentCapturesCompanion(
+      id: id ?? this.id,
+      amount: amount ?? this.amount,
+      currency: currency ?? this.currency,
+      payee: payee ?? this.payee,
+      note: note ?? this.note,
+      ref: ref ?? this.ref,
+      appPackage: appPackage ?? this.appPackage,
+      appName: appName ?? this.appName,
+      source: source ?? this.source,
+      capturedAt: capturedAt ?? this.capturedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (amount.present) {
+      map['amount'] = Variable<int>(amount.value);
+    }
+    if (currency.present) {
+      map['currency'] = Variable<String>(currency.value);
+    }
+    if (payee.present) {
+      map['payee'] = Variable<String>(payee.value);
+    }
+    if (note.present) {
+      map['note'] = Variable<String>(note.value);
+    }
+    if (ref.present) {
+      map['ref'] = Variable<String>(ref.value);
+    }
+    if (appPackage.present) {
+      map['app_package'] = Variable<String>(appPackage.value);
+    }
+    if (appName.present) {
+      map['app_name'] = Variable<String>(appName.value);
+    }
+    if (source.present) {
+      map['source'] = Variable<String>(source.value);
+    }
+    if (capturedAt.present) {
+      map['captured_at'] = Variable<String>(capturedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PaymentCapturesCompanion(')
+          ..write('id: $id, ')
+          ..write('amount: $amount, ')
+          ..write('currency: $currency, ')
+          ..write('payee: $payee, ')
+          ..write('note: $note, ')
+          ..write('ref: $ref, ')
+          ..write('appPackage: $appPackage, ')
+          ..write('appName: $appName, ')
+          ..write('source: $source, ')
+          ..write('capturedAt: $capturedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class ExpenseSearch extends Table
     with
         TableInfo<ExpenseSearch, ExpenseSearchData>,
@@ -11990,6 +12537,11 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     'import_batches_group',
     'CREATE INDEX import_batches_group ON import_batches (group_id, created_at)',
   );
+  late final PaymentCaptures paymentCaptures = PaymentCaptures(this);
+  late final Index paymentCapturesTime = Index(
+    'payment_captures_time',
+    'CREATE INDEX payment_captures_time ON payment_captures (captured_at)',
+  );
   late final ExpenseSearch expenseSearch = ExpenseSearch(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
@@ -12027,6 +12579,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     recurringTemplatesExpense,
     importBatches,
     importBatchesGroup,
+    paymentCaptures,
+    paymentCapturesTime,
     expenseSearch,
   ];
   @override
@@ -16986,6 +17540,256 @@ typedef $ImportBatchesProcessedTableManager =
       LocalImportBatch,
       PrefetchHooks Function()
     >;
+typedef $PaymentCapturesCreateCompanionBuilder = PaymentCapturesCompanion Function({
+  required String id,
+  required int amount,
+  Value<String> currency,
+  Value<String?> payee,
+  Value<String?> note,
+  Value<String?> ref,
+  required String appPackage,
+  required String appName,
+  required String source,
+  required String capturedAt,
+  Value<int> rowid,
+});
+typedef $PaymentCapturesUpdateCompanionBuilder = PaymentCapturesCompanion Function({
+  Value<String> id,
+  Value<int> amount,
+  Value<String> currency,
+  Value<String?> payee,
+  Value<String?> note,
+  Value<String?> ref,
+  Value<String> appPackage,
+  Value<String> appName,
+  Value<String> source,
+  Value<String> capturedAt,
+  Value<int> rowid,
+});
+
+class $PaymentCapturesFilterComposer extends Composer<_$AppDatabase, PaymentCaptures> {
+  $PaymentCapturesFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get amount =>
+      $composableBuilder(column: $table.amount, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get currency =>
+      $composableBuilder(column: $table.currency, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get payee =>
+      $composableBuilder(column: $table.payee, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get note =>
+      $composableBuilder(column: $table.note, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get ref =>
+      $composableBuilder(column: $table.ref, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get appPackage =>
+      $composableBuilder(column: $table.appPackage, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get appName =>
+      $composableBuilder(column: $table.appName, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get source =>
+      $composableBuilder(column: $table.source, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get capturedAt =>
+      $composableBuilder(column: $table.capturedAt, builder: (column) => ColumnFilters(column));
+}
+
+class $PaymentCapturesOrderingComposer extends Composer<_$AppDatabase, PaymentCaptures> {
+  $PaymentCapturesOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get amount =>
+      $composableBuilder(column: $table.amount, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get currency =>
+      $composableBuilder(column: $table.currency, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get payee =>
+      $composableBuilder(column: $table.payee, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get note =>
+      $composableBuilder(column: $table.note, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get ref =>
+      $composableBuilder(column: $table.ref, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get appPackage =>
+      $composableBuilder(column: $table.appPackage, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get appName =>
+      $composableBuilder(column: $table.appName, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get source =>
+      $composableBuilder(column: $table.source, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get capturedAt =>
+      $composableBuilder(column: $table.capturedAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $PaymentCapturesAnnotationComposer extends Composer<_$AppDatabase, PaymentCaptures> {
+  $PaymentCapturesAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get amount =>
+      $composableBuilder(column: $table.amount, builder: (column) => column);
+
+  GeneratedColumn<String> get currency =>
+      $composableBuilder(column: $table.currency, builder: (column) => column);
+
+  GeneratedColumn<String> get payee =>
+      $composableBuilder(column: $table.payee, builder: (column) => column);
+
+  GeneratedColumn<String> get note =>
+      $composableBuilder(column: $table.note, builder: (column) => column);
+
+  GeneratedColumn<String> get ref =>
+      $composableBuilder(column: $table.ref, builder: (column) => column);
+
+  GeneratedColumn<String> get appPackage =>
+      $composableBuilder(column: $table.appPackage, builder: (column) => column);
+
+  GeneratedColumn<String> get appName =>
+      $composableBuilder(column: $table.appName, builder: (column) => column);
+
+  GeneratedColumn<String> get source =>
+      $composableBuilder(column: $table.source, builder: (column) => column);
+
+  GeneratedColumn<String> get capturedAt =>
+      $composableBuilder(column: $table.capturedAt, builder: (column) => column);
+}
+
+class $PaymentCapturesTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          PaymentCaptures,
+          LocalPaymentCapture,
+          $PaymentCapturesFilterComposer,
+          $PaymentCapturesOrderingComposer,
+          $PaymentCapturesAnnotationComposer,
+          $PaymentCapturesCreateCompanionBuilder,
+          $PaymentCapturesUpdateCompanionBuilder,
+          (
+            LocalPaymentCapture,
+            BaseReferences<_$AppDatabase, PaymentCaptures, LocalPaymentCapture>,
+          ),
+          LocalPaymentCapture,
+          PrefetchHooks Function()
+        > {
+  $PaymentCapturesTableManager(_$AppDatabase db, PaymentCaptures table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () => $PaymentCapturesFilterComposer($db: db, $table: table),
+          createOrderingComposer: () => $PaymentCapturesOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $PaymentCapturesAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<int> amount = const Value.absent(),
+                Value<String> currency = const Value.absent(),
+                Value<String?> payee = const Value.absent(),
+                Value<String?> note = const Value.absent(),
+                Value<String?> ref = const Value.absent(),
+                Value<String> appPackage = const Value.absent(),
+                Value<String> appName = const Value.absent(),
+                Value<String> source = const Value.absent(),
+                Value<String> capturedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => PaymentCapturesCompanion(
+                id: id,
+                amount: amount,
+                currency: currency,
+                payee: payee,
+                note: note,
+                ref: ref,
+                appPackage: appPackage,
+                appName: appName,
+                source: source,
+                capturedAt: capturedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required int amount,
+                Value<String> currency = const Value.absent(),
+                Value<String?> payee = const Value.absent(),
+                Value<String?> note = const Value.absent(),
+                Value<String?> ref = const Value.absent(),
+                required String appPackage,
+                required String appName,
+                required String source,
+                required String capturedAt,
+                Value<int> rowid = const Value.absent(),
+              }) => PaymentCapturesCompanion.insert(
+                id: id,
+                amount: amount,
+                currency: currency,
+                payee: payee,
+                note: note,
+                ref: ref,
+                appPackage: appPackage,
+                appName: appName,
+                source: source,
+                capturedAt: capturedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<PaymentCaptures, LocalPaymentCapture>(table),
+                  BaseReferences<_$AppDatabase, PaymentCaptures, LocalPaymentCapture>(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $PaymentCapturesProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      PaymentCaptures,
+      LocalPaymentCapture,
+      $PaymentCapturesFilterComposer,
+      $PaymentCapturesOrderingComposer,
+      $PaymentCapturesAnnotationComposer,
+      $PaymentCapturesCreateCompanionBuilder,
+      $PaymentCapturesUpdateCompanionBuilder,
+      (LocalPaymentCapture, BaseReferences<_$AppDatabase, PaymentCaptures, LocalPaymentCapture>),
+      LocalPaymentCapture,
+      PrefetchHooks Function()
+    >;
 typedef $ExpenseSearchCreateCompanionBuilder = ExpenseSearchCompanion Function({
   required String expenseId,
   required String groupId,
@@ -17201,6 +18005,8 @@ class $AppDatabaseManager {
       $RecurringTemplatesTableManager(_db, _db.recurringTemplates);
   $ImportBatchesTableManager get importBatches =>
       $ImportBatchesTableManager(_db, _db.importBatches);
+  $PaymentCapturesTableManager get paymentCaptures =>
+      $PaymentCapturesTableManager(_db, _db.paymentCaptures);
   $ExpenseSearchTableManager get expenseSearch =>
       $ExpenseSearchTableManager(_db, _db.expenseSearch);
 }

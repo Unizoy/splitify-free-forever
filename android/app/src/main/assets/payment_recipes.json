@@ -1,0 +1,240 @@
+{
+  "version": 1,
+  "comment": "Splitify payment capture recipes (phase 18b, S-221). Text is normalised (NBSP/newlines -> one space) and matched case-insensitively. Fix wording here, no code change needed.",
+  "maxAmountPaise": 100000000,
+  "apps": [
+    {
+      "package": "com.google.android.apps.nbu.paisa.user",
+      "name": "Google Pay",
+      "kind": "upi"
+    },
+    {
+      "package": "com.phonepe.app",
+      "name": "PhonePe",
+      "kind": "upi"
+    },
+    {
+      "package": "net.one97.paytm",
+      "name": "Paytm",
+      "kind": "upi"
+    },
+    {
+      "package": "in.org.npci.upiapp",
+      "name": "BHIM",
+      "kind": "upi"
+    },
+    {
+      "package": "in.amazon.mShop.android.shopping",
+      "name": "Amazon Pay",
+      "kind": "upi"
+    },
+    {
+      "package": "com.dreamplug.androidapp",
+      "name": "CRED",
+      "kind": "upi"
+    },
+    {
+      "package": "money.super.payments",
+      "name": "super.money",
+      "kind": "upi"
+    },
+    {
+      "package": "com.whatsapp",
+      "name": "WhatsApp",
+      "kind": "upi",
+      "defaultOn": false
+    },
+    {
+      "package": "com.google.android.apps.messaging",
+      "name": "Messages",
+      "kind": "sms"
+    },
+    {
+      "package": "com.samsung.android.messaging",
+      "name": "Samsung Messages",
+      "kind": "sms"
+    },
+    {
+      "package": "com.hdfcbank.android.now",
+      "name": "HDFC Bank",
+      "kind": "bank"
+    },
+    {
+      "package": "com.hdfcbank.payzapp",
+      "name": "PayZapp",
+      "kind": "bank"
+    },
+    {
+      "package": "com.sbi.lotusintouch",
+      "name": "YONO SBI",
+      "kind": "bank"
+    },
+    {
+      "package": "com.csam.icici.bank.imobile",
+      "name": "iMobile",
+      "kind": "bank"
+    },
+    {
+      "package": "com.axis.mobile",
+      "name": "Axis Mobile",
+      "kind": "bank"
+    },
+    {
+      "package": "com.kotak811mobilebankingapp.instantsavingsupiscanandpayrecharge",
+      "name": "Kotak",
+      "kind": "bank"
+    },
+    {
+      "package": "com.msf.kbank.mobile",
+      "name": "Kotak",
+      "kind": "bank"
+    },
+    {
+      "package": "com.Version1",
+      "name": "PNB ONE",
+      "kind": "bank"
+    },
+    {
+      "package": "com.bankofbaroda.mconnect",
+      "name": "bob World",
+      "kind": "bank"
+    },
+    {
+      "package": "com.canarabank.mobility",
+      "name": "Canara ai1",
+      "kind": "bank"
+    },
+    {
+      "package": "dev.splitify.fakeupi",
+      "name": "Fake UPI",
+      "kind": "upi",
+      "debugOnly": true
+    },
+    {
+      "package": "com.android.shell",
+      "name": "adb",
+      "kind": "sms",
+      "debugOnly": true
+    }
+  ],
+  "ignore": [
+    {
+      "id": "otp",
+      "pattern": "\\botp\\b|one[- ]time password|verification code|sensitive notification content hidden"
+    },
+    {
+      "id": "failed",
+      "pattern": "\\b(?:failed|failure|declined|unsuccessful|reversed|reversal|cancell?ed)\\b|could not be (?:completed|processed)"
+    },
+    {
+      "id": "request",
+      "pattern": "\\b(?:has requested|requested|is requesting|collect request|request(?:ing)? money)\\b"
+    },
+    {
+      "id": "future",
+      "pattern": "\\bwill be (?:debited|deducted|charged)\\b|\\b(?:is|bill) due\\b|\\bdue (?:on|by|date)\\b|\\bupcoming\\b|\\breminder\\b|\\bmandate (?:set|created|registered)\\b|\\bautopay (?:set ?up|activated|registered)\\b|\\bsetting an autopay\\b|\\bpending\\b"
+    },
+    {
+      "id": "credit",
+      "pattern": "\\bto your (?:[a-z]+ )?(?:bank )?(?:a/c|ac|account|wallet)\\b|\\bcashback of\\b"
+    },
+    {
+      "id": "credit",
+      "pattern": "\\b(?:credited|deposited|refund(?:ed)?|received)\\b|\\bmoney received\\b",
+      "unless": "\\b(?:debited|spent)\\b|\\bdr\\.|\\b(?:paid|sent) (?:₹|rs|inr)|(?:₹|rs\\.?|inr) ?[0-9][0-9,.]* (?:has been |was )?(?:paid|sent)"
+    },
+    {
+      "id": "promo",
+      "pattern": "\\b(?:win|won|offer|offers|voucher|coupon|reward|rewards|scratch card|apply now|pre-approved|lifetime free|cashback)\\b",
+      "unless": "\\b(?:debited|spent)\\b|\\bdr\\.|\\b(?:paid|sent) (?:₹|rs|inr)|(?:₹|rs\\.?|inr) ?[0-9][0-9,.]* (?:has been |was )?(?:paid|sent|debited)|\\bpaid to\\b"
+    }
+  ],
+  "debit": [
+    {
+      "id": "sent_from_to",
+      "pattern": "\\bsent (?:₹|\\brs\\.?|\\binr) ?(?<amount>[0-9][0-9,]*(?:\\.[0-9]{1,2})?) from .{1,40}? to (?<payee>.+?) on [0-9]{1,2}[-/][0-9]{1,2}[-/][0-9]{2,4}\\b"
+    },
+    {
+      "id": "sbi_trf",
+      "pattern": "a/c [x*]*[0-9]{3,6} debited by (?:(?:₹|\\brs\\.?|\\binr) ?)?(?<amount>[0-9][0-9,]*(?:\\.[0-9]{1,2})?) on date [0-9a-z]{5,9} trf to (?<payee>.+?) ref ?no\\b"
+    },
+    {
+      "id": "debited_paid_to",
+      "pattern": "(?:₹|\\brs\\.?|\\binr) ?(?<amount>[0-9][0-9,]*(?:\\.[0-9]{1,2})?) debited from a/c [x*]*[0-9]{3,6} and paid to (?<payee>.+?)\\.? (?:upi )?ref\\b"
+    },
+    {
+      "id": "debited_from_on_to",
+      "pattern": "(?:₹|\\brs\\.?|\\binr) ?(?<amount>[0-9][0-9,]*(?:\\.[0-9]{1,2})?) (?:has been )?debited from (?:your )?(?:a/c|ac|account|acct)(?: no\\.?)? [x*]*[0-9]{3,6} on [0-9a-z/-]{5,11} to (?<payee>.+?) \\(?(?:upi )?ref\\b"
+    },
+    {
+      "id": "icici_debited_for",
+      "pattern": "acc(?:t|ount)? [x*]*[0-9]{3,6} debited (?:for|with) (?:₹|\\brs\\.?|\\binr) ?(?<amount>[0-9][0-9,]*(?:\\.[0-9]{1,2})?) on [0-9a-z-]{7,11}; (?<payee>.+?) credited\\."
+    },
+    {
+      "id": "pnb_debited",
+      "pattern": "a/c [x*]*[0-9]{3,6} debited (?:₹|\\brs\\.?|\\binr) ?(?<amount>[0-9][0-9,]*(?:\\.[0-9]{1,2})?) (?:dt [0-9-]{8,10} [0-9:]{8} )?to (?<payee>.+?) thru upi\\b"
+    },
+    {
+      "id": "canara_dr",
+      "pattern": "acct [x*]*[0-9]{3,6} dr\\. (?:₹|\\brs\\.?|\\binr) ?(?<amount>[0-9][0-9,]*(?:\\.[0-9]{1,2})?) on [0-9/-]{8,10} to (?<payee>.+?)[;,] upi\\b"
+    },
+    {
+      "id": "bob_dr_cr",
+      "pattern": "(?:₹|\\brs\\.?|\\binr) ?(?<amount>[0-9][0-9,]*(?:\\.[0-9]{1,2})?) dr\\. from a/c [x*]*[0-9]{3,6} and cr\\. to (?<payee>.+?)\\.? ref\\b"
+    },
+    {
+      "id": "axis_upi",
+      "pattern": "(?:₹|\\brs\\.?|\\binr) ?(?<amount>[0-9][0-9,]*(?:\\.[0-9]{1,2})?) debited a/c no\\. [x*]*[0-9]{3,6} [0-9-]{8,10},? [0-9:]{8} upi/p2[am]/(?<ref>[0-9]{6,20})/(?<payee>[^/]+?)(?= not you|/|$)"
+    },
+    {
+      "id": "axis_debited_on",
+      "pattern": "(?:₹|\\brs\\.?|\\binr) ?(?<amount>[0-9][0-9,]*(?:\\.[0-9]{1,2})?) debited from a/c no\\. [^ ]+ on (?<payee>.+?) [0-9]{2}-[0-9]{2}-[0-9]{4} [0-9:]{8} ist\\b"
+    },
+    {
+      "id": "card_spent_on_card_at",
+      "pattern": "\\bspent (?:₹|\\brs\\.?|\\binr) ?(?<amount>[0-9][0-9,]*(?:\\.[0-9]{1,2})?) on .{3,40}? card [x*]*[0-9]{4} at \\.*(?<payee>.+?) on [0-9]"
+    },
+    {
+      "id": "card_spent_using_at",
+      "pattern": "\\bspent (?:₹|\\brs\\.?|\\binr) ?(?<amount>[0-9][0-9,]*(?:\\.[0-9]{1,2})?) using .{3,40}? card no\\. [x*]*[0-9]{3,6} on .{8,30}? at (?<payee>.+?)\\.(?: |$)"
+    },
+    {
+      "id": "card_spent_ending",
+      "pattern": "(?:₹|\\brs\\.?|\\binr) ?(?<amount>[0-9][0-9,]*(?:\\.[0-9]{1,2})?) spent on your .{3,30}? card ending (?:with )?[0-9]{4}(?: at (?<payee>.+?))? on [0-9]"
+    },
+    {
+      "id": "card_spent_using_on",
+      "pattern": "(?:₹|\\brs\\.?|\\binr) ?(?<amount>[0-9][0-9,]*(?:\\.[0-9]{1,2})?) spent using .{3,30}? card [x*]*[0-9]{3,6} on [0-9a-z-]{7,11} on (?<payee>.+?)\\.(?: |$)"
+    },
+    {
+      "id": "payment_of_to",
+      "pattern": "\\bpayment of (?:₹|\\brs\\.?|\\binr) ?(?<amount>[0-9][0-9,]*(?:\\.[0-9]{1,2})?) (?:made )?to (?<payee>.+?) (?:is |was |has been )?(?:successful|completed|done|success)\\b"
+    },
+    {
+      "id": "app_paid_to",
+      "pattern": "\\b(?:paid|sent) (?:₹|\\brs\\.?|\\binr) ?(?<amount>[0-9][0-9,]*(?:\\.[0-9]{1,2})?) (?:successfully )?to (?<payee>.+?)(?= successfully| on | via | from | using | for | at | upi| ref| txn|\\.(?: |$)|[!|,;]|$)"
+    },
+    {
+      "id": "app_amount_paid_to",
+      "pattern": "(?:₹|\\brs\\.?|\\binr) ?(?<amount>[0-9][0-9,]*(?:\\.[0-9]{1,2})?) (?:has been |was )?(?:paid|sent|transferred)(?: successfully)? to (?<payee>.+?)(?= successfully| on | via | from | using | for | at | upi| ref| txn|\\.(?: |$)|[!|,;]|$)"
+    }
+  ],
+  "refs": [
+    "(?:upi transaction id|transaction id|txn id|upi ref(?:erence)?(?: no| number| id)?|ref(?:erence)?(?: no| number| id)?|refno|utr|rrn|upi)[.:# ]{0,3}(?<ref>[0-9]{6,20})\\b"
+  ],
+  "payeeReject": "^(?:you|me|self|your\\b.*)$",
+  "screen": {
+    "pin": "\\bupi pin\\b|\\benter (?:your )?(?:upi )?pin\\b",
+    "paying": "\\b(?:proceed to pay|pay securely|pay now|paying)\\b|\\bpay ₹",
+    "success": [
+      {
+        "id": "screen_amount_paid_to",
+        "pattern": "(?:₹|\\brs\\.?|\\binr) ?(?<amount>[0-9][0-9,]*(?:\\.[0-9]{1,2})?) (?:paid|sent)(?: successfully)? to (?<payee>.+?)(?= [a-z0-9._-]+@[a-z]+| upi| from | on | done| share|$)"
+      },
+      {
+        "id": "screen_paid_to_amount",
+        "pattern": "(?:paid|sent) to (?<payee>.+?) (?:₹|\\brs\\.?|\\binr) ?(?<amount>[0-9][0-9,]*(?:\\.[0-9]{1,2})?)(?= |$)"
+      }
+    ]
+  }
+}

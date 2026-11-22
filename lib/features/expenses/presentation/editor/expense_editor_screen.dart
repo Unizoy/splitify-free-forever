@@ -34,6 +34,7 @@ class ExpenseEditorScreen extends ConsumerStatefulWidget {
     this.groupId,
     this.expenseId,
     this.templateId,
+    this.captureId,
     this.initialStep,
     super.key,
   });
@@ -43,6 +44,9 @@ class ExpenseEditorScreen extends ConsumerStatefulWidget {
 
   /// "Edit future copies" of this repeating-expense template (#12) instead of one expense.
   final String? templateId;
+
+  /// A new expense prefilled from this captured payment (payment bubble, phase 18b).
+  final String? captureId;
 
   /// Opens on this step (tests, deep links); default amount.
   final EditorStep? initialStep;
@@ -62,9 +66,11 @@ class _ExpenseEditorScreenState extends ConsumerState<ExpenseEditorScreen> {
   ExpenseEditorArgs get _args => (groupId: widget.groupId, expenseId: widget.expenseId);
 
   AsyncNotifierProvider<ExpenseEditorController, ExpenseDraft> get _provider =>
-      widget.templateId == null
-      ? expenseEditorProvider(_args)
-      : templateEditorProvider(widget.templateId!);
+      widget.templateId != null
+      ? templateEditorProvider(widget.templateId!)
+      : widget.captureId != null && widget.groupId != null
+      ? captureEditorProvider((groupId: widget.groupId!, captureId: widget.captureId!))
+      : expenseEditorProvider(_args);
 
   @override
   void dispose() {
