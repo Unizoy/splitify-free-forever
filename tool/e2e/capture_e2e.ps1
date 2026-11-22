@@ -154,8 +154,8 @@ function Scenarios {
   Post-Upi 'Payment failed' 'Payment of Rs 500 to Rahul failed'
   Start-Sleep 4
   $log = Capture-Log
-  foreach ($r in 'otp', 'credit', 'promo', 'request', 'failed') {
-    Check ($log -match "ignored [\w.]+: $r") "TC-X4-07 '$r' alert ignored"
+  foreach ($why in 'otp', 'credit', 'promo', 'request', 'failed') {  # not $r: names are case-insensitive ($R)
+    Check ($log -match "ignored [\w.]+: $why") "TC-X4-07 '$why' alert ignored"
   }
   Check ((Bubble-Count) -eq 0) 'TC-X4-07 no bubble for ignored alerts'
   Save-Shot 'e2e-ignored-no-bubble'
@@ -175,7 +175,7 @@ function Scenarios {
   Check ((Bubble-Has "$($R)250") -and ((Bubble-Lines) -match 'ui tap Add to Splitify')) 'bubble card shows Rs 250 and Add to Splitify'
   Save-Shot 'e2e-smart-success'
   Check (Tap-Bubble 'Not now') 'Not now dismisses the smart capture'
-  Start-Sleep 2
+  Start-Sleep 4
   Check ((Bubble-Count) -eq 0) 'bubble gone after Not now'
   Adb shell input keyevent KEYCODE_HOME | Out-Null
 
