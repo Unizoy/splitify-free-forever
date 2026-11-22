@@ -48,14 +48,32 @@ final syncNowProvider = Provider<Future<void> Function()>(
   (ref) => ref.watch(syncRepositoryProvider).syncNow,
 );
 
-/// True while the last sync failed for lack of network (offline note on the Groups tab).
-final syncOfflineProvider = StreamProvider<bool>(
-  (ref) => ref
-      .watch(syncRepositoryProvider)
-      .watchStatus()
-      .map((s) => s.phase == SyncPhase.offline)
-      .distinct(),
-);
+/// True while the phone has no network, or the last sync failed for lack of it (offline note on the Groups
+/// tab, "Saved offline" in the editor header). Airplane mode shows at once, not only after the next failed
+/// sync (final QA).
+final syncOfflineProvider = StreamProvider<bool>((ref) {
+  final out = StreamController<bool>();
+  var syncOffline = false;
+  bool? online;
+  void emit() {
+    if (!out.isClosed) out.add(syncOffline || online == false);
+  }
+
+  final a = ref.watch(syncRepositoryProvider).watchStatus().listen((s) {
+    syncOffline = s.phase == SyncPhase.offline;
+    emit();
+  });
+  final b = ref.watch(networkStatusProvider).watch().listen((on) {
+    online = on;
+    emit();
+  });
+  ref.onDispose(() {
+    unawaited(a.cancel());
+    unawaited(b.cancel());
+    unawaited(out.close());
+  });
+  return out.stream.distinct();
+});
 
 /// Whole days left to restore a group deleted at [deletedAt] (30-day window, TC-1-07); -1 = too late.
 int restoreDaysLeft(String deletedAt, DateTime now) {

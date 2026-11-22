@@ -204,6 +204,40 @@ void main() {
       expect(r.prefs.getBool(PushPrePrompt.shownKey), isTrue);
     });
 
+    // Final QA: joining from an invite link replaces the stack, so the shell (and this binding) is not on
+    // screen when the join asks for the pre-prompt; it shows once the shell is back.
+    testWidgets('a request made while the shell was away shows when it comes back', (t) async {
+      SharedPreferences.setMockInitialValues({});
+      final prefs = await SharedPreferences.getInstance();
+      var shell = false;
+      await pumpNotif(
+        t,
+        StatefulBuilder(
+          builder: (context, setState) => shell
+              ? const NotificationsBinding(child: Scaffold(body: Text('shell')))
+              : Consumer(
+                  builder: (context, ref, _) => TextButton(
+                    onPressed: () {
+                      ref.read(pushPrePromptRequestsProvider.notifier).request();
+                      setState(() => shell = true);
+                    },
+                    child: const Text('join'),
+                  ),
+                ),
+        ),
+        overrides: notifOverrides(
+          repo: FakeNotificationsRepository(),
+          remote: FakeNotificationsRemote(),
+          push: FakePushMessaging(permissionState: PushPermission.notAsked),
+          prefs: prefs,
+        ),
+      );
+      await t.tap(find.text('join'));
+      await settle(t);
+      await settle(t);
+      expect(find.byKey(const Key('push-preprompt')), findsOneWidget);
+    });
+
     // TC-19-08
     testWidgets('a request does nothing when Android was already asked', (t) async {
       await _pump(t);

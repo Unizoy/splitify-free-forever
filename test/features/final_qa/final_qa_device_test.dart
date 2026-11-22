@@ -1,4 +1,5 @@
 // Final QA pass #2 on the emulator (S-250..S-259): regression tests for the defects found on the device.
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:ui' show SemanticsAction;
@@ -6,18 +7,23 @@ import 'dart:ui' show SemanticsAction;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:splitify/app/not_found_screen.dart';
 import 'package:splitify/app/router.dart';
 import 'package:splitify/core/time/clock.dart';
 import 'package:splitify/core/utils/member_tints.dart';
+import 'package:splitify/data/data_providers.dart' show networkStatusProvider;
 import 'package:splitify/data/repositories/sync_repository.dart';
+import 'package:splitify/data/sync/network_status.dart';
 import 'package:splitify/data/sync/sync_types.dart';
 import 'package:splitify/data/sync/uploads.dart' show UploadQueue;
 import 'package:splitify/features/activity/presentation/activity_feed.dart' show activityDay;
 import 'package:splitify/features/currency/application/conversion_controller.dart'
     show rateFieldText;
 import 'package:splitify/features/expenses/application/expense_providers.dart';
+import 'package:splitify/features/groups/application/groups_providers.dart'
+    show syncOfflineProvider;
 import 'package:splitify/features/payments/application/payment_providers.dart';
 import 'package:splitify/features/sync/application/sync_texts.dart';
 import 'package:splitify/l10n/app_localizations.dart';
@@ -29,6 +35,7 @@ import '../balances/balance_fixtures.dart' as bal;
 import '../expenses/expense_fixtures.dart' hide sampleGroup;
 import '../../support/group_fakes.dart';
 import '../../support/group_harness.dart';
+import '../../support/quiet_sync.dart';
 
 Widget _app(Widget child, {Brightness brightness = Brightness.light}) => MaterialApp(
   theme: brightness == Brightness.dark ? AppTheme.dark() : AppTheme.light(),
@@ -436,6 +443,41 @@ void main() {
       expect(find.byKey(const Key('group-status-scrim')), findsNothing);
     },
   );
+
+  test('airplane mode shows as offline at once, not only after a failed sync', () async {
+    final net = StreamController<bool>();
+    final container = ProviderContainer(
+      overrides: [
+        ...quietSyncOverrides(),
+        networkStatusProvider.overrideWithValue(_Net(net.stream)),
+      ],
+    );
+    addTearDown(container.dispose);
+    final seen = <bool>[];
+    container.listen(syncOfflineProvider, (_, v) {
+      if (v.hasValue) seen.add(v.requireValue);
+    }, fireImmediately: true);
+    await pumpEventQueue();
+    net.add(false);
+    await pumpEventQueue();
+    expect(seen.last, isTrue);
+    net.add(true);
+    await pumpEventQueue();
+    expect(seen.last, isFalse);
+    await net.close();
+  });
+}
+
+class _Net implements NetworkStatus {
+  _Net(this.changes);
+
+  final Stream<bool> changes;
+
+  @override
+  Stream<bool> watch() => changes;
+
+  @override
+  Future<bool> isOnline() async => true;
 }
 
 class _FixedClock implements Clock {

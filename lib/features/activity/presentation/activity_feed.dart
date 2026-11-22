@@ -36,7 +36,11 @@ String activitySentence(AppLocalizations l, ActivityItem i) {
     'group_restored' => l.actGroupRestored(a),
     'member_added' => l.actMemberAdded(a, m),
     'member_joined' => l.actMemberJoined(a),
-    'member_claimed' => l.actMemberClaimed(a, m),
+    // The spot's name, even when the claimed spot is now me ("You joined as Mohit", not "as you").
+    'member_claimed' => l.actMemberClaimed(
+      a,
+      (i.member?.name.isNotEmpty ?? false) ? i.member!.name : m,
+    ),
     'member_left' => l.actMemberLeft(who(i.member, start: true)),
     'member_removed' => l.actMemberRemoved(a, m),
     'expense_added' => l.actExpenseAdded(a, d),
