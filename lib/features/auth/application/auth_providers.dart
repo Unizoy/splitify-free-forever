@@ -10,6 +10,7 @@ import 'package:splitify/data/repositories/auth_repository.dart';
 import 'package:splitify/data/repositories/local_wipe.dart';
 import 'package:splitify/data/repositories/profile_repository.dart';
 import 'package:splitify/domain/entities/profile.dart';
+import 'package:splitify/features/capture/application/capture_providers.dart';
 import 'package:splitify/features/notifications/application/notifications_providers.dart';
 
 export 'package:splitify/data/data_providers.dart' show clockProvider;
@@ -46,6 +47,8 @@ final localWipeProvider = Provider<LocalWipe>(
     prefs: ref.watch(sharedPreferencesProvider),
     clearDatabase: () async {
       await ref.read(syncRepositoryProvider).wipeLocal();
+      // Payment bubble (phase 18b): forget waiting captures and the chips' group names on this phone.
+      await ref.read(captureBridgeProvider).reset();
       try {
         await ref.read(mediaFilesProvider).wipe();
       } on Object catch (e) {

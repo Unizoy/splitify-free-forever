@@ -2,6 +2,7 @@ package com.unizoy.splitify
 
 import android.os.Build
 import android.view.WindowManager
+import com.unizoy.splitify.capture.CaptureChannel
 import io.flutter.embedding.android.FlutterFragmentActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
@@ -34,5 +35,7 @@ class MainActivity : FlutterFragmentActivity() {
                     else -> result.notImplemented()
                 }
             }
+        // Payment bubble (phase 18b): captures, permissions and settings for the Flutter side.
+        CaptureChannel(this).attach(flutterEngine.dartExecutor.binaryMessenger)
     }
 }

@@ -4127,4 +4127,256 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get widgetBrand => 'Splitify';
+
+  @override
+  String captureNotes(String app, String ref) {
+    return 'Paid via $app · UPI ref $ref';
+  }
+
+  @override
+  String captureNotesNoRef(String app) {
+    return 'Paid via $app';
+  }
+
+  @override
+  String get captureRow => 'Payment bubble';
+
+  @override
+  String get captureRowOn => 'On';
+
+  @override
+  String get captureRowOff => 'Off';
+
+  @override
+  String get captureTitle => 'Payment bubble';
+
+  @override
+  String get captureHint =>
+      'After you pay with a UPI app, a bubble offers to add the payment to Splitify.';
+
+  @override
+  String get captureMaster => 'Payment bubble';
+
+  @override
+  String get captureMasterOn => 'On for the apps you allow';
+
+  @override
+  String get captureMasterOff => 'Off. Nothing is read.';
+
+  @override
+  String get capturePrivacy =>
+      'Splitify reads payment alerts only from the apps you allow. Everything stays on this phone until you tap Add.';
+
+  @override
+  String get captureSectionSources => 'Sources';
+
+  @override
+  String get captureSourceAlerts => 'Payment alerts';
+
+  @override
+  String get captureSourceAlertsHint => 'Notifications from UPI apps and bank SMS';
+
+  @override
+  String get captureSourceBubble => 'Floating bubble';
+
+  @override
+  String get captureSourceBubbleHint => 'Pops up over the app after you pay';
+
+  @override
+  String get captureSourceSmart => 'Smart capture';
+
+  @override
+  String get captureSourceSmartHint =>
+      'Reads the UPI app\'s payment screen. Advanced, never reads your PIN.';
+
+  @override
+  String get captureDuringPayment => 'Show during payment';
+
+  @override
+  String get captureDuringPaymentHint => 'A small bubble while you pay. Needs smart capture.';
+
+  @override
+  String get captureSectionAccess => 'Access on this phone';
+
+  @override
+  String get captureAccessAlerts => 'Notification access';
+
+  @override
+  String get captureAccessAlertsHint => 'Needed for payment alerts';
+
+  @override
+  String get captureAccessOverlay => 'Display over other apps';
+
+  @override
+  String get captureAccessOverlayHint => 'Needed for the floating bubble';
+
+  @override
+  String get captureAccessSmart => 'Accessibility';
+
+  @override
+  String get captureAccessSmartHint => 'Needed for smart capture';
+
+  @override
+  String get captureAccessPost => 'Splitify notifications';
+
+  @override
+  String get captureAccessPostHint => 'Used when the bubble can\'t show';
+
+  @override
+  String get captureAllowed => 'Allowed';
+
+  @override
+  String get captureGrant => 'Grant';
+
+  @override
+  String get captureRestrictedTitle => 'Switch greyed out or \"Restricted setting\"?';
+
+  @override
+  String get captureRestrictedBody =>
+      'Android blocks notification access, accessibility and display over apps for apps installed from a file, until you allow them once:';
+
+  @override
+  String get captureRestrictedStep1 =>
+      'Tap Grant and try the switch once. Android says \"Restricted setting\".';
+
+  @override
+  String get captureRestrictedStep2 =>
+      'Open App info, tap the three-dot menu at the top right, then \"Allow restricted settings\".';
+
+  @override
+  String get captureRestrictedStep3 => 'Come back here and tap Grant again.';
+
+  @override
+  String get captureOpenAppInfo => 'Open App info';
+
+  @override
+  String get captureSectionApps => 'Apps';
+
+  @override
+  String get captureAppsHint => 'Payments are read only from the apps switched on here.';
+
+  @override
+  String get captureAppNotInstalled => 'Not on this phone';
+
+  @override
+  String get captureKindUpi => 'UPI app';
+
+  @override
+  String get captureKindSms => 'Bank SMS';
+
+  @override
+  String get captureKindBank => 'Bank app';
+
+  @override
+  String get captureSample => 'Show a sample bubble';
+
+  @override
+  String get captureSampleShown => 'The sample bubble is over the app now.';
+
+  @override
+  String get captureSampleNotified =>
+      'Sent as a notification. Allow display over other apps to see the bubble.';
+
+  @override
+  String get captureSampleOff => 'Turn on the payment bubble and its access first.';
+
+  @override
+  String get captureSamplePayee => 'Rahul';
+
+  @override
+  String get captureUnsupported => 'The payment bubble works on Android 8 and newer.';
+
+  @override
+  String paymentsToAdd(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count payments to add',
+      one: '1 payment to add',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get paymentsToAddTitle => 'Payments to add';
+
+  @override
+  String get paymentsToAddHint =>
+      'Payments this phone caught. Add each to a group or dismiss it. They go after 7 days.';
+
+  @override
+  String capturePaidTo(String amount, String payee) {
+    return 'Paid $amount to $payee';
+  }
+
+  @override
+  String capturePaid(String amount) {
+    return 'Paid $amount';
+  }
+
+  @override
+  String captureVia(String app, String time) {
+    return '$app · $time';
+  }
+
+  @override
+  String get captureAdd => 'Add';
+
+  @override
+  String get captureDismiss => 'Dismiss';
+
+  @override
+  String get captureDismissTooltip => 'Dismiss this payment';
+
+  @override
+  String get captureDismissed => 'Payment dismissed';
+
+  @override
+  String get captureAddTitle => 'Add this payment';
+
+  @override
+  String get captureAddHint => 'Pick where it goes. You choose the split next.';
+
+  @override
+  String get captureSectionGroups => 'Groups';
+
+  @override
+  String get captureSectionFriends => 'Friends';
+
+  @override
+  String get captureGoneTitle => 'This payment is no longer here';
+
+  @override
+  String get captureGoneBody => 'It was added, dismissed or is older than 7 days.';
+
+  @override
+  String get captureNoGroups => 'Create a group first, then add this payment from Payments to add.';
+
+  @override
+  String get captureSourceLabelNotification => 'App alert';
+
+  @override
+  String get captureSourceLabelSms => 'Bank SMS';
+
+  @override
+  String get captureSourceLabelScreen => 'Smart capture';
+
+  @override
+  String get captureSeeAll => 'See all';
+
+  @override
+  String get paymentsToAddEmpty => 'Nothing to add right now.';
+
+  @override
+  String captureNotesSms(String ref) {
+    return 'From a bank SMS · UPI ref $ref';
+  }
+
+  @override
+  String get captureNotesSmsNoRef => 'From a bank SMS';
+
+  @override
+  String captureRef(String ref) {
+    return 'UPI ref $ref';
+  }
 }

@@ -6673,6 +6673,450 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Splitify'**
   String get widgetBrand;
+
+  /// No description provided for @captureNotes.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid via {app} · UPI ref {ref}'**
+  String captureNotes(String app, String ref);
+
+  /// No description provided for @captureNotesNoRef.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid via {app}'**
+  String captureNotesNoRef(String app);
+
+  /// No description provided for @captureRow.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment bubble'**
+  String get captureRow;
+
+  /// No description provided for @captureRowOn.
+  ///
+  /// In en, this message translates to:
+  /// **'On'**
+  String get captureRowOn;
+
+  /// No description provided for @captureRowOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get captureRowOff;
+
+  /// No description provided for @captureTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment bubble'**
+  String get captureTitle;
+
+  /// No description provided for @captureHint.
+  ///
+  /// In en, this message translates to:
+  /// **'After you pay with a UPI app, a bubble offers to add the payment to Splitify.'**
+  String get captureHint;
+
+  /// No description provided for @captureMaster.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment bubble'**
+  String get captureMaster;
+
+  /// No description provided for @captureMasterOn.
+  ///
+  /// In en, this message translates to:
+  /// **'On for the apps you allow'**
+  String get captureMasterOn;
+
+  /// No description provided for @captureMasterOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Off. Nothing is read.'**
+  String get captureMasterOff;
+
+  /// No description provided for @capturePrivacy.
+  ///
+  /// In en, this message translates to:
+  /// **'Splitify reads payment alerts only from the apps you allow. Everything stays on this phone until you tap Add.'**
+  String get capturePrivacy;
+
+  /// No description provided for @captureSectionSources.
+  ///
+  /// In en, this message translates to:
+  /// **'Sources'**
+  String get captureSectionSources;
+
+  /// No description provided for @captureSourceAlerts.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment alerts'**
+  String get captureSourceAlerts;
+
+  /// No description provided for @captureSourceAlertsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications from UPI apps and bank SMS'**
+  String get captureSourceAlertsHint;
+
+  /// No description provided for @captureSourceBubble.
+  ///
+  /// In en, this message translates to:
+  /// **'Floating bubble'**
+  String get captureSourceBubble;
+
+  /// No description provided for @captureSourceBubbleHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Pops up over the app after you pay'**
+  String get captureSourceBubbleHint;
+
+  /// No description provided for @captureSourceSmart.
+  ///
+  /// In en, this message translates to:
+  /// **'Smart capture'**
+  String get captureSourceSmart;
+
+  /// No description provided for @captureSourceSmartHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Reads the UPI app\'s payment screen. Advanced, never reads your PIN.'**
+  String get captureSourceSmartHint;
+
+  /// No description provided for @captureDuringPayment.
+  ///
+  /// In en, this message translates to:
+  /// **'Show during payment'**
+  String get captureDuringPayment;
+
+  /// No description provided for @captureDuringPaymentHint.
+  ///
+  /// In en, this message translates to:
+  /// **'A small bubble while you pay. Needs smart capture.'**
+  String get captureDuringPaymentHint;
+
+  /// No description provided for @captureSectionAccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Access on this phone'**
+  String get captureSectionAccess;
+
+  /// No description provided for @captureAccessAlerts.
+  ///
+  /// In en, this message translates to:
+  /// **'Notification access'**
+  String get captureAccessAlerts;
+
+  /// No description provided for @captureAccessAlertsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Needed for payment alerts'**
+  String get captureAccessAlertsHint;
+
+  /// No description provided for @captureAccessOverlay.
+  ///
+  /// In en, this message translates to:
+  /// **'Display over other apps'**
+  String get captureAccessOverlay;
+
+  /// No description provided for @captureAccessOverlayHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Needed for the floating bubble'**
+  String get captureAccessOverlayHint;
+
+  /// No description provided for @captureAccessSmart.
+  ///
+  /// In en, this message translates to:
+  /// **'Accessibility'**
+  String get captureAccessSmart;
+
+  /// No description provided for @captureAccessSmartHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Needed for smart capture'**
+  String get captureAccessSmartHint;
+
+  /// No description provided for @captureAccessPost.
+  ///
+  /// In en, this message translates to:
+  /// **'Splitify notifications'**
+  String get captureAccessPost;
+
+  /// No description provided for @captureAccessPostHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Used when the bubble can\'t show'**
+  String get captureAccessPostHint;
+
+  /// No description provided for @captureAllowed.
+  ///
+  /// In en, this message translates to:
+  /// **'Allowed'**
+  String get captureAllowed;
+
+  /// No description provided for @captureGrant.
+  ///
+  /// In en, this message translates to:
+  /// **'Grant'**
+  String get captureGrant;
+
+  /// No description provided for @captureRestrictedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch greyed out or \"Restricted setting\"?'**
+  String get captureRestrictedTitle;
+
+  /// No description provided for @captureRestrictedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Android blocks notification access, accessibility and display over apps for apps installed from a file, until you allow them once:'**
+  String get captureRestrictedBody;
+
+  /// No description provided for @captureRestrictedStep1.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap Grant and try the switch once. Android says \"Restricted setting\".'**
+  String get captureRestrictedStep1;
+
+  /// No description provided for @captureRestrictedStep2.
+  ///
+  /// In en, this message translates to:
+  /// **'Open App info, tap the three-dot menu at the top right, then \"Allow restricted settings\".'**
+  String get captureRestrictedStep2;
+
+  /// No description provided for @captureRestrictedStep3.
+  ///
+  /// In en, this message translates to:
+  /// **'Come back here and tap Grant again.'**
+  String get captureRestrictedStep3;
+
+  /// No description provided for @captureOpenAppInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Open App info'**
+  String get captureOpenAppInfo;
+
+  /// No description provided for @captureSectionApps.
+  ///
+  /// In en, this message translates to:
+  /// **'Apps'**
+  String get captureSectionApps;
+
+  /// No description provided for @captureAppsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Payments are read only from the apps switched on here.'**
+  String get captureAppsHint;
+
+  /// No description provided for @captureAppNotInstalled.
+  ///
+  /// In en, this message translates to:
+  /// **'Not on this phone'**
+  String get captureAppNotInstalled;
+
+  /// No description provided for @captureKindUpi.
+  ///
+  /// In en, this message translates to:
+  /// **'UPI app'**
+  String get captureKindUpi;
+
+  /// No description provided for @captureKindSms.
+  ///
+  /// In en, this message translates to:
+  /// **'Bank SMS'**
+  String get captureKindSms;
+
+  /// No description provided for @captureKindBank.
+  ///
+  /// In en, this message translates to:
+  /// **'Bank app'**
+  String get captureKindBank;
+
+  /// No description provided for @captureSample.
+  ///
+  /// In en, this message translates to:
+  /// **'Show a sample bubble'**
+  String get captureSample;
+
+  /// No description provided for @captureSampleShown.
+  ///
+  /// In en, this message translates to:
+  /// **'The sample bubble is over the app now.'**
+  String get captureSampleShown;
+
+  /// No description provided for @captureSampleNotified.
+  ///
+  /// In en, this message translates to:
+  /// **'Sent as a notification. Allow display over other apps to see the bubble.'**
+  String get captureSampleNotified;
+
+  /// No description provided for @captureSampleOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on the payment bubble and its access first.'**
+  String get captureSampleOff;
+
+  /// No description provided for @captureSamplePayee.
+  ///
+  /// In en, this message translates to:
+  /// **'Rahul'**
+  String get captureSamplePayee;
+
+  /// No description provided for @captureUnsupported.
+  ///
+  /// In en, this message translates to:
+  /// **'The payment bubble works on Android 8 and newer.'**
+  String get captureUnsupported;
+
+  /// No description provided for @paymentsToAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 payment to add} other{{count} payments to add}}'**
+  String paymentsToAdd(int count);
+
+  /// No description provided for @paymentsToAddTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Payments to add'**
+  String get paymentsToAddTitle;
+
+  /// No description provided for @paymentsToAddHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Payments this phone caught. Add each to a group or dismiss it. They go after 7 days.'**
+  String get paymentsToAddHint;
+
+  /// No description provided for @capturePaidTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid {amount} to {payee}'**
+  String capturePaidTo(String amount, String payee);
+
+  /// No description provided for @capturePaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid {amount}'**
+  String capturePaid(String amount);
+
+  /// No description provided for @captureVia.
+  ///
+  /// In en, this message translates to:
+  /// **'{app} · {time}'**
+  String captureVia(String app, String time);
+
+  /// No description provided for @captureAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get captureAdd;
+
+  /// No description provided for @captureDismiss.
+  ///
+  /// In en, this message translates to:
+  /// **'Dismiss'**
+  String get captureDismiss;
+
+  /// No description provided for @captureDismissTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Dismiss this payment'**
+  String get captureDismissTooltip;
+
+  /// No description provided for @captureDismissed.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment dismissed'**
+  String get captureDismissed;
+
+  /// No description provided for @captureAddTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add this payment'**
+  String get captureAddTitle;
+
+  /// No description provided for @captureAddHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick where it goes. You choose the split next.'**
+  String get captureAddHint;
+
+  /// No description provided for @captureSectionGroups.
+  ///
+  /// In en, this message translates to:
+  /// **'Groups'**
+  String get captureSectionGroups;
+
+  /// No description provided for @captureSectionFriends.
+  ///
+  /// In en, this message translates to:
+  /// **'Friends'**
+  String get captureSectionFriends;
+
+  /// No description provided for @captureGoneTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'This payment is no longer here'**
+  String get captureGoneTitle;
+
+  /// No description provided for @captureGoneBody.
+  ///
+  /// In en, this message translates to:
+  /// **'It was added, dismissed or is older than 7 days.'**
+  String get captureGoneBody;
+
+  /// No description provided for @captureNoGroups.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a group first, then add this payment from Payments to add.'**
+  String get captureNoGroups;
+
+  /// No description provided for @captureSourceLabelNotification.
+  ///
+  /// In en, this message translates to:
+  /// **'App alert'**
+  String get captureSourceLabelNotification;
+
+  /// No description provided for @captureSourceLabelSms.
+  ///
+  /// In en, this message translates to:
+  /// **'Bank SMS'**
+  String get captureSourceLabelSms;
+
+  /// No description provided for @captureSourceLabelScreen.
+  ///
+  /// In en, this message translates to:
+  /// **'Smart capture'**
+  String get captureSourceLabelScreen;
+
+  /// No description provided for @captureSeeAll.
+  ///
+  /// In en, this message translates to:
+  /// **'See all'**
+  String get captureSeeAll;
+
+  /// No description provided for @paymentsToAddEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing to add right now.'**
+  String get paymentsToAddEmpty;
+
+  /// No description provided for @captureNotesSms.
+  ///
+  /// In en, this message translates to:
+  /// **'From a bank SMS · UPI ref {ref}'**
+  String captureNotesSms(String ref);
+
+  /// No description provided for @captureNotesSmsNoRef.
+  ///
+  /// In en, this message translates to:
+  /// **'From a bank SMS'**
+  String get captureNotesSmsNoRef;
+
+  /// No description provided for @captureRef.
+  ///
+  /// In en, this message translates to:
+  /// **'UPI ref {ref}'**
+  String captureRef(String ref);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

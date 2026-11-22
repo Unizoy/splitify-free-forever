@@ -1,4 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Payment-bubble e2e (phase 18b): "Payment successful" notifications like a UPI app. -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
     <application
         android:label="Fake UPI"
         android:allowBackup="false"
@@ -14,5 +16,8 @@
                 <data android:scheme="upi" android:host="pay"/>
             </intent-filter>
         </activity>
+        <!-- Payment-bubble e2e (phase 18b): pay → UPI PIN → success screens, and a notification poster. -->
+        <activity android:name=".FlowActivity" android:exported="true"/>
+        <receiver android:name=".Notifier" android:exported="true"/>
     </application>
 </manifest>

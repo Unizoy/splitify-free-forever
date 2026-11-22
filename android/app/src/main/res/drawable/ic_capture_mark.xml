@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The Splitify "split" mark (two halves of a circle sliding apart), same geometry as assets/brand/icon.svg and
+     lib/ui/painters/brand_mark_painter.dart (1024 grid, cropped to the mark). White; used on the bubble handle. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="600"
+    android:viewportHeight="600">
+    <group android:translateX="-212" android:translateY="-212">
+        <path
+            android:fillColor="#FFFFFFFF"
+            android:pathData="M492,222 A250,250 0 0,0 492,722 Z" />
+        <path
+            android:fillColor="#FFFFFFFF"
+            android:pathData="M532,302 A250,250 0 0,1 532,802 Z" />
+    </group>
+</vector>
