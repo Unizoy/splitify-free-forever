@@ -6,16 +6,16 @@
 
 ## Tasks
 
-- [ ] T1 X1 parser (`csv` package): BOM, quotes, header check, totals row as checksum, payments rows, per-currency,
+- [x] T1 X1 parser (`csv` package): BOM, quotes, header check, totals row as checksum, payments rows, per-currency,
       exponent-aware string → minor units (no floats). Fixtures in `test/fixtures/splitwise/` (hand-written from
       the documented format: simple, multi-currency, multi-payer, payments, JPY, quoted commas).
-- [ ] T2 X1 reconstruction (single payer exact; multi-payer as nets with cost in notes) — nets must equal the file.
-- [ ] T3 X1 UI: entry points (group settings, Account), file pick, member mapping (existing / new name-only / skip),
+- [x] T2 X1 reconstruction (single payer exact; multi-payer as nets with cost in notes) — nets must equal the file.
+- [x] T3 X1 UI: entry points (group settings, Account), file pick, member mapping (existing / new name-only / skip),
       preview with totals check, import through outbox with `source='import'` + batch id, result, "Delete this
       import". Server: suppress per-row activity for `source='import'`, write `import_completed`.
-- [ ] T4 X2 App lock: settings (off/on, timeout 1/5/15 min), `local_auth` (biometric or device credential), lock
+- [x] T4 X2 App lock: settings (off/on, timeout 1/5/15 min), `local_auth` (biometric or device credential), lock
       screen on cold start and resume after timeout, hide content in recents while locked.
-- [ ] T5 X3 Widget: `home_widget` + Android widget layouts 2×2 and 4×2 (RemoteViews XML following the design
+- [x] T5 X3 Widget: `home_widget` + Android widget layouts 2×2 and 4×2 (RemoteViews XML following the design
       tokens as closely as RemoteViews allow), data written after sync/local writes, "Hide amounts" option, tap
       opens app.
 
