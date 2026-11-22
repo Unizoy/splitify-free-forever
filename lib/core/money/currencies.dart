@@ -9,7 +9,8 @@ import 'package:splitify/core/money/currency.dart';
 ///
 /// Exponents follow the spec rule only (0 / 3 lists, else 2). Symbols are shown only where they are
 /// unambiguous; shared signs get a prefix (`CA$`, `HK$`, `CN¥`) or fall back to the code (`AED`,
-/// `CHF`, `LKR`, the rials that share `﷼`). No symbol contains a digit or an operator character
+/// `CHF`, `LKR`, the rials that share `﷼`), and so do signs the bundled Inter font can't draw (`AFN`,
+/// `AMD`, `BDT`, `KHR`; S-157). No symbol contains a digit or an operator character
 /// (`. , + - − × * ÷ /`), so pasted amounts can be cleaned safely (amount_expression.dart).
 abstract final class Currencies {
   /// Indian rupee, the app default.
@@ -31,9 +32,9 @@ abstract final class Currencies {
   // dart format off
   static const Map<String, Currency> all = {
     'AED': Currency(code: 'AED', exponent: 2, symbol: 'AED', name: 'UAE Dirham', frankfurter: true),
-    'AFN': Currency(code: 'AFN', exponent: 2, symbol: '؋', name: 'Afghan Afghani', frankfurter: true),
+    'AFN': Currency(code: 'AFN', exponent: 2, symbol: 'AFN', name: 'Afghan Afghani', frankfurter: true),
     'ALL': Currency(code: 'ALL', exponent: 2, symbol: 'ALL', name: 'Albanian Lek', frankfurter: true),
-    'AMD': Currency(code: 'AMD', exponent: 2, symbol: '֏', name: 'Armenian Dram', frankfurter: true),
+    'AMD': Currency(code: 'AMD', exponent: 2, symbol: 'AMD', name: 'Armenian Dram', frankfurter: true),
     'ANG': Currency(code: 'ANG', exponent: 2, symbol: 'ANG', name: 'Netherlands Antillean Guilder', frankfurter: true),
     'AOA': Currency(code: 'AOA', exponent: 2, symbol: 'AOA', name: 'Angolan Kwanza', frankfurter: true),
     'ARS': Currency(code: 'ARS', exponent: 2, symbol: 'ARS', name: 'Argentine Peso', frankfurter: true),
@@ -42,7 +43,7 @@ abstract final class Currencies {
     'AZN': Currency(code: 'AZN', exponent: 2, symbol: '₼', name: 'Azerbaijani Manat', frankfurter: true),
     'BAM': Currency(code: 'BAM', exponent: 2, symbol: 'BAM', name: 'Bosnia-Herzegovina Convertible Mark', frankfurter: true),
     'BBD': Currency(code: 'BBD', exponent: 2, symbol: 'BBD', name: 'Barbadian Dollar', frankfurter: true),
-    'BDT': Currency(code: 'BDT', exponent: 2, symbol: '৳', name: 'Bangladeshi Taka', frankfurter: true),
+    'BDT': Currency(code: 'BDT', exponent: 2, symbol: 'BDT', name: 'Bangladeshi Taka', frankfurter: true),
     'BHD': Currency(code: 'BHD', exponent: 3, symbol: 'BHD', name: 'Bahraini Dinar', frankfurter: true),
     'BIF': Currency(code: 'BIF', exponent: 0, symbol: 'BIF', name: 'Burundian Franc', frankfurter: true),
     'BMD': Currency(code: 'BMD', exponent: 2, symbol: 'BMD', name: 'Bermudian Dollar', frankfurter: true),
@@ -101,7 +102,7 @@ abstract final class Currencies {
     'JPY': Currency(code: 'JPY', exponent: 0, symbol: '¥', name: 'Japanese Yen', frankfurter: true),
     'KES': Currency(code: 'KES', exponent: 2, symbol: 'KES', name: 'Kenyan Shilling', frankfurter: true),
     'KGS': Currency(code: 'KGS', exponent: 2, symbol: 'KGS', name: 'Kyrgyzstani Som', frankfurter: true),
-    'KHR': Currency(code: 'KHR', exponent: 2, symbol: '៛', name: 'Cambodian Riel', frankfurter: true),
+    'KHR': Currency(code: 'KHR', exponent: 2, symbol: 'KHR', name: 'Cambodian Riel', frankfurter: true),
     'KMF': Currency(code: 'KMF', exponent: 0, symbol: 'KMF', name: 'Comorian Franc', frankfurter: true),
     'KPW': Currency(code: 'KPW', exponent: 2, symbol: 'KPW', name: 'North Korean Won', frankfurter: true),
     'KRW': Currency(code: 'KRW', exponent: 0, symbol: '₩', name: 'South Korean Won', frankfurter: true),

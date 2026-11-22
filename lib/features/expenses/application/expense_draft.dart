@@ -210,6 +210,25 @@ final class ExpenseDraft {
     };
   }
 
+  /// The same draft in [code] (#14 currency picker): typed amounts are checked again for its decimals.
+  ExpenseDraft withCurrency(String code) => ExpenseDraft(
+    groupId: groupId,
+    groupName: groupName,
+    expenseId: expenseId,
+    currency: code,
+    members: members,
+    split: split.withExponent(Currencies.exponentOf(code)),
+    date: date,
+    payerId: payerId,
+    payers: payers,
+    payerText: payerText,
+    amountText: amountText,
+    description: description,
+    category: category,
+    notes: notes,
+    receipt: receipt,
+  );
+
   /// One payer for the whole amount.
   ExpenseDraft withSinglePayer(String id) => _copy(payerId: id, payerText: payerText);
 

@@ -10,6 +10,8 @@ import 'package:splitify/core/upi/upi_link.dart' show UpiLink;
 import 'package:splitify/data/data_providers.dart';
 import 'package:splitify/data/local/app_database.dart';
 import 'package:splitify/features/balances/presentation/balance_copy.dart';
+import 'package:splitify/features/currency/presentation/currency_picker_sheet.dart'
+    show CurrencyChip, pickGroupCurrency;
 import 'package:splitify/features/expenses/presentation/editor/details_step.dart' show DateChips;
 import 'package:splitify/features/expenses/presentation/expense_copy.dart';
 import 'package:splitify/features/groups/presentation/group_visuals.dart'
@@ -71,6 +73,11 @@ class _SettleUpScreenState extends ConsumerState<SettleUpScreen> {
     _filled = true;
     _amount.text = d.amountText;
     _note.text = d.note;
+  }
+
+  Future<void> _pickCurrency(SettleDraft d) async {
+    final code = await pickGroupCurrency(context, ref, groupId: d.groupId, selected: d.currency);
+    if (code != null && code != d.currency) _ctrl.setCurrency(code);
   }
 
   Future<void> _save(SettleDraft d) async {
@@ -174,7 +181,12 @@ class _SettleUpScreenState extends ConsumerState<SettleUpScreen> {
               const SizedBox(height: AppSpacing.s8),
               SectionLabel(l.settleAmount),
               const SizedBox(height: AppSpacing.s2),
-              _AmountField(draft: d, controller: _amount, onChanged: _ctrl.setAmountText),
+              _AmountField(
+                draft: d,
+                controller: _amount,
+                onChanged: _ctrl.setAmountText,
+                onPickCurrency: () => unawaited(_pickCurrency(d)),
+              ),
               if (d.owed > 0 && d.amount != d.owed) ...[
                 const SizedBox(height: AppSpacing.s3),
                 Align(
@@ -449,11 +461,19 @@ class _Person extends StatelessWidget {
 
 /// Big centred amount input with the currency symbol and code.
 class _AmountField extends StatelessWidget {
-  const _AmountField({required this.draft, required this.controller, required this.onChanged});
+  const _AmountField({
+    required this.draft,
+    required this.controller,
+    required this.onChanged,
+    this.onPickCurrency,
+  });
 
   final SettleDraft draft;
   final TextEditingController controller;
   final ValueChanged<String> onChanged;
+
+  /// Opens the currency picker (phase 14).
+  final VoidCallback? onPickCurrency;
 
   @override
   Widget build(BuildContext context) {
@@ -481,16 +501,10 @@ class _AmountField extends StatelessWidget {
                 decoration: InputDecoration(isDense: true, border: InputBorder.none),
               ),
             ),
-            Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.s3,
-                vertical: AppSpacing.s1,
-              ),
-              decoration: BoxDecoration(color: c.primaryContainer, borderRadius: AppRadii.allPill),
-              child: Text(
-                draft.currency,
-                style: context.text.labelCaps.copyWith(color: c.onPrimaryContainer),
-              ),
+            CurrencyChip(
+              key: const Key('settle-currency'),
+              code: draft.currency,
+              onTap: onPickCurrency,
             ),
           ],
         ),

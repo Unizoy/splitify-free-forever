@@ -18,6 +18,7 @@ class AmountStep extends StatelessWidget {
     required this.onAmountText,
     required this.onDescription,
     required this.showErrors,
+    this.onPickCurrency,
     super.key,
   });
 
@@ -28,6 +29,9 @@ class AmountStep extends StatelessWidget {
 
   /// Show "required" problems (after a Save or Next attempt).
   final bool showErrors;
+
+  /// Opens the currency picker (phase 14).
+  final VoidCallback? onPickCurrency;
 
   @override
   Widget build(BuildContext context) {
@@ -67,7 +71,10 @@ class AmountStep extends StatelessWidget {
                 ),
                 const SizedBox(height: AppSpacing.s5),
                 Center(
-                  child: _CurrencyChip(code: draft.currency, onTap: () => showComingSoon(context)),
+                  child: _CurrencyChip(
+                    code: draft.currency,
+                    onTap: onPickCurrency ?? () => showComingSoon(context),
+                  ),
                 ),
                 const SizedBox(height: AppSpacing.s3),
                 Semantics(

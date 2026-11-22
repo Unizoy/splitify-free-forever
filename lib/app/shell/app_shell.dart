@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:splitify/features/currency/presentation/fx_rates_keeper.dart';
 import 'package:splitify/features/expenses/presentation/expense_routes.dart';
 import 'package:splitify/features/notifications/presentation/notifications_binding.dart';
 import 'package:splitify/l10n/app_localizations.dart';
@@ -22,7 +23,7 @@ class AppShell extends StatelessWidget {
     final index = shell.currentIndex;
     return Scaffold(
       extendBody: true,
-      body: NotificationsBinding(child: shell),
+      body: NotificationsBinding(child: FxRatesKeeper(child: shell)),
       bottomNavigationBar: CapsuleNavBar(
         currentIndex: index,
         onSelected: (i) => shell.goBranch(i, initialLocation: i == index),

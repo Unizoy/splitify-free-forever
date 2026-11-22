@@ -6,6 +6,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:splitify/core/money/split.dart';
+import 'package:splitify/features/currency/application/currency_providers.dart';
 import 'package:splitify/domain/rules/expense_categories.dart';
 import 'package:splitify/features/expenses/application/expense_draft.dart';
 import 'package:splitify/features/expenses/application/expense_editor_controller.dart';
@@ -176,12 +177,25 @@ void main() {
       expect(h.draft.amountText, '5');
     });
 
-    // TC-13-01
-    testWidgets('the currency chip says the picker is coming', (t) async {
-      await pumpEditor(t, blank, args: newArgs);
+    // TC-14-04
+    testWidgets('the currency chip opens the picker; a new currency re-checks the amount', (
+      t,
+    ) async {
+      final h = await pumpEditor(
+        t,
+        blank,
+        args: newArgs,
+        overrides: [groupMainCurrencyProvider(gid).overrideWith((ref) => Stream.value('INR'))],
+      );
       await t.tap(find.text('INR'));
       await settle(t);
-      expect(find.text('Coming soon'), findsOneWidget);
+      expect(find.text('Currency'), findsOneWidget);
+      await t.enterText(find.byKey(const Key('currency-search')), 'yen');
+      await settle(t);
+      await t.tap(find.byKey(const Key('currency-found-JPY')));
+      await settle(t);
+      expect(h.draft.currency, 'JPY');
+      expect(find.text('JPY'), findsOneWidget);
     });
 
     // TC-13-01

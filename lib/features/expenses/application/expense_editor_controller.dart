@@ -12,6 +12,9 @@ import 'package:splitify/domain/entities/prepared_image.dart';
 import 'package:splitify/domain/rules/default_split.dart';
 import 'package:splitify/domain/rules/expense_categories.dart';
 import 'package:splitify/features/auth/application/auth_providers.dart' show authRepositoryProvider;
+import 'package:splitify/features/currency/application/conversion_actions.dart'
+    show savedFxOfExpense;
+import 'package:splitify/features/currency/domain/conversion.dart' show expenseFxAfterEdit;
 import 'package:splitify/features/expenses/application/expense_draft.dart';
 import 'package:splitify/features/expenses/application/receipt_draft.dart';
 import 'package:splitify/features/expenses/application/split_draft.dart';
@@ -133,6 +136,7 @@ class ExpenseEditorController extends AsyncNotifier<ExpenseDraft> {
     if (d == null || !d.canSave) return null;
     final row = d.toRow();
     if (!d.isEdit) row['created_at'] = ref.read(clockProvider).now().toUtc().toIso8601String();
+    if (d.isEdit) row.addAll(await _fxAfterEdit(d, row));
     final id = d.expenseId ?? newId();
     final receipt = d.receipt;
     final media = ref.read(mediaRepositoryProvider);
@@ -145,6 +149,22 @@ class ExpenseEditorController extends AsyncNotifier<ExpenseDraft> {
     }
     if (receipt.removed) row['receipt_path'] = null;
     return await ref.read(expensesRepositoryProvider).save(d.groupId, row, id: id);
+  }
+
+  /// A saved conversion follows the edit (phase 14, S-151): same currency → the saved rate re-converts
+  /// the new amounts; another currency → the conversion is dropped.
+  Future<Map<String, Object?>> _fxAfterEdit(ExpenseDraft d, Map<String, Object?> row) async {
+    final saved = await ref.read(expensesRepositoryProvider).watchOne(d.expenseId!).first;
+    if (saved == null) return const {};
+    return expenseFxAfterEdit(
+      saved: savedFxOfExpense(saved),
+      oldCurrency: saved.currency.trim(),
+      currency: d.currency,
+      total: row['total']! as int,
+      paid: (row['payers']! as Map).cast<String, int>(),
+      shares: (row['shares']! as Map).cast<String, int>(),
+      order: [for (final m in d.members) m.id],
+    );
   }
 
   static List<EditorMember> _people(List<LocalMember> members, String? meId) => [

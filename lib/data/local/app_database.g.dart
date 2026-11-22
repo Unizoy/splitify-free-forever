@@ -9768,6 +9768,301 @@ class NotificationSettingsCompanion extends UpdateCompanion<LocalNotificationSet
   }
 }
 
+class FxRates extends Table with TableInfo<FxRates, LocalFxRate> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  FxRates(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _dateMeta = const VerificationMeta('date');
+  late final GeneratedColumn<String> date = GeneratedColumn<String>(
+    'date',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL',
+  );
+  static const VerificationMeta _currencyMeta = const VerificationMeta('currency');
+  late final GeneratedColumn<String> currency = GeneratedColumn<String>(
+    'currency',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL',
+  );
+  static const VerificationMeta _rateMeta = const VerificationMeta('rate');
+  late final GeneratedColumn<String> rate = GeneratedColumn<String>(
+    'rate',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL',
+  );
+  static const VerificationMeta _fetchedAtMeta = const VerificationMeta('fetchedAt');
+  late final GeneratedColumn<String> fetchedAt = GeneratedColumn<String>(
+    'fetched_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    $customConstraints: '',
+  );
+  @override
+  List<GeneratedColumn> get $columns => [date, currency, rate, fetchedAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'fx_rates';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<LocalFxRate> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('date')) {
+      context.handle(_dateMeta, date.isAcceptableOrUnknown(data['date']!, _dateMeta));
+    } else if (isInserting) {
+      context.missing(_dateMeta);
+    }
+    if (data.containsKey('currency')) {
+      context.handle(
+        _currencyMeta,
+        currency.isAcceptableOrUnknown(data['currency']!, _currencyMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_currencyMeta);
+    }
+    if (data.containsKey('rate')) {
+      context.handle(_rateMeta, rate.isAcceptableOrUnknown(data['rate']!, _rateMeta));
+    } else if (isInserting) {
+      context.missing(_rateMeta);
+    }
+    if (data.containsKey('fetched_at')) {
+      context.handle(
+        _fetchedAtMeta,
+        fetchedAt.isAcceptableOrUnknown(data['fetched_at']!, _fetchedAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {date, currency};
+  @override
+  LocalFxRate map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return LocalFxRate(
+      date: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}date'])!,
+      currency: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}currency'],
+      )!,
+      rate: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}rate'])!,
+      fetchedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}fetched_at'],
+      ),
+    );
+  }
+
+  @override
+  FxRates createAlias(String alias) {
+    return FxRates(attachedDatabase, alias);
+  }
+
+  @override
+  List<String> get customConstraints => const ['PRIMARY KEY(date, currency)'];
+  @override
+  bool get dontWriteConstraints => true;
+}
+
+class LocalFxRate extends DataClass implements Insertable<LocalFxRate> {
+  final String date;
+  final String currency;
+  final String rate;
+  final String? fetchedAt;
+  const LocalFxRate({
+    required this.date,
+    required this.currency,
+    required this.rate,
+    this.fetchedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['date'] = Variable<String>(date);
+    map['currency'] = Variable<String>(currency);
+    map['rate'] = Variable<String>(rate);
+    if (!nullToAbsent || fetchedAt != null) {
+      map['fetched_at'] = Variable<String>(fetchedAt);
+    }
+    return map;
+  }
+
+  FxRatesCompanion toCompanion(bool nullToAbsent) {
+    return FxRatesCompanion(
+      date: Value(date),
+      currency: Value(currency),
+      rate: Value(rate),
+      fetchedAt: fetchedAt == null && nullToAbsent ? const Value.absent() : Value(fetchedAt),
+    );
+  }
+
+  factory LocalFxRate.fromJson(Map<String, dynamic> json, {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return LocalFxRate(
+      date: serializer.fromJson<String>(json['date']),
+      currency: serializer.fromJson<String>(json['currency']),
+      rate: serializer.fromJson<String>(json['rate']),
+      fetchedAt: serializer.fromJson<String?>(json['fetched_at']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'date': serializer.toJson<String>(date),
+      'currency': serializer.toJson<String>(currency),
+      'rate': serializer.toJson<String>(rate),
+      'fetched_at': serializer.toJson<String?>(fetchedAt),
+    };
+  }
+
+  LocalFxRate copyWith({
+    String? date,
+    String? currency,
+    String? rate,
+    Value<String?> fetchedAt = const Value.absent(),
+  }) => LocalFxRate(
+    date: date ?? this.date,
+    currency: currency ?? this.currency,
+    rate: rate ?? this.rate,
+    fetchedAt: fetchedAt.present ? fetchedAt.value : this.fetchedAt,
+  );
+  LocalFxRate copyWithCompanion(FxRatesCompanion data) {
+    return LocalFxRate(
+      date: data.date.present ? data.date.value : this.date,
+      currency: data.currency.present ? data.currency.value : this.currency,
+      rate: data.rate.present ? data.rate.value : this.rate,
+      fetchedAt: data.fetchedAt.present ? data.fetchedAt.value : this.fetchedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LocalFxRate(')
+          ..write('date: $date, ')
+          ..write('currency: $currency, ')
+          ..write('rate: $rate, ')
+          ..write('fetchedAt: $fetchedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(date, currency, rate, fetchedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is LocalFxRate &&
+          other.date == this.date &&
+          other.currency == this.currency &&
+          other.rate == this.rate &&
+          other.fetchedAt == this.fetchedAt);
+}
+
+class FxRatesCompanion extends UpdateCompanion<LocalFxRate> {
+  final Value<String> date;
+  final Value<String> currency;
+  final Value<String> rate;
+  final Value<String?> fetchedAt;
+  final Value<int> rowid;
+  const FxRatesCompanion({
+    this.date = const Value.absent(),
+    this.currency = const Value.absent(),
+    this.rate = const Value.absent(),
+    this.fetchedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  FxRatesCompanion.insert({
+    required String date,
+    required String currency,
+    required String rate,
+    this.fetchedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : date = Value(date),
+       currency = Value(currency),
+       rate = Value(rate);
+  static Insertable<LocalFxRate> custom({
+    Expression<String>? date,
+    Expression<String>? currency,
+    Expression<String>? rate,
+    Expression<String>? fetchedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (date != null) 'date': date,
+      if (currency != null) 'currency': currency,
+      if (rate != null) 'rate': rate,
+      if (fetchedAt != null) 'fetched_at': fetchedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  FxRatesCompanion copyWith({
+    Value<String>? date,
+    Value<String>? currency,
+    Value<String>? rate,
+    Value<String?>? fetchedAt,
+    Value<int>? rowid,
+  }) {
+    return FxRatesCompanion(
+      date: date ?? this.date,
+      currency: currency ?? this.currency,
+      rate: rate ?? this.rate,
+      fetchedAt: fetchedAt ?? this.fetchedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (date.present) {
+      map['date'] = Variable<String>(date.value);
+    }
+    if (currency.present) {
+      map['currency'] = Variable<String>(currency.value);
+    }
+    if (rate.present) {
+      map['rate'] = Variable<String>(rate.value);
+    }
+    if (fetchedAt.present) {
+      map['fetched_at'] = Variable<String>(fetchedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('FxRatesCompanion(')
+          ..write('date: $date, ')
+          ..write('currency: $currency, ')
+          ..write('rate: $rate, ')
+          ..write('fetchedAt: $fetchedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class ExpenseSearch extends Table
     with
         TableInfo<ExpenseSearch, ExpenseSearchData>,
@@ -10130,6 +10425,11 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     'CREATE INDEX notifications_seq ON notifications (seq)',
   );
   late final NotificationSettings notificationSettings = NotificationSettings(this);
+  late final FxRates fxRates = FxRates(this);
+  late final Index fxRatesCurrencyDate = Index(
+    'fx_rates_currency_date',
+    'CREATE INDEX fx_rates_currency_date ON fx_rates (currency, date)',
+  );
   late final ExpenseSearch expenseSearch = ExpenseSearch(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
@@ -10160,6 +10460,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     notifications,
     notificationsSeq,
     notificationSettings,
+    fxRates,
+    fxRatesCurrencyDate,
     expenseSearch,
   ];
   @override
@@ -14360,6 +14662,162 @@ typedef $NotificationSettingsProcessedTableManager =
       LocalNotificationSettings,
       PrefetchHooks Function()
     >;
+typedef $FxRatesCreateCompanionBuilder = FxRatesCompanion Function({
+  required String date,
+  required String currency,
+  required String rate,
+  Value<String?> fetchedAt,
+  Value<int> rowid,
+});
+typedef $FxRatesUpdateCompanionBuilder = FxRatesCompanion Function({
+  Value<String> date,
+  Value<String> currency,
+  Value<String> rate,
+  Value<String?> fetchedAt,
+  Value<int> rowid,
+});
+
+class $FxRatesFilterComposer extends Composer<_$AppDatabase, FxRates> {
+  $FxRatesFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get date =>
+      $composableBuilder(column: $table.date, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get currency =>
+      $composableBuilder(column: $table.currency, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get rate =>
+      $composableBuilder(column: $table.rate, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get fetchedAt =>
+      $composableBuilder(column: $table.fetchedAt, builder: (column) => ColumnFilters(column));
+}
+
+class $FxRatesOrderingComposer extends Composer<_$AppDatabase, FxRates> {
+  $FxRatesOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get date =>
+      $composableBuilder(column: $table.date, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get currency =>
+      $composableBuilder(column: $table.currency, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get rate =>
+      $composableBuilder(column: $table.rate, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get fetchedAt =>
+      $composableBuilder(column: $table.fetchedAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $FxRatesAnnotationComposer extends Composer<_$AppDatabase, FxRates> {
+  $FxRatesAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get date =>
+      $composableBuilder(column: $table.date, builder: (column) => column);
+
+  GeneratedColumn<String> get currency =>
+      $composableBuilder(column: $table.currency, builder: (column) => column);
+
+  GeneratedColumn<String> get rate =>
+      $composableBuilder(column: $table.rate, builder: (column) => column);
+
+  GeneratedColumn<String> get fetchedAt =>
+      $composableBuilder(column: $table.fetchedAt, builder: (column) => column);
+}
+
+class $FxRatesTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          FxRates,
+          LocalFxRate,
+          $FxRatesFilterComposer,
+          $FxRatesOrderingComposer,
+          $FxRatesAnnotationComposer,
+          $FxRatesCreateCompanionBuilder,
+          $FxRatesUpdateCompanionBuilder,
+          (LocalFxRate, BaseReferences<_$AppDatabase, FxRates, LocalFxRate>),
+          LocalFxRate,
+          PrefetchHooks Function()
+        > {
+  $FxRatesTableManager(_$AppDatabase db, FxRates table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () => $FxRatesFilterComposer($db: db, $table: table),
+          createOrderingComposer: () => $FxRatesOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () => $FxRatesAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> date = const Value.absent(),
+                Value<String> currency = const Value.absent(),
+                Value<String> rate = const Value.absent(),
+                Value<String?> fetchedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => FxRatesCompanion(
+                date: date,
+                currency: currency,
+                rate: rate,
+                fetchedAt: fetchedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String date,
+                required String currency,
+                required String rate,
+                Value<String?> fetchedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => FxRatesCompanion.insert(
+                date: date,
+                currency: currency,
+                rate: rate,
+                fetchedAt: fetchedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<FxRates, LocalFxRate>(table),
+                  BaseReferences<_$AppDatabase, FxRates, LocalFxRate>(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $FxRatesProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      FxRates,
+      LocalFxRate,
+      $FxRatesFilterComposer,
+      $FxRatesOrderingComposer,
+      $FxRatesAnnotationComposer,
+      $FxRatesCreateCompanionBuilder,
+      $FxRatesUpdateCompanionBuilder,
+      (LocalFxRate, BaseReferences<_$AppDatabase, FxRates, LocalFxRate>),
+      LocalFxRate,
+      PrefetchHooks Function()
+    >;
 typedef $ExpenseSearchCreateCompanionBuilder = ExpenseSearchCompanion Function({
   required String description,
   required String notes,
@@ -14540,6 +14998,7 @@ class $AppDatabaseManager {
       $NotificationsTableManager(_db, _db.notifications);
   $NotificationSettingsTableManager get notificationSettings =>
       $NotificationSettingsTableManager(_db, _db.notificationSettings);
+  $FxRatesTableManager get fxRates => $FxRatesTableManager(_db, _db.fxRates);
   $ExpenseSearchTableManager get expenseSearch =>
       $ExpenseSearchTableManager(_db, _db.expenseSearch);
 }

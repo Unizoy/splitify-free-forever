@@ -13,6 +13,8 @@ import 'package:splitify/data/repositories/sync_repository.dart';
 import 'package:splitify/data/sync/sync_engine.dart';
 import 'package:splitify/data/sync/sync_types.dart';
 import 'package:splitify/domain/entities/profile.dart';
+import 'package:splitify/features/currency/application/currency_providers.dart'
+    show fxAutoRefreshProvider;
 import 'package:splitify/features/activity/application/activity_providers.dart';
 import 'package:splitify/features/balances/application/account_stats.dart';
 import 'package:splitify/features/balances/application/balance_views.dart';
@@ -255,4 +257,5 @@ List<Override> emptyBalanceOverrides({
   activityItemsProvider(null).overrideWithValue(const AsyncData([])),
   // Phase 11: the Friends tab reads every ledger.
   friendsProvider.overrideWithValue(const AsyncData([])),
+  fxAutoRefreshProvider.overrideWith((ref) {}),
 ];

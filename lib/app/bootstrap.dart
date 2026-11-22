@@ -8,6 +8,7 @@ import 'package:splitify/app/app.dart';
 import 'package:splitify/core/config/env.dart';
 import 'package:splitify/core/config/preferences.dart';
 import 'package:splitify/core/logging/logger.dart';
+import 'package:splitify/data/fx_providers.dart';
 import 'package:splitify/data/media_providers.dart';
 import 'package:splitify/data/remote/push_messaging.dart';
 import 'package:splitify/data/remote/remote_providers.dart';
@@ -57,6 +58,7 @@ List<Override> appOverrides({
   historyRemoteProvider.overrideWithValue(remote.history),
   balancesRemoteProvider.overrideWithValue(remote.balances),
   friendsRemoteProvider.overrideWithValue(remote.friends),
+  fxRatesRemoteProvider.overrideWithValue(remote.fxRates),
   notificationsRemoteProvider.overrideWithValue(remote.notifications),
   pushMessagingProvider.overrideWithValue(push),
   googleConfiguredProvider.overrideWithValue(env.hasGoogle),
