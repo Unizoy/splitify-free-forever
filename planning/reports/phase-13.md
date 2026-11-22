@@ -2,8 +2,8 @@
 
 - Date: 2026-11-22 · Branch: `phase/13-notifications` · Base: `origin/main` (phases 01–09 + 12); `origin/main` with
   phase 10 merged in (bdf6d1f)
-- Commits: `3d5e66f..HEAD` · Status: done-with-blockers (push delivery needs the owner's Firebase setup — D-020
-  dummy mode, not a blocker; TC-19-04's dumpsys part is `needs-owner`)
+- Commits: `3d5e66f..HEAD` · Status: done (push delivery runs in D-020 dummy mode until the owner adds Firebase —
+  not a blocker; TC-19-04's dumpsys part is `needs-owner`)
 
 ## Summary
 
@@ -35,16 +35,24 @@ until the owner adds Firebase.
 
 ## Tests
 
-- New tests: unit 81 · widget 96 · golden 24 cases (6 screens × light/dark × 100/200 %) · integration 1 ·
+- New tests: unit 94 (1 skipped placeholder: Firebase static streams) · widget 97 · golden 24 cases (6 screens ×
+  light/dark × 100/200 %; 12 Balances goldens regenerated with the Remind button) · integration 1 ·
   SQL 80 (+ `001_schema` updated) · edge-fn 0 new (45 existing re-run) · migration 3
-- Coverage: GATE_COVERAGE
+- Coverage (full suite): overall 96.4 % · domain 100 % · data 91.8 % · application 97.2 % · presentation 96.3 % · core 96.6 % · sync 100 % · money 100 %
 - Test IDs now passing: TC-19-01, TC-19-02, TC-19-03, TC-19-05, TC-19-06..09 (new), TC-23-01, TC-23-02; TC-19-04
   in-app part
 - Skipped: TC-19-04 dumpsys part (`needs-owner`: Firebase project + `FCM_SERVICE_ACCOUNT_JSON`)
 
 ## Gates
 
-GATES_TABLE
+| Gate | Result | Evidence |
+| --- | --- | --- |
+| G1 Static | PASS | `dart format --set-exit-if-changed` 0 changed; `flutter analyze --no-fatal-infos` 0 errors / 0 warnings (infos only, as before); `dart run tool/guards.dart` OK |
+| G2 Tests | PASS | full `flutter test --coverage --exclude-tags device,needs-owner,quarantine --concurrency=1`: 1908 run; the 44 failures were app-shell/Balances goldens opening a real DB (fixed with `quietNotificationOverrides()`) and the intended Remind button (goldens regenerated + real-font review); re-run of the affected golden files and `test/features/notifications` green; `coverage_check` PASS (numbers above) |
+| G3 Backend | PASS | `0016` dry-run + apply; pgTAP on dev: `130_notifications` 80/80, `001_schema` 32/32 (9 seq triggers), `050_groups_rpcs` 44/44 (fan-out on member RPCs, 10 notifications made); security advisors: only the accepted lint 0029 (S-066) + INFO; `send-push` deployed (verify_jwt false), live 404/`skipped`; deno fmt/lint/test 45/45 on an LF copy |
+| G4 Build | PASS | `flutter build apk --debug --dart-define-from-file=secrets/env.dev.json` (google-services plugin declared, not applied) |
+| G5 Device | PASS (in-app) / SKIPPED (push in dumpsys: needs Firebase, D-020) | `integration_test/notifications_test.dart` passed on emulator-5554 (47 s); UI review captures (light/dark/200 %) in `splitify-artifacts\phase-13\`: activity_bell, notifications_list, balances_remind, balances_reminded, notification_settings, push_preprompt; ui-review rubric ≥ 8/10 on every line (layout, type, colour, spacing, states, a11y labels, 200 % text); the notifications_list dark/200 % device shots kept the light 100 % frame (capture timing), so those two looks were judged from the real-font goldens |
+| G6 Docs | PASS | phase ticks + amendment, PROGRESS, test catalog (TC-19-01..09, TC-23-01/02), decisions S-140..S-147, LEARNINGS, this report |
 
 ## Decisions made (S-0xx)
 

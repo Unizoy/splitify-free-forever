@@ -19,7 +19,7 @@
       sign-out, foreground display, tap → route, bell with unread badge, Notifications screen, settings page (per
       kind push/in-app, muted groups).
 - [x] T5 Reminders: Remind buttons on balances/friend rows (hidden for name-only), throttle copy.
-- [ ] T6 Integration: harness B adds expense in A's group → notification row for A → push visible in
+- [x] T6 Integration: harness B adds expense in A's group → notification row for A → push visible in
       `dumpsys notification` on the emulator → tap opens the expense.
 
 ## Tests

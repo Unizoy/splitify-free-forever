@@ -100,7 +100,7 @@ Total: 121 test ids (TC-18-03 golden added in phase 09; TC-19-06..09 in phase 13
 | 13 | TC-19-01 | sql | fan-out recipients exclude actor/muted | pass (`130_notifications.test.sql` 80/80 on dev) |
 | 13 | TC-19-02 | edge | send-push idempotent + token cleanup | pass (deno 45/45; deployed, live `skipped` without FCM secret) |
 | 13 | TC-19-03 | widget | bell badge | pass |
-| 13 | TC-19-04 | integ | notification appears in dumpsys after B adds expense | todo |
+| 13 | TC-19-04 | integ | notification appears in dumpsys after B adds expense | pass in-app (`integration_test/notifications_test.dart`: bell, tap opens the expense, live `push_status = skipped`) · dumpsys part needs-owner (Firebase, D-020) |
 | 13 | TC-19-05 | unit | settings model. | pass |
 | 13 | TC-19-06 | widget | notifications list: day groups, unread dot, mark all read, tap opens + marks read, empty/offline | pass |
 | 13 | TC-19-07 | widget | notification settings: push/in-app per kind, muted groups, push banners; ToggleRow | pass |
