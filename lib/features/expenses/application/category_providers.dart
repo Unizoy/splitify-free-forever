@@ -14,7 +14,8 @@ const categoryKeywordsAsset = 'assets/category_keywords.json';
 
 /// The keyword list, read once from the app bundle.
 final categorySuggesterProvider = FutureProvider<CategorySuggester>((ref) async {
-  final text = await rootBundle.loadString(categoryKeywordsAsset);
+  // Parsed once and kept here; no copy in the bundle's string cache.
+  final text = await rootBundle.loadString(categoryKeywordsAsset, cache: false);
   return CategorySuggester.fromJson((jsonDecode(text) as Map).cast<String, Object?>());
 });
 
