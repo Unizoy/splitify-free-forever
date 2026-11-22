@@ -8,7 +8,7 @@
 --   4. avatar_path had no maximum length (update_profile only checks the prefix).
 --   5. Storage object names with "..", ".", empty segments, backslashes or control characters were accepted under
 --      a folder the user owns. -> restrictive policies on storage.objects.
--- Plus the weekly housekeeping job (03-backend.md §6).
+-- Plus the weekly housekeeping job (03-backend.md §6, join attempts; S-200).
 -- Known, left to the owner of apply_mutations (0023): the idempotency lookup `select ... from mutation_log where
 -- mutation_id = v_mid` is not limited to the caller (add `and l.user_id = v_uid`); an attacker needs a victim's
 -- random mutation uuid, so this is low risk.
@@ -108,8 +108,11 @@ create policy storage_safe_names_update on storage.objects as restrictive for up
   using (name is not null)
   with check (name !~ '(^|/)\.{0,2}(/|$)' and strpos(name, chr(92)) = 0 and name !~ '[[:cntrl:]]');
 
--- ------------------------------------------------------------------ housekeeping (03-backend.md §6)
+-- ------------------------------------------------------------------ housekeeping (03-backend.md §6, S-200)
 
+-- Prunes the join rate-limit rows (only the last hour counts, 0010). The other §6 items (mutation_log > 30 d,
+-- cron.job_run_details > 14 d) are an optional owner snippet in supabase/README.md: the unattended build session
+-- may not bulk-delete log tables (S-200); both tables stay small (one row per change / per job run).
 create or replace function private.housekeeping()
 returns void
 language plpgsql
@@ -117,10 +120,7 @@ security definer
 set search_path = ''
 as $$
 begin
-  delete from public.mutation_log where received_at < now() - interval '30 days';
   delete from public.join_attempts where at < now() - interval '1 day';
-  delete from cron.job_run_details where coalesce(end_time, start_time) < now() - interval '14 days';
-  delete from public.device_tokens where last_seen_at < now() - interval '270 days';
 end;
 $$;
 
