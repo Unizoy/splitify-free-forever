@@ -8,6 +8,7 @@ import 'package:splitify/features/balances/application/balance_views.dart';
 import 'package:splitify/features/balances/application/balances_providers.dart';
 import 'package:splitify/features/balances/presentation/balance_copy.dart';
 import 'package:splitify/features/groups/presentation/group_visuals.dart' show SectionLabel;
+import 'package:splitify/features/notifications/presentation/remind_button.dart';
 import 'package:splitify/features/payments/presentation/payment_routes.dart';
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/components/components.dart';
@@ -237,6 +238,17 @@ class TransferRow extends StatelessWidget {
       expand: false,
       onPressed: open,
     );
+    // Someone owes me: "Remind" next to Settle (08 #23; hidden for name-only members).
+    final debtor = b.member(t.from);
+    final remind = t.to == b.meId && t.from != b.meId && onSettle == null && debtor != null
+        ? RemindButton(
+            groupId: b.groupId,
+            fromMember: t.to,
+            toMember: t.from,
+            name: personName(l, b, t.from),
+            linked: debtor.userId != null,
+          )
+        : null;
     final words = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -248,7 +260,10 @@ class TransferRow extends StatelessWidget {
               .w(700)
               .copyWith(color: tone == MoneyTone.settled ? c.textPrimary : tone.textColor(c)),
         ),
-        if (large) ...[const SizedBox(height: AppSpacing.s2), settle],
+        if (large) ...[
+          const SizedBox(height: AppSpacing.s2),
+          Row(mainAxisSize: MainAxisSize.min, children: [?remind, settle]),
+        ],
       ],
     );
     return Column(
@@ -265,7 +280,12 @@ class TransferRow extends StatelessWidget {
                 Expanded(
                   child: Semantics(label: '$title, $amount', excludeSemantics: true, child: words),
                 ),
-                if (!large) ...[const SizedBox(width: AppSpacing.s3), settle],
+                if (!large) ...[
+                  const SizedBox(width: AppSpacing.s2),
+                  ?remind,
+                  const SizedBox(width: AppSpacing.s1),
+                  settle,
+                ],
               ],
             ),
           ),

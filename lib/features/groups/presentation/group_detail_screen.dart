@@ -22,16 +22,23 @@ import 'package:splitify/features/payments/presentation/settle_picker.dart';
 /// serif name, status pill, avatar stack; FolderTabs Expenses · Balances · Totals; sticky Add expense /
 /// Settle up. Phase 08 fills the Expenses tab, phase 09 the balances, the status pill and Settle up.
 class GroupDetailScreen extends ConsumerStatefulWidget {
-  const GroupDetailScreen({required this.groupId, super.key});
+  const GroupDetailScreen({required this.groupId, this.initialTab, super.key});
 
   final String groupId;
+
+  /// `?tab=balances` / `?tab=totals` (a reminder notification opens the Balances tab, phase 13).
+  final String? initialTab;
 
   @override
   ConsumerState<GroupDetailScreen> createState() => _GroupDetailScreenState();
 }
 
 class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen> {
-  int _tab = 0;
+  late int _tab = switch (widget.initialTab) {
+    'balances' => 1,
+    'totals' => 2,
+    _ => 0,
+  };
 
   @override
   Widget build(BuildContext context) {

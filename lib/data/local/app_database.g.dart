@@ -8844,6 +8844,930 @@ class RecordVersionsCompanion extends UpdateCompanion<LocalVersion> {
   }
 }
 
+class Notifications extends Table with TableInfo<Notifications, LocalNotification> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  Notifications(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL PRIMARY KEY',
+  );
+  static const VerificationMeta _groupIdMeta = const VerificationMeta('groupId');
+  late final GeneratedColumn<String> groupId = GeneratedColumn<String>(
+    'group_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    $customConstraints: '',
+  );
+  static const VerificationMeta _activityIdMeta = const VerificationMeta('activityId');
+  late final GeneratedColumn<String> activityId = GeneratedColumn<String>(
+    'activity_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    $customConstraints: '',
+  );
+  static const VerificationMeta _kindMeta = const VerificationMeta('kind');
+  late final GeneratedColumn<String> kind = GeneratedColumn<String>(
+    'kind',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL',
+  );
+  static const VerificationMeta _typeMeta = const VerificationMeta('type');
+  late final GeneratedColumn<String> type = GeneratedColumn<String>(
+    'type',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL',
+  );
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+    'title',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL',
+  );
+  static const VerificationMeta _bodyMeta = const VerificationMeta('body');
+  late final GeneratedColumn<String> body = GeneratedColumn<String>(
+    'body',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL',
+  );
+  static const VerificationMeta _dataMeta = const VerificationMeta('data');
+  late final GeneratedColumn<String> data = GeneratedColumn<String>(
+    'data',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    $customConstraints: 'NOT NULL DEFAULT \'{}\'',
+    defaultValue: const CustomExpression('\'{}\''),
+  );
+  static const VerificationMeta _readAtMeta = const VerificationMeta('readAt');
+  late final GeneratedColumn<String> readAt = GeneratedColumn<String>(
+    'read_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    $customConstraints: '',
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta('createdAt');
+  late final GeneratedColumn<String> createdAt = GeneratedColumn<String>(
+    'created_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    $customConstraints: '',
+  );
+  static const VerificationMeta _seqMeta = const VerificationMeta('seq');
+  late final GeneratedColumn<int> seq = GeneratedColumn<int>(
+    'seq',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    $customConstraints: 'NOT NULL DEFAULT 0',
+    defaultValue: const CustomExpression('0'),
+  );
+  static const VerificationMeta _readPendingMeta = const VerificationMeta('readPending');
+  late final GeneratedColumn<int> readPending = GeneratedColumn<int>(
+    'read_pending',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    $customConstraints: 'NOT NULL DEFAULT 0',
+    defaultValue: const CustomExpression('0'),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    groupId,
+    activityId,
+    kind,
+    type,
+    title,
+    body,
+    data,
+    readAt,
+    createdAt,
+    seq,
+    readPending,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'notifications';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<LocalNotification> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('group_id')) {
+      context.handle(_groupIdMeta, groupId.isAcceptableOrUnknown(data['group_id']!, _groupIdMeta));
+    }
+    if (data.containsKey('activity_id')) {
+      context.handle(
+        _activityIdMeta,
+        activityId.isAcceptableOrUnknown(data['activity_id']!, _activityIdMeta),
+      );
+    }
+    if (data.containsKey('kind')) {
+      context.handle(_kindMeta, kind.isAcceptableOrUnknown(data['kind']!, _kindMeta));
+    } else if (isInserting) {
+      context.missing(_kindMeta);
+    }
+    if (data.containsKey('type')) {
+      context.handle(_typeMeta, type.isAcceptableOrUnknown(data['type']!, _typeMeta));
+    } else if (isInserting) {
+      context.missing(_typeMeta);
+    }
+    if (data.containsKey('title')) {
+      context.handle(_titleMeta, title.isAcceptableOrUnknown(data['title']!, _titleMeta));
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('body')) {
+      context.handle(_bodyMeta, body.isAcceptableOrUnknown(data['body']!, _bodyMeta));
+    } else if (isInserting) {
+      context.missing(_bodyMeta);
+    }
+    if (data.containsKey('data')) {
+      context.handle(_dataMeta, this.data.isAcceptableOrUnknown(data['data']!, _dataMeta));
+    }
+    if (data.containsKey('read_at')) {
+      context.handle(_readAtMeta, readAt.isAcceptableOrUnknown(data['read_at']!, _readAtMeta));
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
+    if (data.containsKey('seq')) {
+      context.handle(_seqMeta, seq.isAcceptableOrUnknown(data['seq']!, _seqMeta));
+    }
+    if (data.containsKey('read_pending')) {
+      context.handle(
+        _readPendingMeta,
+        readPending.isAcceptableOrUnknown(data['read_pending']!, _readPendingMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  LocalNotification map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return LocalNotification(
+      id: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      groupId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}group_id'],
+      ),
+      activityId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}activity_id'],
+      ),
+      kind: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}kind'])!,
+      type: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}type'])!,
+      title: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}title'],
+      )!,
+      body: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}body'])!,
+      data: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}data'])!,
+      readAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}read_at'],
+      ),
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}created_at'],
+      ),
+      seq: attachedDatabase.typeMapping.read(DriftSqlType.int, data['${effectivePrefix}seq'])!,
+      readPending: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}read_pending'],
+      )!,
+    );
+  }
+
+  @override
+  Notifications createAlias(String alias) {
+    return Notifications(attachedDatabase, alias);
+  }
+
+  @override
+  bool get dontWriteConstraints => true;
+}
+
+class LocalNotification extends DataClass implements Insertable<LocalNotification> {
+  final String id;
+  final String? groupId;
+  final String? activityId;
+  final String kind;
+  final String type;
+  final String title;
+  final String body;
+  final String data;
+  final String? readAt;
+  final String? createdAt;
+  final int seq;
+  final int readPending;
+  const LocalNotification({
+    required this.id,
+    this.groupId,
+    this.activityId,
+    required this.kind,
+    required this.type,
+    required this.title,
+    required this.body,
+    required this.data,
+    this.readAt,
+    this.createdAt,
+    required this.seq,
+    required this.readPending,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    if (!nullToAbsent || groupId != null) {
+      map['group_id'] = Variable<String>(groupId);
+    }
+    if (!nullToAbsent || activityId != null) {
+      map['activity_id'] = Variable<String>(activityId);
+    }
+    map['kind'] = Variable<String>(kind);
+    map['type'] = Variable<String>(type);
+    map['title'] = Variable<String>(title);
+    map['body'] = Variable<String>(body);
+    map['data'] = Variable<String>(data);
+    if (!nullToAbsent || readAt != null) {
+      map['read_at'] = Variable<String>(readAt);
+    }
+    if (!nullToAbsent || createdAt != null) {
+      map['created_at'] = Variable<String>(createdAt);
+    }
+    map['seq'] = Variable<int>(seq);
+    map['read_pending'] = Variable<int>(readPending);
+    return map;
+  }
+
+  NotificationsCompanion toCompanion(bool nullToAbsent) {
+    return NotificationsCompanion(
+      id: Value(id),
+      groupId: groupId == null && nullToAbsent ? const Value.absent() : Value(groupId),
+      activityId: activityId == null && nullToAbsent ? const Value.absent() : Value(activityId),
+      kind: Value(kind),
+      type: Value(type),
+      title: Value(title),
+      body: Value(body),
+      data: Value(data),
+      readAt: readAt == null && nullToAbsent ? const Value.absent() : Value(readAt),
+      createdAt: createdAt == null && nullToAbsent ? const Value.absent() : Value(createdAt),
+      seq: Value(seq),
+      readPending: Value(readPending),
+    );
+  }
+
+  factory LocalNotification.fromJson(Map<String, dynamic> json, {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return LocalNotification(
+      id: serializer.fromJson<String>(json['id']),
+      groupId: serializer.fromJson<String?>(json['group_id']),
+      activityId: serializer.fromJson<String?>(json['activity_id']),
+      kind: serializer.fromJson<String>(json['kind']),
+      type: serializer.fromJson<String>(json['type']),
+      title: serializer.fromJson<String>(json['title']),
+      body: serializer.fromJson<String>(json['body']),
+      data: serializer.fromJson<String>(json['data']),
+      readAt: serializer.fromJson<String?>(json['read_at']),
+      createdAt: serializer.fromJson<String?>(json['created_at']),
+      seq: serializer.fromJson<int>(json['seq']),
+      readPending: serializer.fromJson<int>(json['read_pending']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'group_id': serializer.toJson<String?>(groupId),
+      'activity_id': serializer.toJson<String?>(activityId),
+      'kind': serializer.toJson<String>(kind),
+      'type': serializer.toJson<String>(type),
+      'title': serializer.toJson<String>(title),
+      'body': serializer.toJson<String>(body),
+      'data': serializer.toJson<String>(data),
+      'read_at': serializer.toJson<String?>(readAt),
+      'created_at': serializer.toJson<String?>(createdAt),
+      'seq': serializer.toJson<int>(seq),
+      'read_pending': serializer.toJson<int>(readPending),
+    };
+  }
+
+  LocalNotification copyWith({
+    String? id,
+    Value<String?> groupId = const Value.absent(),
+    Value<String?> activityId = const Value.absent(),
+    String? kind,
+    String? type,
+    String? title,
+    String? body,
+    String? data,
+    Value<String?> readAt = const Value.absent(),
+    Value<String?> createdAt = const Value.absent(),
+    int? seq,
+    int? readPending,
+  }) => LocalNotification(
+    id: id ?? this.id,
+    groupId: groupId.present ? groupId.value : this.groupId,
+    activityId: activityId.present ? activityId.value : this.activityId,
+    kind: kind ?? this.kind,
+    type: type ?? this.type,
+    title: title ?? this.title,
+    body: body ?? this.body,
+    data: data ?? this.data,
+    readAt: readAt.present ? readAt.value : this.readAt,
+    createdAt: createdAt.present ? createdAt.value : this.createdAt,
+    seq: seq ?? this.seq,
+    readPending: readPending ?? this.readPending,
+  );
+  LocalNotification copyWithCompanion(NotificationsCompanion data) {
+    return LocalNotification(
+      id: data.id.present ? data.id.value : this.id,
+      groupId: data.groupId.present ? data.groupId.value : this.groupId,
+      activityId: data.activityId.present ? data.activityId.value : this.activityId,
+      kind: data.kind.present ? data.kind.value : this.kind,
+      type: data.type.present ? data.type.value : this.type,
+      title: data.title.present ? data.title.value : this.title,
+      body: data.body.present ? data.body.value : this.body,
+      data: data.data.present ? data.data.value : this.data,
+      readAt: data.readAt.present ? data.readAt.value : this.readAt,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      seq: data.seq.present ? data.seq.value : this.seq,
+      readPending: data.readPending.present ? data.readPending.value : this.readPending,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LocalNotification(')
+          ..write('id: $id, ')
+          ..write('groupId: $groupId, ')
+          ..write('activityId: $activityId, ')
+          ..write('kind: $kind, ')
+          ..write('type: $type, ')
+          ..write('title: $title, ')
+          ..write('body: $body, ')
+          ..write('data: $data, ')
+          ..write('readAt: $readAt, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('seq: $seq, ')
+          ..write('readPending: $readPending')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    groupId,
+    activityId,
+    kind,
+    type,
+    title,
+    body,
+    data,
+    readAt,
+    createdAt,
+    seq,
+    readPending,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is LocalNotification &&
+          other.id == this.id &&
+          other.groupId == this.groupId &&
+          other.activityId == this.activityId &&
+          other.kind == this.kind &&
+          other.type == this.type &&
+          other.title == this.title &&
+          other.body == this.body &&
+          other.data == this.data &&
+          other.readAt == this.readAt &&
+          other.createdAt == this.createdAt &&
+          other.seq == this.seq &&
+          other.readPending == this.readPending);
+}
+
+class NotificationsCompanion extends UpdateCompanion<LocalNotification> {
+  final Value<String> id;
+  final Value<String?> groupId;
+  final Value<String?> activityId;
+  final Value<String> kind;
+  final Value<String> type;
+  final Value<String> title;
+  final Value<String> body;
+  final Value<String> data;
+  final Value<String?> readAt;
+  final Value<String?> createdAt;
+  final Value<int> seq;
+  final Value<int> readPending;
+  final Value<int> rowid;
+  const NotificationsCompanion({
+    this.id = const Value.absent(),
+    this.groupId = const Value.absent(),
+    this.activityId = const Value.absent(),
+    this.kind = const Value.absent(),
+    this.type = const Value.absent(),
+    this.title = const Value.absent(),
+    this.body = const Value.absent(),
+    this.data = const Value.absent(),
+    this.readAt = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.seq = const Value.absent(),
+    this.readPending = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  NotificationsCompanion.insert({
+    required String id,
+    this.groupId = const Value.absent(),
+    this.activityId = const Value.absent(),
+    required String kind,
+    required String type,
+    required String title,
+    required String body,
+    this.data = const Value.absent(),
+    this.readAt = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.seq = const Value.absent(),
+    this.readPending = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       kind = Value(kind),
+       type = Value(type),
+       title = Value(title),
+       body = Value(body);
+  static Insertable<LocalNotification> custom({
+    Expression<String>? id,
+    Expression<String>? groupId,
+    Expression<String>? activityId,
+    Expression<String>? kind,
+    Expression<String>? type,
+    Expression<String>? title,
+    Expression<String>? body,
+    Expression<String>? data,
+    Expression<String>? readAt,
+    Expression<String>? createdAt,
+    Expression<int>? seq,
+    Expression<int>? readPending,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (groupId != null) 'group_id': groupId,
+      if (activityId != null) 'activity_id': activityId,
+      if (kind != null) 'kind': kind,
+      if (type != null) 'type': type,
+      if (title != null) 'title': title,
+      if (body != null) 'body': body,
+      if (data != null) 'data': data,
+      if (readAt != null) 'read_at': readAt,
+      if (createdAt != null) 'created_at': createdAt,
+      if (seq != null) 'seq': seq,
+      if (readPending != null) 'read_pending': readPending,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  NotificationsCompanion copyWith({
+    Value<String>? id,
+    Value<String?>? groupId,
+    Value<String?>? activityId,
+    Value<String>? kind,
+    Value<String>? type,
+    Value<String>? title,
+    Value<String>? body,
+    Value<String>? data,
+    Value<String?>? readAt,
+    Value<String?>? createdAt,
+    Value<int>? seq,
+    Value<int>? readPending,
+    Value<int>? rowid,
+  }) {
+    return NotificationsCompanion(
+      id: id ?? this.id,
+      groupId: groupId ?? this.groupId,
+      activityId: activityId ?? this.activityId,
+      kind: kind ?? this.kind,
+      type: type ?? this.type,
+      title: title ?? this.title,
+      body: body ?? this.body,
+      data: data ?? this.data,
+      readAt: readAt ?? this.readAt,
+      createdAt: createdAt ?? this.createdAt,
+      seq: seq ?? this.seq,
+      readPending: readPending ?? this.readPending,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (groupId.present) {
+      map['group_id'] = Variable<String>(groupId.value);
+    }
+    if (activityId.present) {
+      map['activity_id'] = Variable<String>(activityId.value);
+    }
+    if (kind.present) {
+      map['kind'] = Variable<String>(kind.value);
+    }
+    if (type.present) {
+      map['type'] = Variable<String>(type.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (body.present) {
+      map['body'] = Variable<String>(body.value);
+    }
+    if (data.present) {
+      map['data'] = Variable<String>(data.value);
+    }
+    if (readAt.present) {
+      map['read_at'] = Variable<String>(readAt.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<String>(createdAt.value);
+    }
+    if (seq.present) {
+      map['seq'] = Variable<int>(seq.value);
+    }
+    if (readPending.present) {
+      map['read_pending'] = Variable<int>(readPending.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('NotificationsCompanion(')
+          ..write('id: $id, ')
+          ..write('groupId: $groupId, ')
+          ..write('activityId: $activityId, ')
+          ..write('kind: $kind, ')
+          ..write('type: $type, ')
+          ..write('title: $title, ')
+          ..write('body: $body, ')
+          ..write('data: $data, ')
+          ..write('readAt: $readAt, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('seq: $seq, ')
+          ..write('readPending: $readPending, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class NotificationSettings extends Table
+    with TableInfo<NotificationSettings, LocalNotificationSettings> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  NotificationSettings(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _keyMeta = const VerificationMeta('key');
+  late final GeneratedColumn<String> key = GeneratedColumn<String>(
+    'key',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL PRIMARY KEY',
+  );
+  static const VerificationMeta _kindsMeta = const VerificationMeta('kinds');
+  late final GeneratedColumn<String> kinds = GeneratedColumn<String>(
+    'kinds',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    $customConstraints: 'NOT NULL DEFAULT \'{}\'',
+    defaultValue: const CustomExpression('\'{}\''),
+  );
+  static const VerificationMeta _mutedGroupIdsMeta = const VerificationMeta('mutedGroupIds');
+  late final GeneratedColumn<String> mutedGroupIds = GeneratedColumn<String>(
+    'muted_group_ids',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    $customConstraints: 'NOT NULL DEFAULT \'[]\'',
+    defaultValue: const CustomExpression('\'[]\''),
+  );
+  static const VerificationMeta _syncStateMeta = const VerificationMeta('syncState');
+  late final GeneratedColumn<String> syncState = GeneratedColumn<String>(
+    'sync_state',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    $customConstraints: 'NOT NULL DEFAULT \'synced\'',
+    defaultValue: const CustomExpression('\'synced\''),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [key, kinds, mutedGroupIds, syncState];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'notification_settings';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<LocalNotificationSettings> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('key')) {
+      context.handle(_keyMeta, key.isAcceptableOrUnknown(data['key']!, _keyMeta));
+    } else if (isInserting) {
+      context.missing(_keyMeta);
+    }
+    if (data.containsKey('kinds')) {
+      context.handle(_kindsMeta, kinds.isAcceptableOrUnknown(data['kinds']!, _kindsMeta));
+    }
+    if (data.containsKey('muted_group_ids')) {
+      context.handle(
+        _mutedGroupIdsMeta,
+        mutedGroupIds.isAcceptableOrUnknown(data['muted_group_ids']!, _mutedGroupIdsMeta),
+      );
+    }
+    if (data.containsKey('sync_state')) {
+      context.handle(
+        _syncStateMeta,
+        syncState.isAcceptableOrUnknown(data['sync_state']!, _syncStateMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {key};
+  @override
+  LocalNotificationSettings map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return LocalNotificationSettings(
+      key: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}key'])!,
+      kinds: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}kinds'],
+      )!,
+      mutedGroupIds: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}muted_group_ids'],
+      )!,
+      syncState: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}sync_state'],
+      )!,
+    );
+  }
+
+  @override
+  NotificationSettings createAlias(String alias) {
+    return NotificationSettings(attachedDatabase, alias);
+  }
+
+  @override
+  bool get dontWriteConstraints => true;
+}
+
+class LocalNotificationSettings extends DataClass implements Insertable<LocalNotificationSettings> {
+  final String key;
+  final String kinds;
+  final String mutedGroupIds;
+  final String syncState;
+  const LocalNotificationSettings({
+    required this.key,
+    required this.kinds,
+    required this.mutedGroupIds,
+    required this.syncState,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['key'] = Variable<String>(key);
+    map['kinds'] = Variable<String>(kinds);
+    map['muted_group_ids'] = Variable<String>(mutedGroupIds);
+    map['sync_state'] = Variable<String>(syncState);
+    return map;
+  }
+
+  NotificationSettingsCompanion toCompanion(bool nullToAbsent) {
+    return NotificationSettingsCompanion(
+      key: Value(key),
+      kinds: Value(kinds),
+      mutedGroupIds: Value(mutedGroupIds),
+      syncState: Value(syncState),
+    );
+  }
+
+  factory LocalNotificationSettings.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return LocalNotificationSettings(
+      key: serializer.fromJson<String>(json['key']),
+      kinds: serializer.fromJson<String>(json['kinds']),
+      mutedGroupIds: serializer.fromJson<String>(json['muted_group_ids']),
+      syncState: serializer.fromJson<String>(json['sync_state']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'key': serializer.toJson<String>(key),
+      'kinds': serializer.toJson<String>(kinds),
+      'muted_group_ids': serializer.toJson<String>(mutedGroupIds),
+      'sync_state': serializer.toJson<String>(syncState),
+    };
+  }
+
+  LocalNotificationSettings copyWith({
+    String? key,
+    String? kinds,
+    String? mutedGroupIds,
+    String? syncState,
+  }) => LocalNotificationSettings(
+    key: key ?? this.key,
+    kinds: kinds ?? this.kinds,
+    mutedGroupIds: mutedGroupIds ?? this.mutedGroupIds,
+    syncState: syncState ?? this.syncState,
+  );
+  LocalNotificationSettings copyWithCompanion(NotificationSettingsCompanion data) {
+    return LocalNotificationSettings(
+      key: data.key.present ? data.key.value : this.key,
+      kinds: data.kinds.present ? data.kinds.value : this.kinds,
+      mutedGroupIds: data.mutedGroupIds.present ? data.mutedGroupIds.value : this.mutedGroupIds,
+      syncState: data.syncState.present ? data.syncState.value : this.syncState,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LocalNotificationSettings(')
+          ..write('key: $key, ')
+          ..write('kinds: $kinds, ')
+          ..write('mutedGroupIds: $mutedGroupIds, ')
+          ..write('syncState: $syncState')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(key, kinds, mutedGroupIds, syncState);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is LocalNotificationSettings &&
+          other.key == this.key &&
+          other.kinds == this.kinds &&
+          other.mutedGroupIds == this.mutedGroupIds &&
+          other.syncState == this.syncState);
+}
+
+class NotificationSettingsCompanion extends UpdateCompanion<LocalNotificationSettings> {
+  final Value<String> key;
+  final Value<String> kinds;
+  final Value<String> mutedGroupIds;
+  final Value<String> syncState;
+  final Value<int> rowid;
+  const NotificationSettingsCompanion({
+    this.key = const Value.absent(),
+    this.kinds = const Value.absent(),
+    this.mutedGroupIds = const Value.absent(),
+    this.syncState = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  NotificationSettingsCompanion.insert({
+    required String key,
+    this.kinds = const Value.absent(),
+    this.mutedGroupIds = const Value.absent(),
+    this.syncState = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : key = Value(key);
+  static Insertable<LocalNotificationSettings> custom({
+    Expression<String>? key,
+    Expression<String>? kinds,
+    Expression<String>? mutedGroupIds,
+    Expression<String>? syncState,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (key != null) 'key': key,
+      if (kinds != null) 'kinds': kinds,
+      if (mutedGroupIds != null) 'muted_group_ids': mutedGroupIds,
+      if (syncState != null) 'sync_state': syncState,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  NotificationSettingsCompanion copyWith({
+    Value<String>? key,
+    Value<String>? kinds,
+    Value<String>? mutedGroupIds,
+    Value<String>? syncState,
+    Value<int>? rowid,
+  }) {
+    return NotificationSettingsCompanion(
+      key: key ?? this.key,
+      kinds: kinds ?? this.kinds,
+      mutedGroupIds: mutedGroupIds ?? this.mutedGroupIds,
+      syncState: syncState ?? this.syncState,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (key.present) {
+      map['key'] = Variable<String>(key.value);
+    }
+    if (kinds.present) {
+      map['kinds'] = Variable<String>(kinds.value);
+    }
+    if (mutedGroupIds.present) {
+      map['muted_group_ids'] = Variable<String>(mutedGroupIds.value);
+    }
+    if (syncState.present) {
+      map['sync_state'] = Variable<String>(syncState.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('NotificationSettingsCompanion(')
+          ..write('key: $key, ')
+          ..write('kinds: $kinds, ')
+          ..write('mutedGroupIds: $mutedGroupIds, ')
+          ..write('syncState: $syncState, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class ExpenseSearch extends Table
     with
         TableInfo<ExpenseSearch, ExpenseSearchData>,
@@ -9200,6 +10124,12 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     'record_versions_record',
     'CREATE INDEX record_versions_record ON record_versions (record_id, seq)',
   );
+  late final Notifications notifications = Notifications(this);
+  late final Index notificationsSeq = Index(
+    'notifications_seq',
+    'CREATE INDEX notifications_seq ON notifications (seq)',
+  );
+  late final NotificationSettings notificationSettings = NotificationSettings(this);
   late final ExpenseSearch expenseSearch = ExpenseSearch(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
@@ -9227,6 +10157,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     pendingUploads,
     recordVersions,
     recordVersionsRecord,
+    notifications,
+    notificationsSeq,
+    notificationSettings,
     expenseSearch,
   ];
   @override
@@ -12978,6 +13911,455 @@ typedef $RecordVersionsProcessedTableManager =
       LocalVersion,
       PrefetchHooks Function()
     >;
+typedef $NotificationsCreateCompanionBuilder = NotificationsCompanion Function({
+  required String id,
+  Value<String?> groupId,
+  Value<String?> activityId,
+  required String kind,
+  required String type,
+  required String title,
+  required String body,
+  Value<String> data,
+  Value<String?> readAt,
+  Value<String?> createdAt,
+  Value<int> seq,
+  Value<int> readPending,
+  Value<int> rowid,
+});
+typedef $NotificationsUpdateCompanionBuilder = NotificationsCompanion Function({
+  Value<String> id,
+  Value<String?> groupId,
+  Value<String?> activityId,
+  Value<String> kind,
+  Value<String> type,
+  Value<String> title,
+  Value<String> body,
+  Value<String> data,
+  Value<String?> readAt,
+  Value<String?> createdAt,
+  Value<int> seq,
+  Value<int> readPending,
+  Value<int> rowid,
+});
+
+class $NotificationsFilterComposer extends Composer<_$AppDatabase, Notifications> {
+  $NotificationsFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get groupId =>
+      $composableBuilder(column: $table.groupId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get activityId =>
+      $composableBuilder(column: $table.activityId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get kind =>
+      $composableBuilder(column: $table.kind, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get type =>
+      $composableBuilder(column: $table.type, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get body =>
+      $composableBuilder(column: $table.body, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get data =>
+      $composableBuilder(column: $table.data, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get readAt =>
+      $composableBuilder(column: $table.readAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get seq =>
+      $composableBuilder(column: $table.seq, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get readPending =>
+      $composableBuilder(column: $table.readPending, builder: (column) => ColumnFilters(column));
+}
+
+class $NotificationsOrderingComposer extends Composer<_$AppDatabase, Notifications> {
+  $NotificationsOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get groupId =>
+      $composableBuilder(column: $table.groupId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get activityId =>
+      $composableBuilder(column: $table.activityId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get kind =>
+      $composableBuilder(column: $table.kind, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get type =>
+      $composableBuilder(column: $table.type, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get body =>
+      $composableBuilder(column: $table.body, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get data =>
+      $composableBuilder(column: $table.data, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get readAt =>
+      $composableBuilder(column: $table.readAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get seq =>
+      $composableBuilder(column: $table.seq, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get readPending =>
+      $composableBuilder(column: $table.readPending, builder: (column) => ColumnOrderings(column));
+}
+
+class $NotificationsAnnotationComposer extends Composer<_$AppDatabase, Notifications> {
+  $NotificationsAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get groupId =>
+      $composableBuilder(column: $table.groupId, builder: (column) => column);
+
+  GeneratedColumn<String> get activityId =>
+      $composableBuilder(column: $table.activityId, builder: (column) => column);
+
+  GeneratedColumn<String> get kind =>
+      $composableBuilder(column: $table.kind, builder: (column) => column);
+
+  GeneratedColumn<String> get type =>
+      $composableBuilder(column: $table.type, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<String> get body =>
+      $composableBuilder(column: $table.body, builder: (column) => column);
+
+  GeneratedColumn<String> get data =>
+      $composableBuilder(column: $table.data, builder: (column) => column);
+
+  GeneratedColumn<String> get readAt =>
+      $composableBuilder(column: $table.readAt, builder: (column) => column);
+
+  GeneratedColumn<String> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<int> get seq =>
+      $composableBuilder(column: $table.seq, builder: (column) => column);
+
+  GeneratedColumn<int> get readPending =>
+      $composableBuilder(column: $table.readPending, builder: (column) => column);
+}
+
+class $NotificationsTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          Notifications,
+          LocalNotification,
+          $NotificationsFilterComposer,
+          $NotificationsOrderingComposer,
+          $NotificationsAnnotationComposer,
+          $NotificationsCreateCompanionBuilder,
+          $NotificationsUpdateCompanionBuilder,
+          (LocalNotification, BaseReferences<_$AppDatabase, Notifications, LocalNotification>),
+          LocalNotification,
+          PrefetchHooks Function()
+        > {
+  $NotificationsTableManager(_$AppDatabase db, Notifications table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () => $NotificationsFilterComposer($db: db, $table: table),
+          createOrderingComposer: () => $NotificationsOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $NotificationsAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String?> groupId = const Value.absent(),
+                Value<String?> activityId = const Value.absent(),
+                Value<String> kind = const Value.absent(),
+                Value<String> type = const Value.absent(),
+                Value<String> title = const Value.absent(),
+                Value<String> body = const Value.absent(),
+                Value<String> data = const Value.absent(),
+                Value<String?> readAt = const Value.absent(),
+                Value<String?> createdAt = const Value.absent(),
+                Value<int> seq = const Value.absent(),
+                Value<int> readPending = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => NotificationsCompanion(
+                id: id,
+                groupId: groupId,
+                activityId: activityId,
+                kind: kind,
+                type: type,
+                title: title,
+                body: body,
+                data: data,
+                readAt: readAt,
+                createdAt: createdAt,
+                seq: seq,
+                readPending: readPending,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                Value<String?> groupId = const Value.absent(),
+                Value<String?> activityId = const Value.absent(),
+                required String kind,
+                required String type,
+                required String title,
+                required String body,
+                Value<String> data = const Value.absent(),
+                Value<String?> readAt = const Value.absent(),
+                Value<String?> createdAt = const Value.absent(),
+                Value<int> seq = const Value.absent(),
+                Value<int> readPending = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => NotificationsCompanion.insert(
+                id: id,
+                groupId: groupId,
+                activityId: activityId,
+                kind: kind,
+                type: type,
+                title: title,
+                body: body,
+                data: data,
+                readAt: readAt,
+                createdAt: createdAt,
+                seq: seq,
+                readPending: readPending,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<Notifications, LocalNotification>(table),
+                  BaseReferences<_$AppDatabase, Notifications, LocalNotification>(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $NotificationsProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      Notifications,
+      LocalNotification,
+      $NotificationsFilterComposer,
+      $NotificationsOrderingComposer,
+      $NotificationsAnnotationComposer,
+      $NotificationsCreateCompanionBuilder,
+      $NotificationsUpdateCompanionBuilder,
+      (LocalNotification, BaseReferences<_$AppDatabase, Notifications, LocalNotification>),
+      LocalNotification,
+      PrefetchHooks Function()
+    >;
+typedef $NotificationSettingsCreateCompanionBuilder = NotificationSettingsCompanion Function({
+  required String key,
+  Value<String> kinds,
+  Value<String> mutedGroupIds,
+  Value<String> syncState,
+  Value<int> rowid,
+});
+typedef $NotificationSettingsUpdateCompanionBuilder = NotificationSettingsCompanion Function({
+  Value<String> key,
+  Value<String> kinds,
+  Value<String> mutedGroupIds,
+  Value<String> syncState,
+  Value<int> rowid,
+});
+
+class $NotificationSettingsFilterComposer extends Composer<_$AppDatabase, NotificationSettings> {
+  $NotificationSettingsFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get key =>
+      $composableBuilder(column: $table.key, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get kinds =>
+      $composableBuilder(column: $table.kinds, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get mutedGroupIds =>
+      $composableBuilder(column: $table.mutedGroupIds, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get syncState =>
+      $composableBuilder(column: $table.syncState, builder: (column) => ColumnFilters(column));
+}
+
+class $NotificationSettingsOrderingComposer extends Composer<_$AppDatabase, NotificationSettings> {
+  $NotificationSettingsOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get key =>
+      $composableBuilder(column: $table.key, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get kinds =>
+      $composableBuilder(column: $table.kinds, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get mutedGroupIds => $composableBuilder(
+    column: $table.mutedGroupIds,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get syncState =>
+      $composableBuilder(column: $table.syncState, builder: (column) => ColumnOrderings(column));
+}
+
+class $NotificationSettingsAnnotationComposer
+    extends Composer<_$AppDatabase, NotificationSettings> {
+  $NotificationSettingsAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get key =>
+      $composableBuilder(column: $table.key, builder: (column) => column);
+
+  GeneratedColumn<String> get kinds =>
+      $composableBuilder(column: $table.kinds, builder: (column) => column);
+
+  GeneratedColumn<String> get mutedGroupIds =>
+      $composableBuilder(column: $table.mutedGroupIds, builder: (column) => column);
+
+  GeneratedColumn<String> get syncState =>
+      $composableBuilder(column: $table.syncState, builder: (column) => column);
+}
+
+class $NotificationSettingsTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          NotificationSettings,
+          LocalNotificationSettings,
+          $NotificationSettingsFilterComposer,
+          $NotificationSettingsOrderingComposer,
+          $NotificationSettingsAnnotationComposer,
+          $NotificationSettingsCreateCompanionBuilder,
+          $NotificationSettingsUpdateCompanionBuilder,
+          (
+            LocalNotificationSettings,
+            BaseReferences<_$AppDatabase, NotificationSettings, LocalNotificationSettings>,
+          ),
+          LocalNotificationSettings,
+          PrefetchHooks Function()
+        > {
+  $NotificationSettingsTableManager(_$AppDatabase db, NotificationSettings table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $NotificationSettingsFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $NotificationSettingsOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $NotificationSettingsAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> key = const Value.absent(),
+                Value<String> kinds = const Value.absent(),
+                Value<String> mutedGroupIds = const Value.absent(),
+                Value<String> syncState = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => NotificationSettingsCompanion(
+                key: key,
+                kinds: kinds,
+                mutedGroupIds: mutedGroupIds,
+                syncState: syncState,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String key,
+                Value<String> kinds = const Value.absent(),
+                Value<String> mutedGroupIds = const Value.absent(),
+                Value<String> syncState = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => NotificationSettingsCompanion.insert(
+                key: key,
+                kinds: kinds,
+                mutedGroupIds: mutedGroupIds,
+                syncState: syncState,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<NotificationSettings, LocalNotificationSettings>(table),
+                  BaseReferences<_$AppDatabase, NotificationSettings, LocalNotificationSettings>(
+                    db,
+                    table,
+                    e,
+                  ),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $NotificationSettingsProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      NotificationSettings,
+      LocalNotificationSettings,
+      $NotificationSettingsFilterComposer,
+      $NotificationSettingsOrderingComposer,
+      $NotificationSettingsAnnotationComposer,
+      $NotificationSettingsCreateCompanionBuilder,
+      $NotificationSettingsUpdateCompanionBuilder,
+      (
+        LocalNotificationSettings,
+        BaseReferences<_$AppDatabase, NotificationSettings, LocalNotificationSettings>,
+      ),
+      LocalNotificationSettings,
+      PrefetchHooks Function()
+    >;
 typedef $ExpenseSearchCreateCompanionBuilder = ExpenseSearchCompanion Function({
   required String description,
   required String notes,
@@ -13154,6 +14536,10 @@ class $AppDatabaseManager {
       $PendingUploadsTableManager(_db, _db.pendingUploads);
   $RecordVersionsTableManager get recordVersions =>
       $RecordVersionsTableManager(_db, _db.recordVersions);
+  $NotificationsTableManager get notifications =>
+      $NotificationsTableManager(_db, _db.notifications);
+  $NotificationSettingsTableManager get notificationSettings =>
+      $NotificationSettingsTableManager(_db, _db.notificationSettings);
   $ExpenseSearchTableManager get expenseSearch =>
       $ExpenseSearchTableManager(_db, _db.expenseSearch);
 }

@@ -24,6 +24,8 @@ import 'package:splitify/features/comments/application/comments_providers.dart';
 import 'package:splitify/features/expenses/application/expense_providers.dart';
 import 'package:splitify/features/expenses/presentation/expense_list.dart';
 import 'package:splitify/features/groups/application/groups_providers.dart';
+import 'package:splitify/features/notifications/application/notifications_providers.dart';
+import 'package:splitify/features/notifications/application/reminders.dart';
 import 'package:splitify/features/payments/application/payment_providers.dart';
 import 'package:splitify/features/payments/application/settle_controller.dart';
 import 'package:splitify/features/payments/presentation/payment_detail_screen.dart';
@@ -87,6 +89,8 @@ class _ListWithPayments extends StatelessWidget {
 
 List<Override> _balances(GroupBalances b) => [
   groupBalancesProvider(gid).overrideWithValue(AsyncData(b)),
+  // Phase 13: the Remind buttons read the reminder log; none sent here.
+  lastReminderProvider.overrideWith((ref, p) => Stream.value(null)),
 ];
 
 SettleUpScreen _settleScreen() =>
@@ -147,7 +151,10 @@ List<_Case> _cases() => [
   _case(
     'activity_screen',
     () => const ActivityScreen(),
-    () => [activityItemsProvider(null).overrideWithValue(AsyncData(sampleActivity()))],
+    () => [
+      activityItemsProvider(null).overrideWithValue(AsyncData(sampleActivity())),
+      unreadNotificationsProvider.overrideWith((ref) => Stream.value(2)),
+    ],
     height: 1100,
   ),
   _case(
