@@ -42,7 +42,12 @@ class AppDatabase extends _$AppDatabase {
         await m.create(expenseSearch);
         await SearchIndex.all(this);
       }
-      // v8 (phase 18b, provisional: phase 18 takes v7): local-only payments to add (payment bubble).
+      // v7 (phase 18): imports done on this phone.
+      if (from < 7) {
+        await m.createTable(importBatches);
+        await m.createIndex(importBatchesGroup);
+      }
+      // v8 (phase 18b): local-only payments to add (payment bubble).
       if (from < 8) {
         await m.createTable(paymentCaptures);
         await m.createIndex(paymentCapturesTime);

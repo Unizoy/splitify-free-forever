@@ -67,6 +67,8 @@ String activitySentence(AppLocalizations l, ActivityItem i) {
     'recurring_stopped' when i.actor.name.isEmpty && !i.actor.isMe => l.actRecurringStoppedAuto(d),
     'recurring_stopped' => l.actRecurringStoppedNamed(a, d),
     'import_completed' => l.actImportCompleted(a),
+    'import_completed_file' => l.actImportCompletedFile(a),
+    'import_undone' => l.actImportUndone(a),
     _ => l.actUnknown(a),
   };
 }

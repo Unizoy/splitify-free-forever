@@ -31,6 +31,7 @@ final class SplitwiseRow {
     required this.currency,
     required this.cost,
     required this.nets,
+    this.notes,
   });
 
   /// 1-based row number in the file.
@@ -52,6 +53,9 @@ final class SplitwiseRow {
 
   /// Paid − owed per member for this row, in column order, 0 included. Sums to 0.
   final Map<String, int> nets;
+
+  /// Notes cell (Splitify's own export only; Splitwise files have none).
+  final String? notes;
 }
 
 /// A whole parsed export.
@@ -271,7 +275,7 @@ SplitwiseCsv parseSplitwiseCsv(String text, {String paymentCategory = splitwiseP
     final exponent = Currencies.exponentOf(currency);
     final nets = <String, int>{
       for (var m = 0; m < members.length; m++)
-        members[m]: _minor(cell[5 + m], exponent, row, members[m]),
+        members[m]: parseMinorCell(cell[5 + m], exponent, row, members[m]),
     };
 
     if (cell[1].toLowerCase() == splitwiseTotalsDescription.toLowerCase()) {
@@ -286,12 +290,12 @@ SplitwiseCsv parseSplitwiseCsv(String text, {String paymentCategory = splitwiseP
     rows.add(
       SplitwiseRow(
         row: row,
-        date: _parseDate(cell[0], row),
+        date: parseCsvDate(cell[0], row),
         description: cell[1],
         category: cell[2],
         isPayment: cell[2].toLowerCase() == payment,
         currency: currency,
-        cost: _minor(cell[3], exponent, row, splitwiseFixedColumns[3], allowEmpty: false),
+        cost: parseMinorCell(cell[3], exponent, row, splitwiseFixedColumns[3], allowEmpty: false),
         nets: nets,
       ),
     );
@@ -301,7 +305,8 @@ SplitwiseCsv parseSplitwiseCsv(String text, {String paymentCategory = splitwiseP
 
 bool _isBlank(List<String> cells) => cells.every((c) => c.isEmpty);
 
-DateTime _parseDate(String text, int row) {
+/// `YYYY-MM-DD` (optionally followed by a time) → UTC midnight; throws [InvalidDate].
+DateTime parseCsvDate(String text, int row) {
   final m = _date.firstMatch(text);
   if (m == null) throw InvalidDate(row, text);
   final y = int.parse(m[1]!);
@@ -313,8 +318,8 @@ DateTime _parseDate(String text, int row) {
 }
 
 /// Plain decimal text → minor units. Extra fraction digits are allowed only when they are
-/// zeros (`1500.00` JPY = 1500). Empty member cells count as 0.
-int _minor(String text, int exponent, int row, String column, {bool allowEmpty = true}) {
+/// zeros (`1500.00` JPY = 1500). Empty member cells count as 0. Throws [InvalidAmount].
+int parseMinorCell(String text, int exponent, int row, String column, {bool allowEmpty = true}) {
   if (text.isEmpty && allowEmpty) return 0;
   final m = _decimal.firstMatch(text);
   if (m == null) throw InvalidAmount(row, column: column, value: text);

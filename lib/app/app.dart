@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:splitify/app/router.dart';
 import 'package:splitify/core/config/env.dart';
 import 'package:splitify/features/account/application/theme_mode_controller.dart';
+import 'package:splitify/features/app_lock/presentation/app_lock_gate.dart';
+import 'package:splitify/features/widget/application/home_widget_sync.dart';
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/theme/theme.dart';
 
@@ -16,6 +18,8 @@ class App extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // X3: keeps the home-screen widget's values in step with balances and sync.
+    ref.watch(homeWidgetSyncProvider);
     return MaterialApp.router(
       onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
       routerConfig: ref.watch(routerProvider),
@@ -30,6 +34,8 @@ class App extends ConsumerWidget {
       darkTheme: AppTheme.dark(),
       themeMode: ref.watch(themeModeControllerProvider),
       debugShowCheckedModeBanner: false,
+      // X2: the lock screen and background cover sit above every page.
+      builder: (context, child) => AppLockGate(child: child ?? const SizedBox.shrink()),
     );
   }
 }

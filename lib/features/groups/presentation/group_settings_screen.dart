@@ -21,6 +21,7 @@ import 'package:splitify/features/expenses/presentation/expense_copy.dart';
 import 'package:splitify/features/expenses/presentation/expense_routes.dart';
 import 'package:splitify/features/history/presentation/history_routes.dart';
 import 'package:splitify/features/export/presentation/export_action.dart';
+import 'package:splitify/features/import_splitwise/presentation/import_routes.dart';
 
 /// Group settings (`/groups/:id/settings`, 614): edit, invite, members (add name-only with a colour, rename,
 /// unlink a wrong claim, remove / leave when settled), archive and delete (creator). Phase 11/17 add default
@@ -123,6 +124,14 @@ class GroupSettingsScreen extends ConsumerWidget {
               label: l.totExportCsv,
               onTap: () => unawaited(exportGroupCsv(context, ref, groupId)),
             ),
+            // X1: import a Splitwise (or Splitify) CSV into this group (phase 18).
+            if (!archived)
+              DashedListRow(
+                key: const Key('settings-import'),
+                icon: AppIcons.fileImport,
+                label: l.impTitle,
+                onTap: () => context.push(ImportRoutes.forGroup(groupId)),
+              ),
             DashedListRow(
               key: const Key('settings-archive'),
               icon: AppIcons.archive,

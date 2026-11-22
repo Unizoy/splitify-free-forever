@@ -294,6 +294,22 @@ CREATE TABLE recurring_templates (
 CREATE INDEX recurring_templates_group ON recurring_templates (group_id);
 CREATE INDEX recurring_templates_expense ON recurring_templates (expense_id);
 
+-- Imports done on this phone (X1, phase 18): the records each one wrote, for "Delete this import".
+-- Local only; expenses also carry the batch id in split_values (S-190). ids as JSON text.
+CREATE TABLE import_batches (
+  id TEXT NOT NULL PRIMARY KEY,
+  group_id TEXT NOT NULL,
+  source TEXT NOT NULL,
+  file_name TEXT,
+  expense_ids TEXT NOT NULL DEFAULT '[]',
+  payment_ids TEXT NOT NULL DEFAULT '[]',
+  member_ids TEXT NOT NULL DEFAULT '[]',
+  created_at TEXT NOT NULL,
+  deleted_at TEXT
+) AS LocalImportBatch;
+
+CREATE INDEX import_batches_group ON import_batches (group_id, created_at);
+
 -- Payments to add (phase 18b, X4, S-224): payments the bubble caught, LOCAL ONLY (never synced, no outbox).
 -- Parsed fields only, never the alert's text; amount in paise, INR. Rows go when added, dismissed or after 7 days.
 CREATE TABLE payment_captures (

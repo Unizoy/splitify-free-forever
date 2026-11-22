@@ -10,6 +10,7 @@ import 'package:splitify/core/logging/logger.dart';
 import 'package:splitify/data/data_providers.dart';
 import 'package:splitify/data/remote/supabase_client.dart';
 import 'package:splitify/data/sync/background_sync.dart';
+import 'package:splitify/features/widget/application/home_widget_sync.dart';
 import 'package:workmanager/workmanager.dart';
 
 final _log = Logger('sync');
@@ -50,6 +51,8 @@ Future<bool> runBackgroundSync() async {
     try {
       await container.read(syncEngineProvider).sync().timeout(const Duration(minutes: 8));
       _log.info('background sync: ${container.read(syncEngineProvider).phase.name}');
+      // X3: the home-screen widget shows what this sync brought (phase 18).
+      await refreshHomeWidget(container);
     } finally {
       container.dispose();
     }

@@ -3626,4 +3626,454 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get searchNoPeople => 'No people yet';
+
+  @override
+  String get impTitle => 'Import from Splitwise';
+
+  @override
+  String get impStepFile => 'File';
+
+  @override
+  String get impStepGroup => 'Group';
+
+  @override
+  String get impStepPeople => 'People';
+
+  @override
+  String get impStepPreview => 'Preview';
+
+  @override
+  String get impStepDone => 'Done';
+
+  @override
+  String get impFileQuestion => 'Bring a Splitwise group over';
+
+  @override
+  String get impHow1 =>
+      'In Splitwise, open the group, tap the settings gear, then Export as spreadsheet.';
+
+  @override
+  String get impHow2 => 'Save the CSV file on this phone, then choose it here.';
+
+  @override
+  String get impHow3 => 'Files exported from Splitify work too.';
+
+  @override
+  String get impChooseFile => 'Choose CSV file';
+
+  @override
+  String get impChooseAnother => 'Choose another file';
+
+  @override
+  String get impErrTitle => 'Can\'t read this file';
+
+  @override
+  String get impErrEmpty => 'This file is empty.';
+
+  @override
+  String get impErrHeader =>
+      'This doesn\'t look like a Splitwise or Splitify export. Its first row should start with Date, Description, Category.';
+
+  @override
+  String impErrColumns(int row) {
+    return 'Row $row has a different number of cells than the first row.';
+  }
+
+  @override
+  String impErrDate(int row, String value) {
+    return 'Row $row: “$value” is not a date (YYYY-MM-DD).';
+  }
+
+  @override
+  String impErrCurrency(int row, String value) {
+    return 'Row $row: “$value” is not a currency code.';
+  }
+
+  @override
+  String impErrAmount(int row, String value) {
+    return 'Row $row: “$value” is not an amount.';
+  }
+
+  @override
+  String impErrUnbalanced(int row) {
+    return 'Row $row doesn\'t add up: someone\'s share is missing.';
+  }
+
+  @override
+  String impErrDuplicateTotals(int row, String value) {
+    return 'Row $row repeats the Total balance row for $value.';
+  }
+
+  @override
+  String get impErrTooLarge => 'This file is larger than 5 MB.';
+
+  @override
+  String get impErrNoRows => 'There are no expenses or payments in this file.';
+
+  @override
+  String impErrUnsupported(String code) {
+    return 'Splitify can\'t handle $code amounts yet.';
+  }
+
+  @override
+  String get impEarlier => 'Imported on this phone';
+
+  @override
+  String impBatchTitle(String file) {
+    return '$file';
+  }
+
+  @override
+  String impBatchWhen(String date) {
+    return 'Imported $date';
+  }
+
+  @override
+  String get impGroupQuestion => 'Where should it go?';
+
+  @override
+  String get impNewGroup => 'New group';
+
+  @override
+  String get impGroupName => 'Group name';
+
+  @override
+  String get impGroupNameHint => 'Goa trip';
+
+  @override
+  String get impYourGroups => 'Your groups';
+
+  @override
+  String get impContinue => 'Continue';
+
+  @override
+  String get impPeopleQuestion => 'Who is who?';
+
+  @override
+  String impPeopleHint(String group) {
+    return 'Match each person in the file to someone in “$group”.';
+  }
+
+  @override
+  String get impPeopleHintNew =>
+      'Match each person in the file. Everyone except you joins as a name-only member.';
+
+  @override
+  String get impChoiceNew => 'New person';
+
+  @override
+  String get impChoiceSkip => 'Skipped';
+
+  @override
+  String impPickFor(String name) {
+    return 'Who is $name?';
+  }
+
+  @override
+  String impAddNew(String name) {
+    return 'Add “$name” as a new person';
+  }
+
+  @override
+  String impSkip(String name) {
+    return 'Skip $name';
+  }
+
+  @override
+  String get impSkipBody => 'Rows that involve them are left out.';
+
+  @override
+  String impNetPlus(String amount) {
+    return 'gets back $amount';
+  }
+
+  @override
+  String impNetMinus(String amount) {
+    return 'owes $amount';
+  }
+
+  @override
+  String get impNetZero => 'settled up';
+
+  @override
+  String get impProblemSameMember => 'Two people of the file point to the same member.';
+
+  @override
+  String get impProblemEmptyName => 'A new person needs a name.';
+
+  @override
+  String get impProblemNobody => 'Choose at least one person to import.';
+
+  @override
+  String get impProblemTooMany => 'A group can have up to 100 members.';
+
+  @override
+  String get impPreviewQuestion => 'Check before importing';
+
+  @override
+  String impCountExpenses(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count expenses',
+      one: '1 expense',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String impCountPayments(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count payments',
+      one: '1 payment',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String impDateRange(String from, String to) {
+    return '$from – $to';
+  }
+
+  @override
+  String get impStatExpenses => 'Expenses';
+
+  @override
+  String get impStatPayments => 'Payments';
+
+  @override
+  String get impStatPeople => 'People';
+
+  @override
+  String get impTotalsTitle => 'Total balance check';
+
+  @override
+  String get impTotalsOk => 'Matches the file';
+
+  @override
+  String get impTotalsNone => 'No Total balance row to check against';
+
+  @override
+  String get impTotalsMismatch => 'Doesn\'t match the file';
+
+  @override
+  String impMismatchRow(String name, String file, String rows) {
+    return '$name: the file says $file, its rows add up to $rows';
+  }
+
+  @override
+  String get impImportAnyway => 'Import anyway';
+
+  @override
+  String get impImportAnywaySub => 'Balances follow the rows, not the Total balance row.';
+
+  @override
+  String impDropped(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count rows involve people you skipped and are left out.',
+      one: '1 row involves someone you skipped and is left out.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String impZeroRows(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count rows change nobody\'s balance and are left out.',
+      one: '1 row changes nobody\'s balance and is left out.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String impNetsRows(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$count expenses with several payers come in as net amounts; their original cost goes in the notes.',
+      one: '1 expense with several payers comes in as net amounts; its original cost goes in the notes.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get impBalancesAfter => 'Balances from this file';
+
+  @override
+  String impImportButton(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Import $count records',
+      one: 'Import 1 record',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get impRunning => 'Importing…';
+
+  @override
+  String impRunningCount(int done, int total) {
+    return '$done of $total';
+  }
+
+  @override
+  String get impDoneLead => 'all';
+
+  @override
+  String get impDoneHighlight => 'imported';
+
+  @override
+  String impDoneBody(String expenses, String payments, String group) {
+    return '$expenses and $payments are in “$group”.';
+  }
+
+  @override
+  String get impOpenGroup => 'Open group';
+
+  @override
+  String get impDeleteImport => 'Delete this import';
+
+  @override
+  String get impDeleteTitle => 'Delete this import?';
+
+  @override
+  String get impDeleteBody =>
+      'Every expense and payment from this file is deleted. You can bring them back one by one from Deleted items.';
+
+  @override
+  String get impDeleted => 'Import deleted';
+
+  @override
+  String get impDeletedBody =>
+      'The records from this file are deleted. People added for the import stay in the group.';
+
+  @override
+  String get impFallbackDescription => 'Imported expense';
+
+  @override
+  String actImportCompletedFile(String actor) {
+    return '$actor imported expenses from a Splitify file';
+  }
+
+  @override
+  String actImportUndone(String actor) {
+    return '$actor deleted an import';
+  }
+
+  @override
+  String actImportCounts(String expenses, String payments) {
+    return '$expenses · $payments';
+  }
+
+  @override
+  String get lockSecurity => 'Security';
+
+  @override
+  String get lockSecuritySubtitle => 'App lock';
+
+  @override
+  String get lockAppLock => 'App lock';
+
+  @override
+  String get lockAppLockSub => 'Ask for your fingerprint or screen lock to open Splitify.';
+
+  @override
+  String get lockAfter => 'Lock after';
+
+  @override
+  String lockMinutes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count minutes',
+      one: '1 minute',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String lockMinutesShort(int count) {
+    return '$count min';
+  }
+
+  @override
+  String get lockAfterSub => 'in the background. Splitify always locks when it starts.';
+
+  @override
+  String get lockRecentsNote =>
+      'While app lock is on, the preview of Splitify in recent apps is hidden.';
+
+  @override
+  String get lockNeedsScreenLock =>
+      'Set a screen lock (PIN, pattern, password or fingerprint) on this phone first.';
+
+  @override
+  String get lockReason => 'Unlock Splitify';
+
+  @override
+  String get lockTitle => 'Splitify is locked';
+
+  @override
+  String get lockBody => 'Use your fingerprint or screen lock to see your groups and balances.';
+
+  @override
+  String get lockUnlock => 'Unlock';
+
+  @override
+  String get lockOn => 'On';
+
+  @override
+  String get lockOff => 'Off';
+
+  @override
+  String get lockConfirmFailed => 'Couldn\'t confirm it\'s you. Try again.';
+
+  @override
+  String get lockTurnedOff => 'This phone has no screen lock any more, so app lock is off.';
+
+  @override
+  String get widgetRow => 'Home-screen widget';
+
+  @override
+  String get widgetTitle => 'Home-screen widget';
+
+  @override
+  String get widgetHowTo =>
+      'Long-press your home screen, tap Widgets and pick Splitify. It shows your overall balance and opens the app when tapped.';
+
+  @override
+  String get widgetHideAmounts => 'Hide amounts';
+
+  @override
+  String get widgetHideAmountsSub =>
+      'The widget shows whether you owe or are owed, without numbers.';
+
+  @override
+  String widgetUpdated(String time) {
+    return 'Updated $time';
+  }
+
+  @override
+  String get widgetUpdatedNow => 'Updated just now';
+
+  @override
+  String get widgetNotSynced => 'Not synced yet';
+
+  @override
+  String get widgetSignedOut => 'Open Splitify to sign in';
+
+  @override
+  String get widgetHidden => 'Amounts hidden';
+
+  @override
+  String get widgetBrand => 'Splitify';
 }
