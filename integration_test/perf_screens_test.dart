@@ -6,6 +6,8 @@
 //   flutter drive --profile --no-dds --driver=test_driver/perf_driver.dart \
 //     --target=integration_test/perf_screens_test.dart -d emulator-5554 \
 //     --dart-define-from-file=secrets/env.dev.json
+// Add `--dart-define=PERF_SCREENS=groups` for the Groups home only. Its `groups_open_timeline` also shows
+// when the first frames reached the screen (`GPURasterizer::Draw`), which the UI-side numbers miss.
 import 'dart:async';
 import 'dart:convert';
 
@@ -93,6 +95,10 @@ const _groups = [
   (name: 'Diwali party', type: 'other', currency: 'INR'),
   (name: 'Old flat', type: 'home', currency: 'INR'),
 ];
+
+/// `--dart-define=PERF_SCREENS=groups` measures the Groups home only (the app's cold first frames), so a
+/// lock window fits several runs.
+const _groupsOnly = String.fromEnvironment('PERF_SCREENS') == 'groups';
 
 const _bigExpenses = 600;
 const _expensesPerGroup = 60;
@@ -467,20 +473,22 @@ void main() {
     expect(find.byType(GroupsHomeScreen), findsOneWidget);
     await scroll('groups', GroupsHomeScreen);
 
-    // 2. The big group (600 expenses).
-    await open('group', () async => router.go(Routes.group(data.bigGroup)));
-    expect(find.byType(GroupDetailScreen), findsOneWidget);
-    await scroll('group', GroupDetailScreen);
+    if (!_groupsOnly) {
+      // 2. The big group (600 expenses).
+      await open('group', () async => router.go(Routes.group(data.bigGroup)));
+      expect(find.byType(GroupDetailScreen), findsOneWidget);
+      await scroll('group', GroupDetailScreen);
 
-    // 3. Activity tab (every group's feed, 300 rows).
-    await open('activity', () async => router.go(Routes.activity));
-    expect(find.byType(ActivityScreen), findsOneWidget);
-    await scroll('activity', ActivityScreen);
+      // 3. Activity tab (every group's feed, 300 rows).
+      await open('activity', () async => router.go(Routes.activity));
+      expect(find.byType(ActivityScreen), findsOneWidget);
+      await scroll('activity', ActivityScreen);
 
-    // 4. Friend page (Rohan: 5 shared groups).
-    await open('friend', () async => router.go(FriendRoutes.page(_friendKey)));
-    expect(find.byType(FriendPage), findsOneWidget);
-    await scroll('friend', FriendPage);
+      // 4. Friend page (Rohan: 5 shared groups).
+      await open('friend', () async => router.go(FriendRoutes.page(_friendKey)));
+      expect(find.byType(FriendPage), findsOneWidget);
+      await scroll('friend', FriendPage);
+    }
 
     binding.reportData!.addAll(numbers);
     // Only the numbers: printing the timelines through debugPrint takes minutes (it is throttled).

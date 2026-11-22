@@ -24,7 +24,7 @@ class RecipeRule(val id: String, pattern: String, unless: String? = null) {
 }
 
 /**
- * Parsed `android/app/src/main/assets/payment_recipes.json` (versioned data, so wording can be fixed without
+ * Parsed `android/app/src/full/assets/payment_recipes.json` (versioned data, so wording can be fixed without
  * code). The same file is evaluated by the Dart vector test, so patterns avoid inline flags (S-221).
  */
 class Recipes(

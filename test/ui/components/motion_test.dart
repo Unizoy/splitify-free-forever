@@ -320,46 +320,115 @@ void main() {
   });
 
   group('GlassCard', () {
+    // Off for every other test (flutter_test_config.dart).
+    setUp(() => GlassBackdropHost.snapshotsEnabled = true);
+
+    Widget host({double width = 360, double height = 400, Widget? extra}) => _app(
+      SizedBox(
+        width: width,
+        height: height,
+        child: GlassBackdropHost(
+          background: const ColoredBox(color: AppPalette.black),
+          child: Center(
+            child: GlassCard(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [const Text('glass'), ?extra],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    BackdropFilter filter(WidgetTester t) => t.widget<BackdropFilter>(find.byType(BackdropFilter));
+    // The snapshot and the blur are two engine round trips (real time, not the test clock).
+    Future<void> engine(WidgetTester t) async {
+      for (var i = 0; i < 6 && filter(t).enabled; i++) {
+        await t.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 100)));
+        await t.pump();
+      }
+    }
+
+    testWidgets('blurs live when snapshots are off (goldens)', (t) async {
+      GlassBackdropHost.snapshotsEnabled = false;
+      await t.pumpWidget(host());
+      await t.pump(GlassBackdropHost.settle * 2);
+      await engine(t);
+      expect(filter(t).enabled, isTrue);
+    });
+
     testWidgets('in a hero it paints the pre-blurred snapshot instead of a live blur', (t) async {
+      await t.pumpWidget(host());
+      await t.pump();
+      // Nothing is snapshotted on the first frames (S-279): it would be rasterised before them.
+      await engine(t);
+      expect(filter(t).enabled, isTrue);
+      await t.pump(GlassBackdropHost.settle);
+      await engine(t);
+      expect(filter(t).enabled, isFalse);
+      expect(find.text('glass'), findsOneWidget);
+      // A new size retakes the snapshot once it settles.
+      await t.pumpWidget(host(width: 300, height: 420));
+      await t.pump();
+      expect(filter(t).enabled, isTrue);
+      for (var i = 0; i < GlassBackdropHost.maxWaits && filter(t).enabled; i++) {
+        await t.pump(GlassBackdropHost.settle);
+        await engine(t);
+      }
+      expect(filter(t).enabled, isFalse);
+    });
+
+    testWidgets('a pushed page snapshots its hero once the route and the flight have landed', (
+      t,
+    ) async {
+      final nav = GlobalKey<NavigatorState>();
+      const card = SizedBox.square(dimension: 80, child: ColoredBox(color: AppPalette.black));
       await t.pumpWidget(
-        _app(
-          const SizedBox(
-            width: 360,
-            height: 400,
-            child: GlassBackdropHost(
-              background: ColoredBox(color: AppPalette.black),
-              child: Center(child: GlassCard(child: Text('glass'))),
+        MaterialApp(
+          navigatorKey: nav,
+          theme: AppTheme.light(),
+          home: const Scaffold(
+            body: Hero(tag: 'cover', child: card),
+          ),
+        ),
+      );
+      unawaited(
+        nav.currentState!.push(
+          MaterialPageRoute<void>(
+            builder: (_) => const Scaffold(
+              body: GlassBackdropHost(
+                background: Hero(
+                  tag: 'cover',
+                  child: ColoredBox(color: AppPalette.black),
+                ),
+                child: Center(child: GlassCard(child: Text('glass'))),
+              ),
             ),
           ),
         ),
       );
       await t.pump();
-      BackdropFilter filter() => t.widget<BackdropFilter>(find.byType(BackdropFilter));
-      // The snapshot and the blur are two engine round trips.
-      for (var i = 0; i < 6 && filter().enabled; i++) {
-        await t.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 100)));
-        await t.pump();
+      await t.pump(const Duration(milliseconds: 60));
+      // Mid-flight the page's hero is a placeholder: nothing to snapshot yet.
+      await engine(t);
+      expect(filter(t).enabled, isTrue);
+      await t.pumpAndSettle();
+      for (var i = 0; i < GlassBackdropHost.maxWaits && filter(t).enabled; i++) {
+        await t.pump(GlassBackdropHost.settle);
+        await engine(t);
       }
-      expect(filter().enabled, isFalse);
-      expect(find.text('glass'), findsOneWidget);
-      // A new size retakes the snapshot.
-      await t.pumpWidget(
-        _app(
-          const SizedBox(
-            width: 300,
-            height: 420,
-            child: GlassBackdropHost(
-              background: ColoredBox(color: AppPalette.black),
-              child: Center(child: GlassCard(child: Text('glass'))),
-            ),
-          ),
-        ),
-      );
-      for (var i = 0; i < 6; i++) {
-        await t.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 100)));
-        await t.pump();
-      }
-      expect(filter().enabled, isFalse);
+      expect(filter(t).enabled, isFalse);
+    });
+
+    testWidgets('waits while something animates, but not forever', (t) async {
+      // An indeterminate spinner ticks every frame, like a looping loader.
+      await t.pumpWidget(host(extra: const CircularProgressIndicator()));
+      await t.pump(GlassBackdropHost.settle * 3);
+      await engine(t);
+      expect(filter(t).enabled, isTrue);
+      await t.pump(GlassBackdropHost.settle * GlassBackdropHost.maxWaits);
+      await engine(t);
+      expect(filter(t).enabled, isFalse);
     });
   });
 }

@@ -9,6 +9,7 @@ import 'package:splitify/core/money/money_formatter.dart';
 import 'package:splitify/data/data_providers.dart';
 import 'package:splitify/features/currency/presentation/currency_picker_sheet.dart'
     show pickGroupCurrency;
+import 'package:splitify/features/expenses/application/category_providers.dart';
 import 'package:splitify/features/expenses/application/expense_draft.dart';
 import 'package:splitify/features/expenses/application/expense_editor_controller.dart';
 import 'package:splitify/features/expenses/application/split_draft.dart';
@@ -23,6 +24,9 @@ import 'package:splitify/ui/components/components.dart';
 import 'package:splitify/ui/theme/theme.dart';
 import 'package:splitify/features/groups/application/groups_providers.dart'
     show syncOfflineProvider;
+
+/// How long typing must pause before the category follows the description (D-028).
+const suggestDelay = Duration(milliseconds: 250);
 
 /// The stepper's steps (07 §2 Add expense).
 enum EditorStep { amount, paidBy, split, details, review }
@@ -60,6 +64,7 @@ class _ExpenseEditorScreenState extends ConsumerState<ExpenseEditorScreen> {
   late EditorStep _step = widget.initialStep ?? EditorStep.amount;
   TextEditingController? _description;
   TextEditingController? _notes;
+  Timer? _suggest;
   bool _showErrors = false;
   bool _saving = false;
   bool _saved = false;
@@ -75,6 +80,7 @@ class _ExpenseEditorScreenState extends ConsumerState<ExpenseEditorScreen> {
 
   @override
   void dispose() {
+    _suggest?.cancel();
     _description?.dispose();
     _notes?.dispose();
     super.dispose();
@@ -83,6 +89,20 @@ class _ExpenseEditorScreenState extends ConsumerState<ExpenseEditorScreen> {
   void _edit(ExpenseDraft Function(ExpenseDraft d) change) =>
       ref.read(_provider.notifier).edit(change);
 
+  /// Auto-category (D-028): the category follows the description ~250 ms after typing stops.
+  void _described(String text) {
+    _edit((d) => d.copyWith(description: text));
+    _suggest?.cancel();
+    _suggest = Timer(suggestDelay, _flushSuggestion);
+  }
+
+  /// Applies a pending suggestion now (leaving step 1, saving).
+  void _flushSuggestion() {
+    _suggest?.cancel();
+    _suggest = null;
+    if (mounted) ref.read(_provider.notifier).suggestCategory();
+  }
+
   Future<void> _pickCurrency(ExpenseDraft d) async {
     final code = await pickGroupCurrency(context, ref, groupId: d.groupId, selected: d.currency);
     if (code != null && code != d.currency) _edit((x) => x.withCurrency(code));
@@ -90,6 +110,7 @@ class _ExpenseEditorScreenState extends ConsumerState<ExpenseEditorScreen> {
 
   void _go(EditorStep step) {
     if (step == _step) return;
+    if (_suggest != null) _flushSuggestion();
     HapticFeedback.selectionClick();
     FocusManager.instance.primaryFocus?.unfocus();
     setState(() => _step = step);
@@ -130,7 +151,9 @@ class _ExpenseEditorScreenState extends ConsumerState<ExpenseEditorScreen> {
     return null;
   }
 
-  Future<void> _save(ExpenseDraft d) async {
+  Future<void> _save(ExpenseDraft draft) async {
+    if (_suggest != null) _flushSuggestion();
+    final d = ref.read(_provider).value ?? draft;
     final problem = _problemStep(d);
     if (problem != null) {
       setState(() => _showErrors = true);
@@ -169,6 +192,8 @@ class _ExpenseEditorScreenState extends ConsumerState<ExpenseEditorScreen> {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     final state = ref.watch(_provider);
+    // Load the keyword list while the editor opens, so the first typed word can use it.
+    ref.watch(categorySuggesterProvider);
     final offline = ref.watch(syncOfflineProvider).value ?? false;
     final draft = state.value;
 
@@ -212,7 +237,8 @@ class _ExpenseEditorScreenState extends ConsumerState<ExpenseEditorScreen> {
         description: description,
         showErrors: _showErrors,
         onAmountText: (t) => _edit((d) => d.copyWith(amountText: t)),
-        onDescription: (t) => _edit((d) => d.copyWith(description: t)),
+        onDescription: _described,
+        onCategoryTap: () => _go(EditorStep.details),
         onPickCurrency: () => unawaited(_pickCurrency(draft)),
       ),
       EditorStep.paidBy => PaidByStep(
@@ -229,7 +255,7 @@ class _ExpenseEditorScreenState extends ConsumerState<ExpenseEditorScreen> {
         draft: draft,
         today: today,
         notes: notes,
-        onCategory: (k) => _edit((d) => d.copyWith(category: k)),
+        onCategory: (k) => _edit((d) => d.pickCategory(k)),
         onDate: (date) => _edit((d) => d.copyWith(date: date)),
         onNotes: (t) => _edit((d) => d.copyWith(notes: t)),
         onReceipt: draft.isTemplate ? null : (r) => _edit((d) => d.copyWith(receipt: r)),

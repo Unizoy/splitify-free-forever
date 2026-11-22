@@ -14,9 +14,12 @@ Artefacts (screenshots, logs) go to `C:\Users\mohit\OneDrive\Desktop\theCode\spl
 
 ```powershell
 flutter build apk --debug --dart-define-from-file=secrets/env.dev.json
-& $adb install -r build\app\outputs\flutter-apk\app-debug.apk
+& $adb install -r build\app\outputs\flutter-apk\app-standard-debug.apk
 & $adb shell am start -n com.unizoy.splitify/.MainActivity
 ```
+Flavours (D-028): no `--flavor` = `standard` (no payment bubble); payment-bubble checks need `--flavor full`
+(APK `app-full-<mode>.apk`, `integration_test/capture_bubble_test.dart` via `tool/e2e/capture_e2e.ps1`). Both use
+the same app id, so installing one replaces the other.
 Fresh state when a test needs it: `& $adb shell pm clear com.unizoy.splitify` (only the app's data — never wipe
 the emulator).
 

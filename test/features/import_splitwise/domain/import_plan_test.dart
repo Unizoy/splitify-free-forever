@@ -4,6 +4,8 @@ import 'package:splitify/features/import_splitwise/domain/import_csv.dart';
 import 'package:splitify/features/import_splitwise/domain/import_plan.dart';
 import 'package:splitify/features/import_splitwise/domain/splitwise_reconstruction.dart';
 
+import '../../../support/category_support.dart';
+
 const _ids = {'Aarav': 'id-a', 'Priya': 'id-p'};
 
 ImportedExpense _expense({
@@ -11,12 +13,14 @@ ImportedExpense _expense({
   String? notes,
   int total = 1000,
   DateTime? date,
+  String splitwiseCategory = 'Dining out',
+  String categoryKey = 'food.dining_out',
 }) => ImportedExpense(
   row: 2,
   date: date ?? DateTime.utc(2026, 1, 5),
   description: description,
-  splitwiseCategory: 'Dining out',
-  categoryKey: 'food.dining_out',
+  splitwiseCategory: splitwiseCategory,
+  categoryKey: categoryKey,
   currency: 'INR',
   totalMinor: total,
   paidBy: {'Aarav': total},
@@ -52,6 +56,7 @@ ImportRows _build(
   SplitwiseImport import, {
   ImportFormat format = ImportFormat.splitwise,
   String fallback = 'Imported expense',
+  String? Function(String description)? suggest,
 }) {
   var n = 0;
   return buildImportRows(
@@ -61,11 +66,50 @@ ImportRows _build(
     format: format,
     fallbackDescription: fallback,
     newId: () => 'new-${n++}',
+    suggestCategory: suggest,
   );
 }
 
 void main() {
   group('expenses', () {
+    // Auto-category (D-028, S-273): only rows the file left as General get a suggestion.
+    test('uncategorised rows get the suggested category; categorised rows keep theirs', () {
+      final rows = _build(
+        _import(
+          expenses: [
+            _expense(
+              description: 'Swiggy',
+              splitwiseCategory: 'General',
+              categoryKey: 'other.general',
+            ),
+            _expense(
+              description: 'Uber',
+              splitwiseCategory: 'Groceries',
+              categoryKey: 'groceries.groceries',
+            ),
+            _expense(description: 'Misc', splitwiseCategory: '', categoryKey: 'other.general'),
+          ],
+        ),
+        suggest: suggester.suggest,
+      );
+      expect(
+        [for (final e in rows.expenses) e.data['category']],
+        ['food.takeaway', 'groceries.groceries', 'other.general'],
+      );
+      final plain = _build(
+        _import(
+          expenses: [
+            _expense(
+              description: 'Swiggy',
+              splitwiseCategory: 'General',
+              categoryKey: 'other.general',
+            ),
+          ],
+        ),
+      );
+      expect(plain.expenses.single.data['category'], 'other.general');
+    });
+
     test('names become member ids; exact split with the batch id in split_values', () {
       final rows = _build(_import(expenses: [_expense()], payments: [_payment()]));
       expect(rows.batchId, 'batch-1');

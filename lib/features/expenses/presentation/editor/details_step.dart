@@ -53,7 +53,16 @@ class DetailsStep extends StatelessWidget {
     return StepBody(
       question: l.expDetailsQuestion,
       children: [
-        SectionLabel(l.expCategoryLabel),
+        SectionLabel(
+          l.expCategoryLabel,
+          trailing: draft.categoryIsAuto
+              ? TagChip(
+                  key: const Key('category-auto'),
+                  label: l.expCategoryAuto,
+                  icon: AppIcons.sparkle,
+                )
+              : null,
+        ),
         CategoryPicker(value: draft.category, onChanged: onCategory),
         const SizedBox(height: AppSpacing.s8),
         if (draft.isTemplate) ...[

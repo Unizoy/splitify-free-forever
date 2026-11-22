@@ -65,6 +65,32 @@ List<_Case> _cases() {
       editor(EditorStep.amount, expenseId: null),
       _editor(() => sampleDraft(amount: '1200+450.5', expenseId: null)),
     ),
+    // Auto-category (D-028): the description picked the category; chip + "Auto" tag on step 1 and Details.
+    (
+      'editor_amount_auto',
+      editor(EditorStep.amount, expenseId: null),
+      _editor(
+        () => sampleDraft(
+          amount: '450',
+          description: 'Swiggy',
+          category: 'food.takeaway',
+          categoryOrigin: CategoryOrigin.auto,
+          expenseId: null,
+        ),
+      ),
+    ),
+    (
+      'editor_details_auto',
+      editor(EditorStep.details, expenseId: null),
+      _editor(
+        () => sampleDraft(
+          description: 'Uber to the airport',
+          category: 'travel.cab_auto',
+          categoryOrigin: CategoryOrigin.auto,
+          expenseId: null,
+        ),
+      ),
+    ),
     ('editor_paid_by', editor(EditorStep.paidBy), _editor(sampleDraft)),
     for (final k in SplitKind.values)
       ('editor_split_${k.name}', editor(EditorStep.split), _editor(() => sampleDraft(kind: k))),

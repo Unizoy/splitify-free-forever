@@ -49,6 +49,23 @@ android {
         versionName = flutter.versionName
     }
 
+    // Two flavours (D-028, S-274), same applicationId so either one updates the other in place (only one can be
+    // installed at a time):
+    // - standard (default, GitHub/sideload): no payment bubble, so no accessibility / notification-listener services
+    //   and no "display over other apps" (Play Protect's India fraud protection blocks sideloads that declare them);
+    // - full (adb installs, a future Play Store listing): with the bubble (src/full).
+    // Flutter picks `standard` when no --flavor is given (pubspec.yaml `default-flavor`).
+    flavorDimensions += "capture"
+    productFlavors {
+        create("standard") {
+            dimension = "capture"
+            isDefault = true
+        }
+        create("full") {
+            dimension = "capture"
+        }
+    }
+
     signingConfigs {
         if (releaseKeyFile != null) {
             create("release") {

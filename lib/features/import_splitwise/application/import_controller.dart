@@ -8,6 +8,7 @@ import 'package:splitify/core/money/money_error.dart';
 import 'package:splitify/core/utils/uuid.dart';
 import 'package:splitify/data/data_providers.dart';
 import 'package:splitify/domain/rules/group_rules.dart';
+import 'package:splitify/features/expenses/application/category_providers.dart';
 import 'package:splitify/features/groups/application/groups_providers.dart';
 import 'package:splitify/features/import_splitwise/application/import_providers.dart';
 import 'package:splitify/features/import_splitwise/domain/import_csv.dart';
@@ -147,6 +148,17 @@ class ImportController extends Notifier<ImportState> {
   ImportState build() => ImportState(step: ImportStep.file, groupId: startGroupId);
 
   /// Opens the system file picker; nothing happens when the user cancels.
+  /// Auto-category for rows the file left uncategorised (D-028); null when the keyword list cannot load.
+  Future<String? Function(String description)?> _categorySuggester() async {
+    try {
+      final suggester = await ref.read(categorySuggesterProvider.future);
+      final learned = ref.read(categoryMemoryProvider).entries;
+      return (String description) => suggester.suggest(description, learned: learned);
+    } on Object {
+      return null;
+    }
+  }
+
   /// [categoryKeys]: lower-case category label → key, for Splitify's own export (S-184).
   Future<void> pickFile({Map<String, String> categoryKeys = const {}}) async {
     final file = await ref.read(importFilePickerProvider).pick();
@@ -267,6 +279,7 @@ class ImportController extends Notifier<ImportState> {
       format: s.parsed!.format,
       fallbackDescription: fallbackDescription,
       newId: newId,
+      suggestCategory: await _categorySuggester(),
     );
     var last = 0;
     await ref

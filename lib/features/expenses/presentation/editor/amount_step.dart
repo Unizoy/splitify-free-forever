@@ -21,6 +21,7 @@ class AmountStep extends StatelessWidget {
     required this.onDescription,
     required this.showErrors,
     this.onPickCurrency,
+    this.onCategoryTap,
     super.key,
   });
 
@@ -34,6 +35,9 @@ class AmountStep extends StatelessWidget {
 
   /// Opens the currency picker (phase 14).
   final VoidCallback? onPickCurrency;
+
+  /// The category chip under the description was tapped (goes to the Details step).
+  final VoidCallback? onCategoryTap;
 
   @override
   Widget build(BuildContext context) {
@@ -121,6 +125,12 @@ class AmountStep extends StatelessWidget {
                   inputFormatters: [LengthLimitingTextInputFormatter(maxDescription + 20)],
                   onChanged: onDescription,
                 ),
+                const SizedBox(height: AppSpacing.s3),
+                CategoryHint(
+                  category: draft.category,
+                  auto: draft.categoryIsAuto,
+                  onTap: onCategoryTap,
+                ),
               ],
             ),
           ),
@@ -135,6 +145,75 @@ class AmountStep extends StatelessWidget {
             allowDot: Currencies.exponentOf(draft.currency) > 0,
           ),
       ],
+    );
+  }
+}
+
+/// The category under the description (auto-category, D-028): a chip with the category's icon that
+/// cross-fades when typing changes the suggestion, and a tiny "Auto" tag while it came from the description.
+/// Tapping it opens the category picker on the Details step.
+class CategoryHint extends StatelessWidget {
+  const CategoryHint({required this.category, required this.auto, this.onTap, super.key});
+
+  /// `parent.sub` key.
+  final String category;
+
+  /// Suggested from the description (not picked, not saved).
+  final bool auto;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final motion = context.motion;
+    final parent = categoryOf(category);
+    final label = l.category(category);
+    // Sized to the chip and tag, at the start, so the label's bounds match what is drawn.
+    return Align(
+      alignment: AlignmentDirectional.centerStart,
+      child: Semantics(
+        key: const Key('category-hint'),
+        button: onTap != null,
+        label: auto ? l.expCategoryAutoLabel(label) : l.expCategoryHintLabel(label),
+        excludeSemantics: true,
+        onTap: onTap,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            AnimatedSwitcher(
+              duration: motion.base,
+              switchInCurve: AppMotion.standard,
+              switchOutCurve: AppMotion.standard,
+              transitionBuilder: (child, animation) => FadeTransition(
+                opacity: animation,
+                child: ScaleTransition(
+                  scale: Tween<double>(begin: 0.92, end: 1).animate(animation),
+                  child: child,
+                ),
+              ),
+              layoutBuilder: (current, previous) =>
+                  Stack(alignment: Alignment.centerLeft, children: [...previous, ?current]),
+              child: IconChip(
+                key: ValueKey(category),
+                label: label,
+                icon: parent.icon,
+                iconColor: parent.color,
+                onTap: onTap,
+              ),
+            ),
+            const SizedBox(width: AppSpacing.s2),
+            AnimatedOpacity(
+              opacity: auto ? 1 : 0,
+              duration: motion.fast,
+              child: TagChip(
+                key: const Key('category-auto'),
+                label: l.expCategoryAuto,
+                icon: AppIcons.sparkle,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

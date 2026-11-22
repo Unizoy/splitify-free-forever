@@ -413,7 +413,7 @@ void main() {
 
   test('payment apps in the bubble list have distinct names', () {
     final json = jsonDecode(
-      File('android/app/src/main/assets/payment_recipes.json').readAsStringSync(),
+      File('android/app/src/full/assets/payment_recipes.json').readAsStringSync(),
     ) as Map<String, Object?>;
     final names = [for (final a in json['apps']! as List<Object?>) (a! as Map)['name'] as String];
     expect(names.toSet().length, names.length, reason: names.join(', '));

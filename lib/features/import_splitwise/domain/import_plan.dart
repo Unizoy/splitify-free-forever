@@ -8,6 +8,7 @@
 library;
 
 import 'package:splitify/data/repositories/import_repository.dart';
+import 'package:splitify/domain/rules/expense_categories.dart';
 import 'package:splitify/features/import_splitwise/domain/import_csv.dart';
 import 'package:splitify/features/import_splitwise/domain/splitwise_reconstruction.dart';
 
@@ -33,7 +34,9 @@ String isoDay(DateTime d) =>
 String _clip(String s, int max) => s.length <= max ? s : s.substring(0, max).trimRight();
 
 /// Rows for [import]. [memberIds] maps every file name left in the import to a member id.
-/// [fallbackDescription] names an expense whose description cell is empty.
+/// [fallbackDescription] names an expense whose description cell is empty. [suggestCategory] (auto-category,
+/// D-028) picks a category from the description for rows the file left uncategorised (Splitwise `General`);
+/// a category the file has is kept.
 ImportRows buildImportRows({
   required SplitwiseImport import,
   required Map<String, String> memberIds,
@@ -41,6 +44,7 @@ ImportRows buildImportRows({
   required ImportFormat format,
   required String fallbackDescription,
   required String Function() newId,
+  String? Function(String description)? suggestCategory,
 }) {
   Map<String, int> ids(Map<String, int> byName) => {
     for (final e in byName.entries) memberIds[e.key]!: e.value,
@@ -74,7 +78,9 @@ ImportRows buildImportRows({
         'kind': 'expense',
         'description': _clip(description, maxImportDescription),
         'notes': notes,
-        'category': e.categoryKey,
+        'category': e.categoryKey == ExpenseCategories.defaultKey
+            ? suggestCategory?.call(description) ?? e.categoryKey
+            : e.categoryKey,
         'date': isoDay(e.date),
         'currency': e.currency,
         'total': e.totalMinor,

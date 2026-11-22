@@ -12,6 +12,7 @@ import 'package:splitify/data/media_providers.dart';
 import 'package:splitify/data/repositories/expense_reads.dart';
 import 'package:splitify/domain/entities/payment_capture.dart' show CaptureSource;
 import 'package:splitify/domain/entities/prepared_image.dart';
+import 'package:splitify/domain/rules/category_suggester.dart';
 import 'package:splitify/domain/rules/default_split.dart';
 import 'package:splitify/domain/rules/expense_categories.dart';
 import 'package:splitify/features/auth/application/auth_providers.dart' show authRepositoryProvider;
@@ -20,6 +21,7 @@ import 'package:splitify/features/currency/application/conversion_actions.dart'
 import 'package:splitify/features/currency/domain/conversion.dart' show expenseFxAfterEdit;
 import 'package:splitify/features/capture/application/capture_providers.dart'
     show captureRepositoryProvider;
+import 'package:splitify/features/expenses/application/category_providers.dart';
 import 'package:splitify/features/expenses/application/expense_draft.dart';
 import 'package:splitify/features/expenses/application/receipt_draft.dart';
 import 'package:splitify/features/expenses/application/split_draft.dart';
@@ -117,6 +119,8 @@ class ExpenseEditorController extends AsyncNotifier<ExpenseDraft> {
         category: ExpenseCategories.normalize(
           await expenses.lastCategory(groupId) ?? ExpenseCategories.defaultKey,
         ),
+        // Auto-category (D-028): typing the description may replace the group's last category.
+        categoryOrigin: CategoryOrigin.initial,
         canRepeat: true,
       );
       return captureId == null ? draft : _fromCapture(draft, captureId!);
@@ -222,7 +226,9 @@ class ExpenseEditorController extends AsyncNotifier<ExpenseDraft> {
     if (c == null) throw const ExpenseNotFound();
     final l = lookupAppLocalizations(const Locale('en'));
     final local = c.capturedAt.toLocal();
-    final inr = draft.currency == c.currency ? draft : draft.withCurrency(c.currency);
+    final inr = (draft.currency == c.currency ? draft : draft.withCurrency(c.currency))
+        // The payee or note picks the category, like typing it would (D-028): "Swiggy" → Takeaway.
+        .withSuggestedCategory(await suggestedCategory(ref, '${c.note ?? ''} ${c.payee ?? ''}'));
     return ExpenseDraft(
       groupId: inr.groupId,
       groupName: inr.groupName,
@@ -235,6 +241,8 @@ class ExpenseEditorController extends AsyncNotifier<ExpenseDraft> {
       amountText: ScaledInput.format(c.amount, Currencies.exponentOf(c.currency)),
       description: c.note ?? c.payee ?? c.appName,
       category: inr.category,
+      categoryOrigin: inr.categoryOrigin,
+      baseCategory: inr.baseCategory,
       notes: switch ((c.source, c.ref)) {
         (CaptureSource.sms, null) => l.captureNotesSmsNoRef,
         (CaptureSource.sms, final ref?) => l.captureNotesSms(ref),
@@ -252,12 +260,32 @@ class ExpenseEditorController extends AsyncNotifier<ExpenseDraft> {
     if (d != null) state = AsyncData(change(d));
   }
 
+  /// Auto-category (D-028): the description's suggested category, while the user has not picked one in this
+  /// edit of a new expense. The editor calls it ~250 ms after typing stops and before leaving step 1.
+  void suggestCategory() {
+    final d = state.value;
+    if (d == null || !d.categoryFollowsDescription) return;
+    final next = d.withSuggestedCategory(suggestedCategoryNow(ref, d.description));
+    if (next.category != d.category || next.categoryOrigin != d.categoryOrigin) {
+      state = AsyncData(next);
+    }
+  }
+
+  /// Remembers a category the user picked by hand for this description, so it is suggested next time.
+  Future<void> learnCategory(ExpenseDraft d) async {
+    if (d.categoryOrigin != CategoryOrigin.manual) return;
+    final memory = ref.read(categoryMemoryProvider);
+    final suggester = ref.read(categorySuggesterProvider).value ?? CategorySuggester.empty;
+    await memory.learn(suggester.lessons(d.description, d.category, learned: memory.entries));
+  }
+
   /// Saves (offline first) and returns the expense id, or null when the draft is not valid. A new
   /// receipt photo is queued for upload in the same transaction (#29); a removed or replaced photo
   /// that never went up is forgotten.
   Future<String?> save() async {
     final d = state.value;
     if (d == null || !d.canSave) return null;
+    await learnCategory(d);
     if (d.isTemplate) return _saveTemplate(d);
     final row = d.toRow();
     if (!d.isEdit) row['created_at'] = ref.read(clockProvider).now().toUtc().toIso8601String();

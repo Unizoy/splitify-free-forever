@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:alchemist/alchemist.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:splitify/ui/components/glass_card.dart';
 import 'package:splitify/ui/painters/cover_cache.dart';
 
 /// Runs once per test file. Golden tests (alchemist) use two flavours:
@@ -12,6 +13,8 @@ import 'package:splitify/ui/painters/cover_cache.dart';
 Future<void> testExecutable(FutureOr<void> Function() testMain) async {
   // The cover cache fills in the background; start every test empty so goldens are stable.
   setUp(() => CoverCache.instance.clear());
+  // Glass cards blur live in tests (S-279); test/ui/components/motion_test.dart turns snapshots on.
+  setUp(() => GlassBackdropHost.snapshotsEnabled = false);
   await AlchemistConfig.runWithConfig(
     config: AlchemistConfig(
       platformGoldensConfig: PlatformGoldensConfig(
