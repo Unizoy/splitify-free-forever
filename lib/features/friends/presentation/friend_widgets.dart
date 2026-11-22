@@ -131,7 +131,13 @@ class FriendItemRow extends StatelessWidget {
         tone: tone,
         unsynced: e.syncState != SyncState.synced,
         showDivider: showDivider,
-        leading: TintedIcon.category(categoryOf(e.category), size: 44),
+        // Loans (#11, phase 10) look like they do in the group list.
+        badge: e.kind == 'iou'
+            ? TagChip(key: ValueKey('loan-chip-${e.id}'), label: l.loanChip)
+            : null,
+        leading: e.kind == 'iou'
+            ? TintedIcon(icon: AppIcons.loanFill, color: c.primary, size: 44)
+            : TintedIcon.category(categoryOf(e.category), size: 44),
         onTap: () => unawaited(context.push(ExpenseRoutes.detail(e.id))),
       );
     }

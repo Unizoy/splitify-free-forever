@@ -58,7 +58,11 @@ class FriendPage extends ConsumerWidget {
     return Scaffold(
       body: SingleChildScrollView(
         child: OverlapColumn(
-          top: _Hero(friend: friend, firstCurrency: first),
+          top: _Hero(
+            friend: friend,
+            firstCurrency: first,
+            onLoan: () => unawaited(startFriendLoan(context, ref, friend)),
+          ),
           bottom: OverlapSheet(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -136,10 +140,13 @@ class FriendPage extends ConsumerWidget {
 }
 
 class _Hero extends StatelessWidget {
-  const _Hero({required this.friend, required this.firstCurrency});
+  const _Hero({required this.friend, required this.firstCurrency, required this.onLoan});
 
   final Friend friend;
   final String firstCurrency;
+
+  /// "Record a loan" with this friend (S-116).
+  final VoidCallback onLoan;
 
   @override
   Widget build(BuildContext context) {
@@ -181,6 +188,12 @@ class _Hero extends StatelessWidget {
         onPressed: () => FriendPage._close(context),
       ),
       actions: [
+        HeroIconButton(
+          key: const Key('friend-loan'),
+          icon: AppIcons.loan,
+          tooltip: l.loanAction,
+          onPressed: onLoan,
+        ),
         if (f.nameOnly && direct != null)
           HeroIconButton(
             key: const Key('friend-invite'),

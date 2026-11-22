@@ -17,11 +17,11 @@ $ip = (Resolve-DnsName $supabaseHost -Type A | Where-Object IPAddress | Select-O
 
 function Invoke-UpiTest([string]$mode) {
   $log = Join-Path $out "test-$mode.log"
-  & flutter test integration_test/friends_upi_test.dart -d $Device --dart-define-from-file=secrets/env.dev.json `
-    "--dart-define=PIN_HOST_IP=$ip" "--dart-define=FAKE_UPI=$mode" *> $log
+  # flutter.bat writes warnings to stderr; run it through cmd so PowerShell does not stop on them.
+  & cmd /c "flutter test integration_test/friends_upi_test.dart -d $Device --dart-define-from-file=secrets/env.dev.json --dart-define=PIN_HOST_IP=$ip --dart-define=FAKE_UPI=$mode > `"$log`" 2>&1"
   $code = $LASTEXITCODE
   Get-Content $log | Select-String -Pattern 'UPI-EXPECT|All tests passed|Some tests failed|Expected:|Actual:|\[E\]' |
-    ForEach-Object { Write-Output "  $_" }
+    ForEach-Object { Write-Host "  $_" }
   return @{ Code = $code; Log = $log }
 }
 

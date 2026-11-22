@@ -41,6 +41,13 @@ class FakeFriendActions extends FriendActions {
   }
 
   @override
+  Future<({String groupId, String? memberId})> loanTargetFor(Friend friend) async {
+    asked.add('loan ${friend.key}');
+    if (failure != null) throw failure!;
+    return (groupId: groupFor, memberId: 'c2');
+  }
+
+  @override
   Future<({String groupId, String key})> addNameOnlyFriend(String name) async {
     added.add(name);
     return (groupId: 'g-new', key: 'm:new');
@@ -80,6 +87,7 @@ Future<GoRouter> pumpFriends(
       GoRoute(path: '/', builder: (_, _) => home),
       stubRoute('/friends/:key'),
       stubRoute('/expense/new'),
+      stubRoute('/loan/new'),
       stubRoute('/expense/:id'),
       stubRoute('/payment/:id'),
       stubRoute('/settle'),

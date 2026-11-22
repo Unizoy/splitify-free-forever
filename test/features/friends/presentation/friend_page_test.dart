@@ -352,5 +352,22 @@ void main() {
       );
       expect(find.byKey(const Key('stub')), findsNothing);
     });
+
+    // TC-2-03 (S-116)
+    testWidgets('Record a loan opens the loan form with the friend picked', (t) async {
+      await pumpPage(t, 'u:u2');
+      await t.tap(find.byKey(const Key('friend-loan')));
+      await settle(t);
+      expect(actions!.asked, ['loan u:u2']);
+      expect(_stub(t), 'at /loan/new?group=g-friend&with=c2');
+    });
+
+    // TC-2-03 (S-116)
+    testWidgets('Record a loan offline for a new linked friend needs the internet', (t) async {
+      await pumpPage(t, 'u:u2', failure: const GroupFailure(GroupFailureCode.offline));
+      await t.tap(find.byKey(const Key('friend-loan')));
+      await settle(t);
+      expect(find.textContaining('Connect to the internet once'), findsOneWidget);
+    });
   });
 }

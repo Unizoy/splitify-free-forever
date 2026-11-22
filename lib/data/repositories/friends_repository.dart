@@ -35,4 +35,18 @@ class FriendsRepository {
         .getSingleOrNull();
     return row?.read<String>('id');
   }
+
+  /// The active member id of account [userId] in [groupId] (null when there is none).
+  Future<String?> memberOf(String groupId, String userId) async {
+    final m =
+        await (db.select(db.groupMembers)..where(
+              (m) =>
+                  m.groupId.equals(groupId) &
+                  m.userId.equals(userId) &
+                  m.status.equals('active') &
+                  m.deletedAt.isNull(),
+            ))
+            .getSingleOrNull();
+    return m?.id;
+  }
 }

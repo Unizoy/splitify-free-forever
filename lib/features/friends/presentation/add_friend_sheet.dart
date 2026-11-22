@@ -36,6 +36,24 @@ Future<void> startFriendExpense(BuildContext context, WidgetRef ref, Friend frie
   }
 }
 
+/// "Record a loan" with [friend] (#11, S-116): the loan form in our direct group with the friend picked.
+Future<void> startFriendLoan(BuildContext context, WidgetRef ref, Friend friend) async {
+  final l = AppLocalizations.of(context);
+  final router = GoRouter.of(context);
+  try {
+    final target = await ref.read(friendActionsProvider).loanTargetFor(friend);
+    unawaited(router.push(ExpenseRoutes.addLoan(target.groupId, withMember: target.memberId)));
+  } on GroupFailure catch (e) {
+    if (!context.mounted) return;
+    showGroupMessage(
+      context,
+      e.code == GroupFailureCode.offline
+          ? l.friendNeedsInternet(friend.name)
+          : l.friendStartFailed(friend.name),
+    );
+  }
+}
+
 /// "Add friend expense" (Friends tab): pick a friend, or add someone new as a name-only friend (offline),
 /// then the normal add-expense stepper opens.
 Future<void> showAddFriendExpense(BuildContext context, WidgetRef ref) async {

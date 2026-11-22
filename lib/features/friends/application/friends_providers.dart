@@ -73,6 +73,19 @@ class FriendActions {
     return made.groupId;
   }
 
+  /// Where "Record a loan" with [friend] goes (S-116 amendment): the same group as a new expense, with the
+  /// friend's member id there already picked (null when the phone does not have it yet).
+  Future<({String groupId, String? memberId})> loanTargetFor(Friend friend) async {
+    final groupId = await expenseGroupFor(friend);
+    final link = friend.links.where((l) => l.group.id == groupId).firstOrNull;
+    if (link != null) return (groupId: groupId, memberId: link.friendMemberId);
+    final friendUser = friend.userId;
+    final memberId = friendUser == null
+        ? null
+        : await _ref.read(friendsRepositoryProvider).memberOf(groupId, friendUser);
+    return (groupId: groupId, memberId: memberId);
+  }
+
   /// A new friend who has no account: a direct group with them as a name-only member, made offline
   /// (outbox, rule 6). Returns the group id and the friend's key.
   Future<({String groupId, String key})> addNameOnlyFriend(String name) async {

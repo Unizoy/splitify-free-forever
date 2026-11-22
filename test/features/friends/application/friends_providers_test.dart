@@ -226,4 +226,35 @@ void main() {
       expect(all.single.sharedGroups, isEmpty);
     });
   });
+
+  group('loanTargetFor (S-116)', () {
+    // TC-2-03
+    test('our direct group with the friend already picked', () async {
+      final t = await container
+          .read(friendActionsProvider)
+          .loanTargetFor(asha([goaLedger(), directLedger()]));
+      expect((t.groupId, t.memberId), ('g3', 'c2'));
+    });
+
+    // TC-2-03
+    test('a name-only friend: their group and their member', () async {
+      final friend = friendsOf([goaLedger()], 'u1').firstWhere((f) => f.key == 'm:a3');
+      final t = await container.read(friendActionsProvider).loanTargetFor(friend);
+      expect((t.groupId, t.memberId), ('g1', 'a3'));
+    });
+
+    // TC-2-03
+    test('a direct group the friend list does not know yet: the member comes from the phone', () async {
+      final direct = directLedger(id: 'g-new');
+      await db.seed(groups: [direct.group], members: direct.members);
+      final t = await container.read(friendActionsProvider).loanTargetFor(asha([goaLedger()]));
+      expect((t.groupId, t.memberId), ('g-new', 'c2'));
+    });
+
+    // TC-2-03
+    test('made on the server but not pulled yet: no member picked', () async {
+      final t = await container.read(friendActionsProvider).loanTargetFor(asha([goaLedger()]));
+      expect((t.groupId, t.memberId), ('g-made', null));
+    });
+  });
 }

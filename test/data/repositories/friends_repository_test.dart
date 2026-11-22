@@ -126,5 +126,14 @@ void main() {
       await direct('d-old', createdAt: '2026-11-01T10:00:00Z');
       expect(await repo.findDirectGroup('u1', 'u2'), 'd-old');
     });
+
+    // TC-2-03 (S-116)
+    test('memberOf finds the active member of an account in a group', () async {
+      await direct('d1');
+      expect(await repo.memberOf('d1', 'u2'), 'd1-fr');
+      expect(await repo.memberOf('d1', 'u9'), isNull);
+      await direct('d2', friendStatus: 'left');
+      expect(await repo.memberOf('d2', 'u2'), isNull);
+    });
   });
 }
