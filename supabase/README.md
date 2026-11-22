@@ -10,29 +10,110 @@ project. Spec: [`planning/03-backend.md`](../planning/03-backend.md).
 | `functions/<name>/index.ts` | Edge Functions (Deno). Shared code in `functions/_shared/`; tests are `*_test.ts`. |
 | `config.toml` | Minimal CLI config used by CI (`supabase start`). Holds no secrets and is not used by the app. |
 
-## Rebuild the backend in a new project
+## Self-hosting guide
 
-1. **Create a project** at [supabase.com](https://supabase.com) (Free plan works; Pro for real users: backups, no
-   pausing).
-2. **Apply the migrations in order** (`0001` → highest), using either:
-   - **SQL editor**: open each file in `migrations/`, paste, run, one file at a time, in number order; or
-   - **CLI**: `supabase link --project-ref <ref>` then `supabase db push` (applies every file in `migrations/`).
-   The migrations also create the storage buckets (`receipts`, `group-covers`, `avatars`) and their policies, and
-   enable the extensions (`pgcrypto`, `pg_net`, `pg_cron`, `pgtap`).
-3. **Deploy the Edge Functions** (from later phases) with `supabase functions deploy <name>`; `send-push` and
-   `fetch-rates` use `--no-verify-jwt` (see `03-backend.md` §7). `delete-account` keeps JWT verification on; it
-   uses only the built-in `SUPABASE_URL`, `SUPABASE_ANON_KEY` and `SUPABASE_SERVICE_ROLE_KEY`.
-4. **Set the one secret**: Dashboard → Edge Functions → Secrets → `FCM_SERVICE_ACCOUNT_JSON` = the full Firebase
-   service-account JSON. Never commit it; no other secret exists.
-5. **Auth**: enable Google (web client id first, then the Android client id) and Email OTP as described in
-   `planning/phases/phase-00-owner-setup.md`.
-6. **App config**: copy the project URL and **publishable** key into the Git-ignored
-   `secrets/env.dev.json` (see `secrets/env.example.json`) and run the app with
-   `--dart-define-from-file=secrets/env.dev.json`.
+### 1. Create the project
+
+Create a project at [supabase.com](https://supabase.com). The Free plan works for trying it out. Use Pro for real
+users (backups, no pausing). Note the project ref, the project URL and the publishable key.
+
+### 2. Apply the migrations
+
+Apply `0001` to `0022` in number order. Some numbers are skipped on purpose (`0011`, `0012`, `0018`, `0020`).
+`0023` (payment capture) arrives with that feature. Use either:
+
+- **SQL editor**: open each file in `migrations/`, paste, run, one file at a time, in number order; or
+- **CLI**: `supabase link --project-ref <ref>` then `supabase db push`.
+
+The migrations also enable the extensions (`pgcrypto`, `pg_net`, `pg_cron`, `pgtap`), create the storage buckets
+(`receipts`, `group-covers`, `avatars`) and their policies, and create the cron jobs (step 4).
+
+### 3. Set the project URL once
+
+The cron jobs and the push trigger call your Edge Functions. They read the project URL from `private.settings`.
+Run this once in the SQL editor, with your own URL (never commit it):
+
+```sql
+insert into private.settings (key, value) values ('project_url', 'https://<project-ref>.supabase.co')
+on conflict (key) do update set value = excluded.value;
+```
+
+Until this row exists, the jobs do nothing.
+
+### 4. Cron jobs
+
+The migrations create these jobs (times are UTC):
+
+| Job | Schedule | What |
+| --- | --- | --- |
+| `fetch-rates-morning`, `fetch-rates-evening` | `15 1 * * *`, `15 13 * * *` | Call the `fetch-rates` function (daily Frankfurter rates, twice a day) |
+| `generate-recurring` | `40 18 * * *` | Create due recurring expenses (00:10 IST) |
+| `housekeeping` | `0 20 * * 0` | Weekly: delete `join_attempts` older than 1 day |
+
+Push notifications are not a cron job. A database trigger calls `send-push` when a notification row is created.
+
+Check the jobs:
+
+```sql
+select jobname, schedule from cron.job;
+```
+
+### 5. Deploy the Edge Functions
+
+```sh
+supabase functions deploy fetch-rates --no-verify-jwt
+supabase functions deploy send-push --no-verify-jwt
+supabase functions deploy delete-account
+```
+
+`fetch-rates` and `send-push` run with `verify_jwt` off, because the database calls them. They are throttled and
+idempotent, so a stranger calling them can do no harm. `delete-account` keeps JWT verification on. It uses only the
+built-in `SUPABASE_URL`, `SUPABASE_ANON_KEY` and `SUPABASE_SERVICE_ROLE_KEY`.
+
+### 6. The one secret
+
+Dashboard, Edge Functions, Secrets: set `FCM_SERVICE_ACCOUNT_JSON` to the full Firebase service-account JSON. Never
+commit it. No other secret exists. Without it, push is skipped and the in-app bell still works.
+
+### 7. Auth providers
+
+- **Google**: create a web OAuth client first and enter its id and secret in Supabase Auth, Providers, Google. Then
+  create the Android OAuth client (package name and signing-key SHA-1). The web client id goes into the app config
+  as `GOOGLE_WEB_CLIENT_ID`.
+- **Email one-time code**: enable Email OTP. Supabase's built-in mailer only sends to your own team and is rate
+  limited, so set up your own SMTP provider under Auth, SMTP settings.
+- Details: `planning/phases/phase-00-owner-setup.md`.
+
+### 8. App config
+
+Copy the project URL and the **publishable** key into the Git-ignored `secrets/env.dev.json` (start from
+`secrets/env.example.json`) and run the app with `--dart-define-from-file=secrets/env.dev.json`. Never put a secret
+or service-role key in the app.
+
+### 9. Storage buckets
+
+The migrations create the buckets and policies. You do not need to create them by hand.
+
+### Optional housekeeping SQL
+
+Two logs grow slowly and are not pruned automatically. Run these in the SQL editor now and then:
+
+```sql
+delete from public.mutation_log where received_at < now() - interval '30 days';
+delete from cron.job_run_details where end_time < now() - interval '14 days';
+```
+
+### Custom domain
+
+Some internet providers block `*.supabase.co` DNS. For a production deployment, use a
+[Supabase custom domain](https://supabase.com/docs/guides/platform/custom-domains) so users on those networks can
+still connect.
 
 ## Run the SQL tests
 
 - **Local (needs Docker)**: `supabase start` (applies the migrations) then `supabase test db`.
+- **Attack tests**: `tests/190_attack.test.sql` tries to break the security rules (cross-group reads, forged
+  writes, oversized payloads, bad storage names). It runs with the others.
 - **CI**: the `db` job in `.github/workflows/ci.yml` does exactly that on every push, after checking that the
   generated vector tests are up to date.
 - **Hosted dev project without Docker**: paste a test file's full content into the SQL editor (or MCP
