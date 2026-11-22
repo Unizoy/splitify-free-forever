@@ -10,6 +10,7 @@ import 'package:splitify/features/activity/presentation/activity_feed.dart';
 import 'package:splitify/features/activity/presentation/activity_screen.dart';
 import 'package:splitify/features/activity/presentation/group_activity_screen.dart';
 import 'package:splitify/features/groups/application/groups_providers.dart';
+import 'package:splitify/features/notifications/application/notifications_providers.dart';
 import 'package:splitify/l10n/app_localizations_en.dart';
 import 'package:splitify/ui/components/components.dart';
 
@@ -53,9 +54,15 @@ Future<void> _pump(
       stubRoute('/payment/:id'),
       stubRoute('/groups/:id/activity'),
       stubRoute('/groups/:id'),
+      stubRoute('/notifications'),
     ],
   );
-  await t.pumpWidget(routerApp(router, overrides: overrides));
+  await t.pumpWidget(
+    routerApp(
+      router,
+      overrides: [unreadNotificationsProvider.overrideWith((ref) => Stream.value(0)), ...overrides],
+    ),
+  );
   await settle(t);
 }
 
@@ -351,11 +358,11 @@ void main() {
     });
 
     // TC-18-02
-    testWidgets('the bell says coming soon', (t) async {
+    testWidgets('the bell opens the notifications (phase 13)', (t) async {
       await _pump(t, const ActivityScreen(), overrides: _feed(AsyncData(sampleActivity())));
       await t.tap(find.byTooltip('Notifications'));
       await settle(t);
-      expect(find.text('Coming soon'), findsOneWidget);
+      expect(find.text('at /notifications'), findsOneWidget);
     });
 
     // TC-18-02

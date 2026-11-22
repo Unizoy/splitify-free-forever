@@ -127,6 +127,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get notifMutedHint => 'Muted groups still show in the bell, just without pushes.';
 
   @override
+  String get notifMutedOn => 'Muted · bell only';
+
+  @override
+  String get notifMutedOff => 'Not muted';
+
+  @override
   String get notifMutedEmpty => 'You\'re not in any groups yet.';
 
   @override

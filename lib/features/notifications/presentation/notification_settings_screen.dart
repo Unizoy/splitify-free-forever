@@ -93,6 +93,7 @@ class NotificationSettingsScreen extends ConsumerWidget {
                   key: Key('notif-mute-${groups[i].id}'),
                   leading: Avatar(name: groups[i].name, seed: groups[i].id),
                   title: groups[i].name,
+                  subtitle: prefs.isMuted(groups[i].id) ? l.notifMutedOn : l.notifMutedOff,
                   value: prefs.isMuted(groups[i].id),
                   showDivider: i < groups.length - 1,
                   onChanged: (muted) => unawaited(actions.setMuted(groups[i].id, muted: muted)),

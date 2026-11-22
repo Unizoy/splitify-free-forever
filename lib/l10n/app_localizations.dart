@@ -290,6 +290,18 @@ abstract class AppLocalizations {
   /// **'Muted groups still show in the bell, just without pushes.'**
   String get notifMutedHint;
 
+  /// Subtitle of a muted group in notification settings.
+  ///
+  /// In en, this message translates to:
+  /// **'Muted · bell only'**
+  String get notifMutedOn;
+
+  /// No description provided for @notifMutedOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Not muted'**
+  String get notifMutedOff;
+
   /// No description provided for @notifMutedEmpty.
   ///
   /// In en, this message translates to:
