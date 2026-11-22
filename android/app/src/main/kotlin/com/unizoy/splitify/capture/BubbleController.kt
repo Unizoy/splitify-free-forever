@@ -521,13 +521,15 @@ object BubbleController {
         if (!CaptureCenter.isDebug(appContext)) return
         fun walk(v: View) {
             if (v.visibility != View.VISIBLE) return
-            val label = (v as? android.widget.TextView)?.text?.toString() ?: v.contentDescription?.toString()
+            // ASCII only ("Rs." for the rupee sign): the PC reads this through adb with a legacy code page.
+            val label = ((v as? android.widget.TextView)?.text?.toString() ?: v.contentDescription?.toString())
+                ?.replace("₹", "Rs.")
             if (v.isClickable && label != null) {
                 val at = IntArray(2)
                 v.getLocationOnScreen(at)
                 Log.i(TAG, "ui tap $label @ ${at[0] + v.width / 2} ${at[1] + v.height / 2}")
-            } else if (v is android.widget.TextView && v.text.isNotEmpty()) {
-                Log.i(TAG, "ui text ${v.text}")
+            } else if (v is android.widget.TextView && !label.isNullOrEmpty()) {
+                Log.i(TAG, "ui text $label")
             }
             if (v is android.view.ViewGroup) for (i in 0 until v.childCount) walk(v.getChildAt(i))
         }

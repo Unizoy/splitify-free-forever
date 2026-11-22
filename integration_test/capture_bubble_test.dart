@@ -53,6 +53,12 @@ Future<void> _waitFor(
 }) async {
   final end = DateTime.now().add(timeout);
   while (DateTime.now().isBefore(end)) {
+    // In the background (UPI app, home screen) no frames come and a pump would never return: wait in real
+    // time until Android brings the app back, then pump.
+    if (WidgetsBinding.instance.lifecycleState != AppLifecycleState.resumed) {
+      await t.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 500)));
+      continue;
+    }
     await t.pump(const Duration(milliseconds: 200));
     if (f.evaluate().isNotEmpty) return;
   }

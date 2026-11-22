@@ -127,6 +127,12 @@ class CaptureStore(private val kv: KeyValue, private val clock: () -> Long = Sys
         kv.put(DISMISSED, JSONArray(dismissed().filter { it !in dismissedIds }).toString())
     }
 
+    /** Sign-out: forget captures, tombstones, the dedup ledger and the chips (the switches belong to the phone). */
+    @Synchronized
+    fun reset() {
+        for (key in listOf(PENDING, LEDGER, DISMISSED, RECENTS)) kv.put(key, "[]")
+    }
+
     @Synchronized
     fun config(): CaptureConfig = CaptureConfig.fromJson(kv.get(CONFIG)?.let { JSONObject(it) })
 

@@ -66,9 +66,7 @@ class CaptureChannel(private val activity: Activity) : MethodChannel.MethodCallH
                     result.success(BubbleController.showing)
                 }
                 "reset" -> {
-                    for (c in center.store.pending()) center.store.dismiss(c.id)
-                    center.store.ack(emptyList(), center.store.dismissed())
-                    center.store.setRecents("[]")
+                    center.store.reset()
                     BubbleController.hide("signed out")
                     result.success(null)
                 }

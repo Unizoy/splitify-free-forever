@@ -11,7 +11,7 @@
 param([switch]$NoLock, [switch]$SkipShots, [string]$Device = 'emulator-5554')
 $ErrorActionPreference = 'Continue'
 [Console]::OutputEncoding = [Text.Encoding]::UTF8   # adb output (ui dumps) carries the rupee sign
-$R = [string][char]0x20B9                            # keep this file ASCII (PowerShell 5.1 reads it as ANSI)
+$R = 'Rs.'   # the debug bubble log writes the rupee sign as Rs. (adb output is read with a legacy code page; keep this file ASCII)
 $repo = (Resolve-Path "$PSScriptRoot\..\..").Path
 Set-Location $repo
 . "$repo\tool\env.ps1"
@@ -97,8 +97,7 @@ function Bubble-Lines {
 }
 function Bubble-Has([string]$text) { (Bubble-Lines) -match [regex]::Escape("ui text $text") }
 function Tap-Bubble([string]$label) {
-  $all = (Adb logcat -d -s 'SplitifyBubble:I') -join "`n"
-  $ms = [regex]::Matches($all, "ui tap $([regex]::Escape($label)) @ (\d+) (\d+)")
+  $ms = [regex]::Matches((Bubble-Lines), "ui tap $([regex]::Escape($label)) @ (\d+) (\d+)")
   if ($ms.Count -eq 0) { return $false }
   $m = $ms[$ms.Count - 1]
   Adb shell input tap $m.Groups[1].Value $m.Groups[2].Value | Out-Null
@@ -238,6 +237,7 @@ Enter-Lock
 try {
   Adb shell settings put system font_scale 1.0 | Out-Null
   Adb shell cmd uimode night no | Out-Null
+  Adb logcat -G 16M | Out-Null   # the default ring buffer drops our lines while the test logs
   & (Join-Path $repo 'tool\fake_upi_app\build.ps1') -Install -Device $Device | Out-Null
   Adb shell pm grant dev.splitify.fakeupi android.permission.POST_NOTIFICATIONS | Out-Null
   $supabaseHost = ([Uri](Get-Content secrets\env.dev.json -Raw | ConvertFrom-Json).SUPABASE_URL).Host
@@ -249,7 +249,9 @@ try {
   $p = Start-Process -FilePath 'flutter.bat' -NoNewWindow -PassThru -RedirectStandardOutput $log -ArgumentList $argv
   $null = $p.Handle
   $handled = 0
+  $deadline = (Get-Date).AddMinutes(30)
   while (-not $p.HasExited) {
+    if ((Get-Date) -gt $deadline) { Check $false 'integration test finished within 30 min'; break }
     Start-Sleep -Milliseconds 500
     $text = Get-Content $log -Raw -ErrorAction SilentlyContinue
     if (-not $text) { continue }

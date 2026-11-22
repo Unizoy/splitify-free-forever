@@ -112,6 +112,21 @@ class CaptureStoreTest {
     }
 
     @Test
+    fun `reset forgets captures, tombstones, ledger and chips but keeps the switches`() {
+        store.setConfig(CaptureConfig(enabled = true))
+        store.add(cap("n1", ref = "612345678901"))
+        store.add(cap("n2", amount = 999))
+        store.dismiss("n2")
+        store.setRecents("[{\"id\":\"g1\",\"name\":\"Goa\"}]")
+        store.reset()
+        assertEquals(emptyList<Capture>(), store.pending())
+        assertEquals(emptyList<String>(), store.dismissed())
+        assertEquals(emptyList<RecentChip>(), store.recents())
+        assertTrue(store.config().enabled)
+        assertTrue("ledger cleared: the same payment is new again", store.add(cap("again", ref = "612345678901")) is CaptureStore.AddResult.Added)
+    }
+
+    @Test
     fun `recent chips round-trip`() {
         store.setRecents(JSONArray().put(org.json.JSONObject().put("id", "g1").put("name", "Goa trip").put("friend", false)).toString())
         assertEquals(listOf(RecentChip("g1", "Goa trip", false)), store.recents())
