@@ -28,5 +28,5 @@ Pre-built (branch prep/fx-service): T3 `FxService` logic in `lib/features/curren
 
 Amendment (S-150..S-156, phase 14 session 2026-11-22): migration is `0017_fx.sql` (S-099), not 0011; it also adds
 the app's missing currency codes, the saved-conversion check trigger and `private.settings` (`if not exists`, shared
-with phase 13's 0016). Drift rate cache is schema v3. Frankfurter v2 shape re-checked with curl 2026-11-22 (see
+with phase 13's 0016). Drift rate cache is schema v5 (after phase 12's v2 and phase 13's v4). Frankfurter v2 shape re-checked with curl 2026-11-22 (see
 LEARNINGS). Converted view has no Settle buttons (S-155).

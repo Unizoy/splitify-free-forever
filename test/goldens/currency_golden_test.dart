@@ -23,6 +23,7 @@ import 'package:splitify/ui/components/components.dart';
 import 'package:splitify/ui/theme/theme.dart';
 
 import '../features/balances/balance_fixtures.dart';
+import '../support/notification_fakes.dart' show quietNotificationOverrides;
 import 'golden_support.dart';
 
 /// A scenario: the screen, what feeds it, the frame height at text scale 1.0 / 2.0, and an optional
@@ -204,6 +205,7 @@ List<Override> _balancesTab({required bool converted}) {
   return [
     groupBalancesProvider(gid).overrideWithValue(AsyncData(group)),
     convertedGroupProvider(gid).overrideWithValue(AsyncData(view)),
+    ...quietNotificationOverrides(),
   ];
 }
 

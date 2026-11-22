@@ -196,7 +196,7 @@ void main() {
         await settle(t, 2);
         expect(find.text('Enter a rate above 0 with up to 10 decimals'), findsWidgets, reason: bad);
         expect(_canSave(t), isFalse, reason: bad);
-        expect(_text(t, 'conversion-result'), '—');
+        expect(_text(t, 'conversion-result'), 'Rate needed');
       }
     }, skip: false);
 

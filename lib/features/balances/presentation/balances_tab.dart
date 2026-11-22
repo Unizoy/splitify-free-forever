@@ -58,15 +58,16 @@ class _BalancesTabState extends ConsumerState<BalancesTab> {
     }
     final simplified = b.simplify && !_original;
     final multi = b.currencies.length > 1;
-    final fx = ref.watch(convertedGroupProvider(widget.groupId)).value;
-    final foreign = fx?.hasForeign ?? false;
+    // A currency other than the main one has records: offer "In INR" (phase 14).
+    final foreign = b.currencies.any((c) => c != b.mainCurrency);
     final inMain = foreign && _inMain;
+    final fx = inMain ? ref.watch(convertedGroupProvider(widget.groupId)).value : null;
     return Column(
       key: const Key('balances-tab'),
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         const SizedBox(height: AppSpacing.s4),
-        _Banner(balances: (inMain ? fx?.inMain : null) ?? b),
+        _Banner(balances: fx?.inMain ?? b),
         if (foreign) ...[
           const SizedBox(height: AppSpacing.s6),
           BalancesViewToggle(

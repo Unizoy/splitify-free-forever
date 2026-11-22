@@ -3,7 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:splitify/core/money/money_formatter.dart';
-import 'package:splitify/features/currency/application/currency_providers.dart';
+import 'package:splitify/features/expenses/application/expense_providers.dart'
+    show expenseGroupProvider;
 import 'package:splitify/features/currency/domain/conversion.dart';
 import 'package:splitify/features/currency/presentation/conversion_sheet.dart';
 import 'package:splitify/features/currency/presentation/fx_copy.dart';
@@ -36,7 +37,7 @@ class ConversionTile extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final main = ref.watch(groupMainCurrencyProvider(groupId)).value;
+    final main = ref.watch(expenseGroupProvider(groupId)).value?.mainCurrency.trim();
     if (main == null || main == currency) return const SizedBox.shrink();
     final l = AppLocalizations.of(context);
     final c = context.colors;
