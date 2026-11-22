@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:splitify/data/repositories/sync_repository.dart';
 import 'package:splitify/data/sync/sync_types.dart';
+import 'package:splitify/domain/entities/prepared_image.dart';
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/theme/theme.dart';
 
@@ -90,3 +91,34 @@ IconData syncEntityIcon(SyncEntity e) => switch (e) {
   SyncEntity.payment => AppIcons.coins,
   SyncEntity.comment => AppIcons.chat,
 };
+
+/// Where "Edit" opens the record of a refused change so the person can fix it; null when there is nothing
+/// to open (a refused delete: Retry or Discard only).
+String? syncIssueRoute(SyncIssue i) {
+  if (i.op == SyncOp.delete) return null;
+  return switch (i.entity) {
+    SyncEntity.expense => '/expense/${i.recordId}',
+    SyncEntity.payment => '/payment/${i.recordId}',
+    SyncEntity.group => '/groups/${i.recordId}/edit',
+    SyncEntity.member => '/groups/${i.groupId}/settings',
+    SyncEntity.comment => switch ((i.targetType, i.targetId)) {
+      ('expense', final String id) => '/expense/$id',
+      ('payment', final String id) => '/payment/$id',
+      _ => null,
+    },
+  };
+}
+
+/// "Receipt photo" / "Group cover".
+String syncUploadTitle(AppLocalizations l, SyncUpload u) => l.syncUploadKind(switch (u.bucket) {
+  MediaBuckets.receipts => 'receipt',
+  MediaBuckets.groupCovers => 'cover',
+  _ => 'other',
+});
+
+/// Waiting, retrying after refusals, or skipped (S-113).
+String syncUploadState(AppLocalizations l, SyncUpload u) {
+  if (u.skipped) return l.syncUploadSkipped(u.attempts);
+  if (u.attempts > 0) return l.syncUploadRetrying(u.attempts);
+  return l.syncUploadWaiting;
+}

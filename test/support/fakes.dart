@@ -6,6 +6,7 @@ import 'package:drift/native.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart' show AsyncData;
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:splitify/core/time/clock.dart';
+import 'package:splitify/data/data_providers.dart' show unsyncedGroupIdsProvider;
 import 'package:splitify/data/local/app_database.dart';
 import 'package:splitify/data/repositories/auth_repository.dart';
 import 'package:splitify/data/repositories/profile_repository.dart';
@@ -162,11 +163,15 @@ class FakeSyncRepository implements SyncRepository {
     this.status = const SyncStatus(phase: SyncPhase.idle),
     this.issues = const [],
     this.unsynced = false,
+    this.uploads = const [],
+    this.unsyncedGroups = const {},
   });
 
   SyncStatus status;
   List<SyncIssue> issues;
   bool unsynced;
+  List<SyncUpload> uploads;
+  Set<String> unsyncedGroups;
   final calls = <String>[];
 
   /// Completes "Sync now"; null = completes at once.
@@ -207,6 +212,24 @@ class FakeSyncRepository implements SyncRepository {
 
   @override
   Future<void> wipeLocal() async => calls.add('wipe');
+
+  @override
+  Stream<List<SyncUpload>> watchUploads() => Stream.value(uploads);
+
+  @override
+  Stream<Set<String>> watchUnsyncedGroupIds() => Stream.value(unsyncedGroups);
+
+  @override
+  Future<void> retryUpload(String id) async => calls.add('retryUpload:$id');
+
+  @override
+  Future<bool> hasWaiting() async => unsynced;
+
+  @override
+  Future<bool> adoptOwner(String userId) async {
+    calls.add('owner:$userId');
+    return false;
+  }
 }
 
 /// A refused expense edit (screens, goldens).
@@ -228,6 +251,7 @@ SyncIssue sampleIssue({
 /// Groups screens without a database or server: no groups, online, sync does nothing.
 List<Override> emptyGroupsOverrides() => [
   groupsListProvider.overrideWith((ref) => Stream.value(const [])),
+  unsyncedGroupIdsProvider.overrideWith((ref) => Stream.value(const {})),
   deletedGroupsProvider.overrideWith((ref) => Stream.value(const [])),
   syncOfflineProvider.overrideWith((ref) => Stream.value(false)),
   syncNowProvider.overrideWithValue(() async {}),

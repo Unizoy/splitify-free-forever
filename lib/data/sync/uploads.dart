@@ -14,7 +14,15 @@ final _log = Logger('uploads');
 /// first. Runs after every push; one run at a time; a network failure stops the run until the next
 /// sync, a refusal counts an attempt and the photo is skipped after [maxAttempts].
 class UploadQueue {
-  UploadQueue({required this.db, required this.remote, required this.files, this.maxAttempts = 8});
+  UploadQueue({
+    required this.db,
+    required this.remote,
+    required this.files,
+    this.maxAttempts = skipAfter,
+  });
+
+  /// Refusals after which a photo is skipped (S-113); "Sync & storage" lists it with Retry.
+  static const skipAfter = 8;
 
   final AppDatabase db;
   final MediaRemote remote;

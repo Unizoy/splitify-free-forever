@@ -8,10 +8,12 @@ import 'package:splitify/data/remote/media_remote.dart';
 import 'package:splitify/data/remote/notifications_remote.dart';
 import 'package:splitify/data/remote/remote_api.dart';
 import 'package:splitify/data/remote/supabase_auth_repository.dart';
+import 'package:splitify/data/remote/supabase_nudges.dart';
 import 'package:splitify/data/remote/supabase_profile_remote.dart';
 import 'package:splitify/data/remote/supabase_remote_api.dart';
 import 'package:splitify/data/repositories/auth_repository.dart';
 import 'package:splitify/data/repositories/profile_repository.dart';
+import 'package:splitify/data/sync/sync_triggers.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as sb;
 
 /// The remote services the app talks to, built once in bootstrap.
@@ -27,6 +29,7 @@ class RemoteServices {
     this.friends = const UnconfiguredFriendsRemote(),
     this.fxRates = const UnconfiguredFxRatesRemote(),
     this.notifications = const UnconfiguredNotificationsRemote(),
+    this.nudges = const NoChangeNudges(),
   });
 
   final AuthRepository auth;
@@ -55,15 +58,26 @@ class RemoteServices {
 
   /// Bell, notification settings, device token and reminders (phase 13).
   final NotificationsRemote notifications;
+
+  /// Realtime "changed" nudges for the user's groups (sync trigger, 04 §1).
+  final ChangeNudges nudges;
 }
 
 /// Starts Supabase from the build settings (02 §2). With placeholder values
-/// (BLK-001, D-020) the app runs signed out and sign-in reports "not set up".
-Future<RemoteServices> initRemote(Env env) async {
+/// (BLK-001, D-020) the app runs signed out and sign-in reports "not set up". [background] = WorkManager
+/// run (04 §8): no sign-in links to listen for. Token refresh stays on: without it gotrue drops an expired
+/// saved session, which would sign the person out.
+Future<RemoteServices> initRemote(Env env, {bool background = false}) async {
   if (!isConfiguredValue(env.supabaseUrl) || !isConfiguredValue(env.supabasePublishableKey)) {
     return const RemoteServices(auth: UnconfiguredAuthRepository(), profiles: null);
   }
-  await sb.Supabase.initialize(url: env.supabaseUrl, anonKey: env.supabasePublishableKey);
+  await sb.Supabase.initialize(
+    url: env.supabaseUrl,
+    anonKey: env.supabasePublishableKey,
+    authOptions: background
+        ? const sb.FlutterAuthClientOptions(detectSessionInUri: false)
+        : const sb.FlutterAuthClientOptions(),
+  );
   final client = sb.Supabase.instance.client;
   return RemoteServices(
     auth: SupabaseAuthRepository(
@@ -80,5 +94,6 @@ Future<RemoteServices> initRemote(Env env) async {
     friends: SupabaseFriendsRemote.fromClient(client),
     fxRates: SupabaseFxRatesRemote(client),
     notifications: SupabaseNotificationsRemote.fromClient(client),
+    nudges: SupabaseNudges(client),
   );
 }

@@ -103,6 +103,7 @@ class AccountActions {
   Future<void> signOut() async {
     await _ref.read(syncRepositoryProvider).pushBeforeSignOut();
     await _ref.read(signOutHooksProvider)();
+    await _ref.read(backgroundSyncProvider).stop();
     try {
       await _ref.read(authRepositoryProvider).signOut();
     } finally {
@@ -112,9 +113,13 @@ class AccountActions {
 
   /// Online only: waiting changes go first so they stay in the groups, then the server deletes the account.
   Future<void> deleteAccount() async {
+    if (!await _ref.read(networkStatusProvider).isOnline()) {
+      throw const AuthFailure(AuthFailureCode.offline);
+    }
     await _ref.read(syncRepositoryProvider).pushBeforeSignOut();
     await _ref.read(signOutHooksProvider)();
     await _ref.read(authRepositoryProvider).deleteAccount();
+    await _ref.read(backgroundSyncProvider).stop();
     await _ref.read(localWipeProvider).wipe();
   }
 }

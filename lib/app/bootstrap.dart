@@ -5,14 +5,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:splitify/app/app.dart';
+import 'package:splitify/app/background_sync_task.dart';
 import 'package:splitify/core/config/env.dart';
 import 'package:splitify/core/config/preferences.dart';
 import 'package:splitify/core/logging/logger.dart';
+import 'package:splitify/data/data_providers.dart';
 import 'package:splitify/data/fx_providers.dart';
 import 'package:splitify/data/media_providers.dart';
 import 'package:splitify/data/remote/push_messaging.dart';
 import 'package:splitify/data/remote/remote_providers.dart';
 import 'package:splitify/data/remote/supabase_client.dart';
+import 'package:splitify/data/sync/background_sync.dart';
+import 'package:splitify/data/sync/network_status.dart';
 import 'package:splitify/features/auth/application/auth_providers.dart';
 import 'package:splitify/features/notifications/application/notifications_providers.dart';
 
@@ -30,8 +34,16 @@ Future<Widget> bootstrap() async {
     final prefs = await SharedPreferences.getInstance();
     final remote = await initRemote(env);
     final push = await initPush();
+    final background = await initBackgroundSync();
     return ProviderScope(
-      overrides: appOverrides(env: env, prefs: prefs, remote: remote, push: push),
+      overrides: appOverrides(
+        env: env,
+        prefs: prefs,
+        remote: remote,
+        push: push,
+        background: background,
+        network: ConnectivityNetworkStatus(),
+      ),
       child: const App(),
     );
   } on EnvException catch (e) {
@@ -46,6 +58,8 @@ List<Override> appOverrides({
   required SharedPreferences prefs,
   required RemoteServices remote,
   PushMessaging push = const DisabledPushMessaging(),
+  BackgroundSync background = const NoBackgroundSync(),
+  NetworkStatus network = const AssumeOnlineNetworkStatus(),
   bool? devLogin,
 }) => [
   envProvider.overrideWithValue(env),
@@ -60,6 +74,14 @@ List<Override> appOverrides({
   friendsRemoteProvider.overrideWithValue(remote.friends),
   fxRatesRemoteProvider.overrideWithValue(remote.fxRates),
   notificationsRemoteProvider.overrideWithValue(remote.notifications),
+  changeNudgesProvider.overrideWithValue(remote.nudges),
+  backgroundSyncProvider.overrideWithValue(background),
+  networkStatusProvider.overrideWithValue(network),
+  // 401 after one refresh (04 §7): sign out but keep the phone's data and outbox.
+  sessionExpiredProvider.overrideWith(
+    (ref) =>
+        () => ref.read(authRepositoryProvider).signOut(),
+  ),
   pushMessagingProvider.overrideWithValue(push),
   googleConfiguredProvider.overrideWithValue(env.hasGoogle),
   devLoginProvider.overrideWithValue(devLogin ?? env.devLoginAvailable(releaseMode: kReleaseMode)),

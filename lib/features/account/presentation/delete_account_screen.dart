@@ -22,6 +22,9 @@ class _DeleteAccountScreenState extends ConsumerState<DeleteAccountScreen> {
   bool _busy = false;
   bool _failed = false;
 
+  /// The last try failed for lack of network (rule 9: "Needs internet").
+  bool _offline = false;
+
   @override
   void dispose() {
     _confirm.dispose();
@@ -32,11 +35,17 @@ class _DeleteAccountScreenState extends ConsumerState<DeleteAccountScreen> {
     setState(() {
       _busy = true;
       _failed = false;
+      _offline = false;
     });
     try {
       await ref.read(accountActionsProvider).deleteAccount();
-    } on AuthFailure {
-      if (mounted) setState(() => _failed = true);
+    } on AuthFailure catch (e) {
+      if (mounted) {
+        setState(() {
+          _failed = true;
+          _offline = e.code == AuthFailureCode.offline;
+        });
+      }
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -97,7 +106,7 @@ class _DeleteAccountScreenState extends ConsumerState<DeleteAccountScreen> {
             hint: l.deleteWord,
             controller: _confirm,
             onChanged: (_) => setState(() {}),
-            errorText: _failed ? l.deleteAccountFailed : null,
+            errorText: _failed ? (_offline ? l.needsInternet : l.deleteAccountFailed) : null,
           ),
           const SizedBox(height: AppSpacing.s8),
           PillButton(

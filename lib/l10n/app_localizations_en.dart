@@ -2903,6 +2903,64 @@ class AppLocalizationsEn extends AppLocalizations {
   String get debugLogSubject => 'Splitify debug log';
 
   @override
+  String syncSuperseded(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          'Newer edits by others were kept for $count changes. Your versions are in the edit history.',
+      one: 'Someone else\'s newer edit was kept. Your version is in the edit history.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get syncIssueOpen => 'Edit';
+
+  @override
+  String get syncUploadsTitle => 'Photos';
+
+  @override
+  String syncUploadKind(String kind) {
+    String _temp0 = intl.Intl.selectLogic(kind, {
+      'receipt': 'Receipt photo',
+      'cover': 'Group cover',
+      'other': 'Photo',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String get syncUploadWaiting => 'Waiting to upload';
+
+  @override
+  String syncUploadRetrying(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Upload failed $count times, trying again',
+      one: 'Upload failed once, trying again',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String syncUploadSkipped(int count) {
+    return 'Upload stopped after $count tries';
+  }
+
+  @override
+  String syncUploadsWaiting(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count photos waiting',
+      one: '1 photo waiting',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get syncRowSynced => 'Synced';
 
   @override
