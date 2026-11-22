@@ -83,11 +83,14 @@ String activityFilterLabel(AppLocalizations l, ActivityFilter f) => switch (f) {
   ActivityFilter.groups => l.actFilterGroups,
 };
 
-/// "Today" / "Yesterday" / "Sat, 21 Nov" (+ year when not this year).
+/// "Today" / "Yesterday" / "Sat, 21 Nov" (+ year when not this year), on the phone's calendar: both times
+/// are compared in local time (final QA: at 00:05 IST, 23:00 items of the day before said "Today").
 String activityDay(BuildContext context, DateTime day, DateTime today) {
   final l = AppLocalizations.of(context);
-  final d = DateTime(day.year, day.month, day.day);
-  final t = DateTime(today.year, today.month, today.day);
+  final dl = day.toLocal();
+  final tl = today.toLocal();
+  final d = DateTime(dl.year, dl.month, dl.day);
+  final t = DateTime(tl.year, tl.month, tl.day);
   if (d == t) return l.expToday;
   if (d == DateTime(t.year, t.month, t.day - 1)) return l.expYesterday;
   final locale = Localizations.localeOf(context).toLanguageTag();

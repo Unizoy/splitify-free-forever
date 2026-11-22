@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:splitify/core/time/clock.dart';
 import 'package:splitify/core/money/currencies.dart';
 import 'package:splitify/core/upi/upi_link.dart' show UpiLink;
 import 'package:splitify/data/data_providers.dart';
@@ -301,8 +302,7 @@ class _SettleUpScreenState extends ConsumerState<SettleUpScreen> {
   }
 
   DateTime _today() {
-    final now = ref.read(clockProvider).now();
-    return DateTime(now.year, now.month, now.day);
+    return ref.read(clockProvider).today();
   }
 }
 

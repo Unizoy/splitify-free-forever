@@ -7,17 +7,21 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:splitify/app/not_found_screen.dart';
 import 'package:splitify/app/router.dart';
+import 'package:splitify/core/time/clock.dart';
 import 'package:splitify/core/utils/member_tints.dart';
 import 'package:splitify/data/repositories/sync_repository.dart';
 import 'package:splitify/data/sync/sync_types.dart';
 import 'package:splitify/data/sync/uploads.dart' show UploadQueue;
+import 'package:splitify/features/activity/presentation/activity_feed.dart' show activityDay;
 import 'package:splitify/features/expenses/application/expense_providers.dart';
+import 'package:splitify/features/payments/application/payment_providers.dart';
 import 'package:splitify/features/sync/application/sync_texts.dart';
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/components/components.dart';
 import 'package:splitify/ui/theme/theme.dart';
 
 import '../../support/a11y_guidelines.dart';
+import '../balances/balance_fixtures.dart' as bal;
 import '../expenses/expense_fixtures.dart';
 import '../../support/group_fakes.dart';
 import '../../support/group_harness.dart';
@@ -58,7 +62,7 @@ void main() {
       h.open('/no-such-page');
       await settle(tester);
       expect(find.byType(NotFoundScreen), findsOneWidget);
-      expect(find.text('This link doesn’t open anything'), findsOneWidget);
+      expect(find.text("This link doesn't open anything"), findsOneWidget);
       await tester.tap(find.byKey(const Key('not-found-home')));
       await settle(tester);
       expect(h.location, '/groups');
@@ -351,4 +355,50 @@ void main() {
       );
     });
   });
+
+  test('a payment knows who recorded it (detail said only "Added on")', () {
+    final members = [
+      sampleMember(id: 'm1', userId: 'u1', name: 'Mohit'),
+      sampleMember(id: 'm2', userId: 'u2', name: 'Asha', position: 1),
+    ];
+    final v = paymentViews([bal.samplePayment()], members, 'u2').single;
+    expect(v.userNames, {'u1': 'Mohit', 'u2': 'Asha'});
+    expect(v.userNames[v.payment.createdBy], 'Mohit');
+  });
+
+  group('dates follow the phone, not UTC (00:08 IST gave the day before)', () {
+    // 18:40 UTC on 22 Nov is 00:10 on 23 Nov in India; the expectations hold in any time zone.
+    final utcNow = DateTime.utc(2026, 11, 22, 18, 40);
+
+    test('Clock.today() is the local calendar day', () {
+      final local = utcNow.toLocal();
+      expect(_FixedClock(utcNow).today(), DateTime(local.year, local.month, local.day));
+    });
+
+    testWidgets('feed day headings compare local days', (tester) async {
+      late BuildContext ctx;
+      await tester.pumpWidget(
+        _app(
+          Builder(
+            builder: (c) {
+              ctx = c;
+              return const SizedBox();
+            },
+          ),
+        ),
+      );
+      final earlier = DateTime.utc(2026, 11, 22, 17, 34);
+      final sameDay = DateUtils.isSameDay(utcNow.toLocal(), earlier.toLocal());
+      expect(activityDay(ctx, earlier, utcNow), sameDay ? 'Today' : 'Yesterday');
+    });
+  });
+}
+
+class _FixedClock implements Clock {
+  _FixedClock(this.at);
+
+  final DateTime at;
+
+  @override
+  DateTime now() => at;
 }

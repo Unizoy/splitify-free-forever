@@ -252,8 +252,14 @@ class SettleController extends AsyncNotifier<SettleDraft> {
     return null;
   }
 
-  static String _owedText(SettleDraft d) =>
-      d.owed > 0 ? ScaledInput.format(d.owed, Currencies.exponentOf(d.currency)) : '';
+  /// What is owed as field text, money style: "8822.50", not "8822.5" (whole amounts stay "8822"; final QA).
+  static String _owedText(SettleDraft d) {
+    if (d.owed <= 0) return '';
+    final decimals = Currencies.exponentOf(d.currency);
+    final text = ScaledInput.format(d.owed, decimals);
+    final dot = text.indexOf('.');
+    return dot < 0 ? text : text.padRight(dot + 1 + decimals, '0');
+  }
 
   void _set(SettleDraft Function(SettleDraft d) f) {
     final d = state.value;

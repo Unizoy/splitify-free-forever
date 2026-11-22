@@ -1478,7 +1478,7 @@
   "captureNotesSmsNoRef": "From a bank SMS",
   "captureRef": "UPI ref {ref}",
   "@captureRef": {"placeholders": {"ref": {"type": "String"}}},
-  "linkNotFoundTitle": "This link doesn’t open anything",
+  "linkNotFoundTitle": "This link doesn't open anything",
   "@linkNotFoundTitle": {"description": "Shown when a splitify:// link or a route does not exist (final QA, S-250)."},
   "linkNotFoundBody": "It may be old or mistyped. Your groups are one tap away.",
   "linkNotFoundAction": "Go to groups",

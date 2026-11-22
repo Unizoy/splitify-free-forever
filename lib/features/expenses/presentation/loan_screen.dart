@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:splitify/core/time/clock.dart';
 import 'package:splitify/core/money/currencies.dart';
 import 'package:splitify/core/money/money_formatter.dart';
 import 'package:splitify/data/data_providers.dart';
@@ -110,7 +111,6 @@ class _LoanScreenState extends ConsumerState<LoanScreen> {
     final note = _note ??= TextEditingController(text: d.note);
     final keyboardOpen = MediaQuery.viewInsetsOf(context).bottom > 0;
     final keypad = (_keypad ??= d.amountText.isEmpty) && !keyboardOpen && d.others.isNotEmpty;
-    final now = ref.read(clockProvider).now();
     return Scaffold(
       appBar: _bar(l),
       body: Column(
@@ -142,7 +142,7 @@ class _LoanScreenState extends ConsumerState<LoanScreen> {
                     title: title,
                     note: note,
                     showErrors: _showErrors,
-                    today: DateTime(now.year, now.month, now.day),
+                    today: ref.read(clockProvider).today(),
                     keypadOpen: keypad,
                     onEdit: _edit,
                     onAmountTap: () {

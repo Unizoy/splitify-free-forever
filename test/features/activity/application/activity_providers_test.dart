@@ -234,6 +234,23 @@ void main() {
       expect(bad.at, DateTime.fromMillisecondsSinceEpoch(0));
     });
 
+    // Final QA: a deleted group's history left the feed (only its "deleted" line stays).
+    test('activity of a deleted group is left out, except the deletion itself', () {
+      final gone = seedGroup(id: 'g2', name: 'Flat', deletedAt: '2026-11-22T10:00:00Z');
+      final items = buildActivityItems(
+        _sources(
+          activity: [
+            seedActivity('a', 'expense_added'),
+            seedActivity('b', 'expense_added', groupId: 'g2'),
+            seedActivity('c', 'group_deleted', groupId: 'g2'),
+          ],
+          groups: [seedGroup(), gone],
+        ),
+        'u1',
+      );
+      expect(items.map((i) => i.id), ['a', 'c']);
+    });
+
     test('amount is read from total or amount, as an int', () {
       expect(_one(seedActivity('a', 'expense_added', data: {'total': 12.0})).amount, 12);
       expect(_one(seedActivity('b', 'payment_added', data: {'amount': 7})).amount, 7);

@@ -7103,7 +7103,7 @@ abstract class AppLocalizations {
   /// Shown when a splitify:// link or a route does not exist (final QA, S-250).
   ///
   /// In en, this message translates to:
-  /// **'This link doesn’t open anything'**
+  /// **'This link doesn\'t open anything'**
   String get linkNotFoundTitle;
 
   /// No description provided for @linkNotFoundBody.

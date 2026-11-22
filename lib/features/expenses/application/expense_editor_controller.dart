@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/widgets.dart' show Locale;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:splitify/core/time/clock.dart';
 import 'package:splitify/core/money/currencies.dart';
 import 'package:splitify/core/money/scaled_input.dart';
 import 'package:splitify/core/utils/uuid.dart';
@@ -104,14 +105,13 @@ class ExpenseEditorController extends AsyncNotifier<ExpenseDraft> {
     if (saved == null) {
       final currency = group.mainCurrency;
       final preset = DefaultSplit.decode(group.defaultSplit)?.resolve(activeIds);
-      final now = ref.read(clockProvider).now();
       final draft = ExpenseDraft(
         groupId: groupId,
         groupName: group.name,
         currency: currency,
         members: _people(active, meId),
         split: SplitDraft.initial(activeIds, Currencies.exponentOf(currency), preset: preset),
-        date: DateTime(now.year, now.month, now.day),
+        date: ref.read(clockProvider).today(),
         payerId: meId ?? activeIds.firstOrNull,
         payers: const {},
         category: ExpenseCategories.normalize(

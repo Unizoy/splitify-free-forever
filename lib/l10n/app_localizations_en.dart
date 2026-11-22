@@ -4391,7 +4391,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get linkNotFoundTitle => 'This link doesn’t open anything';
+  String get linkNotFoundTitle => 'This link doesn\'t open anything';
 
   @override
   String get linkNotFoundBody => 'It may be old or mistyped. Your groups are one tap away.';

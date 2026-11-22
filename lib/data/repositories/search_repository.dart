@@ -40,7 +40,11 @@ class SearchRepository {
   /// Matches of [query] and [filters]; an empty query with no filters gives no results.
   Stream<List<LocalExpense>> watch(SearchQuery query, SearchFilters filters) {
     if (query.isEmpty && filters.isEmpty) return Stream.value(const []);
-    final where = <String>['e.deleted_at IS NULL'];
+    // Expenses of a deleted group stay out (final QA: they showed with an empty group name).
+    final where = <String>[
+      'e.deleted_at IS NULL',
+      'e.group_id NOT IN (SELECT id FROM groups WHERE deleted_at IS NOT NULL)',
+    ];
     final vars = <Variable<Object>>[];
     const fts = 'e.id IN (SELECT expense_id FROM expense_search WHERE expense_search MATCH ?)';
     if (query.words.isNotEmpty) {
@@ -94,7 +98,7 @@ class SearchRepository {
           'SELECT e.* FROM expenses e WHERE ${where.join(' AND ')} '
           'ORDER BY e.date DESC, e.created_at DESC, e.id DESC LIMIT $limit',
           variables: vars,
-          readsFrom: {db.expenses, db.expenseSearch, db.expenseParts},
+          readsFrom: {db.expenses, db.expenseSearch, db.expenseParts, db.groups},
         )
         .watch()
         .map((rows) => [for (final r in rows) db.expenses.map(r.data)]);
