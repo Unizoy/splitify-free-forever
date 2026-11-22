@@ -163,9 +163,12 @@ class NotificationActions {
     }
   }
 
+  /// Marks [id] read and syncs: what it points at is usually new on the server (B's expense), so the screen
+  /// it opens fills in as soon as the pull lands.
   Future<void> open(String id) async {
     await _repo.markRead(id);
     unawaited(refresh());
+    unawaited(_ref.read(syncRepositoryProvider).syncNow());
   }
 
   Future<void> markAllRead() async {

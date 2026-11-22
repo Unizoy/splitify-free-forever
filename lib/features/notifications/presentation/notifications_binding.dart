@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:splitify/data/data_providers.dart';
 import 'package:splitify/data/remote/push_messaging.dart';
 import 'package:splitify/features/notifications/application/notifications_providers.dart';
 import 'package:splitify/features/notifications/presentation/notification_settings_screen.dart';
@@ -45,6 +46,8 @@ class _NotificationsBindingState extends ConsumerState<NotificationsBinding> {
         push.foreground.listen((m) {
           unawaited(push.show(m));
           unawaited(actions.refresh());
+          // The push is about something new on the server: pull it now.
+          unawaited(ref.read(syncRepositoryProvider).syncNow());
         }),
       )
       ..add(push.opened.listen(_open));

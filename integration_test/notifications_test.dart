@@ -26,6 +26,7 @@ import 'package:splitify/data/remote/remote_providers.dart';
 import 'package:splitify/data/remote/supabase_client.dart';
 import 'package:splitify/data/remote/supabase_remote_api.dart';
 import 'package:splitify/features/auth/application/auth_providers.dart';
+import 'package:splitify/features/expenses/presentation/expense_detail_screen.dart';
 import 'package:splitify/features/notifications/application/notifications_providers.dart';
 import 'package:splitify/features/notifications/presentation/push_pre_prompt.dart';
 import 'package:splitify/l10n/app_localizations.dart';
@@ -222,7 +223,7 @@ void main() {
       () => find.text('Bell dinner', skipOffstage: false).evaluate().isNotEmpty,
       reason: 'expense detail',
     );
-    expect(router.routerDelegate.currentConfiguration.uri.path, '/expense/$eid');
+    expect(find.byType(ExpenseDetailScreen), findsOneWidget);
     final local = await (db.select(db.notifications)..where((n) => n.id.equals(nid))).getSingle();
     expect(local.readAt, isNotNull);
     String? readAt;
