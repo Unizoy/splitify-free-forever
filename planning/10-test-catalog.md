@@ -127,10 +127,10 @@ Total: 121 test ids (TC-18-03 golden added in phase 09; TC-19-06..09 in phase 13
 | 16 | TC-12-05 | unit | next-date calculator parity with SQL. | todo |
 | 16 | TC-34-01 | unit | query parser (amount detection) | todo |
 | 16 | TC-34-02 | integ | search finds by each field. | todo |
-| 17 | TC-22-01 | unit | CSV writer escaping, BOM, totals | todo |
-| 17 | TC-33-01 | unit | aggregation | todo |
-| 17 | TC-33-02 | golden | charts. | todo |
-| 18 | TC-22-02 | unit | round trip with X1 importer. | todo |
+| 17 | TC-22-01 | unit | CSV writer escaping, BOM, totals | pass (domain + Drift mapping, share-sheet flow) |
+| 17 | TC-33-01 | unit | aggregation | pass (domain + ledger mapping, Group/Me, saved conversions) |
+| 17 | TC-33-02 | golden | charts. | pass (8 screens × light/dark × 1.0/2.0 + widget tests) |
+| 18 | TC-22-02 | unit | round trip with X1 importer. | todo (needs the phase 18 importer, S-184) |
 | 18 | TC-X1-01 | unit | parser fixtures (quotes, BOM, multi-currency, payments, totals row, JPY) | todo |
 | 18 | TC-X1-03 | widget | mapping/preview | todo |
 | 18 | TC-X1-04 | integ | import 200 rows | todo |

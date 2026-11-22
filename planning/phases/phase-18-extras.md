@@ -24,3 +24,11 @@
 TC-X1-01…04, TC-X2-01…02, TC-X3-01…02, TC-22-02 (export → import round trip).
 
 Pre-built (phase 06 session, branch prep/splitwise-import): parser + reconstruction (T1, T2 core); UI/mapping still T3
+
+Amendment (S-184, phase 17): TC-22-02 round trip belongs here. Phase 17's export (`lib/features/export/`) writes
+UTF-8 with BOM, `
+`, columns `Date, Description, Category, Currency, Amount, Paid by, Split type, <one column per
+member: net of the row>, Notes, Added by, Deleted`, payments as rows with Category `Payment`, one "Total balance"
+footer row per currency, amounts as plain decimals. Category holds the English sub-category label ("Dining out"),
+Split type `loan` for IOUs. The X1 importer should accept this layout (skip footer and `Deleted = yes` rows) as well
+as Splitwise's.

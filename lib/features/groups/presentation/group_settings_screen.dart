@@ -20,6 +20,7 @@ import 'package:splitify/domain/rules/default_split.dart';
 import 'package:splitify/features/expenses/presentation/expense_copy.dart';
 import 'package:splitify/features/expenses/presentation/expense_routes.dart';
 import 'package:splitify/features/history/presentation/history_routes.dart';
+import 'package:splitify/features/export/presentation/export_action.dart';
 import 'package:splitify/features/import_splitwise/presentation/import_routes.dart';
 
 /// Group settings (`/groups/:id/settings`, 614): edit, invite, members (add name-only with a colour, rename,
@@ -115,6 +116,13 @@ class GroupSettingsScreen extends ConsumerWidget {
               icon: AppIcons.restore,
               label: l.delTitle,
               onTap: () => context.push(HistoryRoutes.deleted(groupId)),
+            ),
+            // #22: every expense and payment as a CSV file, through the share sheet (phase 17).
+            DashedListRow(
+              key: const Key('settings-export'),
+              icon: AppIcons.share,
+              label: l.totExportCsv,
+              onTap: () => unawaited(exportGroupCsv(context, ref, groupId)),
             ),
             // X1: import a Splitwise (or Splitify) CSV into this group (phase 18).
             if (!archived)
