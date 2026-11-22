@@ -24,6 +24,7 @@ import 'package:splitify/features/friends/application/friends_providers.dart';
 import 'package:splitify/features/groups/application/groups_providers.dart';
 
 import 'notification_fakes.dart';
+import 'quiet_sync.dart';
 
 /// Clock that only moves when the test says so.
 class FakeClock implements Clock {
@@ -257,6 +258,7 @@ List<Override> emptyGroupsOverrides() => [
   syncNowProvider.overrideWithValue(() async {}),
   ...emptyBalanceOverrides(),
   ...quietNotificationOverrides(),
+  ...quietSyncOverrides(),
 ];
 
 /// No balances or activity anywhere (phase 09 reads), without a database.

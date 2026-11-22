@@ -109,6 +109,7 @@ class _UploadRow extends StatelessWidget {
             icon: AppIcons.sync,
             variant: PillVariant.outline,
             size: PillSize.medium,
+            expand: large,
             loading: busy,
             onPressed: busy ? null : onRetry,
           )
