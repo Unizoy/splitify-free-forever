@@ -119,7 +119,14 @@ Total: 121 test ids (TC-18-03 golden added in phase 09; TC-19-06..09 in phase 13
 | 14 | TC-32-08 | unit | edits keep the saved rate and re-convert; new currency drops the conversion | pass (`expense_editor_fx_test.dart`, `settle_controller_test.dart`, `conversion_test.dart`) |
 | 14 | TC-17-04 | unit | simplify after converting to the main currency (converted nets) | pass (`converted_balances_test.dart`, `converted_balances_view_test.dart`) |
 | 14 | TC-32-09 | integ | USD expense offline → convert at cached rate → server fx columns + INR view | pass (`integration_test/currencies_test.dart` on emulator-5554 + dev, 57 s: picker, cached-rate conversion with the rates server off, server fx_rate = independent cross rate, Convert all, INR nets = oracle) |
-| 15 | TC-27-13 | integ | conflict both versions in history. | todo (core already proven by phase 06 T7, `integration_test/sync_offline_test.dart`: A's older offline edit superseded, both in `record_versions`) |
+| 15 | TC-27-11 | e2e | real airplane mode: 5 expenses (1 with receipt photo), edit, delete, payment, comment → app killed → relaunch offline (data + markers kept) → network on → automatic sync, B sees exact server state, markers cleared | TBD (`integration_test/offline_airplane_test.dart` A1–A3 via `tool/e2e/airplane.ps1`) |
+| 15 | TC-27-12 | e2e | force-stop during a 300-change push → relaunch → no duplicates, order kept | TBD (K1–K2) |
+| 15 | TC-27-13 | integ | conflict: snackbar + history shows both versions | TBD (C1; core also in phase 06 `sync_offline_test.dart`) |
+| 15 | TC-27-16 | widget | SyncBinding triggers: start, network regained, resume, Realtime nudge, group topics, pause → WorkManager one-off, superseded snackbar | pass (`test/features/sync/presentation/sync_binding_test.dart`) |
+| 15 | TC-27-17 | unit | worker ↔ app sync port; second 401 → session-expired handler; offline refresh = NetworkException; owner check wipes another account's data | pass (`background_sync_test.dart`, `session_expired_provider_test.dart`, `supabase_remote_api_test.dart`, `sync_repository_test.dart`) |
+| 15 | TC-27-18 | widget+golden | Sync & storage: Edit (route per entity), photos waiting/retrying/skipped + Retry; goldens light/dark × 1.0/2.0 | pass (`sync_uploads_edit_test.dart`, `sync_texts_test.dart`, `screens_golden_test.dart`) |
+| 15 | TC-27-19 | widget | Groups card marked for any pending row of the group; delete account offline says "Needs internet"; long expense list pages by 100 | pass (`groups_home_unsynced_marker_test.dart`, `delete_account_offline_test.dart`, `auth_screens_test.dart`, `expense_list_detail_test.dart`) |
+| 15 | TC-27-20 | perf | 2,000 expenses: list scroll frame times (profile), balance recompute, cold start | TBD (`integration_test/perf_test.dart`, `tool/e2e/perf.ps1`) |
 | 16 | TC-12-01 | sql | generation idempotent (double run = one copy) | todo |
 | 16 | TC-12-02 | sql | 31st clamp for Feb/Apr | todo |
 | 16 | TC-12-03 | sql | stop/ends_on | todo |
