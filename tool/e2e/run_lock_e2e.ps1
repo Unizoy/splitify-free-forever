@@ -24,7 +24,7 @@ try {
       if ($done.ContainsKey($key)) { continue }
       $done[$key] = $true
       if ($key -like 'PROMPT*') {
-        Start-Sleep 3
+        Start-Sleep 6   # the slow (loaded) emulator shows the system prompt later (phase 19)
         $n = $key.Split(' ')[1]
         $secure = (& $adb shell dumpsys window windows) -join "`n"
         $flag = [regex]::Match($secure, "(?s)$pkg/$pkg\.MainActivity.{0,4000}?fl=[^\n]*").Value -match 'SECURE'

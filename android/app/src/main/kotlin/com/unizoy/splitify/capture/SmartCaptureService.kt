@@ -47,9 +47,12 @@ class SmartCaptureService : AccessibilityService() {
 
     private fun readNow() {
         val pkg = pendingPkg ?: return
+        val center = CaptureCenter.get(this)
+        // Feature or smart capture off (e.g. after sign-out): read no screen at all (phase 19, S-208).
+        val config = center.store.config()
+        if (!config.enabled || !config.smart) return
         val root = rootInActiveWindow ?: return
         if (root.packageName?.toString() != pkg) return
-        val center = CaptureCenter.get(this)
         val texts = mutableListOf<String>()
         val pin = collect(root, texts, center.recipes.pin, 0)
         center.onScreen(pkg, if (pin) PIN_MARKER else texts.joinToString("\n"))

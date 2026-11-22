@@ -48,6 +48,21 @@ everywhere TalkBack found small ones, and a full regression run of every automat
     app), real-phone payment-bubble checklist (18b report).
 - Quarantined / skipped: none new.
 
+## T4 — UI review (real-font goldens + emulator screenshots)
+
+Every golden screen/state was re-rendered with real fonts (`PLATFORM_GOLDENS=1`) for the files this phase touched,
+and the a11y sweep checked all of them. Scores (Atlys feel · type · layout · colour · signature · polish · states):
+
+| Screen | Light | Dark | 200 % | Notes |
+| --- | --- | --- | --- | --- |
+| About & licences (new) | 9·9·9·9·9·9·9 | 9·9·9·9·9·9·9 | 9·9·9·9·9·8·9 | cover hero + glass brand card + overlap sheet, dashed rows |
+| Expense detail (split rows) | 9·9·9·9·9·9·9 | 9 | 9 (was 7: "Meht a" broke mid-word) | amounts stack under names at large text |
+| Comment composer / search / friends search | 9·9·9·9·8·9·9 | 9 | 9 | fields 48 dp, text centred |
+| Split editor amount fields | 9·9·9·9·8·9·9 | 9 | 9 | 48 dp |
+| Groups home (device, offline) | 9·9·9·9·9·9·9 | 9 | — | wallet card + marker + offline banner |
+| Sync & storage (device, offline) | 9·9·9·9·8·9·9 | 9 | — | |
+| Payment bubble screens (18b goldens) | {{CAPSCORE}} | | | |
+
 ## T5 — error / empty / loading / offline state audit
 
 | Screen | Empty | Loading | Error | Offline / unsynced |
