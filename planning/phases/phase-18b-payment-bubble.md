@@ -92,7 +92,7 @@ key is the UPI ref when present, else amount + normalised payee within 10 minute
       BHIM, Amazon Pay, CRED and the top 6 banks' debit SMS; how Wispr Flow, Truecaller, Walnut/Axio/Fold-style
       trackers do bubbles and capture. Write `planning/research/09-payment-capture.md` and adjust this spec where
       the facts differ (log S-rows).
-- [ ] T1 Kotlin capture core: recipe loader, parser to paise, de-dup, the allow-list. JUnit tests for the shared
+- [x] T1 Kotlin capture core: recipe loader, parser to paise, de-dup, the allow-list. JUnit tests for the shared
       vectors (≥ 40 cases including the ignore cases). Plus a Dart test of the same vectors through a small Dart
       validator used by the deep-link handler.
 - [ ] T2 `PaymentNotificationListener` (source ①) and `SmartCaptureService` (source ②, package-limited, no
