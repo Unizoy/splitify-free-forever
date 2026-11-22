@@ -1381,17 +1381,32 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String actRecurringCreated(String actor, String description) {
+  String actRecurringCreated(String actor) {
+    return '$actor set up a recurring bill';
+  }
+
+  @override
+  String actRecurringCreatedNamed(String actor, String description) {
     return '$actor set “$description” to repeat';
   }
 
   @override
-  String actRecurringUpdated(String actor, String description) {
+  String actRecurringUpdated(String actor) {
+    return '$actor changed a recurring bill';
+  }
+
+  @override
+  String actRecurringUpdatedNamed(String actor, String description) {
     return '$actor changed how “$description” repeats';
   }
 
   @override
-  String actRecurringStopped(String actor, String description) {
+  String actRecurringStopped(String actor) {
+    return '$actor stopped a recurring bill';
+  }
+
+  @override
+  String actRecurringStoppedNamed(String actor, String description) {
     return '$actor stopped repeating “$description”';
   }
 

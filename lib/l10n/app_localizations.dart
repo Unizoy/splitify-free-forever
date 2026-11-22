@@ -2375,20 +2375,38 @@ abstract class AppLocalizations {
   /// No description provided for @actRecurringCreated.
   ///
   /// In en, this message translates to:
+  /// **'{actor} set up a recurring bill'**
+  String actRecurringCreated(String actor);
+
+  /// No description provided for @actRecurringCreatedNamed.
+  ///
+  /// In en, this message translates to:
   /// **'{actor} set “{description}” to repeat'**
-  String actRecurringCreated(String actor, String description);
+  String actRecurringCreatedNamed(String actor, String description);
 
   /// No description provided for @actRecurringUpdated.
   ///
   /// In en, this message translates to:
+  /// **'{actor} changed a recurring bill'**
+  String actRecurringUpdated(String actor);
+
+  /// No description provided for @actRecurringUpdatedNamed.
+  ///
+  /// In en, this message translates to:
   /// **'{actor} changed how “{description}” repeats'**
-  String actRecurringUpdated(String actor, String description);
+  String actRecurringUpdatedNamed(String actor, String description);
 
   /// No description provided for @actRecurringStopped.
   ///
   /// In en, this message translates to:
+  /// **'{actor} stopped a recurring bill'**
+  String actRecurringStopped(String actor);
+
+  /// No description provided for @actRecurringStoppedNamed.
+  ///
+  /// In en, this message translates to:
   /// **'{actor} stopped repeating “{description}”'**
-  String actRecurringStopped(String actor, String description);
+  String actRecurringStoppedNamed(String actor, String description);
 
   /// No description provided for @actImportCompleted.
   ///

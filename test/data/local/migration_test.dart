@@ -24,7 +24,9 @@ void main() {
     final schema = await verifier.schemaAt(5);
     schema.rawDatabase
       ..execute("INSERT INTO \"groups\" (id, name) VALUES ('g1', 'Flat')")
-      ..execute("INSERT INTO group_members (id, group_id, display_name) VALUES ('m1', 'g1', 'Asha')")
+      ..execute(
+        "INSERT INTO group_members (id, group_id, display_name) VALUES ('m1', 'g1', 'Asha')",
+      )
       ..execute(
         'INSERT INTO expenses (id, group_id, description, date, currency, total, payers, shares) '
         "VALUES ('e1', 'g1', 'Dinner', '2026-11-01', 'INR', 120000, '{\"m1\":120000}', '{\"m1\":120000}')",
@@ -71,4 +73,3 @@ void main() {
     expect(await db.select(db.fxRates).get(), isEmpty);
   });
 }
-

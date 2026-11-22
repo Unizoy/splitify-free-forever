@@ -19,7 +19,6 @@ import 'package:splitify/features/groups/presentation/group_visuals.dart' show g
 import 'package:splitify/features/comments/application/comments_providers.dart';
 import 'package:splitify/features/comments/presentation/comment_thread.dart';
 import 'package:splitify/features/history/presentation/history_routes.dart';
-import 'package:splitify/data/data_providers.dart' show recurringRepositoryProvider;
 import 'package:splitify/features/recurring/application/recurring_providers.dart';
 import 'package:splitify/features/recurring/presentation/recurring_tile.dart';
 import 'package:splitify/l10n/app_localizations.dart';
@@ -97,10 +96,9 @@ class _Hero extends ConsumerWidget {
     final actions = ref.read(expenseActionsProvider);
     final e = view.expense;
     // Deleting the expense a repeat was started from also stops the repeat (copies made stay, #12).
-    final template = await ref
-        .read(recurringRepositoryProvider)
-        .watchForExpense(e.id, recurringId: e.recurringId)
-        .first;
+    final template = ref
+        .read(expenseRecurringProvider((expenseId: e.id, recurringId: e.recurringId)))
+        .value;
     final stops = template != null && template.active && template.expenseId == e.id;
     await actions.delete(e);
     if (stops) await ref.read(recurringActionsProvider).stop(template);

@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+import 'package:splitify/data/repositories/activity_repository.dart' show ActivitySources;
 import 'package:splitify/features/activity/application/activity_providers.dart';
 import 'package:splitify/features/activity/presentation/activity_feed.dart';
 import 'package:splitify/features/activity/presentation/activity_screen.dart';
@@ -14,6 +15,7 @@ import 'package:splitify/features/notifications/application/notifications_provid
 import 'package:splitify/l10n/app_localizations_en.dart';
 import 'package:splitify/ui/components/components.dart';
 
+import '../../../support/ledger_seed.dart' show seedActivity, seedGroup, seedMember;
 import '../../balances/balance_fixtures.dart';
 import '../../expenses/presentation/presentation_harness.dart';
 
@@ -165,6 +167,114 @@ void main() {
       expect(s('member_added', member: nobody), 'You added Someone');
       expect(s('member_left', member: activityMe), 'You left the group');
       expect(s('expense_added'), 'You added “”');
+    });
+  });
+
+  group('recurring activity (phase 16, #12)', () {
+    final l = AppLocalizationsEn();
+    String s(String type, {ActivityPerson actor = activityMe, String? description}) =>
+        activitySentence(l, activityOf(type, actor: actor, description: description));
+
+    // TC-18-02
+    test('sentences for repeating bills use the description when there is one', () {
+      expect(s('expense_added_recurring', description: 'Rent'), '“Rent” was added (repeats)');
+      expect(s('recurring_created', description: 'Rent'), 'You set “Rent” to repeat');
+      expect(s('recurring_updated', description: 'Rent'), 'You changed how “Rent” repeats');
+      expect(s('recurring_stopped', description: 'Rent'), 'You stopped repeating “Rent”');
+      expect(
+        s('recurring_stopped', actor: activityAsha, description: 'Rent'),
+        'Asha Rao stopped repeating “Rent”',
+      );
+      // Without a description the generic sentences stay.
+      expect(s('recurring_created'), 'You set up a recurring bill');
+      expect(s('recurring_updated'), 'You changed a recurring bill');
+      expect(s('recurring_stopped'), 'You stopped a recurring bill');
+    });
+
+    // TC-18-02
+    test('a repeat stopped by nobody (the generator, end date reached) has no actor', () {
+      const nobody = (name: '', seed: 'x', isMe: false);
+      expect(
+        s('recurring_stopped', actor: nobody, description: 'Rent'),
+        '“Rent” stopped repeating',
+      );
+    });
+
+    // TC-18-02
+    test('buildActivityItems turns an expense_added with data.recurring into a repeat copy', () {
+      final members = {'m1': seedMember('m1', userId: 'u1', name: 'Mohit')};
+      final sources = ActivitySources(
+        activity: [
+          seedActivity(
+            'a1',
+            'expense_added',
+            targetType: 'expense',
+            targetId: 'e9',
+            data: {'description': 'Rent', 'total': 1500000, 'currency': 'INR', 'recurring': true},
+          ),
+          seedActivity(
+            'a2',
+            'expense_added',
+            actorMemberId: 'm1',
+            actorUserId: 'u1',
+            targetType: 'expense',
+            targetId: 'e8',
+            data: {'description': 'Rent', 'total': 1500000, 'currency': 'INR', 'recurring': false},
+            createdAt: '2026-11-20T10:00:00Z',
+          ),
+        ],
+        pending: const [],
+        groups: {'g1': seedGroup()},
+        members: members,
+        expenses: const {},
+        payments: const {},
+      );
+      final items = buildActivityItems(sources, 'u1');
+      final copy = items.firstWhere((i) => i.id == 'a1');
+      expect(copy.type, 'expense_added_recurring');
+      expect((copy.targetType, copy.targetId), ('expense', 'e9'));
+      expect((copy.description, copy.amount, copy.currency), ('Rent', 1500000, 'INR'));
+      expect(copy.filter, ActivityFilter.expenses);
+      expect(activitySentence(AppLocalizationsEn(), copy), '“Rent” was added (repeats)');
+      // The same type without the flag stays a normal add.
+      expect(items.firstWhere((i) => i.id == 'a2').type, 'expense_added');
+    });
+
+    // TC-18-02
+    test('a recurring_created row whose data has expense_id opens that expense', () {
+      final sources = ActivitySources(
+        activity: [
+          seedActivity(
+            'r1',
+            'recurring_created',
+            targetType: 'recurring',
+            targetId: 't1',
+            data: {'description': 'Rent', 'expense_id': 'e9'},
+          ),
+          seedActivity(
+            'r2',
+            'recurring_created',
+            targetType: 'recurring',
+            targetId: 't2',
+            data: {'description': 'Gym'},
+            createdAt: '2026-11-20T10:00:00Z',
+          ),
+        ],
+        pending: const [],
+        groups: {'g1': seedGroup()},
+        members: const {},
+        expenses: const {},
+        payments: const {},
+      );
+      final items = buildActivityItems(sources, 'u1');
+      final r1 = items.firstWhere((i) => i.id == 'r1');
+      expect(r1.type, 'recurring_created');
+      expect((r1.targetType, r1.targetId), ('expense', 'e9'));
+      expect(r1.description, 'Rent');
+      expect(r1.filter, ActivityFilter.expenses);
+      // No expense_id: the tap falls back to the group.
+      final r2 = items.firstWhere((i) => i.id == 'r2');
+      expect((r2.targetType, r2.targetId), ('group', 'g1'));
     });
   });
 
