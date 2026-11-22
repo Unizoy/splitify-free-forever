@@ -6,20 +6,20 @@
 
 ## Tasks
 
-- [ ] T1 Security: advisors clean; pgTAP "attack" file (non-member reads/writes via every RPC, forged member ids,
+- [x] T1 Security: advisors clean; pgTAP "attack" file (non-member reads/writes via every RPC, forged member ids,
       claiming linked members, invite brute force, storage path traversal, oversized payloads); Edge Functions
       reject bad input; no secrets in repo (`git log -p | guard patterns` scan); migration 0013 for fixes + housekeeping cron.
-- [ ] T2 Privacy: data inventory in `docs/PRIVACY.md` (what we store, why, retention, deletion); verify account
+- [x] T2 Privacy: data inventory in `docs/PRIVACY.md` (what we store, why, retention, deletion); verify account
       deletion removes profile/photo/UPI/tokens and keeps others' balances (TC-B1-05/06 re-run).
-- [ ] T3 Accessibility: TalkBack pass via semantics tests on every screen, 200 % text on every screen, contrast
+- [x] T3 Accessibility: TalkBack pass via semantics tests on every screen, 200 % text on every screen, contrast
       helper over all token pairs, focus order, reduced motion.
 - [ ] T4 Visual polish: `ui-review` on every screen (light/dark/200 %), compare with Atlys refs, fix spacing/typo
       inconsistencies; refresh goldens deliberately.
-- [ ] T5 Error/empty/loading/offline state audit for every screen (checklist in report).
-- [ ] T6 Release build: `android/app/build.gradle.kts` signing config reading `../secrets/key.properties` if present
+- [x] T5 Error/empty/loading/offline state audit for every screen (checklist in report).
+- [x] T6 Release build: `android/app/build.gradle.kts` signing config reading `../secrets/key.properties` if present
       (falls back to debug signing for CI), R8/minify + keep rules for Supabase/Firebase/json, version from pubspec,
       `flutter build apk --release --split-per-abi` and a universal APK; check size (< 40 MB universal).
-- [ ] T7 Docs: README (features, screenshots from artefacts copied as small WebP into `docs/screenshots/` — only our
+- [x] T7 Docs: README (features, screenshots from artefacts copied as small WebP into `docs/screenshots/` — only our
       app), self-hosting guide (`supabase/README.md`), CHANGELOG, About & licences screen (fonts, packages).
 - [ ] T8 Full regression: every TC in `10-test-catalog.md` re-run; report counts.
 

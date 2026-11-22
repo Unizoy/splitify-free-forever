@@ -95,6 +95,10 @@ void main() {
     // Restart: tear the app down, drop the Supabase client, start again from the saved session.
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pump();
+    // Let the old app's database close and its in-flight reads finish before the new app opens the same file
+    // (phase 19: startup reads of the second app hit the closing connection).
+    await tester.runAsync(() => Future<void>.delayed(const Duration(seconds: 3)));
+    await tester.pump();
     await Supabase.instance.dispose();
     await tester.pumpWidget(await app());
     await pumpUntil(tester, () => path(tester) == Routes.groups, reason: 'still signed in');
