@@ -65,9 +65,9 @@ started with `KEYCODE_WAKEUP`, they were normal again (`d1`–`d5`). Likely the 
 | Gate | Result | Evidence |
 | --- | --- | --- |
 | G1 Static | PASS | `dart format --set-exit-if-changed` 0 changed; `flutter analyze --no-fatal-infos` 0 errors/warnings; `dart run tool/guards.dart` OK |
-| G2 Tests | see below | full suite + `tool/coverage_check.dart` |
+| G2 Tests | PASS | full suite (`--exclude-tags device,needs-owner,quarantine --concurrency=2`): 2901 passed, 1 failed under load (`recurring_detail_test.dart` "Edit future copies opens the template editor route", phase 16, untouched here) → re-run alone 14/14; `tool/coverage_check.dart` all floors PASS (overall 95.7 %) |
 | G3 Backend | SKIPPED (n/a) | no migration (0024 not needed), no Edge Function change; send-push checked live |
-| G4 Build | see below | `flutter build apk --debug --dart-define-from-file=secrets/env.dev.json` |
+| G4 Build | PASS | `flutter build apk --debug --dart-define-from-file=secrets/env.dev.json` built (18:43); pinned release x64 APKs built twice for the device checks |
 | G5 Device | PASS | emulator-5554, lock held 17:49–18:00 and 18:13–18:17; results table above |
 | G6 Docs | PASS | D-026, S-230…S-235, TC rows, BLK-002, LEARNINGS (+5), emulator-e2e skill §8b, this report |
 
