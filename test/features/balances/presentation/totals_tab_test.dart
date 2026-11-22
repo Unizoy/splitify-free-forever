@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:splitify/features/balances/application/totals_providers.dart';
 import 'package:splitify/features/balances/presentation/balances_tab.dart' show BalancesSkeleton;
 import 'package:splitify/features/balances/presentation/totals_tab.dart';
@@ -149,11 +150,32 @@ void main() {
       expect(_row(t, 'm1').title, 'Mohit Bindal');
     });
 
-    // TC-21-02
-    testWidgets('See charts says coming soon', (t) async {
-      await _pump(t, AsyncData(sampleTotals()));
+    // TC-21-02, TC-33-02
+    testWidgets('See charts opens Insights on this group', (t) async {
+      usePhone(t);
+      final router = GoRouter(
+        routes: [
+          GoRoute(path: '/', builder: (context, state) => const _Host()),
+          stubRoute('/insights'),
+        ],
+      );
+      addTearDown(router.dispose);
+      await t.pumpWidget(const SizedBox());
+      await t.pumpWidget(
+        routerApp(
+          router,
+          overrides: [groupTotalsProvider(gid).overrideWithValue(AsyncData(sampleTotals()))],
+        ),
+      );
+      await settle(t);
+      expect(find.text('See charts'), findsOneWidget);
+      expect(find.text('Export CSV'), findsOneWidget);
       await tapKey(t, 'totals-charts');
-      expect(find.text('Coming soon'), findsOneWidget);
+      expect(find.text('Coming soon'), findsNothing);
+      expect(
+        (find.byKey(const Key('stub')).evaluate().single.widget as Text).data,
+        'at /insights?mode=group&group=$gid',
+      );
     });
   });
 }

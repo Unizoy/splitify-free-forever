@@ -1,18 +1,23 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:splitify/features/balances/application/balance_views.dart' show orderCurrencies;
 import 'package:splitify/features/balances/application/totals_providers.dart';
 import 'package:splitify/features/balances/domain/group_totals.dart';
 import 'package:splitify/features/balances/presentation/balance_copy.dart';
 import 'package:splitify/features/balances/presentation/balances_tab.dart' show BalancesSkeleton;
+import 'package:splitify/features/export/presentation/export_action.dart';
 import 'package:splitify/features/groups/presentation/group_visuals.dart' show SectionLabel;
+import 'package:splitify/features/insights/presentation/insights_routes.dart';
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/components/components.dart';
 import 'package:splitify/ui/theme/theme.dart';
 
 /// The group's Totals tab (#21): This month · All time; per currency the total spent (IOUs and
-/// payments excluded), my share and what I paid, then each person's paid and share; a link to the
-/// charts (phase 17).
+/// payments excluded), my share and what I paid, then each person's paid and share; links to the
+/// charts and the CSV export (phase 17).
 class TotalsTab extends ConsumerStatefulWidget {
   const TotalsTab({required this.groupId, super.key});
 
@@ -83,8 +88,15 @@ class _TotalsTabState extends ConsumerState<TotalsTab> {
           key: const Key('totals-charts'),
           icon: AppIcons.chart,
           label: l.totCharts,
+          onTap: () => context.push(InsightsRoutes.group(widget.groupId)),
+        ),
+        // #22: the whole group as a spreadsheet, through the share sheet.
+        DashedListRow(
+          key: const Key('totals-export'),
+          icon: AppIcons.share,
+          label: l.totExportCsv,
           showDivider: false,
-          onTap: () => showComingSoon(context),
+          onTap: () => unawaited(exportGroupCsv(context, ref, widget.groupId)),
         ),
       ],
     );
