@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:splitify/core/money/currencies.dart';
 import 'package:splitify/core/money/currency.dart';
-import 'package:splitify/data/data_providers.dart';
 import 'package:splitify/features/currency/application/currency_providers.dart';
 import 'package:splitify/features/groups/presentation/group_visuals.dart' show SectionLabel;
 import 'package:splitify/l10n/app_localizations.dart';
@@ -24,20 +23,26 @@ Future<String?> showCurrencyPicker(
   );
 }
 
-/// [showCurrencyPicker] for a record of [groupId] (its main currency on top).
+/// [showCurrencyPicker] for a record of [groupId] (its main currency on top; [selected] when the group
+/// can't be read).
 Future<String?> pickGroupCurrency(
   BuildContext context,
   WidgetRef ref, {
   required String groupId,
   required String selected,
 }) async {
-  final group = await ref.read(groupsRepositoryProvider).watchOne(groupId).first;
+  final provider = groupMainCurrencyProvider(groupId);
+  final keep = ref.listenManual(provider, (_, _) {});
+  String? main;
+  try {
+    main = await ref.read(provider.future).timeout(const Duration(seconds: 2));
+  } on Object {
+    main = null;
+  } finally {
+    keep.close();
+  }
   if (!context.mounted) return null;
-  return showCurrencyPicker(
-    context,
-    selected: selected,
-    groupCurrency: group?.mainCurrency.trim() ?? selected,
-  );
+  return showCurrencyPicker(context, selected: selected, groupCurrency: main ?? selected);
 }
 
 /// Currencies whose code starts with, or whose name contains, [query] (case-insensitive), in code order.
