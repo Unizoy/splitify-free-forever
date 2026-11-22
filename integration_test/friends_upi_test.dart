@@ -160,6 +160,43 @@ void main() {
       'created_at': DateTime.now().toUtc().toIso8601String(),
     };
 
+    // Earlier (failed) runs may have left test groups behind: soft-delete A's E2E friend groups and direct
+    // groups first, so the totals below only count this run.
+    final leftovers = (await t.runAsync(
+      () => client
+          .from('groups')
+          .select('id, name, type')
+          .eq('created_by', uidA)
+          .isFilter('deleted_at', null),
+    ))!;
+    final stale = [
+      for (final g in leftovers)
+        if (g['type'] == 'direct' || (g['name']! as String).startsWith('E2E Friends'))
+          g['id']! as String,
+    ];
+    if (stale.isNotEmpty) {
+      await t.runAsync(
+        () => client.rpc<Object?>(
+          'apply_mutations',
+          params: {
+            'batch': [
+              for (final id in stale)
+                {
+                  'mutation_id': newId(),
+                  'entity': 'group',
+                  'op': 'delete',
+                  'id': id,
+                  'group_id': id,
+                  'client_updated_at': DateTime.now().toUtc().toIso8601String(),
+                  'source': 'app',
+                  'data': <String, Object?>{},
+                },
+            ],
+          },
+        ),
+      );
+    }
+
     // 1. A's group; B joins; B paid the train for both (A owes B ₹300).
     final groupName = 'E2E Friends ${DateTime.now().millisecondsSinceEpoch}';
     final gid = await container
@@ -209,12 +246,19 @@ void main() {
     await _tap(t, bRow);
     await _waitFor(t, find.byKey(const Key('friend-status-owe')));
     await _tap(t, find.byKey(const Key('friend-add-expense')));
-    await pumpUntil(
-      t,
-      () => router.routeInformationProvider.value.uri.path == '/expense/new',
-      reason: 'the add-expense stepper opens',
-    );
-    final directId = router.routeInformationProvider.value.uri.queryParameters['group']!;
+    // The stepper opens in our new direct group (made by the server, then pulled).
+    final opened = DateTime.now().add(const Duration(seconds: 45));
+    String? directOrNull;
+    while (DateTime.now().isBefore(opened)) {
+      await t.pump(const Duration(milliseconds: 200));
+      directOrNull = await container.read(friendsRepositoryProvider).findDirectGroup(uidA, b.id);
+      if (directOrNull != null && find.text('Paid by').evaluate().isNotEmpty) break;
+    }
+    if (directOrNull == null || find.text('Paid by').evaluate().isEmpty) {
+      final texts = [for (final w in t.widgetList<Text>(find.byType(Text))) ?w.data];
+      fail('the add-expense stepper did not open in a direct group; on screen: $texts');
+    }
+    final directId = directOrNull;
     final direct = await (db.select(db.groups)..where((g) => g.id.equals(directId))).getSingle();
     expect(direct.type, 'direct');
     final dm = await (db.select(db.groupMembers)..where((m) => m.groupId.equals(directId))).get();
@@ -236,28 +280,34 @@ void main() {
     await viaApi(directId, 'expense', expense('Snacks', 8000, db2, {da: 4000, db2: 4000}));
     await sync();
 
-    // TC-2-02: both expenses on A's friend page; total = ₹300 − ₹100 + ₹40 = A owes B ₹240.
+    // TC-2-02: both expenses on A's friend page. In the trip A owes B ₹300; in the direct group B owes A
+    // ₹100 − ₹40 = ₹60. Other groups A and B share (other test runs) add to the total, so compare parts.
     await _waitFor(t, find.byKey(ValueKey('friend-item-$coffee')));
     expect(find.text('Snacks'), findsOneWidget);
     expect(find.text('Train tickets'), findsOneWidget);
-    expect(find.textContaining('₹240'), findsWidgets);
+    expect(find.byKey(ValueKey('friend-group-$gid')), findsOneWidget);
+    expect(find.byKey(ValueKey('friend-group-$directId')), findsOneWidget);
     final friend = container.read(friendProvider(bKey)).value!;
-    expect(friend.balances, {'INR': -24000});
+    Map<String, int> amountsIn(String id) =>
+        friend.links.firstWhere((l) => l.group.id == id).amounts;
+    expect(amountsIn(gid), {'INR': -30000});
+    expect(amountsIn(directId), {'INR': 6000});
+    final total = friend.balances['INR'] ?? 0;
     expect(
       friend.links.fold<int>(0, (s, l) => s + (l.amounts['INR'] ?? 0)),
-      -24000,
+      total,
       reason: 'friend total = Σ group pairs',
     );
-    // …and on B's side (my_overview friends → A).
+    // …and the server agrees from both sides (my_overview friends).
     final bOverview = (await t.runAsync(() => b.rpc('my_overview')))!;
     final aForB = (bOverview['friends']! as List).cast<Map<String, Object?>>().firstWhere(
       (f) => f['user_id'] == uidA,
     );
-    expect((aForB['balances']! as Map)['INR'], 24000);
+    expect((aForB['balances']! as Map)['INR'] ?? 0, -total);
     final aOverview = (await t.runAsync(
       () => container.read(balancesRemoteProvider).myOverview(),
     ))!;
-    expect(aOverview.people.firstWhere((p) => p.userId == b.id).balances['INR'], -24000);
+    expect(aOverview.people.firstWhere((p) => p.userId == b.id).balances['INR'] ?? 0, total);
     await _capture(t, 'friend-page');
 
     // 3. Settle up with B in the trip: Pay ₹300 via UPI.
