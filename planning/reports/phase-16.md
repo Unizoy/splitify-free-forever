@@ -29,13 +29,20 @@ screen (Groups and Activity heroes) finds expenses offline by description, notes
 ## Tests
 
 - New tests: unit/data ~98 (parser 14, index 16, search repo 23, recurring repo 18, generator 3, controller 24) · widget 60 (repeat picker 8, editor 17, detail 14, search 17, activity 4) · golden 36 (9 scenes × light/dark × text 1.0/2.0) · integration 1 · SQL 101 (52 vectors + 49 behaviour) · migration 1
-- Coverage: COVERAGE
+- Coverage: overall 96.7 % · domain 98.5 % · data 93.7 % · sync 100 % · application 97.0 % · presentation 96.7 % (all floors pass)
 - Test IDs now passing: TC-12-01, TC-12-02, TC-12-03, TC-12-04, TC-12-05, TC-34-01, TC-34-02
 - Quarantined / skipped: none
 
 ## Gates
 
-GATES_TABLE
+| Gate | Result | Evidence |
+| --- | --- | --- |
+| G1 Static | PASS | `dart format --set-exit-if-changed` clean; `flutter analyze --no-fatal-infos` 0 errors / 0 warnings (infos only, as before); `dart run tool/guards.dart` OK |
+| G2 Tests | PASS | full `flutter test --coverage --concurrency=1` (2632 passed + 33 failed on the first run): the 33 failures were fixed (8 activity goldens gained the search button, 24 detail goldens needed `noRepeat`, 1 entity-icon count) and those files re-run green; `coverage_check` PASS |
+| G3 Backend | PASS | `0019_recurring` applied (after `list_migrations` showed 0017); dev pgTAP: `151_recurring` 49/49 and `001_schema` 32/32 (10 `bump_seq` triggers) and `041_pull_changes` 29/29 on the applied schema; `150_recurring_vectors` 52/52 in the pre-apply dry run (same SQL); security advisors: nothing new (pre-existing RPC WARNs only); no Edge Function touched |
+| G4 Build | PASS | `flutter build apk --debug --dart-define-from-file=secrets/env.dev.json` |
+| G5 Device | G5_RESULT | G5_EVIDENCE |
+| G6 Docs | PASS | phase ticks + amendments (16, 18, 19), decisions S-170…S-179 + S-215, test catalog, LEARNINGS, PROGRESS, this report |
 
 ## Decisions made (S-0xx)
 
