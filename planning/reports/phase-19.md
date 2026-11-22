@@ -1,7 +1,7 @@
 # Phase 19 report — Hardening and polish
 
 - Date: 2026-11-22 · Branch: `phase/19-hardening` · Base: `origin/main` (01–18 + integrations PR #21 merged in)
-- Commits: `59607ed..HEAD` · Status: {{STATUS}}
+- Commits: `59607ed..HEAD` · Status: done
 
 ## Summary
 
@@ -42,7 +42,8 @@ everywhere TalkBack found small ones, and a full regression run of every automat
     balances_week, history_comments, currencies, receipts_offline_upload, recurring_search, notifications,
     extras_import_widget, app_smoke — **12/12 pass** (3 needed harness fixes, S-209); airplane e2e A1–A3, K1–K2, C1
     **pass** (K1 is killed on purpose); background_sync W1 **pass** ×2; perf drive pass (numbers above);
-    {{S5}}
+    app lock TC-X2-02 **pass** (after a resume-wait fix), fake UPI TC-26-02 + TC-26-03 **pass**, payment bubble
+    e2e (18b `capture_e2e.ps1`: TC-X4-02…07, 23 checks + integration test) **pass** after the S-208 change.
   - Not re-run: `ui_review_*` and `scenarios/*` (screen-holding capture harnesses, no assertions; their screens are
     covered by goldens + real-font review); manual-only: TC-B1-09 (email from the owner domain), TC-26-05 (real UPI
     app), real-phone payment-bubble checklist (18b report).
@@ -61,7 +62,7 @@ and the a11y sweep checked all of them. Scores (Atlys feel · type · layout · 
 | Split editor amount fields | 9·9·9·9·8·9·9 | 9 | 9 | 48 dp |
 | Groups home (device, offline) | 9·9·9·9·9·9·9 | 9 | — | wallet card + marker + offline banner |
 | Sync & storage (device, offline) | 9·9·9·9·8·9·9 | 9 | — | |
-| Payment bubble screens (18b goldens) | {{CAPSCORE}} | | | |
+| Payment bubble screens (18b goldens) | 9·9·9·9·8·9·9 | 9 | 9 | settings / add screen / sheet / hero pill real-font goldens; device bubble light, dark and 200 % (`phase-18b\bubble-*`) |
 
 ## T5 — error / empty / loading / offline state audit
 

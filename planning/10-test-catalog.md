@@ -165,6 +165,6 @@ Total: 121 test ids (TC-18-03 golden added in phase 09; TC-19-06..09 in phase 13
 | 19 | TC-B3-05 | unit | reduced motion: every AnimationController checks `motion.reduced`, implicit animations use motion tokens (`test/a11y/reduced_motion_test.dart`) | pass |
 | 19 | TC-B3-06 | widget | focus order: TalkBack traversal goes top to bottom on welcome, sign in, appearance, about (`test/a11y/focus_order_test.dart`) | pass |
 | 19 | TC-B3-07 | widget+golden | About & licences: links open, failed link says the URL, licence page; goldens light/dark × 1.0/2.0 | pass (`about_screen_test.dart`, `screen_about_*`) |
-| 19 | TC-REL-01 | build | release APKs: signed with the key file (throwaway key verified with apksigner), R8, per-ABI + universal phone APK < 40 MB, debug-key fallback | see report |
-| 19 | TC-27-21 | perf | group page as slivers: open + scroll a 2,000-expense group (`tool/e2e/perf.ps1`) | see report |
-| 19 | TC-27-22 | e2e | real WorkManager run: change queued offline, app in the background, jobs forced → outbox sent, server has it (`tool/e2e/background_sync.ps1`) | see report |
+| 19 | TC-REL-01 | build | release APKs: signed with the key file (throwaway key verified with apksigner), R8, per-ABI + universal phone APK < 40 MB, debug-key fallback | pass (universal phone APK 31.9 MB; apksigner CN=Throwaway Test, fallback CN=Android Debug) |
+| 19 | TC-27-21 | perf | group page as slivers: open + scroll a 2,000-expense group (`tool/e2e/perf.ps1`) | measured (worst build frame on open 264.8 → 55.4 ms; raster/cold start not comparable on the loaded PC, re-measure) |
+| 19 | TC-27-22 | e2e | real WorkManager run: change queued offline, app in the background, jobs forced → outbox sent, server has it (`tool/e2e/background_sync.ps1`) | pass (BackgroundWorker "Worker result SUCCESS" ×2, server row) |

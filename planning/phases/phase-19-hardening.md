@@ -13,7 +13,7 @@
       deletion removes profile/photo/UPI/tokens and keeps others' balances (TC-B1-05/06 re-run).
 - [x] T3 Accessibility: TalkBack pass via semantics tests on every screen, 200 % text on every screen, contrast
       helper over all token pairs, focus order, reduced motion.
-- [ ] T4 Visual polish: `ui-review` on every screen (light/dark/200 %), compare with Atlys refs, fix spacing/typo
+- [x] T4 Visual polish: `ui-review` on every screen (light/dark/200 %), compare with Atlys refs, fix spacing/typo
       inconsistencies; refresh goldens deliberately.
 - [x] T5 Error/empty/loading/offline state audit for every screen (checklist in report).
 - [x] T6 Release build: `android/app/build.gradle.kts` signing config reading `../secrets/key.properties` if present
@@ -21,7 +21,7 @@
       `flutter build apk --release --split-per-abi` and a universal APK; check size (< 40 MB universal).
 - [x] T7 Docs: README (features, screenshots from artefacts copied as small WebP into `docs/screenshots/` — only our
       app), self-hosting guide (`supabase/README.md`), CHANGELOG, About & licences screen (fonts, packages).
-- [ ] T8 Full regression: every TC in `10-test-catalog.md` re-run; report counts.
+- [x] T8 Full regression: every TC in `10-test-catalog.md` re-run; report counts.
 
 ## Done when
 
