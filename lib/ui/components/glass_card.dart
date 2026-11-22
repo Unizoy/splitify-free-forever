@@ -3,6 +3,7 @@ import 'dart:ui' as ui show Image, ImageFilter, PictureRecorder;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:splitify/ui/theme/theme.dart';
 
 /// Frosted glass card over hero imagery (438): radius 32, dark translucent
@@ -88,6 +89,10 @@ class _Snapshot {
 /// slice of the background instead of blurring live (S-267). The snapshot is taken only when a card asks,
 /// and again when the background's size or the theme changes. Pass [snapshot] false when the background
 /// is still loading (a cover photo): the cards then blur live.
+///
+/// The snapshot waits until the screen has settled (S-279): [settle] without a size change and nothing
+/// animating. A snapshot asked for inside a frame is rasterised before that frame, so taking it on the
+/// first frame held the app's first pixels back (by seconds on a software-raster emulator).
 class GlassBackdropHost extends StatefulWidget {
   const GlassBackdropHost({
     required this.background,
@@ -99,6 +104,17 @@ class GlassBackdropHost extends StatefulWidget {
   final Widget background;
   final Widget child;
   final bool snapshot;
+
+  /// Quiet time before the snapshot is taken; while something animates it waits this long again.
+  static const settle = Duration(milliseconds: 400);
+
+  /// Settle checks before it snapshots even though something still animates (a looping loader).
+  static const maxWaits = 10;
+
+  /// Off for widget tests (test/flutter_test_config.dart): goldens keep the live blur instead of racing
+  /// the snapshot's engine round trips against the screenshot.
+  @visibleForTesting
+  static bool snapshotsEnabled = true;
 
   /// The nearest host, if any.
   static GlassBackdropHostState? maybeOf(BuildContext context) =>
@@ -112,7 +128,8 @@ class GlassBackdropHostState extends State<GlassBackdropHost> {
   final _key = GlobalKey();
   final _snapshot = ValueNotifier<_Snapshot?>(null);
   bool _wanted = false;
-  bool _scheduled = false;
+  Timer? _settle;
+  int _waits = 0;
   int _generation = 0;
 
   RenderBox? _backgroundBox() => _key.currentContext?.findRenderObject() as RenderBox?;
@@ -137,13 +154,32 @@ class GlassBackdropHostState extends State<GlassBackdropHost> {
     WidgetsBinding.instance.addPostFrameCallback((_) => old.image.dispose());
   }
 
+  /// (Re)starts the settle wait; every size change starts it again, so a loading screen snapshots once.
   void _schedule() {
-    if (!_wanted || !widget.snapshot || _scheduled) return;
-    _scheduled = true;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _scheduled = false;
-      if (mounted) unawaited(_capture());
-    });
+    _settle?.cancel();
+    _settle = null;
+    _waits = 0;
+    if (!_wanted || !widget.snapshot || !GlassBackdropHost.snapshotsEnabled) return;
+    _settle = Timer(GlassBackdropHost.settle, _settled);
+  }
+
+  void _settled() {
+    _settle = null;
+    if (!mounted || !_wanted || !widget.snapshot) return;
+    final scheduler = SchedulerBinding.instance;
+    // A route push, list entrance, count-up or shimmer is running: the cards keep the live blur meanwhile.
+    if (scheduler.transientCallbackCount > 0 && ++_waits < GlassBackdropHost.maxWaits) {
+      _settle = Timer(GlassBackdropHost.settle, _settled);
+      return;
+    }
+    if (scheduler.hasScheduledFrame) {
+      // Something is about to repaint: snapshot what that frame paints.
+      scheduler.addPostFrameCallback((_) {
+        if (mounted) unawaited(_capture());
+      });
+    } else {
+      unawaited(_capture());
+    }
   }
 
   Future<void> _capture() async {
@@ -196,6 +232,7 @@ class GlassBackdropHostState extends State<GlassBackdropHost> {
 
   @override
   void dispose() {
+    _settle?.cancel();
     _snapshot.value?.image.dispose();
     _snapshot.dispose();
     super.dispose();
