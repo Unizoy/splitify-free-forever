@@ -80,7 +80,7 @@ class _ConvertedBalancesViewState extends ConsumerState<ConvertedBalancesView> {
             [
               l.fxConvertedCount(r.converted),
               if (r.needRate > 0) l.fxNeedRateCount(r.needRate),
-            ].join(' · '),
+            ].join('\u00A0· '),
           ),
         ),
       );

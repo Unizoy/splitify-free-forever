@@ -152,7 +152,7 @@ class _PersonLine extends StatelessWidget {
                   Text(
                     l.expPaidAmount(money(paid)),
                     textAlign: TextAlign.end,
-                    style: context.text.bodySmall.w(600).copyWith(color: c.owedText),
+                    style: context.text.bodySmall.w(600).copyWith(color: c.textSecondary),
                   ),
               ],
             ),

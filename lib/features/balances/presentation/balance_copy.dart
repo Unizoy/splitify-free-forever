@@ -17,7 +17,7 @@ String amountsText(Map<String, int> nets) {
   return [
     for (final e in nets.entries)
       mixed ? signedMoney(e.value, e.key) : listMoney(e.value.abs(), e.key),
-  ].join(' · ');
+  ].join('\u00A0· ');
 }
 
 /// Green when owed, red when owing, neutral otherwise.

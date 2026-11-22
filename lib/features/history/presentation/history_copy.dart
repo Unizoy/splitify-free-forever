@@ -71,7 +71,7 @@ String historyWhen(BuildContext context, DateTime at) {
   final local = at.toLocal();
   final locale = Localizations.localeOf(context).toLanguageTag();
   return AppLocalizations.of(context)
-      .histWhen(shortDate(context, local), DateFormat.jm(locale).format(local));
+      .histWhen(shortDate(context, local), unbroken(DateFormat.jm(locale).format(local)));
 }
 
 /// The rows an entry shows, in field order. Split values are not shown on their own (the per-member split

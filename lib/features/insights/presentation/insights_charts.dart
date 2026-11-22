@@ -171,7 +171,7 @@ class CategoryDonut extends StatelessWidget {
                   ExcludeSemantics(child: donut),
                   IgnorePointer(
                     child: SizedBox.square(
-                      dimension: hole * 2 - AppSpacing.s4,
+                      dimension: hole * 1.38,
                       child: Center(child: centre),
                     ),
                   ),

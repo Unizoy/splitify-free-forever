@@ -136,9 +136,10 @@ class HistoryScreen extends ConsumerWidget {
 
   static String _subtitle(AppLocalizations l, HistoryView v, HistoryNames n) {
     final e = v.record.expense;
-    if (e != null) return '${e.description} · ${MoneyFormatter.detail.format(e.total, e.currency)}';
+    if (e != null)
+      return '${e.description}\u00A0· ${MoneyFormatter.detail.format(e.total, e.currency)}';
     final p = v.record.payment!;
-    return '${l.histPaymentTitle(n.member(p.fromMember), n.member(p.toMember))} · '
+    return '${l.histPaymentTitle(n.member(p.fromMember), n.member(p.toMember))}\u00A0· '
         '${MoneyFormatter.detail.format(p.amount, p.currency)}';
   }
 }

@@ -134,14 +134,19 @@ class _StepCell extends StatelessWidget {
         children: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 2),
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Text(
-                step.label,
-                maxLines: 1,
-                style: context.text.bodySmall
-                    .w(active ? 600 : 500)
-                    .copyWith(color: active ? c.primary : c.textPrimary),
+            // One clamped scale for every step (like the capsule nav, S-015, S-242): the labels keep
+            // the same size, and the icon row stays level.
+            child: MediaQuery.withClampedTextScaling(
+              maxScaleFactor: 1.15,
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  step.label,
+                  maxLines: 1,
+                  style: context.text.bodySmall
+                      .w(active ? 600 : 500)
+                      .copyWith(color: active ? c.primary : c.textPrimary),
+                ),
               ),
             ),
           ),

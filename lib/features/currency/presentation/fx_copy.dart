@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:splitify/core/money/fx.dart';
 import 'package:splitify/core/money/money_error.dart';
 import 'package:splitify/features/currency/domain/fx_service.dart';
+import 'package:splitify/features/expenses/presentation/expense_copy.dart' show unbroken;
 import 'package:splitify/l10n/app_localizations.dart';
 
 /// A rate for reading (the saved rate stays exact): 4 decimals from 1 up, else 4 significant digits
@@ -23,10 +24,12 @@ String displayRate(String rate) {
 }
 
 /// "21 Nov 2026" of a date-only UTC date.
-String fxDate(BuildContext context, DateTime date) => DateFormat(
-  'd MMM y',
-  Localizations.localeOf(context).toLanguageTag(),
-).format(DateTime(date.year, date.month, date.day));
+String fxDate(BuildContext context, DateTime date) => unbroken(
+  DateFormat(
+    'd MMM y',
+    Localizations.localeOf(context).toLanguageTag(),
+  ).format(DateTime(date.year, date.month, date.day)),
+);
 
 /// "1 USD = 89.6437 INR".
 String rateLine(AppLocalizations l, String from, String to, String rate) =>

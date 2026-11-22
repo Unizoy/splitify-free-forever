@@ -145,7 +145,7 @@ class _ProfileFieldsState extends State<ProfileFields> {
             key: const Key('profile-currency'),
             icon: AppIcons.coins,
             label: l.defaultCurrency,
-            value: '${cur.code} · ${cur.symbol}',
+            value: '${cur.code}\u00A0· ${cur.symbol}',
             valueColor: c.textSecondary,
             showDivider: false,
             onTap: () => unawaited(_pickCurrency()),
@@ -188,7 +188,7 @@ class _CurrencyList extends StatelessWidget {
           return Padding(
             padding: const EdgeInsets.only(bottom: AppSpacing.s2),
             child: OptionTile(
-              label: '${cur.code} · ${cur.name}',
+              label: '${cur.code}\u00A0· ${cur.name}',
               selected: cur.code == selected,
               onTap: () => Navigator.of(context).pop(cur.code),
             ),

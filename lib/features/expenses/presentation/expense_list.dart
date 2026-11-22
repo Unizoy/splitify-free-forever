@@ -222,7 +222,7 @@ class ExpenseRow extends StatelessWidget {
         ?groupName,
         paidCaption(l, view),
         dayMonth(context, parseIsoDate(e.date)),
-      ].join(' · '),
+      ].join('\u00A0· '),
       amountText: amount,
       amountCaption: side,
       tone: tone,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:splitify/ui/components/word_fit_text.dart';
 import 'package:splitify/ui/theme/theme.dart';
 
 /// One choice in a [SegmentedPill].
@@ -38,6 +39,22 @@ class SegmentedPill<T> extends StatelessWidget {
     final c = context.colors;
     final index = items.indexWhere((i) => i.value == value).clamp(0, items.length - 1);
     final x = items.length == 1 ? 0.0 : -1 + 2 * index / (items.length - 1);
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final segment = (constraints.maxWidth - 2 * AppSpacing.s1) / items.length;
+        final hasIcon = items.any((i) => i.icon != null);
+        final scaler = sharedLabelScaler(
+          context,
+          labels: [for (final i in items) i.label],
+          style: context.text.body.w(600),
+          maxWidth: segment - 2 * AppSpacing.s3 - (hasIcon ? 18 + AppSpacing.s2 : 0),
+        );
+        return _track(context, c, x, scaler);
+      },
+    );
+  }
+
+  Widget _track(BuildContext context, AppColors c, double x, TextScaler scaler) {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.s1),
       decoration: BoxDecoration(color: c.surfaceMuted, borderRadius: AppRadii.allPill),
@@ -53,7 +70,7 @@ class SegmentedPill<T> extends StatelessWidget {
                 heightFactor: 1,
                 child: DecoratedBox(
                   decoration: BoxDecoration(
-                    color: context.isDark ? c.chip : c.surface,
+                    color: context.isDark ? c.divider : c.surface,
                     borderRadius: AppRadii.allPill,
                     boxShadow: AppShadows.card(c, dark: context.isDark),
                   ),
@@ -67,6 +84,7 @@ class SegmentedPill<T> extends StatelessWidget {
                 Expanded(
                   child: _Segment(
                     item: item,
+                    scaler: scaler,
                     selected: item.value == value,
                     onTap: () {
                       if (item.value == value) return;
@@ -84,9 +102,15 @@ class SegmentedPill<T> extends StatelessWidget {
 }
 
 class _Segment<T> extends StatelessWidget {
-  const _Segment({required this.item, required this.selected, required this.onTap});
+  const _Segment({
+    required this.item,
+    required this.selected,
+    required this.onTap,
+    required this.scaler,
+  });
 
   final SegmentedPillItem<T> item;
+  final TextScaler scaler;
   final bool selected;
   final VoidCallback onTap;
 
@@ -118,6 +142,7 @@ class _Segment<T> extends StatelessWidget {
                   child: Text(
                     item.label,
                     textAlign: TextAlign.center,
+                    textScaler: scaler,
                     style: context.text.body.w(selected ? 600 : 500).copyWith(color: color),
                   ),
                 ),

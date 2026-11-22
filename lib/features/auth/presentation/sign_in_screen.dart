@@ -81,7 +81,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
         if (!google) ...[
           const SizedBox(height: AppSpacing.s2),
           Center(
-            child: StatusPill(label: l.comingSoon, icon: AppIcons.sparkle),
+            child: StatusPill(label: l.googleNotSetUp, icon: AppIcons.info),
           ),
         ],
         const SizedBox(height: AppSpacing.s6),

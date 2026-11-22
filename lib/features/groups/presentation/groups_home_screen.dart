@@ -13,6 +13,7 @@ import 'package:splitify/features/balances/presentation/balance_copy.dart';
 import 'package:splitify/features/capture/presentation/payments_to_add.dart';
 import 'package:splitify/features/groups/application/groups_providers.dart';
 import 'package:splitify/features/groups/presentation/group_visuals.dart';
+import 'package:splitify/features/notifications/application/notifications_providers.dart';
 import 'package:splitify/features/payments/presentation/settle_picker.dart';
 import 'package:splitify/features/search/presentation/search_screen.dart' show SearchRoutes;
 import 'package:splitify/l10n/app_localizations.dart';
@@ -174,6 +175,7 @@ class _Hero extends ConsumerWidget {
     final c = context.colors;
     final b = balances;
     final first = ref.watch(profileProvider).value?.defaultCurrency ?? 'INR';
+    final unread = ref.watch(unreadNotificationsProvider).value ?? 0;
     final totals = b?.totals ?? const <String, int>{};
     final codes = orderCurrencies(totals.keys, first);
     final status = b?.status ?? BalanceStatus.settled;
@@ -186,7 +188,7 @@ class _Hero extends ConsumerWidget {
       l.homeGroupsCount(groupCount),
       if (owing > 0) l.homePeopleOweYou(owing),
       if (owed > 0) l.homeYouOwePeople(owed),
-    ].join(' · ');
+    ].join('\u00A0· ');
     return HeroHeader(
       title: l.groupsHero,
       art: (seed: 'groups-home', family: CoverFamily.other),
@@ -198,9 +200,12 @@ class _Hero extends ConsumerWidget {
           onPressed: () => unawaited(context.push(SearchRoutes.search())),
         ),
         HeroIconButton(
+          key: const Key('groups-bell'),
           icon: AppIcons.bell,
           tooltip: l.notifications,
-          onPressed: () => showComingSoon(context),
+          badge: unread,
+          semanticLabel: l.notifBellLabel(unread),
+          onPressed: () => unawaited(context.push('/notifications')),
         ),
       ],
       child: GlassCard(
@@ -249,7 +254,7 @@ class _Hero extends ConsumerWidget {
             ),
             if (codes.length > 1)
               Text(
-                [for (final code in codes.skip(1)) amount(code)].join(' · '),
+                [for (final code in codes.skip(1)) amount(code)].join('\u00A0· '),
                 style: context.text.amount.w(700).copyWith(color: c.onHero),
               ),
             const SizedBox(height: AppSpacing.s1),
