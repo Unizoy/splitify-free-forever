@@ -1904,6 +1904,258 @@ abstract class AppLocalizations {
   /// **'See charts'**
   String get totCharts;
 
+  /// No description provided for @totExportCsv.
+  ///
+  /// In en, this message translates to:
+  /// **'Export CSV'**
+  String get totExportCsv;
+
+  /// No description provided for @insTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Insights'**
+  String get insTitle;
+
+  /// No description provided for @insSpendingIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Spending in {currency}'**
+  String insSpendingIn(String currency);
+
+  /// No description provided for @insModeGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Group'**
+  String get insModeGroup;
+
+  /// No description provided for @insModeMe.
+  ///
+  /// In en, this message translates to:
+  /// **'Me'**
+  String get insModeMe;
+
+  /// No description provided for @insModeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Show spending of'**
+  String get insModeLabel;
+
+  /// No description provided for @insAllGroups.
+  ///
+  /// In en, this message translates to:
+  /// **'All groups and friends'**
+  String get insAllGroups;
+
+  /// No description provided for @insAllGroupsCaption.
+  ///
+  /// In en, this message translates to:
+  /// **'Your share everywhere'**
+  String get insAllGroupsCaption;
+
+  /// No description provided for @insPickGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a group'**
+  String get insPickGroup;
+
+  /// No description provided for @insPickerCaptionGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Group'**
+  String get insPickerCaptionGroup;
+
+  /// No description provided for @insPickerCaptionMe.
+  ///
+  /// In en, this message translates to:
+  /// **'Your share in'**
+  String get insPickerCaptionMe;
+
+  /// No description provided for @insPickerHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Change group'**
+  String get insPickerHint;
+
+  /// No description provided for @insArchived.
+  ///
+  /// In en, this message translates to:
+  /// **'Archived'**
+  String get insArchived;
+
+  /// No description provided for @insByCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'By category'**
+  String get insByCategory;
+
+  /// No description provided for @insAllTime.
+  ///
+  /// In en, this message translates to:
+  /// **'All time'**
+  String get insAllTime;
+
+  /// No description provided for @insByMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'By month'**
+  String get insByMonth;
+
+  /// No description provided for @insLast12Months.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 12 months'**
+  String get insLast12Months;
+
+  /// No description provided for @insTotalSpent.
+  ///
+  /// In en, this message translates to:
+  /// **'Total spent'**
+  String get insTotalSpent;
+
+  /// No description provided for @insYourShare.
+  ///
+  /// In en, this message translates to:
+  /// **'Your share'**
+  String get insYourShare;
+
+  /// No description provided for @insPercent.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}%'**
+  String insPercent(int percent);
+
+  /// No description provided for @insPercentSmall.
+  ///
+  /// In en, this message translates to:
+  /// **'<1%'**
+  String get insPercentSmall;
+
+  /// No description provided for @insAmountShare.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} · {percent}'**
+  String insAmountShare(String amount, String percent);
+
+  /// No description provided for @insCategoryOfTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent} of the total'**
+  String insCategoryOfTotal(String percent);
+
+  /// No description provided for @insDonutLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Spending by category: {parts}'**
+  String insDonutLabel(String parts);
+
+  /// No description provided for @insDonutPart.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} {amount}, {percent}'**
+  String insDonutPart(String name, String amount, String percent);
+
+  /// No description provided for @insMonthBar.
+  ///
+  /// In en, this message translates to:
+  /// **'{month}: {amount}'**
+  String insMonthBar(String month, String amount);
+
+  /// No description provided for @insYearTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'12-month total {amount}'**
+  String insYearTotal(String amount);
+
+  /// No description provided for @insMonthHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap a bar to see that month.'**
+  String get insMonthHint;
+
+  /// No description provided for @insOneMonthHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Only one month so far. More bars fill in as you add expenses in other months.'**
+  String get insOneMonthHint;
+
+  /// No description provided for @insNoRecentMonths.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing spent in the last 12 months.'**
+  String get insNoRecentMonths;
+
+  /// No description provided for @insUnconverted.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 expense in another currency is left out. Convert it to {currency} on its page to count it.} other{{count} expenses in other currencies are left out. Convert them to {currency} on their pages to count them.}}'**
+  String insUnconverted(int count, String currency);
+
+  /// No description provided for @insEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing spent yet'**
+  String get insEmptyTitle;
+
+  /// No description provided for @insEmptyGroupBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Expenses in {group} show up here by category and month.'**
+  String insEmptyGroupBody(String group);
+
+  /// No description provided for @insEmptyMeBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your share of expenses shows up here by category and month.'**
+  String get insEmptyMeBody;
+
+  /// No description provided for @insNoGroupsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No groups yet'**
+  String get insNoGroupsTitle;
+
+  /// No description provided for @insNoGroupsBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Create or join a group and add expenses to see where the money goes.'**
+  String get insNoGroupsBody;
+
+  /// No description provided for @insConvertTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Convert to see charts'**
+  String get insConvertTitle;
+
+  /// No description provided for @insConvertBody.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 expense is in another currency. Convert it to {currency} on its page to see it here.} other{{count} expenses are in other currencies. Convert them to {currency} on their pages to see them here.}}'**
+  String insConvertBody(int count, String currency);
+
+  /// No description provided for @insLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Charts could not be loaded'**
+  String get insLoadError;
+
+  /// No description provided for @exportSubject.
+  ///
+  /// In en, this message translates to:
+  /// **'{group} expenses (Splitify)'**
+  String exportSubject(String group);
+
+  /// No description provided for @exportEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing to export yet. Add an expense first.'**
+  String get exportEmpty;
+
+  /// No description provided for @exportFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t export. Try again.'**
+  String get exportFailed;
+
   /// No description provided for @settleEditTitle.
   ///
   /// In en, this message translates to:

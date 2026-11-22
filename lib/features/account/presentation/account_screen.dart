@@ -9,6 +9,7 @@ import 'package:splitify/features/balances/application/balance_views.dart';
 import 'package:splitify/features/balances/application/balances_providers.dart';
 import 'package:splitify/features/balances/presentation/balance_copy.dart';
 import 'package:go_router/go_router.dart';
+import 'package:splitify/features/insights/presentation/insights_routes.dart';
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/components/components.dart';
 import 'package:splitify/ui/theme/theme.dart';
@@ -119,6 +120,7 @@ class AccountScreen extends ConsumerWidget {
                 ],
                 const SizedBox(height: AppSpacing.s5),
                 DotMatrixCard(
+                  key: const Key('account-spending'),
                   title: l.yourSpending,
                   stats: [
                     (
@@ -128,7 +130,7 @@ class AccountScreen extends ConsumerWidget {
                     (value: '${stats?.groups ?? 0}', label: l.statGroups),
                     (value: '${stats?.people ?? 0}', label: l.statPeople),
                   ],
-                  onTap: () => showComingSoon(context),
+                  onTap: () => context.push(InsightsRoutes.me),
                 ),
                 const SizedBox(height: AppSpacing.s5),
                 MetalCard(

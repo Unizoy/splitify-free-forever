@@ -433,6 +433,12 @@ void main() {
     testWidgets('TC-1-06 Delete group is shown to the creator only', (tester) async {
       final db = await seeded(tester, createdBy: 'u2');
       await pumpGroups(tester, '/groups/g1/settings', db: db);
+      // Lazy list: the leave row sits below the export row (phase 17); scroll to it.
+      await tester.scrollUntilVisible(
+        _key('settings-leave'),
+        300,
+        scrollable: find.byType(Scrollable).first,
+      );
       expect(_key('settings-leave'), findsOneWidget);
       expect(_key('settings-delete'), findsNothing);
     });

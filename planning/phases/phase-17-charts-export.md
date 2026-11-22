@@ -5,11 +5,11 @@
 
 ## Tasks
 
-- [ ] T1 Aggregations (pure Dart, tested): spending by category and by month for a group or "Me" (my shares), main
+- [x] T1 Aggregations (pure Dart, tested): spending by category and by month for a group or "Me" (my shares), main
       currency via saved conversions, unconverted excluded with count; IOUs and payments excluded.
-- [ ] T2 Insights screen: SegmentedPill Group/Me, group picker, donut + month bars (`fl_chart`), legend chips,
+- [x] T2 Insights screen: SegmentedPill Group/Me, group picker, donut + month bars (`fl_chart`), legend chips,
       empty/insufficient-data states; DotMatrixCard on Account and group Totals tab link here.
-- [ ] T3 CSV export (spec in #22): writer with BOM, escaping, payments rows, per-currency totals rows, deleted flag;
+- [x] T3 CSV export (spec in #22): writer with BOM, escaping, payments rows, per-currency totals rows, deleted flag;
       save via share sheet; golden test of a fixture CSV text.
 
 ## Tests
