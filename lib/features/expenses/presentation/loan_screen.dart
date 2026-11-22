@@ -189,7 +189,7 @@ class _LoanScreenState extends ConsumerState<LoanScreen> {
   }
 
   PreferredSizeWidget _bar(AppLocalizations l) => AppBar(
-    leading: IconButton(tooltip: l.back, icon: const Icon(AppIcons.back), onPressed: _close),
+    leading: AppIconButton(tooltip: l.back, icon: const Icon(AppIcons.back), onPressed: _close),
   );
 }
 
@@ -282,7 +282,7 @@ class _Form extends StatelessWidget {
           liveRegion: true,
           excludeSemantics: true,
           onTap: keypadOpen ? null : onAmountTap,
-          child: InkWell(
+          child: Pressable(
             key: const Key('loan-amount-tap'),
             onTap: keypadOpen ? null : onAmountTap,
             borderRadius: AppRadii.all16,

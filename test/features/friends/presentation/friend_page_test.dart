@@ -153,6 +153,9 @@ void main() {
     // TC-2-03
     testWidgets('expense and payment rows with the group and date, newest first', (t) async {
       await pumpPage(t, 'u:u2');
+      // Shared items are a lazy sliver (S-267): a tall phone builds them all.
+      t.view.physicalSize = const Size(412, 2400);
+      await settle(t);
       expect(find.text('SHARED EXPENSES'), findsOneWidget);
       // Newest first: Movie (22 Nov), the payment (21 Nov), Rent and Dinner (20 Nov).
       double top(String id) => t.getTopLeft(find.byKey(ValueKey('friend-item-$id'))).dy;
@@ -248,6 +251,9 @@ void main() {
     // TC-2-03
     testWidgets('tapping an item opens the expense or the payment', (t) async {
       await pumpPage(t, 'u:u2');
+      // Shared items are a lazy sliver (S-267): a tall phone builds them all.
+      t.view.physicalSize = const Size(412, 2400);
+      await settle(t);
       await t.ensureVisible(find.byKey(const ValueKey('friend-item-e1')));
       await t.tap(find.byKey(const ValueKey('friend-item-e1')));
       await settle(t);
@@ -257,6 +263,9 @@ void main() {
     // TC-2-03
     testWidgets('tapping a payment opens it', (t) async {
       await pumpPage(t, 'u:u2');
+      // Shared items are a lazy sliver (S-267): a tall phone builds them all.
+      t.view.physicalSize = const Size(412, 2400);
+      await settle(t);
       await t.ensureVisible(find.byKey(const ValueKey('friend-item-p1')));
       await t.tap(find.byKey(const ValueKey('friend-item-p1')));
       await settle(t);

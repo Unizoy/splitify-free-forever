@@ -18,6 +18,7 @@ class CoverPainter extends CustomPainter {
     required this.family,
     this.dark = false,
     this.legibilityScrim = true,
+    this.topFade = false,
   });
 
   final String seed;
@@ -29,11 +30,16 @@ class CoverPainter extends CustomPainter {
   /// Adds the bottom dark gradient (0 → 55 %) for text on the cover.
   final bool legibilityScrim;
 
+  /// Fades the art out toward the top (hero art over the hero gradient). Baked into the cached image, so
+  /// heroes need no live shader mask while they scroll (S-267).
+  final bool topFade;
+
   @override
   void paint(Canvas canvas, Size size) {
     final hash = stableHash('${family.name}:$seed');
     final random = Random(hash);
     final rect = Offset.zero & size;
+    if (topFade) canvas.saveLayer(rect, Paint());
     final base = CoverPalettes.base[family]!;
     final colors = CoverPalettes.colors[family]!;
 
@@ -97,6 +103,21 @@ class CoverPainter extends CustomPainter {
     if (dark) {
       canvas.drawRect(rect, Paint()..color = AppPalette.black.withValues(alpha: 0.15));
     }
+    if (topFade) {
+      canvas
+        ..drawRect(
+          rect,
+          Paint()
+            ..blendMode = BlendMode.dstIn
+            ..shader = ui.Gradient.linear(
+              Offset.zero,
+              Offset(0, size.height),
+              const [AppPalette.clear, AppPalette.black, AppPalette.black],
+              const [0.28, 0.62, 1],
+            ),
+        )
+        ..restore();
+    }
   }
 
   @override
@@ -104,5 +125,6 @@ class CoverPainter extends CustomPainter {
       old.seed != seed ||
       old.family != family ||
       old.dark != dark ||
-      old.legibilityScrim != legibilityScrim;
+      old.legibilityScrim != legibilityScrim ||
+      old.topFade != topFade;
 }

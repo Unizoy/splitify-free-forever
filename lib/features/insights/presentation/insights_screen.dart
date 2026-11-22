@@ -60,7 +60,7 @@ class _InsightsScreenState extends ConsumerState<InsightsScreen> {
     final v = async.value;
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
+        leading: AppIconButton(
           tooltip: l.back,
           icon: const Icon(AppIcons.back),
           onPressed: () => Navigator.of(context).maybePop(),
@@ -253,16 +253,17 @@ class _GroupPicker extends StatelessWidget {
     return Semantics(
       button: true,
       hint: l.insPickerHint,
-      child: Material(
-        color: c.surface,
-        shape: RoundedRectangleBorder(
-          borderRadius: AppRadii.all24,
-          side: BorderSide(color: c.border),
-        ),
-        clipBehavior: Clip.antiAlias,
-        child: InkWell(
-          key: const Key('insights-group-picker'),
-          onTap: onTap,
+      child: Pressable(
+        key: const Key('insights-group-picker'),
+        onTap: onTap,
+        scale: AppMotion.rowPressScale,
+        child: Material(
+          color: c.surface,
+          shape: RoundedRectangleBorder(
+            borderRadius: AppRadii.all24,
+            side: BorderSide(color: c.border),
+          ),
+          clipBehavior: Clip.antiAlias,
           child: Padding(
             padding: const EdgeInsets.all(AppSpacing.s3),
             child: Row(
@@ -387,8 +388,9 @@ class _OptionRow extends StatelessWidget {
         Semantics(
           button: true,
           selected: selected,
-          child: InkWell(
+          child: Pressable(
             onTap: onTap,
+            scale: AppMotion.rowPressScale,
             child: ConstrainedBox(
               constraints: const BoxConstraints(minHeight: 64),
               child: Padding(

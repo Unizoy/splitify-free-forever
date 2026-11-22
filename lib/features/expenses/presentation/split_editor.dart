@@ -255,7 +255,7 @@ class _MemberRow extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        InkWell(
+        Pressable(
           onTap: toggles ? () => onChanged(split.toggle(id)) : null,
           borderRadius: AppRadii.all16,
           child: ConstrainedBox(
@@ -294,9 +294,13 @@ class _TickCircle extends StatelessWidget {
       button: true,
       excludeSemantics: true,
       onTap: tap,
-      child: InkResponse(
-        onTap: tap,
-        radius: 24,
+      child: Pressable(
+        onTap: () {
+          HapticFeedback.selectionClick();
+          onTap();
+        },
+        circle: true,
+        scale: 0.9,
         child: SizedBox.square(
           dimension: AppSpacing.minTouch,
           child: Center(

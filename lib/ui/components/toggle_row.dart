@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:splitify/ui/components/dashed_divider.dart';
+import 'package:splitify/ui/components/pressable.dart';
 import 'package:splitify/ui/theme/theme.dart';
 
 /// Settings row with an on/off pill (notification settings, phase 13): optional tinted icon circle, title,
@@ -49,13 +50,14 @@ class ToggleRow extends StatelessWidget {
       label: subtitle == null ? title : '$title, $subtitle',
       excludeSemantics: true,
       onTap: enabled ? () => onChanged!(!value) : null,
-      child: InkWell(
+      child: Pressable(
         onTap: enabled
             ? () {
                 HapticFeedback.selectionClick();
                 onChanged!(!value);
               }
             : null,
+        scale: AppMotion.rowPressScale,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [

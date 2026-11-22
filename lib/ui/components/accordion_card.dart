@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:splitify/ui/components/pressable.dart';
 import 'package:splitify/ui/theme/theme.dart';
 
 /// A row inside an expanded [AccordionCard].
@@ -62,8 +63,9 @@ class _AccordionCardState extends State<AccordionCard> {
             Semantics(
               button: true,
               expanded: _open,
-              child: InkWell(
+              child: Pressable(
                 onTap: _toggle,
+                scale: AppMotion.rowPressScale,
                 child: Padding(
                   padding: const EdgeInsets.all(AppSpacing.s5),
                   child: Row(
@@ -139,8 +141,9 @@ class _Row extends StatelessWidget {
           );
     return Semantics(
       button: row.onTap != null,
-      child: InkWell(
+      child: Pressable(
         onTap: row.onTap,
+        scale: AppMotion.rowPressScale,
         child: ConstrainedBox(
           constraints: const BoxConstraints(minHeight: 56),
           child: Padding(

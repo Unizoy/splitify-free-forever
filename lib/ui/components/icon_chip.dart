@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:splitify/ui/components/pressable.dart';
 import 'package:splitify/ui/theme/theme.dart';
 
 /// Filter/category chip (442 Music/Sports): pill with a leading 24 dp coloured
@@ -44,17 +44,16 @@ class IconChip extends StatelessWidget {
     return Semantics(
       button: true,
       selected: selected,
-      child: Material(
-        color: bg,
-        shape: StadiumBorder(side: BorderSide(color: outline, width: 1.2)),
-        clipBehavior: Clip.antiAlias,
-        child: InkWell(
-          onTap: onTap == null
-              ? null
-              : () {
-                  HapticFeedback.selectionClick();
-                  onTap!();
-                },
+      child: Pressable(
+        onTap: onTap,
+        borderRadius: AppRadii.allPill,
+        scale: 0.95,
+        haptic: PressHaptic.selection,
+        highlightColor: fg,
+        child: Material(
+          color: bg,
+          shape: StadiumBorder(side: BorderSide(color: outline, width: 1.2)),
+          clipBehavior: Clip.antiAlias,
           child: ConstrainedBox(
             constraints: const BoxConstraints(minHeight: AppSpacing.minTouch),
             child: Padding(

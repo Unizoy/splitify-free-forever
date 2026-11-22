@@ -164,7 +164,7 @@ class _JoinScreenState extends ConsumerState<JoinScreen> {
     return Scaffold(
       bottomNavigationBar: preview == null ? null : _submitBar(context, preview),
       appBar: AppBar(
-        leading: IconButton(
+        leading: AppIconButton(
           tooltip: l.back,
           icon: const Icon(AppIcons.back),
           onPressed: () {

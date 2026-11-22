@@ -128,28 +128,49 @@ class ActivityFilters extends StatelessWidget {
 }
 
 /// Activity rows grouped by day, newest first; not scrollable itself. [showGroup] adds the group
-/// name to every caption (the all-groups feed).
+/// name to every caption (the all-groups feed). [sliver] builds a lazy [SliverList] instead of a column,
+/// so a long feed only builds the rows on screen (S-267). The first rows rise in once (S-265).
 class ActivityFeed extends ConsumerWidget {
-  const ActivityFeed({required this.items, this.showGroup = true, super.key});
+  const ActivityFeed({required this.items, this.showGroup = true, this.sliver = false, super.key});
 
   final List<ActivityItem> items;
   final bool showGroup;
+  final bool sliver;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final today = ref.watch(clockProvider).now();
-    final children = <Widget>[];
+    final entries = <Widget Function()>[];
     String? day;
+    String? nextDay = items.isEmpty ? null : activityDay(context, items.first.at, today);
     for (var i = 0; i < items.length; i++) {
-      final header = activityDay(context, items[i].at, today);
+      final header = nextDay!;
+      nextDay = i + 1 < items.length ? activityDay(context, items[i + 1].at, today) : null;
       if (header != day) {
         day = header;
-        children.add(_DayHeader(text: header, first: i == 0));
+        final first = i == 0;
+        entries.add(() => _DayHeader(text: header, first: first));
       }
-      final next = i + 1 < items.length && activityDay(context, items[i + 1].at, today) == header;
-      children.add(ActivityRow(item: items[i], showGroup: showGroup, showDivider: next));
+      final item = items[i];
+      final divider = nextDay == header;
+      final index = entries.length;
+      entries.add(
+        () => Entrance(
+          index: index,
+          child: ActivityRow(item: item, showGroup: showGroup, showDivider: divider),
+        ),
+      );
     }
-    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: children);
+    if (sliver) {
+      return SliverList.builder(
+        itemCount: entries.length,
+        itemBuilder: (context, i) => entries[i](),
+      );
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [for (final build in entries) build()],
+    );
   }
 }
 
@@ -233,40 +254,42 @@ class FeedSkeleton extends StatelessWidget {
     final fill = context.colors.surfaceMuted;
     return Semantics(
       label: l.loading,
-      child: Column(
-        children: [
-          for (var i = 0; i < 4; i++)
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: AppSpacing.s4),
-              child: Row(
-                children: [
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(color: fill, shape: BoxShape.circle),
-                  ),
-                  const SizedBox(width: AppSpacing.s3),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          height: 14,
-                          decoration: BoxDecoration(color: fill, borderRadius: AppRadii.allPill),
-                        ),
-                        const SizedBox(height: AppSpacing.s2),
-                        Container(
-                          width: 90,
-                          height: 10,
-                          decoration: BoxDecoration(color: fill, borderRadius: AppRadii.allPill),
-                        ),
-                      ],
+      child: Shimmer(
+        child: Column(
+          children: [
+            for (var i = 0; i < 4; i++)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: AppSpacing.s4),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(color: fill, shape: BoxShape.circle),
                     ),
-                  ),
-                ],
+                    const SizedBox(width: AppSpacing.s3),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            height: 14,
+                            decoration: BoxDecoration(color: fill, borderRadius: AppRadii.allPill),
+                          ),
+                          const SizedBox(height: AppSpacing.s2),
+                          Container(
+                            width: 90,
+                            height: 10,
+                            decoration: BoxDecoration(color: fill, borderRadius: AppRadii.allPill),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-        ],
+          ],
+        ),
       ),
     );
   }

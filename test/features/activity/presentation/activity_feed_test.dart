@@ -417,6 +417,9 @@ void main() {
     // TC-18-02
     testWidgets('each filter keeps only its kind of row', (t) async {
       await _pump(t, const ActivityScreen(), overrides: _feed(AsyncData(sampleActivity())));
+      // The feed is a lazy sliver (S-267): a tall phone builds every row.
+      t.view.physicalSize = const Size(412, 2400);
+      await settle(t);
       Future<void> pick(String name) async {
         await t.tap(find.byKey(Key('activity-filter-$name')));
         await settle(t);

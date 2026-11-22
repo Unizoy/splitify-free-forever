@@ -39,6 +39,7 @@ import 'package:splitify/features/search/presentation/search_screen.dart' show s
 import 'package:splitify/features/capture/application/capture_providers.dart'
     show captureBridgeProvider;
 import 'package:splitify/features/capture/presentation/capture_routes.dart' show captureRoutes;
+import 'package:splitify/ui/components/fade_through_stack.dart';
 
 /// Route paths (planning/07-screens-and-flows.md §1).
 abstract final class Routes {
@@ -178,8 +179,11 @@ GoRouter buildRouter({
         ),
       ],
     ),
-    StatefulShellRoute.indexedStack(
+    // Tabs keep their state (like indexedStack) and fade through on a switch (S-263).
+    StatefulShellRoute(
       builder: (context, state, shell) => AppShell(shell: shell),
+      navigatorContainerBuilder: (context, shell, children) =>
+          FadeThroughStack(index: shell.currentIndex, children: children),
       branches: [
         StatefulShellBranch(
           routes: [

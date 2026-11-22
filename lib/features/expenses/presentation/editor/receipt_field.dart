@@ -54,12 +54,12 @@ class _AddTile extends StatelessWidget {
       onTap: onTap,
       child: CustomPaint(
         painter: DashedBorderPainter(color: c.primary.withValues(alpha: 0.55), radius: 24),
-        child: Material(
-          type: MaterialType.transparency,
-          child: InkWell(
-            key: const Key('receipt-add'),
-            onTap: onTap,
-            borderRadius: AppRadii.all24,
+        child: Pressable(
+          key: const Key('receipt-add'),
+          onTap: onTap,
+          borderRadius: AppRadii.all24,
+          child: Material(
+            type: MaterialType.transparency,
             child: Padding(
               padding: const EdgeInsets.all(AppSpacing.s4),
               child: Row(
@@ -154,9 +154,18 @@ class _PhotoRow extends ConsumerWidget {
             label: l.photoView,
             excludeSemantics: true,
             onTap: open,
-            child: GestureDetector(
+            child: Pressable(
               key: const Key('receipt-open'),
-              onTap: open,
+              onTap: () => unawaited(
+                PhotoViewerScreen.open(
+                  context,
+                  title: l.receiptPhoto,
+                  bytes: image?.full,
+                  bucket: image == null ? MediaBuckets.receipts : null,
+                  path: image == null ? path : null,
+                ),
+              ),
+              scale: AppMotion.rowPressScale,
               child: ClipRRect(
                 borderRadius: AppRadii.all16,
                 child: SizedBox.square(dimension: side, child: thumb),

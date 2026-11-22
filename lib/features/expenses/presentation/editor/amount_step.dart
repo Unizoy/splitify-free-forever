@@ -315,14 +315,14 @@ class _Key extends StatelessWidget {
       label: label,
       excludeSemantics: true,
       onTap: enabled ? tap : null,
-      child: Material(
-        color: op ? c.surfaceMuted : c.surface,
+      child: Pressable(
+        key: Key('key-${keyValue.name}'),
+        onTap: enabled ? tap : null,
+        onLongPress: onLongPress,
         borderRadius: AppRadii.all16,
-        child: InkWell(
-          key: Key('key-${keyValue.name}'),
+        child: Material(
+          color: op ? c.surfaceMuted : c.surface,
           borderRadius: AppRadii.all16,
-          onTap: enabled ? tap : null,
-          onLongPress: onLongPress,
           child: SizedBox(height: 52, child: Center(child: face)),
         ),
       ),

@@ -114,13 +114,13 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
             children: [
               Row(
                 children: [
-                  IconButton(
+                  AppIconButton(
                     tooltip: l.back,
                     icon: const Icon(AppIcons.back),
                     onPressed: () => Navigator.of(context).maybePop(),
                   ),
                   const Spacer(),
-                  IconButton(
+                  AppIconButton(
                     key: const Key('notifications-settings'),
                     tooltip: l.notifSettingsTooltip,
                     icon: const Icon(AppIcons.settings),
@@ -247,9 +247,10 @@ class NotificationRow extends StatelessWidget {
       label: [if (n.unread) l.notifUnread, n.body, caption].join(', '),
       excludeSemantics: true,
       onTap: onTap,
-      child: InkWell(
+      child: Pressable(
         key: ValueKey('notification-${n.id}'),
         onTap: onTap,
+        scale: AppMotion.rowPressScale,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [

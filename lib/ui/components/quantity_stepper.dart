@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:splitify/l10n/app_localizations.dart';
+import 'package:splitify/ui/components/pressable.dart';
 import 'package:splitify/ui/theme/theme.dart';
 
 /// Outlined − / + circles (36 dp, 48 dp touch area) with the value between
@@ -89,9 +90,10 @@ class _Circle extends StatelessWidget {
         button: true,
         enabled: onTap != null,
         label: tooltip,
-        child: InkResponse(
+        child: Pressable(
           onTap: onTap,
-          radius: 24,
+          circle: true,
+          scale: 0.88,
           child: SizedBox.square(
             dimension: AppSpacing.minTouch,
             child: Center(

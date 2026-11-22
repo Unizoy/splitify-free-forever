@@ -94,6 +94,10 @@ void main() {
     expect(reduced.slow, Duration.zero);
     expect(reduced.showcase, Duration.zero);
     expect(normal.fast, const Duration(milliseconds: 150));
-    expect(normal.showcase, const Duration(milliseconds: 800));
+    expect(normal.showcase, const Duration(milliseconds: 300));
+    expect(reduced.press, Duration.zero);
+    expect(reduced.route, Duration.zero);
+    expect(reduced.count, Duration.zero);
+    expect(reduced.entrance, Duration.zero);
   });
 }

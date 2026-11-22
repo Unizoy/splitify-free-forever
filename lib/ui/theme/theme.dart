@@ -9,4 +9,5 @@ export 'app_radii.dart';
 export 'app_spacing.dart';
 export 'app_text.dart';
 export 'app_theme.dart';
+export 'app_transitions.dart';
 export 'context_ext.dart';

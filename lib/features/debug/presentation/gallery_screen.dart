@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:splitify/features/account/application/theme_mode_controller.dart';
 import 'package:splitify/features/debug/presentation/gallery/gallery_sections.dart';
+import 'package:splitify/ui/components/components.dart';
 import 'package:splitify/ui/theme/theme.dart';
 
 /// Debug-only component gallery (`/debug/gallery`): every component in its
@@ -18,7 +19,7 @@ class GalleryScreen extends ConsumerWidget {
       appBar: AppBar(
         title: const Text(_title),
         actions: [
-          IconButton(
+          AppIconButton(
             tooltip: _title,
             icon: Icon(context.isDark ? AppIcons.sun : AppIcons.moon),
             onPressed: () => ref

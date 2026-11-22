@@ -58,7 +58,7 @@ class AccountScreen extends ConsumerWidget {
               children: [
                 Align(
                   alignment: AlignmentDirectional.centerEnd,
-                  child: IconButton(
+                  child: AppIconButton(
                     tooltip: l.accountSettings,
                     onPressed: () => showAccountSettings(context),
                     icon: Icon(AppIcons.settings, size: 30, color: c.textPrimary),
@@ -87,8 +87,9 @@ class AccountScreen extends ConsumerWidget {
                         _FriendAvatar(friend: f),
                       Semantics(
                         button: true,
-                        child: GestureDetector(
+                        child: Pressable(
                           onTap: () => context.push('/account/profile'),
+                          scale: AppMotion.rowPressScale,
                           child: Avatar(
                             name: profile.displayName,
                             seed: profile.id,
@@ -110,13 +111,13 @@ class AccountScreen extends ConsumerWidget {
                   child: Text(
                     profile?.displayName ?? l.yourAccount,
                     textAlign: TextAlign.center,
-                    style: context.text.headline.copyWith(fontSize: 26, height: 1.2),
+                    style: context.text.headline.copyWith(fontSize: 22, height: 1.2),
                   ),
                 ),
                 const SizedBox(height: AppSpacing.s1),
                 Text(
                   l.you.toUpperCase(),
-                  style: context.text.labelCaps.copyWith(color: c.textSecondary, fontSize: 14),
+                  style: context.text.labelCaps.copyWith(color: c.textSecondary, fontSize: 12),
                 ),
                 const SizedBox(height: AppSpacing.s8),
                 WalletCard(
@@ -257,8 +258,9 @@ class _FriendAvatar extends StatelessWidget {
         label: friend.name,
         excludeSemantics: true,
         onTap: open,
-        child: GestureDetector(
+        child: Pressable(
           onTap: open,
+          scale: AppMotion.rowPressScale,
           child: Opacity(
             opacity: 0.55,
             child: Avatar(

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:splitify/l10n/app_localizations.dart';
+import 'package:splitify/ui/components/components.dart';
 import 'package:splitify/ui/theme/theme.dart';
 
 /// Camera QR scanner ("Scan my UPI QR", "Scan invite QR"); pops with the first QR's raw text. The camera
@@ -29,7 +30,7 @@ class _QrScanScreenState extends State<QrScanScreen> {
         backgroundColor: c.navyTop,
         foregroundColor: c.onHero,
         title: Text(widget.title ?? l.scanUpiQr),
-        leading: IconButton(
+        leading: AppIconButton(
           tooltip: l.close,
           icon: const Icon(AppIcons.close),
           onPressed: () => Navigator.of(context).pop(),

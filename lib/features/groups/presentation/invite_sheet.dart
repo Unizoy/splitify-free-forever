@@ -146,7 +146,7 @@ class _InviteSheetBodyState extends ConsumerState<InviteSheetBody> {
               ),
             ),
             const SizedBox(width: AppSpacing.s1),
-            IconButton(
+            AppIconButton(
               key: const Key('invite-copy'),
               tooltip: _copied ? l.codeCopied : l.copyCode,
               icon: Icon(_copied ? AppIcons.check : AppIcons.copy, color: c.primary),
