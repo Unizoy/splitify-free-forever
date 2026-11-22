@@ -1,4 +1,5 @@
 import 'package:drift/drift.dart';
+import 'package:splitify/core/utils/member_tints.dart';
 import 'package:splitify/core/utils/uuid.dart';
 import 'package:splitify/data/local/app_database.dart';
 import 'package:splitify/data/sync/local_writer.dart';
@@ -103,14 +104,16 @@ class MembersRepository extends _Repo {
               (m) => m.groupId.equals(groupId) & m.deletedAt.isNull() & m.status.equals('active'),
             )
             ..orderBy([(m) => OrderingTerm.asc(m.position)]))
-          .watch();
+          .watch()
+          .map(rememberTints);
 
   /// Active members of all groups (avatar stacks on the Groups tab).
   Stream<List<LocalMember>> watchAllActive() =>
       (db.select(db.groupMembers)
             ..where((m) => m.deletedAt.isNull() & m.status.equals('active'))
             ..orderBy([(m) => OrderingTerm.asc(m.position)]))
-          .watch();
+          .watch()
+          .map(rememberTints);
 
   /// Name-only member (rule 8) at the next position, with an optional avatar tint 0..4.
   Future<String> addNameOnly(String groupId, String name, {int? tint}) async {
@@ -178,3 +181,10 @@ Stream<bool> watchGroupUnsynced(AppDatabase db, String groupId) => db
     )
     .map((r) => r.read<bool>('u'))
     .watchSingle();
+
+/// Notes the chosen avatar colour of every member read (S-251), so avatars that only know a member id
+/// match the member everywhere; returns [rows] unchanged.
+List<LocalMember> rememberTints(List<LocalMember> rows) {
+  MemberTints.remember([for (final m in rows) (id: m.id, tint: m.tint)]);
+  return rows;
+}

@@ -462,7 +462,8 @@ void main() {
       expect(find.textContaining('21 Nov 2026'), findsOneWidget);
       final sentence = t.widget<Text>(find.byKey(const Key('review-sentence')));
       expect(sentence.textSpan!.toPlainText(), 'Paid by you and split equally between 3 people');
-      expect(find.text('owes ₹400.00'), findsNWidgets(3));
+      expect(find.text('owes ₹400.00'), findsNWidgets(2));
+      expect(find.text('owe ₹400.00'), findsOneWidget); // You (S-252)
       expect(find.text('paid ₹1,200.00'), findsOneWidget);
       // Priya is not part of it.
       expect(find.text('Priya Nair'), findsNothing);

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:splitify/core/utils/member_tints.dart';
 import 'package:splitify/core/utils/stable_hash.dart';
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/theme/theme.dart';
@@ -49,10 +50,11 @@ class Avatar extends StatelessWidget {
     return (first + second).toUpperCase();
   }
 
-  /// Tint pair for [tint] (when set) or [seed] in the current mode.
+  /// Tint pair for [tint] (when set), else the member's chosen colour when [seed] is a member id the
+  /// data layer has seen ([MemberTints], S-251), else one picked from [seed], in the current mode.
   static AvatarTint tintFor(BuildContext context, String seed, [int? tint]) {
     final tints = context.isDark ? AppPalette.avatarDark : AppPalette.avatarLight;
-    return tints[(tint ?? stableHash(seed)) % tints.length];
+    return tints[(tint ?? MemberTints.of(seed) ?? stableHash(seed)) % tints.length];
   }
 
   /// Number of tint pairs a member can pick from.

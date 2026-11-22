@@ -281,34 +281,38 @@ class _Form extends StatelessWidget {
           value: d.total == null ? text : MoneyFormatter.detail.format(d.total!, d.currency),
           liveRegion: true,
           excludeSemantics: true,
+          onTap: keypadOpen ? null : onAmountTap,
           child: InkWell(
             key: const Key('loan-amount-tap'),
             onTap: keypadOpen ? null : onAmountTap,
             borderRadius: AppRadii.all16,
-            child: Column(
-              children: [
-                FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Text(
-                    '$symbol${text.isEmpty ? '0' : KeypadInput.display(text)}',
-                    key: const Key('loan-amount'),
-                    maxLines: 1,
-                    textAlign: TextAlign.center,
-                    style: context.text.amountHero.copyWith(
-                      color: text.isEmpty ? c.textTertiary : c.textPrimary,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: AppSpacing.minTouch),
+              child: Column(
+                children: [
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      '$symbol${text.isEmpty ? '0' : KeypadInput.display(text)}',
+                      key: const Key('loan-amount'),
+                      maxLines: 1,
+                      textAlign: TextAlign.center,
+                      style: context.text.amountHero.copyWith(
+                        color: text.isEmpty ? c.textTertiary : c.textPrimary,
+                      ),
                     ),
                   ),
-                ),
-                AnimatedContainer(
-                  duration: context.motion.fast,
-                  width: keypadOpen ? 56 : 32,
-                  height: 3,
-                  decoration: BoxDecoration(
-                    color: keypadOpen ? c.primary : c.divider,
-                    borderRadius: AppRadii.allPill,
+                  AnimatedContainer(
+                    duration: context.motion.fast,
+                    width: keypadOpen ? 56 : 32,
+                    height: 3,
+                    decoration: BoxDecoration(
+                      color: keypadOpen ? c.primary : c.divider,
+                      borderRadius: AppRadii.allPill,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),

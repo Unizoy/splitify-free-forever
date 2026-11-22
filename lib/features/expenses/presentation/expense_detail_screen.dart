@@ -258,7 +258,12 @@ class _Body extends StatelessWidget {
             name: name(owed[i].key),
             avatarName: view.nameOf(owed[i].key),
             seed: owed[i].key,
-            trailing: owed[i].value == 0 ? l.expOwesNothing : l.expOwes(money(owed[i].value)),
+            trailing: switch ((owed[i].value == 0, owed[i].key == view.meId)) {
+              (true, true) => l.expYouOweNothing,
+              (true, false) => l.expOwesNothing,
+              (false, true) => l.expYouOwe(money(owed[i].value)),
+              (false, false) => l.expOwes(money(owed[i].value)),
+            },
             divider: i < owed.length - 1,
           ),
         const SizedBox(height: AppSpacing.s6),

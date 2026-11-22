@@ -92,20 +92,22 @@ class _RemindButtonState extends ConsumerState<RemindButton> {
     final label = throttled
         ? l.remindedTooltip(_hoursLeft(retryAt, now))
         : l.remindTooltip(widget.name);
+    final VoidCallback? tap = _busy
+        ? null
+        : throttled
+        ? () => _snack(l.remindThrottled(widget.name, _hoursLeft(retryAt, now)))
+        : () => unawaited(_send());
     return Tooltip(
       message: label,
       child: Semantics(
         button: true,
         label: label,
         excludeSemantics: true,
+        onTap: tap,
         child: InkResponse(
           key: Key('remind-${widget.toMember}'),
           radius: 24,
-          onTap: _busy
-              ? null
-              : throttled
-              ? () => _snack(l.remindThrottled(widget.name, _hoursLeft(retryAt, now)))
-              : () => unawaited(_send()),
+          onTap: tap,
           child: SizedBox.square(
             dimension: AppSpacing.minTouch,
             child: Center(

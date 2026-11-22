@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:splitify/app/router.dart';
@@ -34,8 +35,15 @@ class App extends ConsumerWidget {
       darkTheme: AppTheme.dark(),
       themeMode: ref.watch(themeModeControllerProvider),
       debugShowCheckedModeBanner: false,
-      // X2: the lock screen and background cover sit above every page.
-      builder: (context, child) => AppLockGate(child: child ?? const SizedBox.shrink()),
+      // X2: the lock screen and background cover sit above every page. Pages without their own status-bar
+      // style (editor, settings pages, sheets) get dark icons in light mode and light icons in dark mode,
+      // instead of keeping the white icons of the last hero page (final QA, S-254).
+      builder: (context, child) => AnnotatedRegion<SystemUiOverlayStyle>(
+        value: (context.isDark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark).copyWith(
+          statusBarColor: AppPalette.clear,
+        ),
+        child: AppLockGate(child: child ?? const SizedBox.shrink()),
+      ),
     );
   }
 }

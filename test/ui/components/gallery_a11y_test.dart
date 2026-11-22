@@ -5,6 +5,8 @@ import 'package:splitify/features/debug/presentation/gallery/gallery_sections.da
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/theme/theme.dart';
 
+import '../../support/a11y_guidelines.dart';
+
 /// Sections with images or glass/hero art behind text: the text-contrast guideline samples
 /// pixels and cannot judge them, so it is only checked on the plain sections.
 const _imagerySections = {
@@ -74,6 +76,15 @@ void main() {
         handle.dispose();
       },
     );
+
+    testWidgets('S-258 ${section.id}: every enabled button can be pressed by TalkBack', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      await _pump(tester, section);
+      await expectLater(tester, meetsGuideline(buttonsHaveTapGuideline));
+      handle.dispose();
+    });
 
     if (!_imagerySections.contains(section.id)) {
       testWidgets(

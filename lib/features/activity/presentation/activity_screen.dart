@@ -8,6 +8,7 @@ import 'package:splitify/features/activity/presentation/activity_feed.dart';
 import 'package:splitify/features/capture/presentation/payments_to_add.dart';
 import 'package:splitify/features/notifications/application/notifications_providers.dart';
 import 'package:splitify/features/search/presentation/search_screen.dart' show SearchRoutes;
+import 'package:splitify/features/sync/presentation/sync_refresh.dart';
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/components/components.dart';
 import 'package:splitify/ui/theme/theme.dart';
@@ -65,49 +66,52 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
           : ActivityFeed(items: shown);
     }
     return Scaffold(
-      body: SingleChildScrollView(
-        child: OverlapColumn(
-          top: HeroHeader(
-            title: l.activityHero,
-            art: (seed: 'activity-home', family: CoverFamily.trip),
-            actions: [
-              HeroIconButton(
-                key: const Key('activity-search'),
-                icon: AppIcons.search,
-                tooltip: l.searchTooltip,
-                onPressed: () => unawaited(context.push(SearchRoutes.search())),
-              ),
-              HeroIconButton(
-                key: const Key('activity-bell'),
-                icon: AppIcons.bell,
-                tooltip: l.notifications,
-                badge: unread,
-                semanticLabel: l.notifBellLabel(unread),
-                onPressed: () => unawaited(context.push('/notifications')),
-              ),
-            ],
-          ),
-          bottom: OverlapSheet(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Semantics(
-                  header: true,
-                  child: Text(
-                    l.navActivity.toUpperCase(),
-                    style: context.text.labelCaps.copyWith(color: c.textSecondary),
-                  ),
+      body: SyncRefresh(
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: OverlapColumn(
+            top: HeroHeader(
+              title: l.activityHero,
+              art: (seed: 'activity-home', family: CoverFamily.trip),
+              actions: [
+                HeroIconButton(
+                  key: const Key('activity-search'),
+                  icon: AppIcons.search,
+                  tooltip: l.searchTooltip,
+                  onPressed: () => unawaited(context.push(SearchRoutes.search())),
                 ),
-                // Payment bubble (phase 18b): payments waiting to be added.
-                const PaymentsToAddSection(),
-                if (items != null && items.isNotEmpty) ...[
-                  const SizedBox(height: AppSpacing.s4),
-                  ActivityFilters(value: _filter, onChanged: (f) => setState(() => _filter = f)),
-                ],
-                const SizedBox(height: AppSpacing.s4),
-                content,
-                const SizedBox(height: AppSpacing.navReserve),
+                HeroIconButton(
+                  key: const Key('activity-bell'),
+                  icon: AppIcons.bell,
+                  tooltip: l.notifications,
+                  badge: unread,
+                  semanticLabel: l.notifBellLabel(unread),
+                  onPressed: () => unawaited(context.push('/notifications')),
+                ),
               ],
+            ),
+            bottom: OverlapSheet(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Semantics(
+                    header: true,
+                    child: Text(
+                      l.navActivity.toUpperCase(),
+                      style: context.text.labelCaps.copyWith(color: c.textSecondary),
+                    ),
+                  ),
+                  // Payment bubble (phase 18b): payments waiting to be added.
+                  const PaymentsToAddSection(),
+                  if (items != null && items.isNotEmpty) ...[
+                    const SizedBox(height: AppSpacing.s4),
+                    ActivityFilters(value: _filter, onChanged: (f) => setState(() => _filter = f)),
+                  ],
+                  const SizedBox(height: AppSpacing.s4),
+                  content,
+                  const SizedBox(height: AppSpacing.navReserve),
+                ],
+              ),
             ),
           ),
         ),

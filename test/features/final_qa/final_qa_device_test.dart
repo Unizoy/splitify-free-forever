@@ -1,0 +1,274 @@
+// Final QA pass #2 on the emulator (S-250..S-259): regression tests for the defects found on the device.
+import 'dart:ui' show SemanticsAction;
+
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:splitify/app/not_found_screen.dart';
+import 'package:splitify/app/router.dart';
+import 'package:splitify/core/utils/member_tints.dart';
+import 'package:splitify/features/expenses/application/expense_providers.dart';
+import 'package:splitify/l10n/app_localizations.dart';
+import 'package:splitify/ui/components/components.dart';
+import 'package:splitify/ui/theme/theme.dart';
+
+import '../../support/a11y_guidelines.dart';
+import '../expenses/expense_fixtures.dart';
+import '../../support/group_fakes.dart';
+import '../../support/group_harness.dart';
+
+Widget _app(Widget child, {Brightness brightness = Brightness.light}) => MaterialApp(
+  theme: brightness == Brightness.dark ? AppTheme.dark() : AppTheme.light(),
+  localizationsDelegates: const [
+    AppLocalizations.delegate,
+    GlobalMaterialLocalizations.delegate,
+    GlobalWidgetsLocalizations.delegate,
+  ],
+  supportedLocales: AppLocalizations.supportedLocales,
+  home: child,
+);
+
+void main() {
+  group('S-250 app links', () {
+    test('splitify://<page> opens /<page>; group is an alias; bare / goes to Groups', () {
+      expect(linkRedirect(Uri.parse('splitify://notifications')), '/notifications');
+      expect(linkRedirect(Uri.parse('splitify://group/abc')), '/groups/abc');
+      expect(
+        linkRedirect(Uri.parse('splitify://groups/abc?tab=balances')),
+        '/groups/abc?tab=balances',
+      );
+      expect(linkRedirect(Uri.parse('splitify://join?code=ABCDEFGH')), '/join?code=ABCDEFGH');
+      expect(linkRedirect(Uri.parse('splitify://capture?id=c1')), '/capture?id=c1');
+      expect(linkRedirect(Uri.parse('/')), Routes.groups);
+      expect(linkRedirect(Uri.parse('/groups')), isNull);
+      // The debug sign-in link keeps its own handling.
+      expect(linkRedirect(Uri.parse('splitify://dev/login?user=e2e-a')), isNull);
+      expect(authRedirect(Uri.parse('/'), signedIn: false), Routes.groups);
+    });
+
+    testWidgets('an unknown page shows the friendly page whose button leads to Groups', (
+      tester,
+    ) async {
+      final h = await pumpGroups(tester, '/groups', overrides: fixedGroupData());
+      h.open('/no-such-page');
+      await settle(tester);
+      expect(find.byType(NotFoundScreen), findsOneWidget);
+      expect(find.text('This link doesn’t open anything'), findsOneWidget);
+      await tester.tap(find.byKey(const Key('not-found-home')));
+      await settle(tester);
+      expect(h.location, '/groups');
+    });
+  });
+
+  testWidgets('S-250 the Groups bell opens Notifications (it said "Coming soon")', (tester) async {
+    final h = await pumpGroups(tester, '/groups', overrides: fixedGroupData());
+    await tester.tap(find.byKey(const Key('groups-bell')));
+    await settle(tester);
+    expect(h.location, '/notifications');
+    expect(find.text('Coming soon'), findsNothing);
+  });
+
+  group('S-258 accessibility services can press every button', () {
+    testWidgets('the guideline fails a button whose tap was excluded with its semantics', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(
+        _app(
+          Material(
+            child: Semantics(
+              button: true,
+              label: 'Get started',
+              excludeSemantics: true,
+              child: InkWell(onTap: () {}, child: const SizedBox.square(dimension: 48)),
+            ),
+          ),
+        ),
+      );
+      final result = await buttonsHaveTapGuideline.evaluate(tester);
+      expect(result.passed, isFalse);
+      handle.dispose();
+    });
+
+    testWidgets('DashedCircleButton, HeroIconButton and the nav bar can be pressed', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      var taps = 0;
+      await tester.pumpWidget(
+        _app(
+          Scaffold(
+            body: Column(
+              children: [
+                DashedCircleButton(label: 'Get\nstarted', onPressed: () => taps++),
+                HeroIconButton(
+                  icon: AppIcons.bell,
+                  tooltip: 'Notifications',
+                  onPressed: () => taps++,
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+      await expectLater(tester, meetsGuideline(buttonsHaveTapGuideline));
+      final node = tester.getSemantics(find.bySemanticsLabel('Get started'));
+      tester.binding.pipelineOwner.semanticsOwner!.performAction(node.id, SemanticsAction.tap);
+      await tester.pump();
+      expect(taps, 1);
+      handle.dispose();
+    });
+  });
+
+  group('S-253 text fields', () {
+    testWidgets('e-mail, number and code fields are not capitalised or autocorrected', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _app(
+          const Scaffold(
+            body: Column(
+              children: [
+                UnderlineField(
+                  key: Key('mail'),
+                  label: 'Email',
+                  keyboardType: TextInputType.emailAddress,
+                ),
+                UnderlineField(
+                  key: Key('code'),
+                  label: 'Code',
+                  keyboardType: TextInputType.visiblePassword,
+                ),
+                UnderlineField(key: Key('note'), label: 'Note'),
+              ],
+            ),
+          ),
+        ),
+      );
+      TextField field(String key) => tester.widget<TextField>(
+        find.descendant(of: find.byKey(Key(key)), matching: find.byType(TextField)),
+      );
+      expect(field('mail').textCapitalization, TextCapitalization.none);
+      expect(field('mail').autocorrect, isFalse);
+      expect(field('code').textCapitalization, TextCapitalization.none);
+      expect(field('note').textCapitalization, TextCapitalization.sentences);
+      expect(field('note').autocorrect, isTrue);
+    });
+  });
+
+  group('S-256 messages from sheets', () {
+    testWidgets('inside a sheet the message shows above it; on a page it is a snackbar', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _app(
+          Scaffold(
+            body: Builder(
+              builder: (context) => Column(
+                children: [
+                  TextButton(
+                    onPressed: () => showAppMessage(context, 'On the page'),
+                    child: const Text('page'),
+                  ),
+                  TextButton(
+                    onPressed: () => showAppSheet<void>(
+                      context,
+                      title: 'Invite people',
+                      builder: (sheet) => TextButton(
+                        onPressed: () => showAppMessage(sheet, 'Code copied'),
+                        child: const Text('copy'),
+                      ),
+                    ),
+                    child: const Text('sheet'),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.text('page'));
+      await tester.pump();
+      expect(find.widgetWithText(SnackBar, 'On the page'), findsOneWidget);
+      await tester.tap(find.text('sheet'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('copy'));
+      await tester.pump();
+      expect(find.byKey(const Key('sheet-toast')), findsOneWidget);
+      expect(find.text('Code copied'), findsOneWidget);
+      await tester.pump(const Duration(seconds: 4));
+      expect(find.byKey(const Key('sheet-toast')), findsNothing);
+    });
+  });
+
+  group('S-255 status bar over a scrolled sheet', () {
+    testWidgets('no scrim while the hero is under the status bar, page colour once the sheet is', (
+      tester,
+    ) async {
+      tester.view
+        ..physicalSize = const Size(400, 800)
+        ..devicePixelRatio = 1
+        ..padding = const FakeViewPadding(top: 24);
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(
+        _app(
+          Scaffold(
+            body: SingleChildScrollView(
+              child: OverlapColumn(
+                top: const SizedBox(height: 300),
+                bottom: const OverlapSheet(child: SizedBox(height: 1600)),
+              ),
+            ),
+          ),
+        ),
+      );
+      final bg = AppTheme.light().extension<AppColors>()!.bg;
+      final column = find.byType(OverlapColumn);
+      expect(column, isNot(paints..rect(color: bg)));
+      await tester.drag(find.byType(SingleChildScrollView), const Offset(0, -500));
+      await tester.pump();
+      // In the column's own coordinates the screen top is 500 px down (the page scrolled 500 px).
+      expect(column, paints..rect(rect: const Rect.fromLTWH(0, 500, 400, 24), color: bg));
+    });
+  });
+
+  group('S-251/S-252 people look and read the same everywhere', () {
+    tearDown(MemberTints.clear);
+
+    testWidgets('an avatar that only knows the member id uses the member’s chosen colour', (
+      tester,
+    ) async {
+      MemberTints.remember([(id: 'm-rahul', tint: 1)]);
+      late Color byId;
+      late Color chosen;
+      await tester.pumpWidget(
+        _app(
+          Builder(
+            builder: (context) {
+              byId = Avatar.tintFor(context, 'm-rahul').bg;
+              chosen = Avatar.tintFor(context, 'other', 1).bg;
+              return const SizedBox();
+            },
+          ),
+        ),
+      );
+      expect(byId, chosen);
+    });
+
+    test('expense rows follow the group’s member order', () {
+      final members = [
+        sampleMember(id: 'm-me', userId: 'u1', name: 'Me'),
+        sampleMember(id: 'm-rahul', name: 'Rahul', position: 1),
+        sampleMember(id: 'm-vikram', name: 'Vikram', position: 2),
+      ];
+      final e = sampleExpense(
+        total: 300,
+        payers: const {'m-me': 300},
+        shares: const {'m-vikram': 100, 'm-me': 100, 'm-rahul': 100},
+      );
+      final v = expenseViews([e], members, 'u1').single;
+      expect(v.owed.keys, ['m-me', 'm-rahul', 'm-vikram']);
+    });
+  });
+}

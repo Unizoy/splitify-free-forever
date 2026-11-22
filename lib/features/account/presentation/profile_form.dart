@@ -5,6 +5,7 @@ import 'package:splitify/core/money/currencies.dart';
 import 'package:splitify/domain/entities/profile.dart';
 import 'package:splitify/domain/rules/profile_rules.dart';
 import 'package:splitify/features/account/presentation/upi_scan_screen.dart';
+import 'package:splitify/features/currency/presentation/currency_picker_sheet.dart';
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/components/components.dart';
 import 'package:splitify/ui/theme/theme.dart';
@@ -95,7 +96,11 @@ class _ProfileFieldsState extends State<ProfileFields> {
   }
 
   Future<void> _pickCurrency() async {
-    final code = await showCurrencyPicker(context, selected: d.currency);
+    final code = await showCurrencyPicker(
+      context,
+      selected: d.currency,
+      title: AppLocalizations.of(context).chooseCurrency,
+    );
     if (code != null) setState(() => d.currency = code);
   }
 
@@ -112,6 +117,7 @@ class _ProfileFieldsState extends State<ProfileFields> {
           label: l.nameLabel,
           required: true,
           controller: d.name,
+          textCapitalization: TextCapitalization.words,
           textInputAction: TextInputAction.next,
           errorText: d.nameError(l),
           onChanged: (_) => setState(() {}),
@@ -159,42 +165,6 @@ class _ProfileFieldsState extends State<ProfileFields> {
           ),
         ],
       ],
-    );
-  }
-}
-
-/// Currency list sheet (INR first); returns the picked ISO code or null.
-Future<String?> showCurrencyPicker(BuildContext context, {required String selected}) =>
-    showAppSheet<String>(
-      context,
-      title: AppLocalizations.of(context).chooseCurrency,
-      builder: (context) => _CurrencyList(selected: selected),
-    );
-
-class _CurrencyList extends StatelessWidget {
-  const _CurrencyList({required this.selected});
-
-  final String selected;
-
-  @override
-  Widget build(BuildContext context) {
-    final codes = ['INR', ...Currencies.all.keys.where((k) => k != 'INR')];
-    return SizedBox(
-      height: MediaQuery.sizeOf(context).height * 0.6,
-      child: ListView.builder(
-        itemCount: codes.length,
-        itemBuilder: (context, i) {
-          final cur = Currencies.of(codes[i]);
-          return Padding(
-            padding: const EdgeInsets.only(bottom: AppSpacing.s2),
-            child: OptionTile(
-              label: '${cur.code} · ${cur.name}',
-              selected: cur.code == selected,
-              onTap: () => Navigator.of(context).pop(cur.code),
-            ),
-          );
-        },
-      ),
     );
   }
 }

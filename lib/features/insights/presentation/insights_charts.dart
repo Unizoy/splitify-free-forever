@@ -415,8 +415,9 @@ class MonthBars extends StatelessWidget {
                   children: [
                     for (final m in months)
                       Expanded(
+                        // Read out, not pressed: a 12-bar slot is narrower than a 48 dp target, and
+                        // TalkBack already hears each month's amount (final QA S-258).
                         child: Semantics(
-                          button: true,
                           selected: m.month == selected,
                           label: l.insMonthBar(
                             monthTitle(context, m.month),

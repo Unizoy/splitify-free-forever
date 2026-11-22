@@ -223,7 +223,7 @@ void main() {
 
       // Oracle (paise): dinner m2 -10000, m3 -10000, m1 +20000; hotel m1 -375000, m2 +375000.
       final me = _net(t, 'm1');
-      expect((me.title, me.amountText, me.amountCaption), ('You', '₹3,550', 'owes'));
+      expect((me.title, me.amountText, me.amountCaption), ('You', '₹3,550', 'owe'));
       final asha = _net(t, 'm2');
       expect((asha.title, asha.amountText, asha.amountCaption), ('Asha', '₹3,650', 'gets back'));
       final ravi = _net(t, 'm3');
@@ -287,7 +287,7 @@ void main() {
       expect(_net(t, 'm2').amountText, '₹650');
       expect(_net(t, 'm2').amountCaption, 'gets back');
       expect(_net(t, 'm1').amountText, '₹550');
-      expect(_net(t, 'm1').amountCaption, 'owes');
+      expect(_net(t, 'm1').amountCaption, 'owe');
     });
   });
 
@@ -312,7 +312,7 @@ void main() {
       expect(_transfers(), findsOneWidget);
       expect(_transfer(t, 'm2', 'm1').amountText, '₹250');
       // nets do not change: Mohit +250, Asha -250, Ravi settled
-      expect((_net(t, 'm1').amountText, _net(t, 'm1').amountCaption), ('₹250', 'gets back'));
+      expect((_net(t, 'm1').amountText, _net(t, 'm1').amountCaption), ('₹250', 'get back'));
       expect((_net(t, 'm2').amountText, _net(t, 'm2').amountCaption), ('₹250', 'owes'));
       expect((_net(t, 'm3').amountText, _net(t, 'm3').amountCaption), ('', 'settled up'));
 

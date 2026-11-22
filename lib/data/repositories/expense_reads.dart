@@ -10,7 +10,8 @@ extension ExpenseReads on ExpensesRepository {
       (db.select(db.groupMembers)
             ..where((m) => m.groupId.equals(groupId))
             ..orderBy([(m) => OrderingTerm.asc(m.position), (m) => OrderingTerm.asc(m.id)]))
-          .watch();
+          .watch()
+          .map(rememberTints);
 
   /// Category of the group's newest live expense (loans left out), suggested first for the next one (#13).
   Future<String?> lastCategory(String groupId) async {

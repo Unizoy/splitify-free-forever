@@ -17,7 +17,6 @@ import 'package:splitify/features/account/presentation/profile_edit_screen.dart'
 import 'package:splitify/features/auth/application/auth_providers.dart';
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/components/components.dart' show DotsPulse;
-import 'package:splitify/ui/components/option_tile.dart';
 import 'package:splitify/ui/theme/theme.dart';
 
 import '../../../support/fakes.dart';
@@ -238,12 +237,21 @@ void main() {
     await tester.pump();
     await tester.tap(find.byKey(const Key('profile-currency')));
     await _settle(tester);
-    await tester.tap(find.byType(OptionTile).at(1));
+    // The searchable currency picker (final QA S-253).
+    await tester.enterText(
+      find.descendant(
+        of: find.byKey(const Key('currency-search')),
+        matching: find.byType(TextField),
+      ),
+      'usd',
+    );
+    await _settle(tester);
+    await tester.tap(find.byKey(const Key('currency-found-USD')));
     await _settle(tester);
     await tester.tap(find.text('Save'));
     await _settle(tester);
     expect(h.remote.profile?.displayName, 'Asha R');
-    expect(h.remote.profile?.defaultCurrency, isNot('INR'));
+    expect(h.remote.profile?.defaultCurrency, 'USD');
     expect(h.remote.uploads, hasLength(1));
   });
 

@@ -430,6 +430,7 @@ class _Person extends StatelessWidget {
     button: true,
     label: tooltip,
     excludeSemantics: true,
+    onTap: onTap,
     child: InkWell(
       onTap: onTap,
       borderRadius: AppRadii.all16,

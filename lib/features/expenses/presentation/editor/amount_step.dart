@@ -5,6 +5,8 @@ import 'package:splitify/core/money/money_formatter.dart';
 import 'package:splitify/features/expenses/application/expense_draft.dart';
 import 'package:splitify/features/expenses/application/keypad_input.dart';
 import 'package:splitify/features/expenses/presentation/expense_copy.dart';
+import 'package:splitify/features/currency/presentation/currency_picker_sheet.dart'
+    show CurrencyChip;
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/components/components.dart';
 import 'package:splitify/ui/theme/theme.dart';
@@ -71,7 +73,7 @@ class AmountStep extends StatelessWidget {
                 ),
                 const SizedBox(height: AppSpacing.s5),
                 Center(
-                  child: _CurrencyChip(
+                  child: CurrencyChip(
                     code: draft.currency,
                     onTap: onPickCurrency ?? () => showComingSoon(context),
                   ),
@@ -136,50 +138,6 @@ class AmountStep extends StatelessWidget {
             allowDot: Currencies.exponentOf(draft.currency) > 0,
           ),
       ],
-    );
-  }
-}
-
-/// "INR ▾" pill: the group's main currency (the full picker arrives in phase 14).
-class _CurrencyChip extends StatelessWidget {
-  const _CurrencyChip({required this.code, required this.onTap});
-
-  final String code;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final l = AppLocalizations.of(context);
-    final c = context.colors;
-    return Semantics(
-      button: true,
-      label: l.expCurrencyLabel(code),
-      excludeSemantics: true,
-      child: Material(
-        color: c.primaryContainer,
-        shape: const StadiumBorder(),
-        child: InkWell(
-          onTap: onTap,
-          customBorder: const StadiumBorder(),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(minHeight: 36, minWidth: AppSpacing.minTouch),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.s4,
-                vertical: AppSpacing.s1,
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(code, style: context.text.labelCaps.copyWith(color: c.onPrimaryContainer)),
-                  const SizedBox(width: AppSpacing.s1),
-                  Icon(AppIcons.chevronDown, size: 14, color: c.onPrimaryContainer),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
     );
   }
 }
@@ -271,23 +229,24 @@ class _Key extends StatelessWidget {
     final Widget face = keyValue == KeypadKey.delete
         ? Icon(AppIcons.backspace, size: 26, color: fg)
         : Text(keyValue.symbol, style: context.text.headline.w(op ? 600 : 500).copyWith(color: fg));
+    void tap() {
+      HapticFeedback.selectionClick();
+      onTap();
+    }
+
     return Semantics(
       button: true,
       enabled: enabled,
       label: label,
       excludeSemantics: true,
+      onTap: enabled ? tap : null,
       child: Material(
         color: op ? c.surfaceMuted : c.surface,
         borderRadius: AppRadii.all16,
         child: InkWell(
           key: Key('key-${keyValue.name}'),
           borderRadius: AppRadii.all16,
-          onTap: enabled
-              ? () {
-                  HapticFeedback.selectionClick();
-                  onTap();
-                }
-              : null,
+          onTap: enabled ? tap : null,
           onLongPress: onLongPress,
           child: SizedBox(height: 52, child: Center(child: face)),
         ),

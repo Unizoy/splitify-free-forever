@@ -10,8 +10,10 @@
         android:label="Splitify Free Forever"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+        <!-- Launcher label: the full name does not fit under an icon ("Splitify Free …"); final QA S-257. -->
         <activity
             android:name=".MainActivity"
+            android:label="Splitify"
             android:exported="true"
             android:launchMode="singleTop"
             android:taskAffinity=""

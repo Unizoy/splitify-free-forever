@@ -4379,4 +4379,27 @@ class AppLocalizationsEn extends AppLocalizations {
   String captureRef(String ref) {
     return 'UPI ref $ref';
   }
+
+  @override
+  String get linkNotFoundTitle => 'This link doesn’t open anything';
+
+  @override
+  String get linkNotFoundBody => 'It may be old or mistyped. Your groups are one tap away.';
+
+  @override
+  String get linkNotFoundAction => 'Go to groups';
+
+  @override
+  String expYouOwe(String amount) {
+    return 'owe $amount';
+  }
+
+  @override
+  String get expYouOweNothing => 'owe nothing';
+
+  @override
+  String get balYouGetBack => 'get back';
+
+  @override
+  String get balYouOwe => 'owe';
 }

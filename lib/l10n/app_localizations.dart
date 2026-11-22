@@ -7117,6 +7117,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'UPI ref {ref}'**
   String captureRef(String ref);
+
+  /// Shown when a splitify:// link or a route does not exist (final QA, S-250).
+  ///
+  /// In en, this message translates to:
+  /// **'This link doesn’t open anything'**
+  String get linkNotFoundTitle;
+
+  /// No description provided for @linkNotFoundBody.
+  ///
+  /// In en, this message translates to:
+  /// **'It may be old or mistyped. Your groups are one tap away.'**
+  String get linkNotFoundBody;
+
+  /// No description provided for @linkNotFoundAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Go to groups'**
+  String get linkNotFoundAction;
+
+  /// After “You” in a split list (expYouOwe vs expOwes for others).
+  ///
+  /// In en, this message translates to:
+  /// **'owe {amount}'**
+  String expYouOwe(String amount);
+
+  /// No description provided for @expYouOweNothing.
+  ///
+  /// In en, this message translates to:
+  /// **'owe nothing'**
+  String get expYouOweNothing;
+
+  /// Caption under your own net in Balances (“You … get back”).
+  ///
+  /// In en, this message translates to:
+  /// **'get back'**
+  String get balYouGetBack;
+
+  /// Caption under your own net in Balances (“You … owe”).
+  ///
+  /// In en, this message translates to:
+  /// **'owe'**
+  String get balYouOwe;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

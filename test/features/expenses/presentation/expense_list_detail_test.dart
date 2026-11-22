@@ -212,7 +212,8 @@ void main() {
       expect(find.text('You lent ₹1,800.00'), findsOneWidget);
       expect(find.text('PAID BY'), findsOneWidget);
       expect(find.text('SPLIT · EQUALLY'), findsOneWidget);
-      expect(find.text('owes ₹600.00'), findsNWidgets(4));
+      expect(find.text('owes ₹600.00'), findsNWidgets(3));
+      expect(find.text('owe ₹600.00'), findsOneWidget); // You (S-252)
       expect(find.text('Asha Rao'), findsOneWidget);
       expect(find.text('Dining out'), findsOneWidget);
       expect(find.text('20 Nov 2026'), findsOneWidget);

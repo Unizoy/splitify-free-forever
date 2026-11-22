@@ -4,6 +4,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/theme/theme.dart';
 
+import '../support/a11y_guidelines.dart';
+
 /// Phone width used by every golden (logical px).
 const goldenWidth = 412.0;
 
@@ -29,6 +31,7 @@ Future<void> expectA11y(WidgetTester tester) async {
     await tester.pump();
     await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
     await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));
+    await expectLater(tester, meetsGuideline(buttonsHaveTapGuideline));
   } finally {
     handle.dispose();
   }

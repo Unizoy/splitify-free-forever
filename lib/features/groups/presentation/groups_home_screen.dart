@@ -13,8 +13,11 @@ import 'package:splitify/features/balances/presentation/balance_copy.dart';
 import 'package:splitify/features/capture/presentation/payments_to_add.dart';
 import 'package:splitify/features/groups/application/groups_providers.dart';
 import 'package:splitify/features/groups/presentation/group_visuals.dart';
+import 'package:splitify/features/notifications/application/notifications_providers.dart'
+    show unreadNotificationsProvider;
 import 'package:splitify/features/payments/presentation/settle_picker.dart';
 import 'package:splitify/features/search/presentation/search_screen.dart' show SearchRoutes;
+import 'package:splitify/features/sync/presentation/sync_refresh.dart';
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/components/components.dart';
 import 'package:splitify/ui/theme/theme.dart';
@@ -106,54 +109,57 @@ class _GroupsHomeScreenState extends ConsumerState<GroupsHomeScreen> {
     }
 
     return Scaffold(
-      body: SingleChildScrollView(
-        child: OverlapColumn(
-          top: _Hero(groupCount: active.length, balances: mine),
-          bottom: OverlapSheet(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Wrap(
-                  spacing: AppSpacing.s2,
-                  runSpacing: AppSpacing.s2,
-                  alignment: WrapAlignment.spaceBetween,
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(right: AppSpacing.s2),
-                      child: SectionLabel(l.activeGroups(active.length)),
-                    ),
-                    if (groups != null && groups.isNotEmpty)
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          PillButton(
-                            key: const Key('groups-join'),
-                            label: l.joinShort,
-                            icon: AppIcons.qr,
-                            variant: PillVariant.outline,
-                            size: PillSize.medium,
-                            expand: false,
-                            onPressed: () => context.push('/join'),
-                          ),
-                          const SizedBox(width: AppSpacing.s2),
-                          PillButton(
-                            key: const Key('groups-new'),
-                            label: l.newShort,
-                            icon: AppIcons.plus,
-                            size: PillSize.medium,
-                            expand: false,
-                            onPressed: () => context.push('/groups/new'),
-                          ),
-                        ],
+      body: SyncRefresh(
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: OverlapColumn(
+            top: _Hero(groupCount: active.length, balances: mine),
+            bottom: OverlapSheet(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Wrap(
+                    spacing: AppSpacing.s2,
+                    runSpacing: AppSpacing.s2,
+                    alignment: WrapAlignment.spaceBetween,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(right: AppSpacing.s2),
+                        child: SectionLabel(l.activeGroups(active.length)),
                       ),
-                  ],
-                ),
-                if (offline) ...[const SizedBox(height: AppSpacing.s4), const _OfflineNote()],
-                const SizedBox(height: AppSpacing.s4),
-                content,
-                const SizedBox(height: AppSpacing.navReserve),
-              ],
+                      if (groups != null && groups.isNotEmpty)
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            PillButton(
+                              key: const Key('groups-join'),
+                              label: l.joinShort,
+                              icon: AppIcons.qr,
+                              variant: PillVariant.outline,
+                              size: PillSize.medium,
+                              expand: false,
+                              onPressed: () => context.push('/join'),
+                            ),
+                            const SizedBox(width: AppSpacing.s2),
+                            PillButton(
+                              key: const Key('groups-new'),
+                              label: l.newShort,
+                              icon: AppIcons.plus,
+                              size: PillSize.medium,
+                              expand: false,
+                              onPressed: () => context.push('/groups/new'),
+                            ),
+                          ],
+                        ),
+                    ],
+                  ),
+                  if (offline) ...[const SizedBox(height: AppSpacing.s4), const _OfflineNote()],
+                  const SizedBox(height: AppSpacing.s4),
+                  content,
+                  const SizedBox(height: AppSpacing.navReserve),
+                ],
+              ),
             ),
           ),
         ),
@@ -180,6 +186,7 @@ class _Hero extends ConsumerWidget {
     final mixed = status == BalanceStatus.mixed;
     String amount(String code) =>
         mixed ? signedMoney(totals[code]!, code) : listMoney(totals[code]!.abs(), code);
+    final unread = ref.watch(unreadNotificationsProvider).value ?? 0;
     final owing = b?.peopleOwingMe ?? 0;
     final owed = b?.peopleIOwe ?? 0;
     final caption = [
@@ -198,9 +205,12 @@ class _Hero extends ConsumerWidget {
           onPressed: () => unawaited(context.push(SearchRoutes.search())),
         ),
         HeroIconButton(
+          key: const Key('groups-bell'),
           icon: AppIcons.bell,
           tooltip: l.notifications,
-          onPressed: () => showComingSoon(context),
+          badge: unread,
+          semanticLabel: l.notifBellLabel(unread),
+          onPressed: () => unawaited(context.push('/notifications')),
         ),
       ],
       child: GlassCard(

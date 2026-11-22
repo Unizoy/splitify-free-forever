@@ -51,6 +51,7 @@ class _AddTile extends StatelessWidget {
       button: true,
       label: l.receiptAdd,
       excludeSemantics: true,
+      onTap: onTap,
       child: CustomPaint(
         painter: DashedBorderPainter(color: c.primary.withValues(alpha: 0.55), radius: 24),
         child: Material(
@@ -129,6 +130,15 @@ class _PhotoRow extends ConsumerWidget {
           );
     final scale = MediaQuery.textScalerOf(context).scale(1);
     final side = 88 * (1 + (scale.clamp(1, 2) - 1) * 0.4);
+    void open() => unawaited(
+      PhotoViewerScreen.open(
+        context,
+        title: l.receiptPhoto,
+        bytes: image?.full,
+        bucket: image == null ? MediaBuckets.receipts : null,
+        path: image == null ? path : null,
+      ),
+    );
     return Container(
       key: const Key('receipt-photo'),
       padding: const EdgeInsets.all(AppSpacing.s3),
@@ -143,17 +153,10 @@ class _PhotoRow extends ConsumerWidget {
             button: true,
             label: l.photoView,
             excludeSemantics: true,
+            onTap: open,
             child: GestureDetector(
               key: const Key('receipt-open'),
-              onTap: () => unawaited(
-                PhotoViewerScreen.open(
-                  context,
-                  title: l.receiptPhoto,
-                  bytes: image?.full,
-                  bucket: image == null ? MediaBuckets.receipts : null,
-                  path: image == null ? path : null,
-                ),
-              ),
+              onTap: open,
               child: ClipRRect(
                 borderRadius: AppRadii.all16,
                 child: SizedBox.square(dimension: side, child: thumb),
