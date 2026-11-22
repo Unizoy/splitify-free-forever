@@ -5,8 +5,10 @@ import 'dart:ui' show IsolateNameServer;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:splitify/data/sync/background_sync.dart';
+import 'package:workmanager/workmanager.dart';
 
 void main() {
+  wmTests();
   tearDown(() => IsolateNameServer.removePortNameMapping(foregroundSyncPortName));
 
   test('no signed-in app in the process: the worker syncs on its own', () async {
@@ -52,5 +54,47 @@ void main() {
     await b.start();
     await b.syncWhenOnline();
     await b.stop();
+  });
+}
+
+/// Records every WorkManager call; [fail] makes them throw.
+class _FakeWorkmanager implements Workmanager {
+  final calls = <String>[];
+  bool fail = false;
+
+  @override
+  dynamic noSuchMethod(Invocation i) {
+    calls.add(i.memberName.toString().replaceAll('Symbol("', '').replaceAll('")', ''));
+    if (fail) return Future<void>.error(StateError('no plugin'));
+    return Future<void>.value();
+  }
+}
+
+void wmTests() {
+  group('WorkmanagerBackgroundSync', () {
+    test('periodic keep, one-off replace, cancel all on stop', () async {
+      final wm = _FakeWorkmanager();
+      final bg = WorkmanagerBackgroundSync(wm);
+      await bg.start();
+      await bg.syncWhenOnline();
+      await bg.stop();
+      expect(wm.calls, ['registerPeriodicTask', 'registerOneOffTask', 'cancelAll']);
+    });
+
+    test('plugin errors are logged, never thrown', () async {
+      final wm = _FakeWorkmanager()..fail = true;
+      final bg = WorkmanagerBackgroundSync(wm);
+      await expectLater(bg.start(), completes);
+      await expectLater(bg.syncWhenOnline(), completes);
+      await expectLater(bg.stop(), completes);
+      expect(wm.calls, hasLength(3));
+    });
+
+    test('NoBackgroundSync does nothing', () async {
+      const bg = NoBackgroundSync();
+      await bg.start();
+      await bg.syncWhenOnline();
+      await bg.stop();
+    });
   });
 }
