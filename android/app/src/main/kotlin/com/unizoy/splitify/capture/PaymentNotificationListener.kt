@@ -12,6 +12,13 @@ import android.service.notification.StatusBarNotification
  * binds it and rebinds after reboot or a process kill); text goes straight to the parser and is never stored.
  */
 class PaymentNotificationListener : NotificationListenerService() {
+    override fun onListenerConnected() {
+        connected = true
+    }
+
+    override fun onListenerDisconnected() {
+        connected = false
+    }
     override fun onNotificationPosted(sbn: StatusBarNotification) {
         if (sbn.packageName == packageName || sbn.isOngoing) return
         val n = sbn.notification ?: return
@@ -24,6 +31,13 @@ class PaymentNotificationListener : NotificationListenerService() {
             ?: extras.getCharSequence(Notification.EXTRA_BIG_TEXT)?.toString()
             ?: extras.getCharSequence(Notification.EXTRA_TEXT)?.toString()
         center.onNotification(sbn.packageName, title, text, sbn.postTime)
+    }
+
+    companion object {
+        /** True while Android has the listener bound (settings screen + e2e wait for it). */
+        @Volatile
+        var connected = false
+            private set
     }
 
     /** SMS apps use MessagingStyle: the newest message is the SMS that just arrived. */

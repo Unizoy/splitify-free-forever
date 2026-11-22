@@ -102,6 +102,16 @@ class CaptureCenter private constructor(private val context: Context) {
         for (cls in listOf(PaymentNotificationListener::class.java, SmartCaptureService::class.java)) {
             pm.setComponentEnabledSetting(ComponentName(context, cls), state, PackageManager.DONT_KILL_APP)
         }
+        // After an app update or a re-enable Android may take a while to bind the listener again: ask now.
+        if (enabled && android.os.Build.VERSION.SDK_INT >= 24) {
+            try {
+                android.service.notification.NotificationListenerService.requestRebind(
+                    ComponentName(context, PaymentNotificationListener::class.java),
+                )
+            } catch (e: RuntimeException) {
+                log("rebind not possible: ${e.javaClass.simpleName}")
+            }
+        }
         if (!enabled) BubbleController.hide("feature off")
     }
 

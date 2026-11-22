@@ -121,12 +121,18 @@ object BubbleController {
                 WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY to (smart as Context)
             else -> return false
         }
-        if (handle != null && type == windowType) return true
-        if (handle != null) hide("window type changed")
+        // The app's theme or the phone's dark mode may have changed since the bubble was drawn: redraw then.
+        val theme = BubbleTheme.of(ctx, center.store.config().theme)
+        if (handle != null && type == windowType && ui?.theme == theme) return true
+        if (handle != null) {
+            val keep = current
+            hide("restyle")
+            current = keep
+        }
         windowType = type
         appContext = app
         wm = ctx.getSystemService(Context.WINDOW_SERVICE) as WindowManager
-        ui = BubbleUi(ctx, BubbleTheme.of(ctx, center.store.config().theme))
+        ui = BubbleUi(ctx, theme)
         return true
     }
 
@@ -229,6 +235,7 @@ object BubbleController {
             wm?.addView(view, p)
             handle = view
             handleParams = p
+            view.post { logUi(view) }
         } catch (e: RuntimeException) {
             Log.w(TAG, "cannot add the bubble: ${e.message}")
         }
@@ -314,7 +321,7 @@ object BubbleController {
         }
         if (Build.VERSION.SDK_INT >= 31 && wm?.isCrossWindowBlurEnabled == true) {
             p.flags = p.flags or WindowManager.LayoutParams.FLAG_BLUR_BEHIND
-            p.blurBehindRadius = u.dp(24)
+            p.blurBehindRadius = u.dp(16)
             p.dimAmount = 0f
         }
         view.setOnTouchListener { _, e ->
@@ -326,6 +333,7 @@ object BubbleController {
             wm?.addView(view, p)
             card = view
             view.sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED)
+            view.post { logUi(view) }
         } catch (e: RuntimeException) {
             Log.w(TAG, "cannot add the card: ${e.message}")
         }
@@ -388,7 +396,7 @@ object BubbleController {
             minHeight = u.dp(48)
             contentDescription = ctx.getString(R.string.capture_bubble_more)
             isClickable = true
-            isFocusable = true
+            noFocusHighlight()
         }
         val headRow = u.row(icon, head, more)
         (icon.layoutParams as LinearLayout.LayoutParams).apply { width = u.dp(32); height = u.dp(32); marginEnd = u.dp(10) }
@@ -503,6 +511,27 @@ object BubbleController {
 
     private fun log(msg: String) {
         if (CaptureCenter.isDebug(appContext)) Log.i(TAG, msg)
+    }
+
+    /**
+     * Debug builds only: the bubble's texts and the screen centre of every tappable view, so the e2e script can
+     * check the content and tap the real views (`uiautomator dump` does not see overlay windows).
+     */
+    private fun logUi(root: View) {
+        if (!CaptureCenter.isDebug(appContext)) return
+        fun walk(v: View) {
+            if (v.visibility != View.VISIBLE) return
+            val label = (v as? android.widget.TextView)?.text?.toString() ?: v.contentDescription?.toString()
+            if (v.isClickable && label != null) {
+                val at = IntArray(2)
+                v.getLocationOnScreen(at)
+                Log.i(TAG, "ui tap $label @ ${at[0] + v.width / 2} ${at[1] + v.height / 2}")
+            } else if (v is android.widget.TextView && v.text.isNotEmpty()) {
+                Log.i(TAG, "ui text ${v.text}")
+            }
+            if (v is android.view.ViewGroup) for (i in 0 until v.childCount) walk(v.getChildAt(i))
+        }
+        walk(root)
     }
 }
 

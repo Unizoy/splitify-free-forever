@@ -10,6 +10,8 @@
 # Results: splitify-artifacts\phase-18b\ (screenshots, logs, e2e-report.txt).
 param([switch]$NoLock, [switch]$SkipShots, [string]$Device = 'emulator-5554')
 $ErrorActionPreference = 'Continue'
+[Console]::OutputEncoding = [Text.Encoding]::UTF8   # adb output (ui dumps) carries the rupee sign
+$R = [string][char]0x20B9                            # keep this file ASCII (PowerShell 5.1 reads it as ANSI)
 $repo = (Resolve-Path "$PSScriptRoot\..\..").Path
 Set-Location $repo
 . "$repo\tool\env.ps1"
@@ -67,7 +69,9 @@ function Find-Center([string]$xml, [string]$text) {
   $esc = [regex]::Escape($text)
   $m = [regex]::Match($xml, "(?:text|content-desc)=`"$esc`"[^>]*bounds=`"\[(\d+),(\d+)\]\[(\d+),(\d+)\]`"")
   if (-not $m.Success) { return $null }
-  return @(([int]$m.Groups[1].Value + [int]$m.Groups[3].Value) / 2, ([int]$m.Groups[2].Value + [int]$m.Groups[4].Value) / 2)
+  $x = [int](([int]$m.Groups[1].Value + [int]$m.Groups[3].Value) / 2)
+  $y = [int](([int]$m.Groups[2].Value + [int]$m.Groups[4].Value) / 2)
+  return , @($x, $y)
 }
 function Tap-Text([string]$text, [int]$tries = 6) {
   for ($i = 0; $i -lt $tries; $i++) {
@@ -80,6 +84,26 @@ function Tap-Text([string]$text, [int]$tries = 6) {
 function Ui-Has([string]$text) { (Get-Ui) -match [regex]::Escape($text) }
 
 function Capture-Log { (Adb logcat -d -s 'SplitifyCapture:I' 'SplitifyBubble:I') -join "`n" }
+
+# The bubble lives in overlay windows that `uiautomator dump` cannot see: debug builds log its texts and the
+# screen centre of each tappable view ("ui text ...", "ui tap <label> @ x y") after every show.
+function Bubble-Lines {
+  $log = (Adb logcat -d -s 'SplitifyBubble:I') -join "`n"
+  $i = $log.LastIndexOf('SplitifyBubble: shown')
+  $j = $log.LastIndexOf('SplitifyBubble: payment in progress')
+  $from = [Math]::Max($i, $j)
+  if ($from -lt 0) { return '' }
+  return $log.Substring($from)
+}
+function Bubble-Has([string]$text) { (Bubble-Lines) -match [regex]::Escape("ui text $text") }
+function Tap-Bubble([string]$label) {
+  $all = (Adb logcat -d -s 'SplitifyBubble:I') -join "`n"
+  $ms = [regex]::Matches($all, "ui tap $([regex]::Escape($label)) @ (\d+) (\d+)")
+  if ($ms.Count -eq 0) { return $false }
+  $m = $ms[$ms.Count - 1]
+  Adb shell input tap $m.Groups[1].Value $m.Groups[2].Value | Out-Null
+  return $true
+}
 function Wait-Log([string]$pattern, [int]$seconds = 12) {
   $end = (Get-Date).AddSeconds($seconds)
   while ((Get-Date) -lt $end) {
@@ -89,6 +113,9 @@ function Wait-Log([string]$pattern, [int]$seconds = 12) {
   return $false
 }
 
+function Post-Pay([string]$amount, [string]$payee, [string]$ref) {
+  Adb shell am broadcast -n dev.splitify.fakeupi/.Notifier --es amount $amount --es payee "'$payee'" --es ref $ref | Out-Null
+}
 function Post-Upi([string]$title, [string]$text) {
   Adb shell am broadcast -n dev.splitify.fakeupi/.Notifier --es title "'$title'" --es text "'$text'" | Out-Null
 }
@@ -98,6 +125,7 @@ function Post-Shell([string]$tag, [string]$title, [string]$text) {
 function Send-Sms([string]$text) { Adb emu sms send 5554 $text | Out-Null }
 
 function Grant {
+  $script:a11yBefore = ((Adb shell settings get secure enabled_accessibility_services) -join '').Trim()
   Adb shell appops set $app SYSTEM_ALERT_WINDOW allow | Out-Null
   Adb shell cmd notification allow_listener $listener | Out-Null
   Adb shell settings put secure enabled_accessibility_services $smart | Out-Null
@@ -113,9 +141,9 @@ function Scenarios {
   # TC-X4-07: credit, OTP, promo, request and failure alerts give no bubble.
   Post-Shell 'otp1' 'VM-HDFCBK' '123456 is your OTP for a Dr. INR 500.00 transaction. Do not share it.'
   Post-Shell 'cr1' 'CP-CANBNK' 'Dear Customer, Acct XX123 credited with INR 1,000.00 on 18-10-26 from TEST PAYEE; UPI:600000000001'
-  Post-Upi 'Get ₹100 cashback' 'On your next payment! Offer ends today'
-  Post-Upi 'Rahul requested ₹500' 'Tap to pay'
-  Post-Upi 'Payment failed' 'Payment of ₹500 to Rahul failed'
+  Post-Upi 'Get Rs 100 cashback' 'On your next payment! Offer ends today'
+  Post-Upi 'Rahul requested Rs 500' 'Tap to pay'
+  Post-Upi 'Payment failed' 'Payment of Rs 500 to Rahul failed'
   Start-Sleep 4
   $log = Capture-Log
   foreach ($r in 'otp', 'credit', 'promo', 'request', 'failed') {
@@ -136,32 +164,32 @@ function Scenarios {
   Check (Tap-Text 'Pay') 'fake app: Pay'
   Start-Sleep 3
   Check ((Wait-Log 'capture added [0-9a-f-]+ screen screen_amount_paid_to') -and (Bubble-Count) -ge 2) 'TC-X4-05 success screen gives the expanded bubble'
-  Check (Ui-Has 'Add to Splitify') 'bubble card shows Add to Splitify'
+  Check ((Bubble-Has "$($R)250") -and ((Bubble-Lines) -match 'ui tap Add to Splitify')) 'bubble card shows Rs 250 and Add to Splitify'
   Save-Shot 'e2e-smart-success'
-  Check (Tap-Text 'Not now') 'Not now dismisses the smart capture'
+  Check (Tap-Bubble 'Not now') 'Not now dismisses the smart capture'
   Start-Sleep 2
   Check ((Bubble-Count) -eq 0) 'bubble gone after Not now'
   Adb shell input keyevent KEYCODE_HOME | Out-Null
 
   # TC-X4-03: a UPI app notification gives a bubble.
-  Post-Upi 'Payment successful' '₹420 paid to Neha Gupta. UPI Ref No 612345678920'
+  Post-Pay '420' 'Neha Gupta' '612345678920'
   Check (Wait-Log 'capture added [0-9a-f-]+ notification') 'TC-X4-03 UPI notification captured'
   Start-Sleep 2
-  $ui = Get-Ui
-  Check ((Bubble-Count) -ge 2 -and $ui -match '₹420' -and $ui -match 'to Neha Gupta') 'TC-X4-03 expanded bubble shows ₹420 to Neha Gupta'
+  Check ((Bubble-Count) -ge 2 -and (Bubble-Has "$($R)420") -and (Bubble-Has 'to Neha Gupta')) 'TC-X4-03 expanded bubble shows Rs 420 to Neha Gupta'
   Save-Shot 'e2e-bubble-notification'
 
   # TC-X4-02: the bank SMS of the same payment merges (no second bubble).
   Send-Sms 'Sent Rs.420.00 From HDFC Bank A/C *1234 To NEHA GUPTA On 22/11/26 Ref 612345678920 Not You? Call 18002586161'
-  Check (Wait-Log 'capture merged|duplicate ignored' 20) 'TC-X4-02 SMS of the same payment merged'
+  Check (Wait-Log 'capture merged|duplicate ignored' 60) 'TC-X4-02 SMS of the same payment merged'
   Check (-not ((Capture-Log) -match 'capture added [0-9a-f-]+ sms sent_from_to')) 'TC-X4-02 no second capture'
 
   # Drag the handle onto the ✕ target: hidden, still in Payments to add.
   Start-Sleep 9   # card auto-collapses after 8 s
-  $handle = Find-Center (Get-Ui) 'Splitify: paid ₹420 to Neha Gupta. Double tap to open'
+  $hm = [regex]::Matches((Bubble-Lines), "ui tap Splitify: paid $($R)420 to Neha Gupta\. Double tap to open @ (\d+) (\d+)")
+  $handle = if ($hm.Count -gt 0) { @([int]$hm[0].Groups[1].Value, [int]$hm[0].Groups[2].Value) } else { $null }
   if ($handle) {
     $size = (Adb shell wm size) -join '' ; $m = [regex]::Match($size, '(\d+)x(\d+)')
-    $tx = [int]$m.Groups[1].Value / 2; $ty = [int]$m.Groups[2].Value - 330
+    $tx = [int]([int]$m.Groups[1].Value / 2); $ty = [int]$m.Groups[2].Value - 330
     Adb shell input swipe $handle[0] $handle[1] $tx $ty 1500 | Out-Null
     Start-Sleep 2
     Check ((Wait-Log 'hidden \(dropped on target\)') -and (Bubble-Count) -eq 0) 'drag onto the target hides the bubble'
@@ -169,14 +197,13 @@ function Scenarios {
 
   # TC-X4-04: an SMS-only payment gives a bubble.
   Send-Sms 'Dear UPI user A/C X1234 debited by 99.0 on date 22Nov26 trf to Chai Point Refno 612345678922 If not u? call-1800111109 -SBI'
-  Check (Wait-Log 'capture added [0-9a-f-]+ sms sbi_trf' 25) 'TC-X4-04 bank SMS captured'
+  Check (Wait-Log 'capture added [0-9a-f-]+ sms sbi_trf' 60) 'TC-X4-04 bank SMS captured'
   Start-Sleep 2
-  $ui = Get-Ui
-  Check ($ui -match '₹99' -and $ui -match 'to Chai Point') 'TC-X4-04 bubble shows ₹99 to Chai Point'
+  Check ((Bubble-Has "$($R)99") -and (Bubble-Has 'to Chai Point')) 'TC-X4-04 bubble shows Rs 99 to Chai Point'
   Save-Shot 'e2e-bubble-sms'
 
   # TC-X4-06: Add to Splitify opens the app on the capture screen (the test takes over).
-  Check (Tap-Text 'Add to Splitify') 'TC-X4-06 tapped Add to Splitify'
+  Check (Tap-Bubble 'Add to Splitify') 'TC-X4-06 tapped Add to Splitify'
 }
 
 function Shots {
@@ -191,14 +218,16 @@ function Shots {
     Adb shell cmd uimode night $v.dark | Out-Null
     Adb shell settings put system font_scale $v.font | Out-Null
     Start-Sleep 3
-    Post-Upi 'Payment successful' "₹$($v.amt) paid to Priya Nair. UPI Ref No $($v.ref)"
-    Start-Sleep 3
+    Adb logcat -c | Out-Null
+    Post-Pay $v.amt 'Priya Nair' $v.ref
+    [void](Wait-Log 'SplitifyBubble: shown' 30)
+    Start-Sleep 2
     Save-Shot "bubble-expanded-$($v.n)"
     Start-Sleep 9
     Save-Shot "bubble-collapsed-$($v.n)"
-    [void](Tap-Text 'Splitify: paid ₹1,250.50 to Priya Nair. Double tap to open')
+    [void](Tap-Bubble "Splitify: paid $($R)1,250.50 to Priya Nair. Double tap to open")
     Start-Sleep 2
-    [void](Tap-Text 'Not now')
+    [void](Tap-Bubble 'Not now')
     Start-Sleep 2
   }
   Adb shell cmd uimode night no | Out-Null
@@ -228,8 +257,18 @@ try {
     for ($i = $handled; $i -lt $marks.Count; $i++) {
       $m = $marks[$i]
       if ($m.Value -eq 'E2E-GRANT') { Grant }
-      elseif ($m.Value -eq 'E2E-READY') { Scenarios }
-      else { Save-Shot "app-$($m.Groups[1].Value)"; Note "captured app-$($m.Groups[1].Value)" }
+      elseif ($m.Value -eq 'E2E-READY') { try { Scenarios } catch { Check $false "scenario error: $_" } }
+      else {
+        # Light, dark and 200 % text while the test holds the screen (UI_HOLD).
+        $n = $m.Groups[1].Value
+        Start-Sleep 1
+        Save-Shot "app-$n-light"
+        Adb shell cmd uimode night yes | Out-Null; Start-Sleep 3; Save-Shot "app-$n-dark"
+        Adb shell cmd uimode night no | Out-Null
+        Adb shell settings put system font_scale 2.0 | Out-Null; Start-Sleep 3; Save-Shot "app-$n-font200"
+        Adb shell settings put system font_scale 1.0 | Out-Null
+        Note "captured app-$n (light, dark, 200 %)"
+      }
     }
     $handled = $marks.Count
   }
@@ -242,6 +281,17 @@ try {
   (Capture-Log) | Set-Content (Join-Path $out 'e2e-capture-logcat.txt')
   if (-not $SkipShots) { Shots }
 } finally {
+  # Never leave the flutter test waiting on the device.
+  Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -like '*capture_bubble_test*' } |
+    ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }
+  # Leave the shared emulator as we found it: our accessibility service off again.
+  if ($null -ne $script:a11yBefore) {
+    if ($script:a11yBefore -eq 'null' -or -not $script:a11yBefore) {
+      Adb shell settings delete secure enabled_accessibility_services | Out-Null
+    } else {
+      Adb shell settings put secure enabled_accessibility_services $script:a11yBefore | Out-Null
+    }
+  }
   Adb shell settings put system font_scale 1.0 | Out-Null
   Adb shell cmd uimode night no | Out-Null
   Exit-Lock

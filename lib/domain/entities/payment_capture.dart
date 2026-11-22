@@ -181,6 +181,8 @@ class CapturePermissions {
     this.postNotifications = false,
     this.supported = false,
     this.sdk = 0,
+    this.listening = false,
+    this.smartConnected = false,
   });
 
   final bool notifications;
@@ -191,6 +193,10 @@ class CapturePermissions {
   /// False when the platform has no capture services (not Android, tests).
   final bool supported;
   final int sdk;
+
+  /// Android has actually bound the listener / the accessibility service (not just allowed them).
+  final bool listening;
+  final bool smartConnected;
 
   bool granted(CaptureAccess a) => switch (a) {
     CaptureAccess.notifications => notifications,

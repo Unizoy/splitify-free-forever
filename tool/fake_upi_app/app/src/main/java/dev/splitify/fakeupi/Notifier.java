@@ -10,7 +10,8 @@ import android.util.Log;
 
 /**
  * Posts a payment notification like a UPI app (phase 18b e2e). Also a broadcast receiver so the PC script can
- * post any text: adb shell am broadcast -n dev.splitify.fakeupi/.Notifier --es title "…" --es text "…"
+ * post any text: adb shell am broadcast -n dev.splitify.fakeupi/.Notifier --es title "…" --es text "…", or the
+ * UPI template: --es amount 420 --es payee "Neha Gupta" --es ref 612345678920
  * (needs `pm grant dev.splitify.fakeupi android.permission.POST_NOTIFICATIONS`).
  */
 public class Notifier extends BroadcastReceiver {
@@ -19,6 +20,14 @@ public class Notifier extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
+        String amount = intent.getStringExtra("amount");
+        if (amount != null) {
+            // Template like a UPI app (the rupee sign is added here: adb args stay ASCII).
+            String payee = intent.getStringExtra("payee");
+            String ref = intent.getStringExtra("ref");
+            post(context, "Payment successful", "₹" + amount + " paid to " + payee + ". UPI Ref No " + ref);
+            return;
+        }
         String title = intent.getStringExtra("title");
         String text = intent.getStringExtra("text");
         post(context, title == null ? "" : title, text == null ? "" : text);

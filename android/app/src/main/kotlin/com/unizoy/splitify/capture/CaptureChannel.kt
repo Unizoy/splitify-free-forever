@@ -45,12 +45,10 @@ class CaptureChannel(private val activity: Activity) : MethodChannel.MethodCallH
                 "open" -> result.success(open(call.argument<String>("access")!!))
                 "config" -> result.success(center.store.config().toJson().toString())
                 "setConfig" -> {
-                    val before = center.store.config()
                     val next = CaptureConfig.fromJson(JSONObject(call.argument<String>("json")!!))
                     center.store.setConfig(next)
-                    if (next.enabled != before.enabled || next.smart != before.smart) {
-                        center.applyComponents(next.enabled)
-                    }
+                    // Always (idempotent): an app update can leave the components in their manifest default (off).
+                    center.applyComponents(next.enabled)
                     SmartCaptureService.instance?.refresh()
                     result.success(null)
                 }
@@ -95,6 +93,8 @@ class CaptureChannel(private val activity: Activity) : MethodChannel.MethodCallH
             .put("overlay", Build.VERSION.SDK_INT >= 26 && Settings.canDrawOverlays(activity))
             .put("accessibility", accessibilityEnabled())
             .put("post_notifications", post)
+            .put("listening", PaymentNotificationListener.connected)
+            .put("smart_connected", SmartCaptureService.instance != null)
     }
 
     private fun listenerEnabled(): Boolean {

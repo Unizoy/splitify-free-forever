@@ -97,6 +97,8 @@ class MethodChannelCaptureBridge implements CaptureBridge {
         overlay: j['overlay'] == true,
         accessibility: j['accessibility'] == true,
         postNotifications: j['post_notifications'] == true,
+        listening: j['listening'] == true,
+        smartConnected: j['smart_connected'] == true,
       );
     } on MissingPluginException {
       return const CapturePermissions();

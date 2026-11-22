@@ -5,6 +5,8 @@
 // test then picks the group on the capture screen, checks the prefilled editor, saves and checks the dev server
 // row (`source = 'capture'`). Run only through the script (it waits for the PC):
 //   powershell -File tool\e2e\capture_e2e.ps1
+import 'dart:async';
+
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -24,6 +26,7 @@ import 'package:splitify/data/remote/supabase_remote_api.dart';
 import 'package:splitify/domain/entities/payment_capture.dart';
 import 'package:splitify/features/auth/application/auth_providers.dart';
 import 'package:splitify/features/capture/application/capture_providers.dart';
+import 'package:splitify/features/capture/presentation/capture_routes.dart';
 import 'package:splitify/features/currency/application/currency_providers.dart'
     show fxAutoRefreshProvider;
 import 'package:splitify/features/expenses/application/expense_editor_controller.dart';
@@ -34,7 +37,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'support/harness.dart';
 
 const _staged = bool.fromEnvironment('E2E_CAPTURE');
-const _hold = int.fromEnvironment('UI_HOLD', defaultValue: 5);
+const _hold = int.fromEnvironment('UI_HOLD', defaultValue: 16);
 
 Future<void> _pumpFor(WidgetTester t, Duration d) async {
   final end = DateTime.now().add(d);
@@ -120,10 +123,26 @@ void main() {
     var perms = const CapturePermissions();
     while (DateTime.now().isBefore(grantEnd)) {
       perms = (await t.runAsync(bridge.permissions))!;
-      if (perms.notifications && perms.overlay && perms.accessibility) break;
+      // Allowed and actually bound by Android (an app update re-binds them with a delay).
+      if (perms.notifications &&
+          perms.overlay &&
+          perms.accessibility &&
+          perms.listening &&
+          perms.smartConnected) {
+        break;
+      }
       await _pumpFor(t, const Duration(seconds: 1));
     }
-    expect([perms.notifications, perms.overlay, perms.accessibility], [true, true, true]);
+    expect(
+      [
+        perms.notifications,
+        perms.overlay,
+        perms.accessibility,
+        perms.listening,
+        perms.smartConnected,
+      ],
+      [true, true, true, true, true],
+    );
 
     // The app on the Groups tab (shell + CaptureBinding: imports on resume, writes the chips).
     final router = buildRouter(initialLocation: Routes.groups);
@@ -196,6 +215,17 @@ void main() {
     expect(row['source'], 'capture');
     expect(row['total'], 9900);
     expect(await t.runAsync(() => db.select(db.paymentCaptures).get()), hasLength(1));
+
+    // Device UI review (light, dark, 200 %): Groups hero pill, Activity section, settings.
+    router.go(Routes.groups);
+    await _waitFor(t, find.byKey(const Key('payments-to-add-pill')));
+    await _capture(t, 'groups-pill');
+    router.go(Routes.activity);
+    await _waitFor(t, find.byKey(const Key('payments-to-add-section')));
+    await _capture(t, 'activity-section');
+    unawaited(router.push(CaptureRoutes.settings));
+    await _waitFor(t, find.byKey(const Key('capture-master')));
+    await _capture(t, 'bubble-settings');
 
     // Leave the switches on for the script's screenshot stage; the next run resets the store.
     debugPrint('E2E-DONE');

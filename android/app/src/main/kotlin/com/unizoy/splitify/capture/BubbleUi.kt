@@ -125,7 +125,7 @@ class BubbleUi(private val context: Context, val theme: BubbleTheme) {
         setPadding(dp(20), dp(12), dp(20), dp(12))
         background = if (primary) rounded(theme.money, 999) else null
         isClickable = true
-        isFocusable = true
+        noFocusHighlight()
         setOnClickListener { onClick() }
     }
 
@@ -133,13 +133,13 @@ class BubbleUi(private val context: Context, val theme: BubbleTheme) {
         gravity = Gravity.CENTER
         maxLines = 1
         ellipsize = TextUtils.TruncateAt.END
-        maxWidth = dp(180)
+        maxWidth = dp(320)
         minHeight = dp(40)
         setPadding(dp(14), dp(8), dp(14), dp(8))
         background = rounded(theme.chip, 999)
         contentDescription = description
         isClickable = true
-        isFocusable = true
+        noFocusHighlight()
         setOnClickListener { onClick() }
     }
 
@@ -150,8 +150,8 @@ class BubbleUi(private val context: Context, val theme: BubbleTheme) {
             background = circle(theme.primaryFill)
             elevation = dp(6).toFloat()
             addView(
-                ImageView(context).apply { setImageResource(R.drawable.ic_stat_splitify) },
-                FrameLayout.LayoutParams(dp(28), dp(28), Gravity.CENTER),
+                ImageView(context).apply { setImageResource(R.drawable.ic_capture_mark) },
+                FrameLayout.LayoutParams(dp(26), dp(26), Gravity.CENTER),
             )
         }
         addView(face, FrameLayout.LayoutParams(size, size, Gravity.CENTER))
@@ -165,7 +165,7 @@ class BubbleUi(private val context: Context, val theme: BubbleTheme) {
         contentDescription = description
         importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_YES
         isClickable = true
-        isFocusable = true
+        noFocusHighlight()
     }
 
     /** Round ✕ drop target shown at the bottom while the handle is dragged. */
@@ -190,6 +190,14 @@ class BubbleUi(private val context: Context, val theme: BubbleTheme) {
     fun column(): LinearLayout = LinearLayout(context).apply { orientation = LinearLayout.VERTICAL }
 
     fun gap(heightDp: Int): View = View(context).apply { layoutParams = ViewGroup.LayoutParams(1, dp(heightDp)) }
+}
+
+/**
+ * Overlay windows are FLAG_NOT_FOCUSABLE: once the phone leaves touch mode (a key press) Android would draw its
+ * grey default focus highlight over the bubble. TalkBack still reaches the views (clickable + described).
+ */
+fun View.noFocusHighlight() {
+    if (android.os.Build.VERSION.SDK_INT >= 26) defaultFocusHighlightEnabled = false
 }
 
 /** Typeface span that works below API 28. */
