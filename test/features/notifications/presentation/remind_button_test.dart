@@ -1,6 +1,5 @@
 // TC-23-02: the Remind button (ready, sent, throttled, failures) and where TransferRow shows it.
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:splitify/core/money/balances.dart' show Transfer;
 import 'package:splitify/data/remote/notifications_remote.dart';
@@ -19,11 +18,11 @@ import 'notif_harness.dart';
 final _now = DateTime(2026, 11, 21, 10).toUtc();
 
 class _Rig {
-  _Rig({this.lastSent, this.linked = true, FakeNotificationsRemote? remote})
+  _Rig({this.lastSent, FakeNotificationsRemote? remote})
     : remote = remote ?? FakeNotificationsRemote();
 
   final DateTime? lastSent;
-  final bool linked;
+  final bool linked = true;
   final FakeNotificationsRemote remote;
 }
 
