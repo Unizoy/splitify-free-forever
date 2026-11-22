@@ -59,4 +59,7 @@ flutter {
 
 dependencies {
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
+    // Payment capture core tests (phase 18b): plain JVM JUnit; org.json is only a stub in android.jar.
+    testImplementation("junit:junit:4.13.2")
+    testImplementation("org.json:json:20240303")
 }
