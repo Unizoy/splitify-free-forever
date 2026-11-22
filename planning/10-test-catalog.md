@@ -150,3 +150,13 @@ Total: 121 test ids (TC-18-03 golden added in phase 09; TC-19-06..09 in phase 13
 | 18 | TC-X2-02 | integ | fingerprint via `adb -e emu finger touch`. | pass with the device PIN instead of a fingerprint (`app_lock_test.dart` + `tool/e2e/run_lock_e2e.ps1`: locked on start, PIN unlock, home + 2 min → locked again, FLAG_SECURE seen on the window, PIN cleared) |
 | 18 | TC-X3-01 | unit | widget data builder | pass (`widget_data_test.dart`, `home_widget_sync_test.dart`) |
 | 18 | TC-X3-02 | integ | widget data updated after expense (read shared prefs). | pass (same device test: `pending` = "Not synced yet" after the local import, cleared after sync; `status/line1/line2` equal the app's values; widget pinned and screenshotted) |
+| 19 | TC-SEC-01 | sql | attack suite: non-member / stranger / left member / anon via every RPC and table, forged member ids and created_by, moving records between groups, claiming linked members, join rate limit, storage name tricks, oversized payloads (`190_attack`) | pass (dev, 288/288, with 0022) |
+| 19 | TC-SEC-02 | sql | housekeeping job prunes join attempts, keeps the rest, only cron can run it (`191_housekeeping`) | pass (dev, 10/10) |
+| 19 | TC-SEC-03 | edge | Edge Functions refuse wrong methods, missing/foreign JWTs, empty/non-JSON/oversized bodies, malformed ids | pass (deno 53/53 on an LF copy; send-push v3 deployed) |
+| 19 | TC-B3-04 | widget | a11y sweep: Android tap-target + labelled-tap-target guidelines on every golden screen/state, light/dark, text 1.0/2.0 (`golden_support.dart expectA11y`) | pass |
+| 19 | TC-B3-05 | unit | reduced motion: every AnimationController checks `motion.reduced`, implicit animations use motion tokens (`test/a11y/reduced_motion_test.dart`) | pass |
+| 19 | TC-B3-06 | widget | focus order: TalkBack traversal goes top to bottom on welcome, sign in, appearance, about (`test/a11y/focus_order_test.dart`) | pass |
+| 19 | TC-B3-07 | widget+golden | About & licences: links open, failed link says the URL, licence page; goldens light/dark × 1.0/2.0 | pass (`about_screen_test.dart`, `screen_about_*`) |
+| 19 | TC-REL-01 | build | release APKs: signed with the key file (throwaway key verified with apksigner), R8, per-ABI + universal phone APK < 40 MB, debug-key fallback | see report |
+| 19 | TC-27-21 | perf | group page as slivers: open + scroll a 2,000-expense group (`tool/e2e/perf.ps1`) | see report |
+| 19 | TC-27-22 | e2e | real WorkManager run: change queued offline, app in the background, jobs forced → outbox sent, server has it (`tool/e2e/background_sync.ps1`) | see report |
