@@ -18,13 +18,18 @@ final _currency = RegExp(r'^[A-Z]{3}$');
 final _formulaGuard = RegExp('^\'[=+\\-@\t\r]');
 
 /// Parses [text] in either format. Throws a [SplitwiseCsvError] ([BadHeader] when the header is
-/// neither format's).
-ImportCsv parseImportCsv(String text, {String paymentCategory = splitwisePaymentCategory}) {
+/// neither format's). [categoryKeys] maps a lower-case category label, as Splitify's export writes
+/// it ("dining out"), to its D-016 key (S-184); unknown labels go through the Splitwise mapping.
+ImportCsv parseImportCsv(
+  String text, {
+  String paymentCategory = splitwisePaymentCategory,
+  Map<String, String> categoryKeys = const {},
+}) {
   final input = text.startsWith('﻿') ? text.substring(1) : text;
   final cells = _cells(input);
   if (cells.every(_isBlank)) throw const EmptyFile();
   if (_isSplitifyHeader(cells.first)) {
-    return (format: ImportFormat.splitify, file: _readSplitify(cells));
+    return (format: ImportFormat.splitify, file: _readSplitify(cells, categoryKeys));
   }
   return (
     format: ImportFormat.splitwise,
@@ -57,7 +62,7 @@ bool _isSplitifyHeader(List<String> h) {
 /// The export guards user text that looks like a formula with a leading apostrophe; undo that.
 String _text(String cell) => _formulaGuard.hasMatch(cell) ? cell.substring(1) : cell;
 
-SplitwiseCsv _readSplitify(List<List<String>> cells) {
+SplitwiseCsv _readSplitify(List<List<String>> cells, Map<String, String> categoryKeys) {
   final header = cells.first;
   final lead = csvLeadingColumns.length;
   final tail = csvTrailingColumns.length;
@@ -98,7 +103,8 @@ SplitwiseCsv _readSplitify(List<List<String>> cells) {
     if (remaining != 0) throw RowNotBalanced(row, remaining);
     final sum = sums.putIfAbsent(currency, () => {for (final m in members) m: 0});
     nets.forEach((m, v) => sum[m] = sum[m]! + v);
-    final category = _text(cell[2]);
+    final label = _text(cell[2]);
+    final category = categoryKeys[label.toLowerCase()] ?? label;
     final notes = _text(cell[notesAt]);
     rows.add(
       SplitwiseRow(
@@ -106,7 +112,7 @@ SplitwiseCsv _readSplitify(List<List<String>> cells) {
         date: parseCsvDate(cell[0], row),
         description: description,
         category: category,
-        isPayment: _same(category, csvPaymentCategory),
+        isPayment: _same(label, csvPaymentCategory),
         currency: currency,
         cost: parseMinorCell(cell[4], exponent, row, csvLeadingColumns[4], allowEmpty: false),
         nets: nets,

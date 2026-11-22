@@ -4,8 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:splitify/domain/rules/expense_categories.dart';
 import 'package:splitify/domain/rules/group_rules.dart';
 import 'package:splitify/features/auth/application/auth_providers.dart';
+import 'package:splitify/features/expenses/presentation/expense_copy.dart';
 import 'package:splitify/features/groups/application/groups_providers.dart';
 import 'package:splitify/features/groups/presentation/group_visuals.dart';
 import 'package:splitify/features/import_splitwise/application/import_controller.dart';
@@ -79,7 +81,10 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
     final group = targetId == null ? null : ref.watch(groupProvider(targetId)).value;
     final groupName = group?.name ?? s.newGroupName ?? '';
     final body = switch (s.step) {
-      ImportStep.file => ImportFileStep(state: s, onPick: () => unawaited(_c.pickFile())),
+      ImportStep.file => ImportFileStep(
+        state: s,
+        onPick: () => unawaited(_c.pickFile(categoryKeys: importCategoryKeys(l))),
+      ),
       ImportStep.group => ImportGroupStep(
         nameController: _groupName,
         newSelected: _newSelected,
@@ -218,3 +223,9 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
     if (ok) await _c.deleteImport();
   }
 }
+
+/// Lower-case category label (as Splitify's export writes it) → D-016 key.
+Map<String, String> importCategoryKeys(AppLocalizations l) => {
+  for (final subs in ExpenseCategories.tree.values)
+    for (final key in subs) l.category(key).toLowerCase(): key,
+};

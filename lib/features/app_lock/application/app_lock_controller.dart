@@ -148,9 +148,8 @@ class AppLockController extends Notifier<AppLockState> {
     if (result != DeviceAuthResult.success) {
       state = state.copyWith(
         authenticating: false,
-        notice: () => result == DeviceAuthResult.unavailable
-            ? LockNotice.needsScreenLock
-            : LockNotice.failed,
+        notice: () =>
+            result == DeviceAuthResult.unavailable ? LockNotice.needsScreenLock : LockNotice.failed,
       );
       return false;
     }

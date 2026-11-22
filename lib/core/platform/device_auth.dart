@@ -40,7 +40,10 @@ class LocalDeviceAuth implements DeviceAuth {
   @override
   Future<DeviceAuthResult> authenticate(String reason) async {
     try {
-      final ok = await _auth.authenticate(localizedReason: reason, persistAcrossBackgrounding: true);
+      final ok = await _auth.authenticate(
+        localizedReason: reason,
+        persistAcrossBackgrounding: true,
+      );
       return ok ? DeviceAuthResult.success : DeviceAuthResult.failed;
     } on LocalAuthException catch (e) {
       return switch (e.code) {

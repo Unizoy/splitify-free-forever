@@ -147,21 +147,29 @@ class ImportController extends Notifier<ImportState> {
   ImportState build() => ImportState(step: ImportStep.file, groupId: startGroupId);
 
   /// Opens the system file picker; nothing happens when the user cancels.
-  Future<void> pickFile() async {
+  /// [categoryKeys]: lower-case category label → key, for Splitify's own export (S-184).
+  Future<void> pickFile({Map<String, String> categoryKeys = const {}}) async {
     final file = await ref.read(importFilePickerProvider).pick();
     if (file == null) return;
-    await loadFile(file.name, file.bytes);
+    await loadFile(file.name, file.bytes, categoryKeys: categoryKeys);
   }
 
   /// Reads [bytes] (UTF-8, BOM allowed) as an import file.
-  Future<void> loadFile(String name, Uint8List bytes) async {
+  Future<void> loadFile(
+    String name,
+    Uint8List bytes, {
+    Map<String, String> categoryKeys = const {},
+  }) async {
     ImportProblem? problem;
     ImportCsv? parsed;
     if (bytes.length > maxImportBytes) {
       problem = (code: 'IMPORT_TOO_LARGE', row: 0, value: null);
     } else {
       try {
-        parsed = parseImportCsv(utf8.decode(bytes, allowMalformed: true));
+        parsed = parseImportCsv(
+          utf8.decode(bytes, allowMalformed: true),
+          categoryKeys: categoryKeys,
+        );
         final unsupported = parsed.file.currencies.where((c) => !Currencies.all.containsKey(c));
         if (unsupported.isNotEmpty) {
           problem = (code: 'IMPORT_UNSUPPORTED_CURRENCY', row: 0, value: unsupported.first);

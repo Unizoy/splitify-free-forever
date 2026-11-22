@@ -197,7 +197,7 @@ ActivityItem? _pendingItem(
   // An import is one entry (0021): its summary / undo note stands for the batch, other rows are quiet.
   if (payload['source'] == 'import') {
     final values = payload['split_values'];
-    final note = values is Map ? values : const {};
+    final note = values is Map ? values : const <String, Object?>{};
     final String type;
     if (note[importUndoKey] != null) {
       type = 'import_undone';

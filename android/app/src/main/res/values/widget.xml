@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Home-screen widget (X3, phase 18): colours mirror lib/ui/theme/app_colors.dart (light). -->
+<resources>
+    <color name="widget_surface">#FFFFFFFF</color>
+    <color name="widget_border">#FFE3E8EF</color>
+    <color name="widget_text_primary">#FF121926</color>
+    <color name="widget_text_secondary">#FF697586</color>
+    <color name="widget_primary">#FF5057EA</color>
+    <color name="widget_primary_container">#FFE8E8F8</color>
+    <color name="widget_on_primary_container">#FF3A3FC4</color>
+    <color name="widget_owed">#FF15803D</color>
+    <color name="widget_owe">#FFD92D2D</color>
+    <color name="widget_settled">#FF697586</color>
+    <color name="widget_unsynced">#FFB45309</color>
+
+    <!-- Static Android texts (the widget's values themselves come from the app's ARB strings). -->
+    <string name="widget_small_description">Your overall balance</string>
+    <string name="widget_wide_description">Your overall balance in two currencies</string>
+    <string name="widget_brand">Splitify</string>
+    <string name="widget_open_app">Open Splitify</string>
+</resources>

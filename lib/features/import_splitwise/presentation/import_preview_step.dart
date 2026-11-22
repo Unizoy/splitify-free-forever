@@ -4,7 +4,8 @@ import 'package:splitify/features/expenses/presentation/editor/step_body.dart' s
 import 'package:splitify/features/groups/presentation/group_visuals.dart';
 import 'package:splitify/features/import_splitwise/application/import_controller.dart';
 import 'package:splitify/features/import_splitwise/domain/import_mapping.dart';
-import 'package:splitify/features/import_splitwise/domain/splitwise_csv_parser.dart' show TotalsMismatch;
+import 'package:splitify/features/import_splitwise/domain/splitwise_csv_parser.dart'
+    show TotalsMismatch;
 import 'package:splitify/features/import_splitwise/domain/splitwise_reconstruction.dart';
 import 'package:splitify/features/import_splitwise/presentation/import_copy.dart';
 import 'package:splitify/l10n/app_localizations.dart';
