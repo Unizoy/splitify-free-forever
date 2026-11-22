@@ -36,6 +36,7 @@ import 'package:splitify/features/payments/presentation/payment_routes.dart';
 import 'package:splitify/features/sync/presentation/sync_storage_screen.dart';
 import 'package:splitify/features/search/presentation/search_screen.dart' show searchRoutes;
 import 'package:splitify/features/capture/presentation/capture_routes.dart' show captureRoutes;
+import 'package:splitify/ui/components/fade_through_stack.dart';
 
 /// Route paths (planning/07-screens-and-flows.md §1).
 abstract final class Routes {
@@ -158,8 +159,11 @@ GoRouter buildRouter({String initialLocation = Routes.welcome, AuthGate? gate}) 
         ),
       ],
     ),
-    StatefulShellRoute.indexedStack(
+    // Tabs keep their state (like indexedStack) and fade through on a switch (S-263).
+    StatefulShellRoute(
       builder: (context, state, shell) => AppShell(shell: shell),
+      navigatorContainerBuilder: (context, shell, children) =>
+          FadeThroughStack(index: shell.currentIndex, children: children),
       branches: [
         StatefulShellBranch(
           routes: [

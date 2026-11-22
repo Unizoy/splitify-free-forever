@@ -21,6 +21,7 @@ export 'dot_matrix_card.dart';
 export 'dots_pulse.dart';
 export 'empty_state.dart';
 export 'entrance.dart';
+export 'fade_through_stack.dart';
 export 'folder_tabs.dart';
 export 'glass_card.dart';
 export 'group_cover_card.dart';

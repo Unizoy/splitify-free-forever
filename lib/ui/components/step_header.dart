@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:splitify/l10n/app_localizations.dart';
+import 'package:splitify/ui/components/pressable.dart';
 import 'package:splitify/ui/components/status_pill.dart';
 import 'package:splitify/ui/theme/theme.dart';
 
@@ -178,7 +179,7 @@ class _StepCell extends StatelessWidget {
       ),
     );
     if (onTap == null) return cell;
-    return InkWell(onTap: onTap, borderRadius: AppRadii.all16, child: cell);
+    return Pressable(onTap: onTap, borderRadius: AppRadii.all16, scale: 0.95, child: cell);
   }
 }
 

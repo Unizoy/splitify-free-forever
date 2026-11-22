@@ -70,43 +70,43 @@ class HeroHeader extends StatelessWidget {
         snapshot: photo == null,
         background: _HeroBackground(art: art, photo: photo),
         child: Padding(
-            padding: EdgeInsets.fromLTRB(
-              AppSpacing.screen,
-              topInset + AppSpacing.s2,
-              AppSpacing.screen,
-              overlap + AppSpacing.s8,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                SizedBox(
-                  height: AppSpacing.minTouch,
-                  child: Row(
-                    children: [
-                      ?leading,
-                      const Spacer(),
-                      for (var i = 0; i < actions.length; i++) ...[
-                        if (i > 0) const SizedBox(width: AppSpacing.s1),
-                        actions[i],
-                      ],
+          padding: EdgeInsets.fromLTRB(
+            AppSpacing.screen,
+            topInset + AppSpacing.s2,
+            AppSpacing.screen,
+            overlap + AppSpacing.s8,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              SizedBox(
+                height: AppSpacing.minTouch,
+                child: Row(
+                  children: [
+                    ?leading,
+                    const Spacer(),
+                    for (var i = 0; i < actions.length; i++) ...[
+                      if (i > 0) const SizedBox(width: AppSpacing.s1),
+                      actions[i],
                     ],
+                  ],
+                ),
+              ),
+              if (top != null) ...[const SizedBox(height: AppSpacing.s4), top!],
+              if (headline != null) ...[
+                const SizedBox(height: AppSpacing.s8),
+                Semantics(
+                  header: true,
+                  child: MediaQuery.withClampedTextScaling(
+                    maxScaleFactor: AppText.maxSerifScale,
+                    child: headline,
                   ),
                 ),
-                if (top != null) ...[const SizedBox(height: AppSpacing.s4), top!],
-                if (headline != null) ...[
-                  const SizedBox(height: AppSpacing.s8),
-                  Semantics(
-                    header: true,
-                    child: MediaQuery.withClampedTextScaling(
-                      maxScaleFactor: AppText.maxSerifScale,
-                      child: headline,
-                    ),
-                  ),
-                ],
-                if (child != null) ...[const SizedBox(height: AppSpacing.s8), child!],
               ],
-            ),
+              if (child != null) ...[const SizedBox(height: AppSpacing.s8), child!],
+            ],
           ),
+        ),
       ),
     );
   }

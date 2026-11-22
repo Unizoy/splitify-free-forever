@@ -68,7 +68,10 @@ class _EntranceState extends State<Entrance> with SingleTickerProviderStateMixin
     final c = AnimationController(vsync: this, duration: total);
     _c = c;
     final start = delay.inMicroseconds / total.inMicroseconds;
-    _t = CurvedAnimation(parent: c, curve: Interval(start, 1, curve: AppMotion.emphasized));
+    _t = CurvedAnimation(
+      parent: c,
+      curve: Interval(start, 1, curve: AppMotion.emphasized),
+    );
     c.forward();
   }
 

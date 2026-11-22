@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:splitify/ui/components/pressable.dart';
 import 'package:splitify/ui/components/word_fit_text.dart';
 import 'package:splitify/ui/theme/theme.dart';
 
@@ -124,9 +125,10 @@ class _Segment<T> extends StatelessWidget {
       inMutuallyExclusiveGroup: true,
       label: item.semanticLabel,
       excludeSemantics: item.semanticLabel != null,
-      child: InkWell(
+      child: Pressable(
         onTap: onTap,
         borderRadius: AppRadii.allPill,
+        scale: 0.96,
         child: ConstrainedBox(
           constraints: const BoxConstraints(minHeight: AppSpacing.minTouch),
           child: Padding(

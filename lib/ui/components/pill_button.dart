@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/components/dots_pulse.dart';
+import 'package:splitify/ui/components/pressable.dart';
 import 'package:splitify/ui/theme/theme.dart';
 
 /// Button styles (planning/06-design-system.md §6 `PillButton`).
@@ -56,8 +57,28 @@ class PillButton extends StatefulWidget {
   State<PillButton> createState() => _PillButtonState();
 }
 
-class _PillButtonState extends State<PillButton> {
+class _PillButtonState extends State<PillButton> with SingleTickerProviderStateMixin {
   bool _pressed = false;
+  late final _press = PressMotion(this);
+
+  @override
+  void dispose() {
+    _press.dispose();
+    super.dispose();
+  }
+
+  void _highlight(bool v) {
+    _press.set(context.motion, pressed: v);
+    setState(() => _pressed = v);
+  }
+
+  void _tap() {
+    // Primary actions tick (§5); outline and ghost buttons stay quiet.
+    if (widget.variant == PillVariant.ink || widget.variant == PillVariant.money) {
+      AppHaptics.light();
+    }
+    widget.onPressed?.call();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -105,10 +126,10 @@ class _PillButtonState extends State<PillButton> {
             ],
           );
 
-    final button = AnimatedScale(
-      scale: _pressed && enabled ? 0.97 : 1,
-      duration: context.motion.fast,
-      curve: context.motion.fastCurve,
+    const range = 1 - AppMotion.pressScale;
+    final button = AnimatedBuilder(
+      animation: _press.controller,
+      builder: (context, child) => Transform.scale(scale: 1 - range * _press.value, child: child),
       child: Opacity(
         opacity: disabledSolid && !solid ? 0.4 : 1,
         child: Material(
@@ -119,9 +140,10 @@ class _PillButtonState extends State<PillButton> {
           ),
           clipBehavior: Clip.antiAlias,
           child: InkWell(
-            onTap: enabled ? widget.onPressed : null,
-            onHighlightChanged: (v) => setState(() => _pressed = v),
-            splashColor: fg.withValues(alpha: 0.08),
+            onTap: enabled ? _tap : null,
+            onHighlightChanged: _highlight,
+            splashFactory: NoSplash.splashFactory,
+            highlightColor: fg.withValues(alpha: 0.08),
             child: ConstrainedBox(
               constraints: BoxConstraints(
                 minHeight: height,

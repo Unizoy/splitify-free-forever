@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart' show OverflowBoxFit;
 import 'package:flutter/services.dart';
+import 'package:splitify/ui/components/pressable.dart';
 import 'package:splitify/ui/theme/theme.dart';
 
 /// One destination of the [CapsuleNavBar].
@@ -130,42 +131,40 @@ class _NavButton extends StatelessWidget {
       child: Tooltip(
         message: active ? '' : item.label,
         excludeFromSemantics: true,
-        child: AnimatedContainer(
-          duration: context.motion.base,
-          constraints: const BoxConstraints(minHeight: AppSpacing.minTouch),
-          decoration: BoxDecoration(
-            color: active ? c.ink : AppPalette.clear,
-            borderRadius: AppRadii.allPill,
-          ),
-          child: Material(
-            type: MaterialType.transparency,
-            child: InkWell(
-              onTap: onTap,
+        child: Pressable(
+          onTap: onTap,
+          borderRadius: AppRadii.allPill,
+          scale: 0.94,
+          child: AnimatedContainer(
+            duration: context.motion.base,
+            constraints: const BoxConstraints(minHeight: AppSpacing.minTouch),
+            decoration: BoxDecoration(
+              color: active ? c.ink : AppPalette.clear,
               borderRadius: AppRadii.allPill,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: AppSpacing.s2),
-                child: ClipRect(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      icon,
-                      if (active) ...[
-                        const SizedBox(width: AppSpacing.s2),
-                        Flexible(
-                          child: MediaQuery.withClampedTextScaling(
-                            maxScaleFactor: 1.15,
-                            child: Text(
-                              item.label,
-                              maxLines: 1,
-                              softWrap: false,
-                              overflow: TextOverflow.fade,
-                              style: context.text.button.copyWith(color: fg),
-                            ),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: AppSpacing.s2),
+              child: ClipRect(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    icon,
+                    if (active) ...[
+                      const SizedBox(width: AppSpacing.s2),
+                      Flexible(
+                        child: MediaQuery.withClampedTextScaling(
+                          maxScaleFactor: 1.15,
+                          child: Text(
+                            item.label,
+                            maxLines: 1,
+                            softWrap: false,
+                            overflow: TextOverflow.fade,
+                            style: context.text.button.copyWith(color: fg),
                           ),
                         ),
-                      ],
+                      ),
                     ],
-                  ),
+                  ],
                 ),
               ),
             ),
@@ -192,17 +191,17 @@ class _AddButton extends StatelessWidget {
         button: true,
         label: label,
         excludeSemantics: true,
-        child: Material(
-          color: c.money,
-          shape: const CircleBorder(),
-          elevation: 0,
-          shadowColor: AppPalette.clear,
-          child: InkWell(
-            onTap: () {
-              HapticFeedback.selectionClick();
-              onTap();
-            },
-            customBorder: const CircleBorder(),
+        child: Pressable(
+          onTap: onTap,
+          circle: true,
+          scale: 0.9,
+          haptic: PressHaptic.light,
+          highlightColor: c.onMoney,
+          child: Material(
+            color: c.money,
+            shape: const CircleBorder(),
+            elevation: 0,
+            shadowColor: AppPalette.clear,
             child: Container(
               width: AppSpacing.navAdd,
               height: AppSpacing.navAdd,

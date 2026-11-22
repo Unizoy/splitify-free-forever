@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:splitify/ui/components/money_tone.dart';
+import 'package:splitify/ui/components/pressable.dart';
 import 'package:splitify/ui/components/sync_marker.dart';
 import 'package:splitify/ui/theme/theme.dart';
 
@@ -80,8 +81,9 @@ class AmountRow extends StatelessWidget {
 
     return Semantics(
       button: onTap != null,
-      child: InkWell(
+      child: Pressable(
         onTap: onTap,
+        scale: AppMotion.rowPressScale,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [

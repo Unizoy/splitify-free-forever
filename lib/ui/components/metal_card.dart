@@ -57,10 +57,10 @@ class _MetalCardState extends State<MetalCard> with SingleTickerProviderStateMix
         onTap: widget.onTap,
         borderRadius: AppRadii.all32,
         child: ClipRRect(
-        borderRadius: AppRadii.all32,
-        child: ColoredBox(
-          color: c.metal,
-          child: Stack(
+          borderRadius: AppRadii.all32,
+          child: ColoredBox(
+            color: c.metal,
+            child: Stack(
               children: [
                 Positioned.fill(
                   child: RepaintBoundary(
@@ -105,8 +105,8 @@ class _MetalCardState extends State<MetalCard> with SingleTickerProviderStateMix
                 ),
               ],
             ),
+          ),
         ),
-      ),
       ),
     );
   }

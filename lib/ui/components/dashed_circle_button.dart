@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:splitify/ui/components/pressable.dart';
 import 'package:splitify/ui/painters/dashed.dart';
 import 'package:splitify/ui/theme/theme.dart';
 
@@ -48,13 +49,14 @@ class _DashedCircleButtonState extends State<DashedCircleButton>
       button: true,
       label: widget.label.replaceAll('\n', ' '),
       excludeSemantics: true,
-      child: InkResponse(
+      child: Pressable(
         onTap: () {
           HapticFeedback.selectionClick();
           widget.onPressed();
         },
-        radius: diameter / 2,
-        highlightShape: BoxShape.circle,
+        circle: true,
+        scale: 0.95,
+        highlightColor: color,
         child: SizedBox.square(
           dimension: diameter,
           child: Stack(

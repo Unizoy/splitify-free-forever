@@ -2,6 +2,7 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:splitify/ui/components/overlap_sheet.dart';
+import 'package:splitify/ui/components/pressable.dart';
 import 'package:splitify/ui/painters/brand_mark_painter.dart';
 import 'package:splitify/ui/painters/wallet_painter.dart';
 import 'package:splitify/ui/theme/theme.dart';
@@ -42,9 +43,10 @@ class WalletCard extends StatelessWidget {
       button: onTap != null,
       label: label,
       excludeSemantics: true,
-      child: GestureDetector(
+      child: Pressable(
         onTap: onTap,
-        behavior: HitTestBehavior.opaque,
+        scale: 0.98,
+        highlight: false,
         child: OverlapColumn(
           overlap: _hidden + _ear,
           top: Padding(

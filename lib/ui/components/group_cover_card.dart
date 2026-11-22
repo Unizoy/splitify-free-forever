@@ -74,9 +74,10 @@ class GroupCoverCard extends StatelessWidget {
         onTap: onTap,
         borderRadius: AppRadii.all28,
         // The press only scales the cached layer; the card itself is not re-recorded.
-        child: RepaintBoundary(child: ClipRRect(
-        borderRadius: AppRadii.all28,
-        child: Stack(
+        child: RepaintBoundary(
+          child: ClipRRect(
+            borderRadius: AppRadii.all28,
+            child: Stack(
               fit: StackFit.expand,
               children: [
                 if (photo != null) ...[
@@ -138,7 +139,8 @@ class GroupCoverCard extends StatelessWidget {
                 ),
               ],
             ),
-      )),
+          ),
+        ),
       ),
     );
   }

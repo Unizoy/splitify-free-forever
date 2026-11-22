@@ -33,8 +33,11 @@ class AppMotion {
   static const _stagger = Duration(milliseconds: 30);
   static const _shimmer = Duration(milliseconds: 1200);
 
-  /// How far a pressed control shrinks (Pressable, PillButton, icon buttons).
+  /// How far a pressed control shrinks (Pressable, PillButton, cards, chips).
   static const double pressScale = 0.97;
+
+  /// Full-width list rows shrink less (a 0.97 row moves its edges ~5 dp).
+  static const double rowPressScale = 0.985;
 
   /// Rows that get the staggered entrance on a list's first load.
   static const int entranceMax = 8;

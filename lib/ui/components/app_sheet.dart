@@ -16,10 +16,12 @@ Future<T?> showAppSheet<T>(
     barrierColor: context.colors.scrim,
     shape: const RoundedRectangleBorder(borderRadius: AppRadii.sheetTop),
     clipBehavior: Clip.antiAlias,
+    // Quick, decelerating rise that reads as a spring without overshooting the edge (S-263).
     sheetAnimationStyle: AnimationStyle(
       duration: context.motion.slow,
-      curve: AppMotion.standard,
-      reverseDuration: context.motion.base,
+      curve: AppMotion.emphasized,
+      reverseDuration: context.motion.fast,
+      reverseCurve: Curves.easeIn,
     ),
     builder: (context) => AppSheet(title: title, child: builder(context)),
   );

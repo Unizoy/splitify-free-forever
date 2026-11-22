@@ -30,8 +30,8 @@ class DotMatrixCard extends StatelessWidget {
         onTap: onTap,
         borderRadius: AppRadii.all32,
         child: ClipRRect(
-        borderRadius: AppRadii.all32,
-        child: DecoratedBox(
+          borderRadius: AppRadii.all32,
+          child: DecoratedBox(
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
@@ -40,52 +40,52 @@ class DotMatrixCard extends StatelessWidget {
               ),
             ),
             child: Stack(
-                children: [
-                  Positioned(
-                    right: -60,
-                    bottom: -70,
-                    width: 260,
-                    height: 260,
-                    child: ExcludeSemantics(
-                      child: RepaintBoundary(
-                        child: CustomPaint(
-                          painter: DotMatrixPainter(color: c.onHero.withValues(alpha: 0.7)),
-                        ),
+              children: [
+                Positioned(
+                  right: -60,
+                  bottom: -70,
+                  width: 260,
+                  height: 260,
+                  child: ExcludeSemantics(
+                    child: RepaintBoundary(
+                      child: CustomPaint(
+                        painter: DotMatrixPainter(color: c.onHero.withValues(alpha: 0.7)),
                       ),
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(
-                      AppSpacing.s6,
-                      AppSpacing.s6,
-                      AppSpacing.s6,
-                      AppSpacing.s8,
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        ShowcaseCardHeader(
-                          icon: icon,
-                          title: title,
-                          color: c.onHero,
-                          dividerColor: c.onHero.withValues(alpha: 0.14),
-                          showChevron: onTap != null,
-                        ),
-                        FractionallySizedBox(
-                          widthFactor: MediaQuery.textScalerOf(context).scale(1) >= 1.6 ? 1 : 0.72,
-                          child: StatGrid(
-                            stats: stats,
-                            valueColor: c.onHero,
-                            labelColor: c.onHero.withValues(alpha: 0.62),
-                          ),
-                        ),
-                      ],
-                    ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(
+                    AppSpacing.s6,
+                    AppSpacing.s6,
+                    AppSpacing.s6,
+                    AppSpacing.s8,
                   ),
-                ],
-              ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      ShowcaseCardHeader(
+                        icon: icon,
+                        title: title,
+                        color: c.onHero,
+                        dividerColor: c.onHero.withValues(alpha: 0.14),
+                        showChevron: onTap != null,
+                      ),
+                      FractionallySizedBox(
+                        widthFactor: MediaQuery.textScalerOf(context).scale(1) >= 1.6 ? 1 : 0.72,
+                        child: StatGrid(
+                          stats: stats,
+                          valueColor: c.onHero,
+                          labelColor: c.onHero.withValues(alpha: 0.62),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
-      ),
+        ),
       ),
     );
   }

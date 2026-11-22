@@ -17,7 +17,10 @@ class Shimmer extends StatefulWidget {
 }
 
 class _ShimmerState extends State<Shimmer> with SingleTickerProviderStateMixin {
-  late final _c = AnimationController(vsync: this, duration: const AppMotion(reduced: false).shimmer);
+  late final _c = AnimationController(
+    vsync: this,
+    duration: const AppMotion(reduced: false).shimmer,
+  );
 
   @override
   void didChangeDependencies() {
@@ -51,7 +54,11 @@ class _ShimmerState extends State<Shimmer> with SingleTickerProviderStateMixin {
             shaderCallback: (rect) => LinearGradient(
               begin: Alignment(x - 0.6, -0.2),
               end: Alignment(x + 0.6, 0.2),
-              colors: [base.withValues(alpha: 0), shine.withValues(alpha: 0.9), base.withValues(alpha: 0)],
+              colors: [
+                base.withValues(alpha: 0),
+                shine.withValues(alpha: 0.9),
+                base.withValues(alpha: 0),
+              ],
             ).createShader(rect),
             child: child,
           );
