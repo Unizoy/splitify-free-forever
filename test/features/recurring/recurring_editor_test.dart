@@ -106,7 +106,7 @@ void main() {
         args: newArgs,
       );
       await reveal(tester, find.byKey(const Key('repeat-hint')));
-      expect(find.text('The end date can’t be before 21\u00A0Nov\u00A02026'), findsOneWidget);
+      expect(find.text("The end date can't be before 21\u00A0Nov\u00A02026"), findsOneWidget);
       expect(buttonEnabled(tester, 'expense-save'), isFalse);
       expect(h.draft.canSave, isFalse);
       await tapKey(tester, 'repeat-no-end');

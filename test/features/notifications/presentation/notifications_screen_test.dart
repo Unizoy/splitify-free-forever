@@ -73,11 +73,11 @@ void main() {
       final h = t.ensureSemantics();
       await _pump(t, rows: sampleNotifRows());
       expect(
-        find.bySemanticsLabel(RegExp(r'^Unread, Rahul paid you ₹300, Goa trip · ')),
+        find.bySemanticsLabel(RegExp(r'^Unread, Rahul paid you ₹300, Goa trip · ')),
         findsOneWidget,
       );
       expect(
-        find.bySemanticsLabel(RegExp(r'^Priya joined the group, Goa trip · ')),
+        find.bySemanticsLabel(RegExp(r'^Priya joined the group, Goa trip · ')),
         findsOneWidget,
       );
       h.dispose();

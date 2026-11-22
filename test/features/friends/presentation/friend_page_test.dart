@@ -89,7 +89,7 @@ void main() {
     testWidgets('owed and owing in two currencies: one pill with both, signed', (t) async {
       await pumpPage(t, 'u:u8');
       expect(find.byKey(const Key('friend-status-mixed')), findsOneWidget);
-      expect(find.text('Owed and owing\u00A0· +₹5\u00A0· −\$20'), findsOneWidget);
+      expect(find.text('Owed and owing\u00A0· +\u2060₹5\u00A0· −\u2060\$20'), findsOneWidget);
     });
 
     // TC-2-03

@@ -63,7 +63,7 @@ class DashedListRow extends StatelessWidget {
                     ),
                     if (valueText != null && !stacked) ...[
                       const SizedBox(width: AppSpacing.s3),
-                      Flexible(child: valueText),
+                      valueText,
                     ],
                     if (onTap != null) ...[
                       const SizedBox(width: AppSpacing.s3),

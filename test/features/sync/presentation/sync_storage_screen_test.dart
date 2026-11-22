@@ -177,6 +177,8 @@ void main() {
       issues: [sampleIssue()],
     );
     await tester.scrollUntilVisible(find.byKey(const Key('export-debug-log')), 200);
+    await tester.ensureVisible(find.byKey(const Key('export-debug-log')));
+    await tester.pump();
     await tester.tap(find.byKey(const Key('export-debug-log')));
     await tester.pump();
     final (subject, text) = share.shared.single;

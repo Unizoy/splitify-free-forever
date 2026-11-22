@@ -137,8 +137,8 @@ void main() {
     ) async {
       await pumpTab(t);
       expect(_inRow('u:u8', find.text('Owed and owing')), findsOneWidget);
-      expect(_inRow('u:u8', find.textContaining('+₹5')), findsOneWidget);
-      expect(_inRow('u:u8', find.textContaining('−\$20')), findsOneWidget);
+      expect(_inRow('u:u8', find.textContaining('+\u2060₹5')), findsOneWidget);
+      expect(_inRow('u:u8', find.textContaining('−\u2060\$20')), findsOneWidget);
     });
 
     // TC-2-03

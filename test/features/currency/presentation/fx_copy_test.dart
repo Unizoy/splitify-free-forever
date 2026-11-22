@@ -92,7 +92,10 @@ void main() {
           asked: DateTime.utc(2026, 11, 18),
         );
       });
-      expect(line, 'Frankfurter\u00A0· 17\u00A0Nov\u00A02026 (latest before 18\u00A0Nov\u00A02026');
+      expect(
+        line,
+        'Frankfurter\u00A0· 17\u00A0Nov\u00A02026 (latest before 18\u00A0Nov\u00A02026)',
+      );
     });
 
     // TC-32-04

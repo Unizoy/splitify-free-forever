@@ -129,7 +129,7 @@ void main() {
       expect(_field(t), '72');
       expect(
         _text(t, 'conversion-source'),
-        'Frankfurter\u00A0· 17\u00A0Nov\u00A02026 (latest before 20\u00A0Nov\u00A02026',
+        'Frankfurter\u00A0· 17\u00A0Nov\u00A02026 (latest before 20\u00A0Nov\u00A02026)',
       );
       expect(
         _text(t, 'conversion-result'),

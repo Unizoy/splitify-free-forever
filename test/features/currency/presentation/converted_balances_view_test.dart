@@ -186,7 +186,7 @@ void main() {
         findsOneWidget,
       );
       expect(find.byKey(const Key('convert-all')), findsOneWidget);
-      expect(find.text('Convert all at their dates\' rates'), findsOneWidget);
+      expect(find.text("Convert all at each date's rate"), findsOneWidget);
       final row = _rowOf(t, 'missing-eUSD');
       expect(row.title, 'Hotel');
       expect(row.amountText, r'$100');

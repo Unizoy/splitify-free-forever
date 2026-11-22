@@ -297,8 +297,11 @@ void main() {
       final today = DateTime(2026, 11, 21, 10);
       expect(activityDay(ctx, DateTime(2026, 11, 21, 0, 5), today), 'Today');
       expect(activityDay(ctx, DateTime(2026, 11, 20, 23, 59), today), 'Yesterday');
-      expect(activityDay(ctx, DateTime(2026, 11, 14, 11), today), 'Sat, 14\u00A0Nov');
-      expect(activityDay(ctx, DateTime(2025, 12, 31, 11), today), 'Wed, 31\u00A0Dec\u00A02025');
+      expect(activityDay(ctx, DateTime(2026, 11, 14, 11), today), 'Sat,\u00A014\u00A0Nov');
+      expect(
+        activityDay(ctx, DateTime(2025, 12, 31, 11), today),
+        'Wed,\u00A031\u00A0Dec\u00A02025',
+      );
     });
   });
 
@@ -308,7 +311,7 @@ void main() {
       await _pump(t, _FeedHost(items: sampleActivity()));
       expect(find.text('TODAY'), findsOneWidget);
       expect(find.text('YESTERDAY'), findsOneWidget);
-      expect(find.text('SAT, 14\u00A0NOV'), findsOneWidget);
+      expect(find.text('SAT,\u00A014\u00A0NOV'), findsOneWidget);
       expect(find.byType(ActivityRow), findsNWidgets(6));
       double top(String id) => t.getTopLeft(find.byKey(ValueKey('activity-$id'))).dy;
       final order = ['a3', 'a1', 'a2', 'a4', 'a5', 'a6'];
