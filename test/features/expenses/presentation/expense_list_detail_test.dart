@@ -70,8 +70,8 @@ void main() {
       expect(find.text('OCTOBER 2026'), findsOneWidget);
       expect(find.byType(AmountRow), findsNWidgets(4));
       expect(find.text('Cab to airport'), findsOneWidget);
-      expect(find.text('Rahul Mehta paid ₹1,200 · 21 Nov'), findsOneWidget);
-      expect(find.text('You and Asha Rao paid ₹18,000 · 25 Oct'), findsOneWidget);
+      expect(find.text('Rahul Mehta paid ₹1,200\u00A0· 21\u00A0Nov'), findsOneWidget);
+      expect(find.text('You and Asha Rao paid ₹18,000\u00A0· 25\u00A0Oct'), findsOneWidget);
     });
 
     // TC-13-01
@@ -211,14 +211,13 @@ void main() {
       expect(textOf(find.byKey(const Key('expense-detail-amount'))), '₹2,400.00');
       expect(find.text('You lent ₹1,800.00'), findsOneWidget);
       expect(find.text('PAID BY'), findsOneWidget);
-      expect(find.text('SPLIT · EQUALLY'), findsOneWidget);
-      expect(find.text('owes ₹600.00'), findsNWidgets(3));
-      expect(find.text('owe ₹600.00'), findsOneWidget); // You (S-252)
+      expect(find.text('SPLIT\u00A0· EQUALLY'), findsOneWidget);
+      expect(find.text('share ₹600.00'), findsNWidgets(4));
       expect(find.text('Asha Rao'), findsOneWidget);
-      expect(find.text('Dining out'), findsOneWidget);
-      expect(find.text('20 Nov 2026'), findsOneWidget);
+      expect(find.text('Food\u00A0· Dining out'), findsOneWidget);
+      expect(find.text('20\u00A0Nov\u00A02026'), findsOneWidget);
       expect(find.text('Table by the window, paid by card.'), findsOneWidget);
-      expect(find.text('Added by Mohit Bindal on 20 Nov 2026'), findsOneWidget);
+      expect(find.text('Added by Mohit Bindal on 20\u00A0Nov\u00A02026'), findsOneWidget);
       expect(find.text('No comments yet'), findsOneWidget);
       expect(find.byKey(const Key('expense-edited-line')), findsNothing);
       expect(find.byType(SyncMarker), findsNothing);
@@ -238,7 +237,7 @@ void main() {
     testWidgets('not involved and no balance have their own wording', (t) async {
       await pumpDetail(t, AsyncData(sampleViews()[2]), id: 'e3');
       expect(find.text("You're not involved"), findsOneWidget);
-      expect(find.text('SPLIT · EXACT AMOUNTS'), findsOneWidget);
+      expect(find.text('SPLIT\u00A0· EXACT AMOUNTS'), findsOneWidget);
       await pumpDetail(
         t,
         AsyncData(

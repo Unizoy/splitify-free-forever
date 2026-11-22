@@ -1,20 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/theme/theme.dart';
-
-/// Short "Coming soon" snackbar for actions a later phase builds.
-void showComingSoon(BuildContext context) {
-  ScaffoldMessenger.of(context)
-    ..hideCurrentSnackBar()
-    ..showSnackBar(
-      SnackBar(
-        content: Text(AppLocalizations.of(context).comingSoon),
-        duration: const Duration(seconds: 2),
-      ),
-    );
-}
 
 /// A short message: a snackbar on a page, or the same-looking toast above the sheet when [context] is inside
 /// a bottom sheet or dialog — a page's snackbar would sit hidden under the sheet (final QA, S-256).

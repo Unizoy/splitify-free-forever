@@ -54,7 +54,9 @@ class ImportPreviewStep extends StatelessWidget {
                         Text(state.fileName ?? l.impTitle, style: context.text.title),
                         if (dates.isNotEmpty)
                           Text(
-                            l.impDateRange(importDate(dates.first), importDate(dates.last)),
+                            importDate(dates.first) == importDate(dates.last)
+                                ? importDate(dates.first)
+                                : l.impDateRange(importDate(dates.first), importDate(dates.last)),
                             style: context.text.bodySmall.copyWith(color: c.textSecondary),
                           ),
                       ],
@@ -67,9 +69,18 @@ class ImportPreviewStep extends StatelessWidget {
               const SizedBox(height: AppSpacing.s5),
               StatGrid(
                 stats: [
-                  (value: '${result.expenses.length}', label: l.impStatExpenses),
-                  (value: '${result.payments.length}', label: l.impStatPayments),
-                  (value: '${result.members.length}', label: l.impStatPeople),
+                  (
+                    value: '${result.expenses.length}',
+                    label: l.impStatExpenses(result.expenses.length),
+                  ),
+                  (
+                    value: '${result.payments.length}',
+                    label: l.impStatPayments(result.payments.length),
+                  ),
+                  (
+                    value: '${result.members.length}',
+                    label: l.impStatPeople(result.members.length),
+                  ),
                 ],
                 valueColor: c.textPrimary,
                 labelColor: c.textSecondary,
@@ -122,7 +133,7 @@ class ImportPreviewStep extends StatelessWidget {
               caption: _target(l, name),
               // One line per currency, so long multi-currency balances never squeeze the name.
               amountText: (importNetsLine(l, result.nets, name) ?? l.impNetZero).replaceAll(
-                ' · ',
+                '\u00A0· ',
                 '\n',
               ),
               leading: Avatar(name: name, seed: 'import-$name'),

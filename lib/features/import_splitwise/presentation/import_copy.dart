@@ -42,11 +42,11 @@ String? importNetsLine(AppLocalizations l, Map<String, Map<String, int>> sums, S
     for (final c in sums.keys.toList()..sort())
       if ((sums[c]![name] ?? 0) != 0) importNetText(l, sums[c]![name]!, c),
   ];
-  return parts.isEmpty ? null : parts.join(' · ');
+  return parts.isEmpty ? null : parts.join('\u00A0· ');
 }
 
 /// `5 Jan 2026`.
-String importDate(DateTime d) => DateFormat('d MMM yyyy').format(d);
+String importDate(DateTime d) => DateFormat('d MMM yyyy').format(d).replaceAll(' ', '\u00A0');
 
 /// Bordered surface card (sync status card style) for the import steps.
 class ImportCard extends StatelessWidget {

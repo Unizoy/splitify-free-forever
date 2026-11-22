@@ -43,3 +43,4 @@ export 'tag_chip.dart';
 export 'toggle_row.dart';
 export 'underline_field.dart';
 export 'wallet_card.dart';
+export 'word_fit_text.dart';

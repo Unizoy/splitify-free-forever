@@ -112,7 +112,7 @@ class _UnderlineFieldState extends State<UnderlineField> {
                   ],
                 ),
                 semanticsLabel: widget.required ? '${widget.label}, ${l.required}' : widget.label,
-                style: context.text.labelCaps.copyWith(letterSpacing: 0.4),
+                style: context.text.labelCaps.copyWith(color: c.textSecondary),
               ),
               Row(
                 children: [

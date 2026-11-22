@@ -54,7 +54,7 @@ class ConversionTile extends ConsumerWidget {
     }
     final amount = MoneyFormatter.detail.format(s.total, s.currency);
     final caption =
-        '${rateLine(l, currency, s.currency, s.rate)} · '
+        '${rateLine(l, currency, s.currency, s.rate)}\u00A0· '
         '${sourceLine(context, s.asRate(currency))}';
     final large = MediaQuery.textScalerOf(context).scale(1) > 1.4;
     final amountText = Text(

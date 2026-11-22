@@ -151,7 +151,7 @@ class _ProfileFieldsState extends State<ProfileFields> {
             key: const Key('profile-currency'),
             icon: AppIcons.coins,
             label: l.defaultCurrency,
-            value: '${cur.code} · ${cur.symbol}',
+            value: '${cur.code}\u00A0· ${cur.symbol}',
             valueColor: c.textSecondary,
             showDivider: false,
             onTap: () => unawaited(_pickCurrency()),

@@ -83,7 +83,7 @@ void main() {
       await pumpGroups(tester, '/join', remote: remote, overrides: fixedGroupData());
       await _enterCode(tester, 'abcdefgh');
       await _tap(tester, 'join-find');
-      expect(find.text('Too many tries, wait a bit'), findsOneWidget);
+      expect(find.text('Too many tries. Wait a minute and try again.'), findsOneWidget);
     });
 
     testWidgets('TC-3-03 offline says joining needs internet', (tester) async {

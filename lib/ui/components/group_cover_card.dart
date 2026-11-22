@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/components/money_tone.dart';
 import 'package:splitify/ui/components/sync_marker.dart';
+import 'package:splitify/ui/components/word_fit_text.dart';
 import 'package:splitify/ui/painters/cover_cache.dart';
 import 'package:splitify/ui/theme/theme.dart';
 
@@ -105,7 +106,7 @@ class GroupCoverCard extends StatelessWidget {
                         child: Icon(iconFor(family), size: 16, color: AppPalette.black),
                       ),
                       const SizedBox(height: AppSpacing.s2),
-                      Text(
+                      WordFitText(
                         name.toUpperCase(),
                         textAlign: TextAlign.center,
                         maxLines: 2,
@@ -118,7 +119,7 @@ class GroupCoverCard extends StatelessWidget {
                       _Footer(
                         label: Text(
                           statusLabel.toUpperCase(),
-                          maxLines: 1,
+                          maxLines: 2,
                           style: context.text.labelCaps.copyWith(
                             color: c.onHero.withValues(alpha: 0.7),
                             letterSpacing: 1.2,
@@ -153,8 +154,13 @@ class _BottomShade extends StatelessWidget {
       gradient: LinearGradient(
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
-        colors: [AppPalette.black.withValues(alpha: 0), AppPalette.black.withValues(alpha: 0.6)],
-        stops: const [0.35, 1],
+        // Photos can be bright: dim the whole card a little and the footer a lot (S-248).
+        colors: [
+          AppPalette.black.withValues(alpha: 0.2),
+          AppPalette.black.withValues(alpha: 0.4),
+          AppPalette.black.withValues(alpha: 0.78),
+        ],
+        stops: const [0, 0.45, 1],
       ),
     ),
   );

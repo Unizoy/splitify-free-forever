@@ -91,7 +91,7 @@ class GroupSettingsScreen extends ConsumerWidget {
             if (group.type != 'direct') SimplifySettingRow(group: group),
             const SizedBox(height: AppSpacing.s8),
             SectionLabel(
-              '${l.membersSection} · ${members.length}',
+              '${l.membersSection}\u00A0· ${members.length}',
               trailing: PillButton(
                 key: const Key('settings-add-member'),
                 label: l.addMember,

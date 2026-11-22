@@ -106,7 +106,7 @@ void main() {
         args: newArgs,
       );
       await reveal(tester, find.byKey(const Key('repeat-hint')));
-      expect(find.text('The end date can’t be before 21 Nov 2026'), findsOneWidget);
+      expect(find.text("The end date can't be before 21\u00A0Nov\u00A02026"), findsOneWidget);
       expect(buttonEnabled(tester, 'expense-save'), isFalse);
       expect(h.draft.canSave, isFalse);
       await tapKey(tester, 'repeat-no-end');
@@ -120,10 +120,10 @@ void main() {
       tester,
     ) async {
       await _pumpTemplate(tester, _draft(templateId: 't1', repeat: _monthly));
-      expect(find.text('Future copies · Goa trip'), findsOneWidget);
+      expect(find.text('Future copies\u00A0· Goa trip'), findsOneWidget);
       await reveal(tester, find.byKey(const Key('template-start')));
       expect(find.byKey(const Key('template-start')), findsOneWidget);
-      expect(find.text('21 Nov 2026'), findsWidgets);
+      expect(find.text('21\u00A0Nov\u00A02026'), findsWidgets);
       expect(find.byKey(const Key('date-today')), findsNothing);
       await reveal(tester, find.byKey(const Key('repeat-monthly')));
       expect(find.byKey(const Key('repeat-never')), findsNothing);

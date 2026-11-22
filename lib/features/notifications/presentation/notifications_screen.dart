@@ -8,6 +8,7 @@ import 'package:splitify/data/data_providers.dart';
 import 'package:splitify/domain/entities/notification_prefs.dart';
 import 'package:splitify/features/activity/presentation/activity_feed.dart'
     show FeedSkeleton, activityDay;
+import 'package:splitify/features/expenses/presentation/expense_copy.dart' show unbroken;
 import 'package:splitify/features/groups/presentation/group_visuals.dart' show PageTitle;
 import 'package:splitify/features/notifications/application/notifications_providers.dart';
 import 'package:splitify/l10n/app_localizations.dart';
@@ -237,8 +238,10 @@ class NotificationRow extends StatelessWidget {
     final l = AppLocalizations.of(context);
     final c = context.colors;
     final n = item;
-    final time = DateFormat.jm(Localizations.localeOf(context).toLanguageTag()).format(n.at);
-    final caption = n.title.isEmpty ? time : '${n.title} · $time';
+    final time = unbroken(
+      DateFormat.jm(Localizations.localeOf(context).toLanguageTag()).format(n.at),
+    );
+    final caption = n.title.isEmpty ? time : '${n.title}\u00A0· $time';
     return Semantics(
       button: true,
       label: [if (n.unread) l.notifUnread, n.body, caption].join(', '),

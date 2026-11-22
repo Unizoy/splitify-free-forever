@@ -90,7 +90,10 @@ void main() {
       await pumpGroups(t, '/groups', overrides: _data(my: myOwed));
       expect(_text(t, 'groups-overall-amount'), '₹1,400');
       expect(_pill(t, 'groups-status-owed'), 'You are owed');
-      expect(find.text('2 groups · 2 people owe you · you owe 1 person'), findsOneWidget);
+      expect(
+        find.text('2 groups\u00A0· 2\u00A0people owe you\u00A0· you owe 1\u00A0person'),
+        findsOneWidget,
+      );
       expect(find.text('Overall'), findsOneWidget);
       expect(_key('groups-settle'), findsOneWidget);
       expect(find.text('Settle up'), findsOneWidget);
@@ -102,7 +105,7 @@ void main() {
       await pumpGroups(t, '/groups', overrides: _data(my: myOwe));
       expect(_text(t, 'groups-overall-amount'), '₹300');
       expect(_pill(t, 'groups-status-owe'), 'You owe');
-      expect(find.text('2 groups · you owe 1 person'), findsOneWidget);
+      expect(find.text('2 groups\u00A0· you owe 1\u00A0person'), findsOneWidget);
     });
 
     // TC-15-01, TC-14-02
@@ -169,7 +172,10 @@ void main() {
         overrides: _data(groups: [_goa], my: myMixed, balances: {gid: goaMixed()}),
       );
       expect(_card(t, gid).statusLabel, 'Owed and owing');
-      expect(_card(t, gid).amountText, allOf(contains('₹900'), contains('\$20'), contains(' · ')));
+      expect(
+        _card(t, gid).amountText,
+        allOf(contains('₹900'), contains('\$20'), contains('\u00A0· ')),
+      );
     });
 
     // TC-15-01
@@ -184,7 +190,7 @@ void main() {
       expect(at(gid).dy, at(flatGid).dy);
       expect(at(gid).dx, lessThan(at(flatGid).dx));
       expect(at('g-calm').dy, greaterThan(at(gid).dy));
-      expect(find.text('ACTIVE GROUPS · 3'), findsOneWidget);
+      expect(find.text('ACTIVE GROUPS\u00A0· 3'), findsOneWidget);
     });
 
     // TC-15-01
@@ -258,7 +264,7 @@ void main() {
     testWidgets('status pill: mixed carries the signed amounts', (t) async {
       await open(t, goaMixed());
       final label = _pill(t, 'group-status-mixed');
-      expect(label, startsWith('Owed and owing · '));
+      expect(label, startsWith('Owed and owing\u00A0· '));
       expect(label, allOf(contains('₹900'), contains('\$20')));
     });
 

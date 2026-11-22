@@ -211,7 +211,7 @@ void main() {
       await t.tap(find.byKey(const Key('pick-person-m4')));
       await settle(t);
       expect(_sentence(t), 'You paid Priya Nair');
-      expect(find.text('Nothing is owed between them. You can still record it.'), findsOneWidget);
+      expect(find.text('Nothing is owed here right now. You can still record it.'), findsOneWidget);
       expect(find.byKey(const Key('settle-gauge')), findsNothing);
       expect(_canSave(t), isFalse);
       await _type(t, 'settle-amount', '50');
@@ -297,15 +297,15 @@ void main() {
       final h = await _pump(t);
       await _type(t, 'settle-note', 'Thanks for the cab');
       expect(h.draft.note, 'Thanks for the cab');
-      expect(find.text('Keep the note under 200 characters'), findsNothing);
+      expect(find.text('Use up to 200 characters'), findsNothing);
       expect(_canSave(t), isTrue);
 
       await _type(t, 'settle-note', 'x' * 201);
-      expect(find.text('Keep the note under 200 characters'), findsOneWidget);
+      expect(find.text('Use up to 200 characters'), findsOneWidget);
       expect(_canSave(t), isFalse);
 
       await _type(t, 'settle-note', 'x' * 200);
-      expect(find.text('Keep the note under 200 characters'), findsNothing);
+      expect(find.text('Use up to 200 characters'), findsNothing);
       expect(_canSave(t), isTrue);
     });
 
@@ -451,7 +451,7 @@ void main() {
       expect(find.text('Payment'), findsOneWidget);
       expect(find.text('Method'), findsOneWidget);
       expect(find.text('UPI'), findsOneWidget);
-      expect(find.text('20 Nov 2026'), findsOneWidget);
+      expect(find.text('20\u00A0Nov\u00A02026'), findsOneWidget);
       expect(find.text('Thanks for the cab'), findsOneWidget);
       expect(find.byType(SyncMarker), findsNothing);
     });
@@ -571,7 +571,7 @@ void main() {
       await pumpList(t);
       AmountRow row(String id) => t.widget<AmountRow>(find.byKey(ValueKey('payment-$id')));
       expect(row('p1').title, 'Asha Rao paid you');
-      expect(row('p1').caption, 'Payment · 20 Nov');
+      expect(row('p1').caption, 'Payment\u00A0· 20\u00A0Nov');
       expect(row('p1').amountText, '₹500');
       expect(row('p1').amountCaption, 'you received');
       expect(row('p1').unsynced, isFalse);

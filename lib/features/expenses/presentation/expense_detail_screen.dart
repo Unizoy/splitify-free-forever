@@ -258,12 +258,7 @@ class _Body extends StatelessWidget {
             name: name(owed[i].key),
             avatarName: view.nameOf(owed[i].key),
             seed: owed[i].key,
-            trailing: switch ((owed[i].value == 0, owed[i].key == view.meId)) {
-              (true, true) => l.expYouOweNothing,
-              (true, false) => l.expOwesNothing,
-              (false, true) => l.expYouOwe(money(owed[i].value)),
-              (false, false) => l.expOwes(money(owed[i].value)),
-            },
+            trailing: owed[i].value == 0 ? l.expOwesNothing : l.expOwes(money(owed[i].value)),
             divider: i < owed.length - 1,
           ),
         const SizedBox(height: AppSpacing.s6),
@@ -273,8 +268,8 @@ class _Body extends StatelessWidget {
         else
           DashedListRow(
             icon: categoryOf(e.category).icon,
-            label: l.category(e.category),
-            value: l.category(categoryOf(e.category).name),
+            label: l.expCategoryLabel,
+            value: categoryValue(l, e.category),
           ),
         DashedListRow(
           icon: AppIcons.calendar,
@@ -394,7 +389,7 @@ class _PersonRow extends StatelessWidget {
     final amount = Text(
       trailing,
       textAlign: TextAlign.end,
-      style: context.text.amount.copyWith(color: emphasis ? c.owedText : c.textPrimary),
+      style: context.text.amount.w(emphasis ? 700 : 600).copyWith(color: c.textPrimary),
     );
     // Large text (phase 19 polish): the amount goes under the name, so names never break inside a word.
     final stacked = MediaQuery.textScalerOf(context).scale(1) > 1.4;

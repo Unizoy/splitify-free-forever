@@ -48,26 +48,30 @@ class ArcGauge extends StatelessWidget {
               child: child,
             ),
             child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: size * 0.16),
+              padding: EdgeInsets.symmetric(horizontal: size * 0.18),
               child: Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: Text(
-                        valueText,
-                        style: context.text.amountHero.copyWith(color: c.primary),
+                // The ring does not grow with the text: clamp the centre text so it stays inside it.
+                child: MediaQuery.withClampedTextScaling(
+                  maxScaleFactor: 1.3,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          valueText,
+                          style: context.text.amountHero.copyWith(color: c.primary),
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: AppSpacing.s1),
-                    Text(
-                      caption,
-                      textAlign: TextAlign.center,
-                      maxLines: 2,
-                      style: context.text.body.w(500).copyWith(color: c.textSecondary),
-                    ),
-                  ],
+                      const SizedBox(height: AppSpacing.s1),
+                      Text(
+                        caption,
+                        textAlign: TextAlign.center,
+                        maxLines: 2,
+                        style: context.text.body.w(500).copyWith(color: c.textSecondary),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),

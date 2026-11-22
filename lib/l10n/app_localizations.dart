@@ -110,12 +110,6 @@ abstract class AppLocalizations {
   /// **'Loading'**
   String get loading;
 
-  /// Snackbar for actions built in a later update.
-  ///
-  /// In en, this message translates to:
-  /// **'Coming soon'**
-  String get comingSoon;
-
   /// No description provided for @back.
   ///
   /// In en, this message translates to:
@@ -179,7 +173,7 @@ abstract class AppLocalizations {
   /// Note above the bell list when the refresh could not reach the server.
   ///
   /// In en, this message translates to:
-  /// **'Offline · showing what\'s on this phone'**
+  /// **'Offline · showing what\'s on this phone'**
   String get notifOffline;
 
   /// No description provided for @notifSettingsTooltip.
@@ -293,7 +287,7 @@ abstract class AppLocalizations {
   /// Subtitle of a muted group in notification settings.
   ///
   /// In en, this message translates to:
-  /// **'Muted · bell only'**
+  /// **'Muted · bell only'**
   String get notifMutedOn;
 
   /// No description provided for @notifMutedOff.
@@ -311,7 +305,7 @@ abstract class AppLocalizations {
   /// Settings banner in builds without Firebase (D-020).
   ///
   /// In en, this message translates to:
-  /// **'Push notifications aren\'t set up in this version yet. Everything still shows in the bell.'**
+  /// **'Push notifications aren\'t set up in this build. Everything still shows in the bell.'**
   String get notifPushOffBuild;
 
   /// No description provided for @notifPushBlocked.
@@ -569,7 +563,7 @@ abstract class AppLocalizations {
   /// No description provided for @welcomeBadge.
   ///
   /// In en, this message translates to:
-  /// **'Free forever · no ads'**
+  /// **'Free forever · no ads'**
   String get welcomeBadge;
 
   /// Label inside the dashed circle button, two lines.
@@ -581,7 +575,7 @@ abstract class AppLocalizations {
   /// No description provided for @welcomeFooter.
   ///
   /// In en, this message translates to:
-  /// **'Open source · made in India'**
+  /// **'Open source · made in India'**
   String get welcomeFooter;
 
   /// Groups home hero headline (serif, lowercase).
@@ -641,7 +635,7 @@ abstract class AppLocalizations {
   /// No description provided for @activeGroups.
   ///
   /// In en, this message translates to:
-  /// **'Active groups · {count}'**
+  /// **'Active groups · {count}'**
   String activeGroups(int count);
 
   /// No description provided for @emptyGroupsTitle.
@@ -713,7 +707,7 @@ abstract class AppLocalizations {
   /// No description provided for @groupNameTooLong.
   ///
   /// In en, this message translates to:
-  /// **'Keep the name under 60 letters'**
+  /// **'Use up to 60 characters'**
   String get groupNameTooLong;
 
   /// No description provided for @groupTypeLabel.
@@ -821,7 +815,7 @@ abstract class AppLocalizations {
   /// No description provided for @groupBalancesEmptyBody.
   ///
   /// In en, this message translates to:
-  /// **'Once the group has expenses, you see who owes whom.'**
+  /// **'Once the group has expenses, you\'ll see who owes whom.'**
   String get groupBalancesEmptyBody;
 
   /// No description provided for @groupTotalsEmptyTitle.
@@ -905,7 +899,7 @@ abstract class AppLocalizations {
   /// No description provided for @memberNameInvalid.
   ///
   /// In en, this message translates to:
-  /// **'Enter a name (1 to 50 letters)'**
+  /// **'Enter a name (up to 50 characters)'**
   String get memberNameInvalid;
 
   /// No description provided for @memberColour.
@@ -1019,7 +1013,7 @@ abstract class AppLocalizations {
   /// No description provided for @deleteGroupBody.
   ///
   /// In en, this message translates to:
-  /// **'Everyone loses access. You can restore it for 30 days from Account → Deleted groups.'**
+  /// **'Everyone loses access. You can restore it for 30 days from Account → Deleted groups.'**
   String get deleteGroupBody;
 
   /// No description provided for @groupDeletedDone.
@@ -1079,7 +1073,7 @@ abstract class AppLocalizations {
   /// No description provided for @deletedGroupsBody.
   ///
   /// In en, this message translates to:
-  /// **'Groups you deleted. Restore one within 30 days.'**
+  /// **'Groups you deleted. Restore one within 30 days.'**
   String get deletedGroupsBody;
 
   /// No description provided for @deletedGroupsEmpty.
@@ -1091,7 +1085,7 @@ abstract class AppLocalizations {
   /// No description provided for @deletedGroupsEmptyBody.
   ///
   /// In en, this message translates to:
-  /// **'Groups you delete show up here for 30 days.'**
+  /// **'Groups you delete show up here for 30 days.'**
   String get deletedGroupsEmptyBody;
 
   /// No description provided for @restore.
@@ -1103,7 +1097,7 @@ abstract class AppLocalizations {
   /// No description provided for @restoreDaysLeft.
   ///
   /// In en, this message translates to:
-  /// **'{days, plural, =0{Last day to restore} =1{1 day left} other{{days} days left}}'**
+  /// **'{days, plural, =0{Last day to restore} =1{1 day left} other{{days} days left}}'**
   String restoreDaysLeft(int days);
 
   /// No description provided for @groupRestoredDone.
@@ -1127,7 +1121,7 @@ abstract class AppLocalizations {
   /// No description provided for @inviteBody.
   ///
   /// In en, this message translates to:
-  /// **'Friends scan this QR or type the code in Groups → Join.'**
+  /// **'Friends scan this QR, or type the code under Join on the Groups tab.'**
   String get inviteBody;
 
   /// No description provided for @inviteQrLabel.
@@ -1235,7 +1229,7 @@ abstract class AppLocalizations {
   /// No description provided for @joinRateLimited.
   ///
   /// In en, this message translates to:
-  /// **'Too many tries, wait a bit'**
+  /// **'Too many tries. Wait a minute and try again.'**
   String get joinRateLimited;
 
   /// No description provided for @joinNeedsInternet.
@@ -1433,7 +1427,7 @@ abstract class AppLocalizations {
   /// No description provided for @friendItemCaption.
   ///
   /// In en, this message translates to:
-  /// **'{group} · {date}'**
+  /// **'{group} · {date}'**
   String friendItemCaption(String group, String date);
 
   /// No description provided for @friendNotFound.
@@ -1583,7 +1577,7 @@ abstract class AppLocalizations {
   /// No description provided for @upiShowQr.
   ///
   /// In en, this message translates to:
-  /// **'UPI QR'**
+  /// **'Show UPI QR'**
   String get upiShowQr;
 
   /// No description provided for @upiCopied.
@@ -1727,7 +1721,7 @@ abstract class AppLocalizations {
   /// No description provided for @balBannerMixed.
   ///
   /// In en, this message translates to:
-  /// **'You are owed and owe here'**
+  /// **'You are owed and you owe here'**
   String get balBannerMixed;
 
   /// No description provided for @balBannerSettled.
@@ -1871,7 +1865,7 @@ abstract class AppLocalizations {
   /// No description provided for @totPaidShare.
   ///
   /// In en, this message translates to:
-  /// **'paid {paid} · share {share}'**
+  /// **'paid {paid} · share {share}'**
   String totPaidShare(String paid, String share);
 
   /// No description provided for @totEmptyMonthTitle.
@@ -2033,7 +2027,7 @@ abstract class AppLocalizations {
   /// No description provided for @insAmountShare.
   ///
   /// In en, this message translates to:
-  /// **'{amount} · {percent}'**
+  /// **'{amount} · {percent}'**
   String insAmountShare(String amount, String percent);
 
   /// No description provided for @insCategoryOfTotal.
@@ -2219,7 +2213,7 @@ abstract class AppLocalizations {
   /// No description provided for @settleGaugeNone.
   ///
   /// In en, this message translates to:
-  /// **'Nothing is owed between them. You can still record it.'**
+  /// **'Nothing is owed here right now. You can still record it.'**
   String get settleGaugeNone;
 
   /// No description provided for @settleUseOwed.
@@ -2279,7 +2273,7 @@ abstract class AppLocalizations {
   /// No description provided for @settleNoteTooLong.
   ///
   /// In en, this message translates to:
-  /// **'Keep the note under {max} characters'**
+  /// **'Use up to {max} characters'**
   String settleNoteTooLong(int max);
 
   /// No description provided for @settleRecord.
@@ -2405,7 +2399,7 @@ abstract class AppLocalizations {
   /// No description provided for @payRowCaption.
   ///
   /// In en, this message translates to:
-  /// **'Payment · {date}'**
+  /// **'Payment · {date}'**
   String payRowCaption(String date);
 
   /// No description provided for @payYouPaid.
@@ -2501,7 +2495,7 @@ abstract class AppLocalizations {
   /// No description provided for @actGroupUnarchived.
   ///
   /// In en, this message translates to:
-  /// **'{actor} brought the group back'**
+  /// **'{actor} unarchived the group'**
   String actGroupUnarchived(String actor);
 
   /// No description provided for @actGroupDeleted.
@@ -2681,13 +2675,13 @@ abstract class AppLocalizations {
   /// No description provided for @homePeopleOweYou.
   ///
   /// In en, this message translates to:
-  /// **'{count, plural, =1{1 person owes you} other{{count} people owe you}}'**
+  /// **'{count, plural, =1{1 person owes you} other{{count} people owe you}}'**
   String homePeopleOweYou(int count);
 
   /// No description provided for @homeYouOwePeople.
   ///
   /// In en, this message translates to:
-  /// **'{count, plural, =1{you owe 1 person} other{you owe {count} people}}'**
+  /// **'{count, plural, =1{you owe 1 person} other{you owe {count} people}}'**
   String homeYouOwePeople(int count);
 
   /// No description provided for @walletBreakdownTitle.
@@ -2731,12 +2725,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Overall balance'**
   String get overallBalance;
-
-  /// Zero balance placeholder until the money engine formats amounts.
-  ///
-  /// In en, this message translates to:
-  /// **'₹0'**
-  String get zeroRupees;
 
   /// No description provided for @acrossGroups.
   ///
@@ -2843,13 +2831,13 @@ abstract class AppLocalizations {
   /// No description provided for @aboutHeroTitle.
   ///
   /// In en, this message translates to:
-  /// **'split bills,\nfree forever'**
+  /// **'split bills,\nfree forever.'**
   String get aboutHeroTitle;
 
   /// No description provided for @aboutTagline.
   ///
   /// In en, this message translates to:
-  /// **'A free, open-source app for sharing costs with friends, flatmates and trips. No ads, no limits, no paywalls.'**
+  /// **'A free, open-source app for splitting costs with friends and flatmates, on trips and at home. No ads, no limits, no paywalls.'**
   String get aboutTagline;
 
   /// No description provided for @aboutSectionProject.
@@ -2915,13 +2903,13 @@ abstract class AppLocalizations {
   /// No description provided for @aboutCopyright.
   ///
   /// In en, this message translates to:
-  /// **'MIT licence · © Unizoy'**
+  /// **'MIT licence · © Unizoy'**
   String get aboutCopyright;
 
   /// No description provided for @aboutLinkFailed.
   ///
   /// In en, this message translates to:
-  /// **'Couldn\'t open the link. It is {url}'**
+  /// **'Couldn\'t open the link: {url}'**
   String aboutLinkFailed(String url);
 
   /// No description provided for @celebrationLead.
@@ -2987,13 +2975,13 @@ abstract class AppLocalizations {
   /// No description provided for @expEditPill.
   ///
   /// In en, this message translates to:
-  /// **'Editing · {group}'**
+  /// **'Editing · {group}'**
   String expEditPill(String group);
 
   /// No description provided for @expOfflinePill.
   ///
   /// In en, this message translates to:
-  /// **'{group} · saved offline'**
+  /// **'{group} · saved offline'**
   String expOfflinePill(String group);
 
   /// No description provided for @expAmountQuestion.
@@ -3023,7 +3011,7 @@ abstract class AppLocalizations {
   /// No description provided for @expDescriptionTooLong.
   ///
   /// In en, this message translates to:
-  /// **'Keep it under 120 characters'**
+  /// **'Use up to 120 characters'**
   String get expDescriptionTooLong;
 
   /// No description provided for @expCurrencyLabel.
@@ -3047,7 +3035,7 @@ abstract class AppLocalizations {
   /// No description provided for @curSearchHint.
   ///
   /// In en, this message translates to:
-  /// **'Code or name, e.g. USD'**
+  /// **'Code or name'**
   String get curSearchHint;
 
   /// No description provided for @curGroupSection.
@@ -3125,19 +3113,19 @@ abstract class AppLocalizations {
   /// No description provided for @fxSourceFrankfurter.
   ///
   /// In en, this message translates to:
-  /// **'Frankfurter · {date}'**
+  /// **'Frankfurter · {date}'**
   String fxSourceFrankfurter(String date);
 
   /// No description provided for @fxSourceFallback.
   ///
   /// In en, this message translates to:
-  /// **'Frankfurter · {date}, the latest before {asked}'**
+  /// **'Frankfurter · {date} (latest before {asked})'**
   String fxSourceFallback(String date, String asked);
 
   /// No description provided for @fxSourceManual.
   ///
   /// In en, this message translates to:
-  /// **'Rate you typed · {date}'**
+  /// **'Rate you typed · {date}'**
   String fxSourceManual(String date);
 
   /// No description provided for @fxNoRateUnlisted.
@@ -3239,13 +3227,13 @@ abstract class AppLocalizations {
   /// No description provided for @fxMissingBody.
   ///
   /// In en, this message translates to:
-  /// **'Balances in {code} use the rate saved with each record. Convert these first.'**
+  /// **'Balances in {code} use the rate saved with each record, so these need a rate first.'**
   String fxMissingBody(String code);
 
   /// No description provided for @fxConvertAll.
   ///
   /// In en, this message translates to:
-  /// **'Convert all at their dates\' rates'**
+  /// **'Convert all at each date\'s rate'**
   String get fxConvertAll;
 
   /// No description provided for @fxConvertedCount.
@@ -3263,7 +3251,7 @@ abstract class AppLocalizations {
   /// No description provided for @fxConvertedNote.
   ///
   /// In en, this message translates to:
-  /// **'Every record counted at the rate saved with it.'**
+  /// **'Each record is counted at the rate saved with it.'**
   String get fxConvertedNote;
 
   /// No description provided for @fxSectionInMain.
@@ -3398,12 +3386,6 @@ abstract class AppLocalizations {
   /// **'Multiple people'**
   String get expMultiplePeople;
 
-  /// No description provided for @expMultiplePaidNote.
-  ///
-  /// In en, this message translates to:
-  /// **'Several people paid for this one. Changing who paid what arrives in a later update.'**
-  String get expMultiplePaidNote;
-
   /// No description provided for @expSplitQuestion.
   ///
   /// In en, this message translates to:
@@ -3509,7 +3491,7 @@ abstract class AppLocalizations {
   /// No description provided for @expFooterEqual.
   ///
   /// In en, this message translates to:
-  /// **'{count, plural, =1{1 person} other{{count} people}} · {amount} each'**
+  /// **'{count, plural, =1{1 person} other{{count} people}} · {amount} each'**
   String expFooterEqual(int count, String amount);
 
   /// No description provided for @expFooterPeople.
@@ -3521,37 +3503,37 @@ abstract class AppLocalizations {
   /// No description provided for @expFooterLeft.
   ///
   /// In en, this message translates to:
-  /// **'{sum} of {total} · {left} left'**
+  /// **'{sum} of {total} · {left} left'**
   String expFooterLeft(String sum, String total, String left);
 
   /// No description provided for @expFooterOver.
   ///
   /// In en, this message translates to:
-  /// **'{sum} of {total} · {over} over'**
+  /// **'{sum} of {total} · {over} over'**
   String expFooterOver(String sum, String total, String over);
 
   /// No description provided for @expFooterDone.
   ///
   /// In en, this message translates to:
-  /// **'{total} · done'**
+  /// **'{total} · done'**
   String expFooterDone(String total);
 
   /// No description provided for @expFooterPercentLeft.
   ///
   /// In en, this message translates to:
-  /// **'{sum} % of 100 % · {left} % left'**
+  /// **'{sum}% of 100% · {left}% left'**
   String expFooterPercentLeft(String sum, String left);
 
   /// No description provided for @expFooterPercentOver.
   ///
   /// In en, this message translates to:
-  /// **'{sum} % of 100 % · {over} % over'**
+  /// **'{sum}% of 100% · {over}% over'**
   String expFooterPercentOver(String sum, String over);
 
   /// No description provided for @expFooterPercentDone.
   ///
   /// In en, this message translates to:
-  /// **'100 % · done'**
+  /// **'100% · done'**
   String get expFooterPercentDone;
 
   /// No description provided for @expFooterShares.
@@ -3653,7 +3635,7 @@ abstract class AppLocalizations {
   /// No description provided for @expNotesTooLong.
   ///
   /// In en, this message translates to:
-  /// **'Notes can be up to 1000 characters'**
+  /// **'Use up to 1,000 characters'**
   String get expNotesTooLong;
 
   /// No description provided for @expToday.
@@ -3749,7 +3731,7 @@ abstract class AppLocalizations {
   /// No description provided for @expOwes.
   ///
   /// In en, this message translates to:
-  /// **'owes {amount}'**
+  /// **'share {amount}'**
   String expOwes(String amount);
 
   /// No description provided for @expPaidAmount.
@@ -3761,13 +3743,13 @@ abstract class AppLocalizations {
   /// No description provided for @expOwesNothing.
   ///
   /// In en, this message translates to:
-  /// **'owes nothing'**
+  /// **'no share'**
   String get expOwesNothing;
 
   /// No description provided for @expReviewSummary.
   ///
   /// In en, this message translates to:
-  /// **'{amount} · {count, plural, =1{1 person} other{{count} people}}'**
+  /// **'{amount} · {count, plural, =1{1 person} other{{count} people}}'**
   String expReviewSummary(String amount, int count);
 
   /// No description provided for @expNoExpensesTitle.
@@ -3839,7 +3821,7 @@ abstract class AppLocalizations {
   /// No description provided for @expSplitLabel.
   ///
   /// In en, this message translates to:
-  /// **'Split · {kind}'**
+  /// **'Split · {kind}'**
   String expSplitLabel(String kind);
 
   /// No description provided for @expDetailsLabel.
@@ -3947,7 +3929,7 @@ abstract class AppLocalizations {
   /// No description provided for @histLostChange.
   ///
   /// In en, this message translates to:
-  /// **'Change by {name}'**
+  /// **'{name}\'s edit'**
   String histLostChange(String name);
 
   /// No description provided for @histNotApplied.
@@ -3965,7 +3947,7 @@ abstract class AppLocalizations {
   /// No description provided for @histWhen.
   ///
   /// In en, this message translates to:
-  /// **'{date} · {time}'**
+  /// **'{date} · {time}'**
   String histWhen(String date, String time);
 
   /// No description provided for @histFieldDescription.
@@ -4151,7 +4133,7 @@ abstract class AppLocalizations {
   /// No description provided for @histEmptyBody.
   ///
   /// In en, this message translates to:
-  /// **'Changes show up here once they reach the server.'**
+  /// **'Changes show up here once they\'re synced.'**
   String get histEmptyBody;
 
   /// No description provided for @histRetry.
@@ -4223,7 +4205,7 @@ abstract class AppLocalizations {
   /// No description provided for @cmtTooLong.
   ///
   /// In en, this message translates to:
-  /// **'Keep it under {max} characters.'**
+  /// **'Use up to {max} characters'**
   String cmtTooLong(int max);
 
   /// No description provided for @cmtArchived.
@@ -4271,7 +4253,7 @@ abstract class AppLocalizations {
   /// No description provided for @delBy.
   ///
   /// In en, this message translates to:
-  /// **'Deleted by {name} · {date}'**
+  /// **'Deleted by {name} · {date}'**
   String delBy(String name, String date);
 
   /// No description provided for @delOn.
@@ -4343,7 +4325,7 @@ abstract class AppLocalizations {
   /// No description provided for @expDefaultSplitBody.
   ///
   /// In en, this message translates to:
-  /// **'New expenses in {group} start with this split. If the members change, they go back to equal.'**
+  /// **'New expenses in {group} start with this split. If the members change, it goes back to equal.'**
   String expDefaultSplitBody(String group);
 
   /// No description provided for @expDefaultSplitEqualNote.
@@ -4607,7 +4589,7 @@ abstract class AppLocalizations {
   /// No description provided for @signInSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Use Google or get a one-time code by email. The same email is always the same account.'**
+  /// **'Use Google or a one-time code sent by email. The same email always opens the same account.'**
   String get signInSubtitle;
 
   /// No description provided for @continueWithGoogle.
@@ -4619,8 +4601,14 @@ abstract class AppLocalizations {
   /// No description provided for @googleSoon.
   ///
   /// In en, this message translates to:
-  /// **'Google sign-in is coming soon. Use your email for now.'**
+  /// **'Google sign-in isn\'t set up in this build. Use your email instead.'**
   String get googleSoon;
+
+  /// No description provided for @googleNotSetUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Not set up in this build'**
+  String get googleNotSetUp;
 
   /// No description provided for @orDivider.
   ///
@@ -4661,7 +4649,7 @@ abstract class AppLocalizations {
   /// No description provided for @codeSentTo.
   ///
   /// In en, this message translates to:
-  /// **'We sent it to {email}. It works for 10 minutes.'**
+  /// **'We sent it to {email}. It works for 10 minutes.'**
   String codeSentTo(String email);
 
   /// No description provided for @codeBoxes.
@@ -4673,7 +4661,7 @@ abstract class AppLocalizations {
   /// No description provided for @resendIn.
   ///
   /// In en, this message translates to:
-  /// **'Resend code in {seconds} s'**
+  /// **'Resend code in {seconds} s'**
   String resendIn(int seconds);
 
   /// No description provided for @resendCode.
@@ -4751,7 +4739,7 @@ abstract class AppLocalizations {
   /// No description provided for @authErrorTooManyTries.
   ///
   /// In en, this message translates to:
-  /// **'Too many tries, request a new code'**
+  /// **'Too many tries. Request a new code.'**
   String get authErrorTooManyTries;
 
   /// No description provided for @authErrorInvalidEmail.
@@ -4763,7 +4751,7 @@ abstract class AppLocalizations {
   /// No description provided for @authErrorOffline.
   ///
   /// In en, this message translates to:
-  /// **'You’re offline — connect once to sign in'**
+  /// **'You\'re offline. Connect to the internet to sign in.'**
   String get authErrorOffline;
 
   /// No description provided for @authErrorCancelled.
@@ -4859,7 +4847,7 @@ abstract class AppLocalizations {
   /// No description provided for @nameInvalid.
   ///
   /// In en, this message translates to:
-  /// **'Enter your name (1 to 50 letters)'**
+  /// **'Enter your name (up to 50 characters)'**
   String get nameInvalid;
 
   /// No description provided for @upiInvalid.
@@ -4943,7 +4931,7 @@ abstract class AppLocalizations {
   /// No description provided for @typeDeleteLabel.
   ///
   /// In en, this message translates to:
-  /// **'Type DELETE to confirm'**
+  /// **'Type “DELETE” to confirm'**
   String get typeDeleteLabel;
 
   /// No description provided for @deleteWord.
@@ -5009,7 +4997,7 @@ abstract class AppLocalizations {
   /// No description provided for @syncStateError.
   ///
   /// In en, this message translates to:
-  /// **'Sync did not finish. It tries again soon.'**
+  /// **'Sync didn\'t finish. Splitify will try again soon.'**
   String get syncStateError;
 
   /// No description provided for @syncStateSignedOut.
@@ -5108,12 +5096,6 @@ abstract class AppLocalizations {
   /// **'The server did not accept this change.'**
   String get syncErrorRejected;
 
-  /// No description provided for @syncErrorCode.
-  ///
-  /// In en, this message translates to:
-  /// **'Code {code}'**
-  String syncErrorCode(String code);
-
   /// No description provided for @retryLabel.
   ///
   /// In en, this message translates to:
@@ -5207,7 +5189,7 @@ abstract class AppLocalizations {
   /// No description provided for @syncUploadsWaiting.
   ///
   /// In en, this message translates to:
-  /// **'{count, plural, =1{1 photo waiting} other{{count} photos waiting}}'**
+  /// **'{count} waiting'**
   String syncUploadsWaiting(int count);
 
   /// No description provided for @syncRowSynced.
@@ -5675,7 +5657,7 @@ abstract class AppLocalizations {
   /// No description provided for @repeatEndBeforeStart.
   ///
   /// In en, this message translates to:
-  /// **'The end date can’t be before {date}'**
+  /// **'The end date can\'t be before {date}'**
   String repeatEndBeforeStart(String date);
 
   /// No description provided for @repeatNextHint.
@@ -5795,7 +5777,7 @@ abstract class AppLocalizations {
   /// No description provided for @recurringEditPill.
   ///
   /// In en, this message translates to:
-  /// **'Future copies · {group}'**
+  /// **'Future copies · {group}'**
   String recurringEditPill(String group);
 
   /// No description provided for @recurringEditNote.
@@ -5819,13 +5801,13 @@ abstract class AppLocalizations {
   /// No description provided for @recurringNotFoundBody.
   ///
   /// In en, this message translates to:
-  /// **'This repeating expense isn’t on this phone any more.'**
+  /// **'This repeating expense isn\'t on this phone any more.'**
   String get recurringNotFoundBody;
 
   /// No description provided for @recurringDeleteAlsoStops.
   ///
   /// In en, this message translates to:
-  /// **'Deleted. It won’t repeat any more.'**
+  /// **'Deleted. It won\'t repeat any more.'**
   String get recurringDeleteAlsoStops;
 
   /// No description provided for @actRecurringCopy.
@@ -5849,7 +5831,7 @@ abstract class AppLocalizations {
   /// No description provided for @searchFieldHint.
   ///
   /// In en, this message translates to:
-  /// **'Description, person or amount'**
+  /// **'Search expenses'**
   String get searchFieldHint;
 
   /// No description provided for @searchClear.
@@ -6275,7 +6257,7 @@ abstract class AppLocalizations {
   /// No description provided for @impProblemSameMember.
   ///
   /// In en, this message translates to:
-  /// **'Two people of the file point to the same member.'**
+  /// **'Two people in the file are matched to the same member.'**
   String get impProblemSameMember;
 
   /// No description provided for @impProblemEmptyName.
@@ -6323,20 +6305,20 @@ abstract class AppLocalizations {
   /// No description provided for @impStatExpenses.
   ///
   /// In en, this message translates to:
-  /// **'Expenses'**
-  String get impStatExpenses;
+  /// **'{count, plural, =1{Expense} other{Expenses}}'**
+  String impStatExpenses(int count);
 
   /// No description provided for @impStatPayments.
   ///
   /// In en, this message translates to:
-  /// **'Payments'**
-  String get impStatPayments;
+  /// **'{count, plural, =1{Payment} other{Payments}}'**
+  String impStatPayments(int count);
 
   /// No description provided for @impStatPeople.
   ///
   /// In en, this message translates to:
-  /// **'People'**
-  String get impStatPeople;
+  /// **'{count, plural, =1{Person} other{People}}'**
+  String impStatPeople(int count);
 
   /// No description provided for @impTotalsTitle.
   ///
@@ -6497,7 +6479,7 @@ abstract class AppLocalizations {
   /// No description provided for @actImportCounts.
   ///
   /// In en, this message translates to:
-  /// **'{expenses} · {payments}'**
+  /// **'{expenses} · {payments}'**
   String actImportCounts(String expenses, String payments);
 
   /// No description provided for @lockSecurity.
@@ -6545,7 +6527,7 @@ abstract class AppLocalizations {
   /// No description provided for @lockAfterSub.
   ///
   /// In en, this message translates to:
-  /// **'in the background. Splitify always locks when it starts.'**
+  /// **'Splitify locks after this long in the background, and always when it starts.'**
   String get lockAfterSub;
 
   /// No description provided for @lockRecentsNote.
@@ -6611,13 +6593,13 @@ abstract class AppLocalizations {
   /// No description provided for @widgetRow.
   ///
   /// In en, this message translates to:
-  /// **'Home-screen widget'**
+  /// **'Home screen widget'**
   String get widgetRow;
 
   /// No description provided for @widgetTitle.
   ///
   /// In en, this message translates to:
-  /// **'Home-screen widget'**
+  /// **'Home screen widget'**
   String get widgetTitle;
 
   /// No description provided for @widgetHowTo.
@@ -6863,7 +6845,7 @@ abstract class AppLocalizations {
   /// No description provided for @captureRestrictedTitle.
   ///
   /// In en, this message translates to:
-  /// **'Switch greyed out or \"Restricted setting\"?'**
+  /// **'Switch greyed out or “Restricted setting”?'**
   String get captureRestrictedTitle;
 
   /// No description provided for @captureRestrictedBody.
@@ -6875,13 +6857,13 @@ abstract class AppLocalizations {
   /// No description provided for @captureRestrictedStep1.
   ///
   /// In en, this message translates to:
-  /// **'Tap Grant and try the switch once. Android says \"Restricted setting\".'**
+  /// **'Tap Grant and try the switch once. Android says “Restricted setting”.'**
   String get captureRestrictedStep1;
 
   /// No description provided for @captureRestrictedStep2.
   ///
   /// In en, this message translates to:
-  /// **'Open App info, tap the three-dot menu at the top right, then \"Allow restricted settings\".'**
+  /// **'Open App info, tap the three-dot menu at the top right, then “Allow restricted settings”.'**
   String get captureRestrictedStep2;
 
   /// No description provided for @captureRestrictedStep3.
@@ -6983,7 +6965,7 @@ abstract class AppLocalizations {
   /// No description provided for @paymentsToAddHint.
   ///
   /// In en, this message translates to:
-  /// **'Payments this phone caught. Add each to a group or dismiss it. They go after 7 days.'**
+  /// **'Payments found on this phone. Add each one or dismiss it. They\'re removed after 7 days.'**
   String get paymentsToAddHint;
 
   /// No description provided for @capturePaidTo.
@@ -7001,7 +6983,7 @@ abstract class AppLocalizations {
   /// No description provided for @captureVia.
   ///
   /// In en, this message translates to:
-  /// **'{app} · {time}'**
+  /// **'{app} · {time}'**
   String captureVia(String app, String time);
 
   /// No description provided for @captureAdd.
@@ -7135,18 +7117,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Go to groups'**
   String get linkNotFoundAction;
-
-  /// After “You” in a split list (expYouOwe vs expOwes for others).
-  ///
-  /// In en, this message translates to:
-  /// **'owe {amount}'**
-  String expYouOwe(String amount);
-
-  /// No description provided for @expYouOweNothing.
-  ///
-  /// In en, this message translates to:
-  /// **'owe nothing'**
-  String get expYouOweNothing;
 
   /// Caption under your own net in Balances (“You … get back”).
   ///

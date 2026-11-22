@@ -1,30 +1,35 @@
 # Splitify Free Forever
 
-Splitify is a free and open-source app for splitting expenses with friends, roommates and groups. It is made for
+Splitify is a free and open-source app for splitting expenses with friends, flatmates and groups. It is made for
 India first (rupees, UPI) and works with other currencies too. You can track shared costs, see who owes whom and
 settle up. It works offline. No ads, no limits, free forever.
 
 ## Features
 
-- Groups, with name-only members who can later be claimed by a real account through an invite.
-- Five split types and multiple payers.
-- IOUs and loans.
+- Sign in with Google or a one-time code sent by email.
+- Groups for trips, homes and couples, with generated covers or your own photo. Add people by name; they can
+  claim their spot later through an invite code or QR.
+- Friends: see what you and each person owe across all your groups, and add expenses with just the two of you.
+- Five ways to split (equally, exact amounts, percentages, shares, adjustments) and several people paying.
+- Loans: money lent or borrowed outside a bill.
 - Receipt photos.
-- Balances per currency, with an optional simplify-debts view.
-- Settle up and Pay via UPI (a payment is recorded only when you tap "Mark as paid").
-- Offline-first sync: use it with no network, changes are sent when you are back online.
-- Edit history and restore of deleted items.
+- Balances per currency, with an optional "simplify debts" view that never changes what anyone owes overall.
+- Settle up and pay via UPI. A payment is recorded only when you tap "Mark as paid".
+- Works offline: everything is saved on the phone first and syncs when you are back online.
+- Edit history for every expense and payment, and restore for deleted expenses, payments and groups.
 - Comments on expenses and payments.
-- Notifications and payment reminders.
-- Currencies with exchange rates saved on each expense.
-- Recurring bills.
-- Search.
-- Charts and CSV export.
-- Import from Splitwise.
-- App lock (biometric or device PIN).
-- Home-screen balance widget.
-- Optional payment bubble (off by default): after you pay with a UPI app, offers to add the payment. Parsed on the
-  phone, nothing is sent until you save. See [Privacy](docs/PRIVACY.md).
+- Push and in-app notifications, and payment reminders.
+- Other currencies, with the exchange rate saved on each expense.
+- Repeating expenses (weekly, every 2 weeks, monthly, yearly).
+- Search across all your expenses, even offline.
+- Spending charts by category and month, and CSV export.
+- Import a group from a Splitwise CSV export.
+- App lock with your fingerprint or screen lock.
+- Home screen widget with your overall balance.
+- Light and dark themes.
+- Optional payment bubble (off by default): after you pay with a UPI app, a bubble offers to add the payment
+  to Splitify. Payment alerts are read on the phone, and nothing is sent until you tap Add. See
+  [Privacy](docs/PRIVACY.md).
 
 ## Screenshots
 

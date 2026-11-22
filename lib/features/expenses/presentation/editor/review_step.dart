@@ -101,7 +101,6 @@ class ReviewStep extends StatelessWidget {
               owes: shares[people[i].id] ?? 0,
               paid: paid[people[i].id] ?? 0,
               money: money,
-              isMe: people[i].isMe,
             ),
             if (i < people.length - 1) const DashedDivider(),
           ],
@@ -118,7 +117,6 @@ class _PersonLine extends StatelessWidget {
     required this.owes,
     required this.paid,
     required this.money,
-    this.isMe = false,
   });
 
   final String name;
@@ -127,9 +125,6 @@ class _PersonLine extends StatelessWidget {
   final int owes;
   final int paid;
   final String Function(int) money;
-
-  /// "You owe" instead of "You owes" (S-252).
-  final bool isMe;
 
   @override
   Widget build(BuildContext context) {
@@ -149,12 +144,7 @@ class _PersonLine extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Text(
-                  switch ((owes == 0, isMe)) {
-                    (true, true) => l.expYouOweNothing,
-                    (true, false) => l.expOwesNothing,
-                    (false, true) => l.expYouOwe(money(owes)),
-                    (false, false) => l.expOwes(money(owes)),
-                  },
+                  owes == 0 ? l.expOwesNothing : l.expOwes(money(owes)),
                   textAlign: TextAlign.end,
                   style: tabular.w(600),
                 ),
@@ -162,7 +152,7 @@ class _PersonLine extends StatelessWidget {
                   Text(
                     l.expPaidAmount(money(paid)),
                     textAlign: TextAlign.end,
-                    style: context.text.bodySmall.w(600).copyWith(color: c.owedText),
+                    style: context.text.bodySmall.w(600).copyWith(color: c.textSecondary),
                   ),
               ],
             ),

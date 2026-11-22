@@ -6,7 +6,7 @@
     <string name="capture_smart_description">Reads the payment and success screens of the UPI apps you allow, so Splitify can offer to add a payment. It never reads PIN or password fields, and nothing leaves your phone until you tap Add.</string>
     <string name="capture_channel">Payments to add</string>
     <string name="capture_channel_description">Payments you made with a UPI app, ready to add to Splitify</string>
-    <string name="capture_bubble_handle">Splitify: paid %1$s to %2$s. Double tap to open</string>
+    <string name="capture_bubble_handle">Splitify: paid %1$s to %2$s</string>
     <string name="capture_bubble_during">Splitting this?</string>
     <string name="capture_bubble_during_caption">Payment in progress</string>
     <string name="capture_bubble_during_body">Finish paying. Splitify will catch the amount and offer to add it.</string>

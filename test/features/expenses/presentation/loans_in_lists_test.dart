@@ -96,26 +96,26 @@ Future<GoRouter> _pumpDetail(WidgetTester t, LocalExpense e) async {
 void main() {
   group('Expense list rows', () {
     // TC-11-02
-    testWidgets('a loan row has the LOAN chip and "You lent Asha Rao ₹500 · date"', (t) async {
+    testWidgets('a loan row has the LOAN chip and "You lent Asha Rao ₹500\u00A0· date"', (t) async {
       await _pumpList(t, [sampleView(sampleLoanRow())]);
       expect(_key('loan-chip-l1'), findsOneWidget);
       expect(find.text('LOAN'), findsOneWidget);
       expect(find.text('Cab money'), findsOneWidget);
-      expect(find.text('You lent Asha Rao ₹500 · 20 Nov'), findsOneWidget);
+      expect(find.text('You lent Asha Rao ₹500\u00A0· 20\u00A0Nov'), findsOneWidget);
       expect(find.text('you lent'), findsOneWidget);
     });
 
     // TC-11-02
     testWidgets('a loan I borrowed reads "Asha Rao lent you ₹500" and "you borrowed"', (t) async {
       await _pumpList(t, [sampleView(sampleLoanRow(lender: 'm2', borrower: 'm1'))]);
-      expect(find.text('Asha Rao lent you ₹500 · 20 Nov'), findsOneWidget);
+      expect(find.text('Asha Rao lent you ₹500\u00A0· 20\u00A0Nov'), findsOneWidget);
       expect(find.text('you borrowed'), findsOneWidget);
     });
 
     // TC-11-02
     testWidgets('a loan between two others names both and is not mine', (t) async {
       await _pumpList(t, [sampleView(sampleLoanRow(lender: 'm2', borrower: 'm3'))]);
-      expect(find.text('Asha Rao lent Rahul Mehta ₹500 · 20 Nov'), findsOneWidget);
+      expect(find.text('Asha Rao lent Rahul Mehta ₹500\u00A0· 20\u00A0Nov'), findsOneWidget);
       expect(find.text('not involved'), findsOneWidget);
     });
 
@@ -130,7 +130,7 @@ void main() {
       await _pumpList(t, [
         sampleView(sampleExpense(payers: const {'m1': 70000, 'm2': 50000}, total: 120000)),
       ]);
-      expect(find.text('You and Asha Rao paid ₹1,200 · 20 Nov'), findsOneWidget);
+      expect(find.text('You and Asha Rao paid ₹1,200\u00A0· 20\u00A0Nov'), findsOneWidget);
     });
 
     // TC-10-02
@@ -138,7 +138,7 @@ void main() {
       await _pumpList(t, [
         sampleView(sampleExpense(payers: const {'m2': 70000, 'm3': 50000}, total: 120000)),
       ]);
-      expect(find.text('Asha Rao and Rahul Mehta paid ₹1,200 · 20 Nov'), findsOneWidget);
+      expect(find.text('Asha Rao and Rahul Mehta paid ₹1,200\u00A0· 20\u00A0Nov'), findsOneWidget);
     });
 
     // TC-10-02
@@ -148,7 +148,7 @@ void main() {
           sampleExpense(payers: const {'m1': 40000, 'm2': 40000, 'm3': 40000}, total: 120000),
         ),
       ]);
-      expect(find.text('3 people paid ₹1,200 · 20 Nov'), findsOneWidget);
+      expect(find.text('3 people paid ₹1,200\u00A0· 20\u00A0Nov'), findsOneWidget);
     });
 
     // TC-29 UI

@@ -141,9 +141,9 @@ class _HeroBackground extends StatelessWidget {
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  AppPalette.black.withValues(alpha: 0.45),
-                  AppPalette.black.withValues(alpha: 0.2),
-                  AppPalette.black.withValues(alpha: 0.45),
+                  AppPalette.black.withValues(alpha: 0.55),
+                  AppPalette.black.withValues(alpha: 0.35),
+                  AppPalette.black.withValues(alpha: 0.55),
                 ],
                 stops: const [0, 0.45, 1],
               ),

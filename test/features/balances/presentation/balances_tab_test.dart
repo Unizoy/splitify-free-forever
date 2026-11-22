@@ -80,7 +80,7 @@ void main() {
     testWidgets('no expenses or payments yet shows the empty state', (t) async {
       await _pump(t, AsyncData(goaEmpty()));
       expect(find.text('Balances show up here'), findsOneWidget);
-      expect(find.text('Once the group has expenses, you see who owes whom.'), findsOneWidget);
+      expect(find.text("Once the group has expenses, you'll see who owes whom."), findsOneWidget);
       expect(find.byKey(const Key('balances-banner')), findsNothing);
     });
 
@@ -146,7 +146,7 @@ void main() {
     testWidgets('owed in one currency and owing in another gives a mixed banner', (t) async {
       await _pump(t, AsyncData(goaMixed()));
       final banner = _bannerText(t);
-      expect(banner, startsWith('You are owed and owe here|'));
+      expect(banner, startsWith('You are owed and you owe here|'));
       expect(banner, allOf(contains('₹900'), contains('\$20')));
     });
 
@@ -258,7 +258,7 @@ void main() {
       await _pump(t, AsyncData(goaOweTwoCurrencies()));
       final banner = _bannerText(t);
       expect(banner, startsWith('You owe here|'));
-      expect(banner, allOf(contains('₹300'), contains('\$20'), contains(' · ')));
+      expect(banner, allOf(contains('₹300'), contains('\$20'), contains('\u00A0· ')));
     });
 
     // TC-14-02

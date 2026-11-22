@@ -34,19 +34,14 @@ class GaugePainter extends CustomPainter {
     if (p > 0) {
       canvas.drawArc(rect, start, sweep * p, false, base..color = fill);
     }
-    // Knob: a short thick dash across the arc end, like 646.
+    // Knob: a round dot centred on the arc end, a little wider than the stroke (06 §6).
     final angle = start + sweep * p;
     final c = rect.center;
     final r = rect.width / 2;
     final dir = Offset(cos(angle), sin(angle));
-    canvas.drawLine(
-      c + dir * (r - stroke * 0.55),
-      c + dir * (r + stroke * 0.55),
-      Paint()
-        ..color = knob
-        ..strokeWidth = stroke * 0.7
-        ..strokeCap = StrokeCap.round,
-    );
+    canvas
+      ..drawCircle(c + dir * r, stroke * 0.72, Paint()..color = track)
+      ..drawCircle(c + dir * r, stroke * 0.58, Paint()..color = knob);
   }
 
   @override

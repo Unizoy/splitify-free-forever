@@ -105,7 +105,7 @@ void main() {
       expect(find.byKey(const Key('conversion-sheet')), findsOneWidget);
       expect(find.text('Convert to INR'), findsOneWidget);
       expect(_field(t), '75');
-      expect(_text(t, 'conversion-source'), 'Frankfurter · 20 Nov 2026');
+      expect(_text(t, 'conversion-source'), 'Frankfurter\u00A0· 20\u00A0Nov\u00A02026');
       final converted = convert(10001, 'USD', 'INR', _auto);
       expect(converted, 750075);
       expect(_text(t, 'conversion-original'), _money(10001, 'USD'));
@@ -129,7 +129,7 @@ void main() {
       expect(_field(t), '72');
       expect(
         _text(t, 'conversion-source'),
-        'Frankfurter · 17 Nov 2026, the latest before 20 Nov 2026',
+        'Frankfurter\u00A0· 17\u00A0Nov\u00A02026 (latest before 20\u00A0Nov\u00A02026)',
       );
       expect(
         _text(t, 'conversion-result'),
@@ -148,7 +148,7 @@ void main() {
       );
       // nothing on or before 18 Nov: ask for a typed rate
       expect(_field(t), '');
-      expect(find.textContaining('No saved rate for 18 Nov 2026'), findsOneWidget);
+      expect(find.textContaining('No saved rate for 18\u00A0Nov\u00A02026'), findsOneWidget);
     });
   });
 
@@ -160,7 +160,7 @@ void main() {
       await _open(t);
       await t.enterText(find.byKey(const Key('conversion-rate')), '80');
       await settle(t, 2);
-      expect(_text(t, 'conversion-source'), 'Rate you typed · 20 Nov 2026');
+      expect(_text(t, 'conversion-source'), 'Rate you typed\u00A0· 20\u00A0Nov\u00A02026');
       expect(
         _text(t, 'conversion-result'),
         '≈ ${_money(convert(10001, 'USD', 'INR', '80'), 'INR')}',
@@ -171,7 +171,7 @@ void main() {
       await t.tap(find.byKey(const Key('conversion-use-auto')));
       await settle(t, 2);
       expect(_field(t), '75');
-      expect(_text(t, 'conversion-source'), 'Frankfurter · 20 Nov 2026');
+      expect(_text(t, 'conversion-source'), 'Frankfurter\u00A0· 20\u00A0Nov\u00A02026');
       expect(
         _text(t, 'conversion-result'),
         '≈ ${_money(convert(10001, 'USD', 'INR', _auto), 'INR')}',
@@ -184,7 +184,7 @@ void main() {
       await _open(t);
       await t.enterText(find.byKey(const Key('conversion-rate')), '75.00');
       await settle(t, 2);
-      expect(_text(t, 'conversion-source'), 'Frankfurter · 20 Nov 2026');
+      expect(_text(t, 'conversion-source'), 'Frankfurter\u00A0· 20\u00A0Nov\u00A02026');
       expect(find.byKey(const Key('conversion-use-auto')), findsNothing);
     });
 
@@ -229,7 +229,7 @@ void main() {
       expect(_field(t), '');
       expect(
         _text(t, 'conversion-source'),
-        'No saved rate for 20 Nov 2026 on this phone. Type the rate, or connect to the internet.',
+        'No saved rate for 20\u00A0Nov\u00A02026 on this phone. Type the rate, or connect to the internet.',
       );
       expect(_canSave(t), isFalse);
       // the sheet tried the server for the missing days
@@ -239,7 +239,7 @@ void main() {
 
       await t.enterText(find.byKey(const Key('conversion-rate')), '80');
       await settle(t, 2);
-      expect(_text(t, 'conversion-source'), 'Rate you typed · 20 Nov 2026');
+      expect(_text(t, 'conversion-source'), 'Rate you typed\u00A0· 20\u00A0Nov\u00A02026');
       expect(_canSave(t), isTrue);
       await t.tap(find.byKey(const Key('conversion-save')));
       await settleReal(t);
@@ -281,7 +281,7 @@ void main() {
       await _open(t, cache: false, remote: remote);
       expect(remote.betweenCalls, hasLength(1));
       expect(_field(t), '75');
-      expect(_text(t, 'conversion-source'), 'Frankfurter · 20 Nov 2026');
+      expect(_text(t, 'conversion-source'), 'Frankfurter\u00A0· 20\u00A0Nov\u00A02026');
       expect(_text(t, 'conversion-result'), '≈ ₹7,500.75');
       expect(_canSave(t), isTrue);
     });
@@ -298,7 +298,7 @@ void main() {
       await t.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 100)));
       await settle(t);
       expect(_field(t), '80');
-      expect(_text(t, 'conversion-source'), 'Rate you typed · 20 Nov 2026');
+      expect(_text(t, 'conversion-source'), 'Rate you typed\u00A0· 20\u00A0Nov\u00A02026');
       expect(find.byKey(const Key('conversion-use-auto')), findsOneWidget);
       await t.tap(find.byKey(const Key('conversion-use-auto')));
       await settle(t, 2);
@@ -359,7 +359,7 @@ void main() {
       expect(find.byKey(const Key('conversion-remove')), findsOneWidget);
       expect(find.text('Remove conversion'), findsOneWidget);
       expect(_field(t), '75');
-      expect(_text(t, 'conversion-source'), 'Frankfurter · 20 Nov 2026');
+      expect(_text(t, 'conversion-source'), 'Frankfurter\u00A0· 20\u00A0Nov\u00A02026');
 
       await t.tap(find.byKey(const Key('conversion-remove')));
       await settleReal(t);
@@ -387,7 +387,7 @@ void main() {
       );
       await _open(t, expenses: [saved]);
       expect(_field(t), '80');
-      expect(_text(t, 'conversion-source'), 'Rate you typed · 20 Nov 2026');
+      expect(_text(t, 'conversion-source'), 'Rate you typed\u00A0· 20\u00A0Nov\u00A02026');
       expect(find.byKey(const Key('conversion-use-auto')), findsOneWidget);
       expect(find.byKey(const Key('conversion-remove')), findsOneWidget);
     });

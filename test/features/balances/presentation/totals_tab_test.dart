@@ -75,12 +75,12 @@ void main() {
       await _pump(t, AsyncData(sampleTotals()));
       expect(find.text('EACH PERSON'), findsOneWidget);
       expect(_row(t, 'm1').title, 'You');
-      expect(_row(t, 'm1').caption, 'paid ₹3,000 · share ₹1,206.25');
+      expect(_row(t, 'm1').caption, 'paid ₹3,000\u00A0· share ₹1,206.25');
       expect(_row(t, 'm2').title, 'Asha Rao');
-      expect(_row(t, 'm2').caption, 'paid ₹1,500 · share ₹1,206.25');
-      expect(_row(t, 'm3').caption, 'paid ₹325 · share ₹1,206.25');
+      expect(_row(t, 'm2').caption, 'paid ₹1,500\u00A0· share ₹1,206.25');
+      expect(_row(t, 'm3').caption, 'paid ₹325\u00A0· share ₹1,206.25');
       // Priya paid nothing but has a share.
-      expect(_row(t, 'm4').caption, 'paid ₹0 · share ₹1,206.25');
+      expect(_row(t, 'm4').caption, 'paid ₹0\u00A0· share ₹1,206.25');
     });
 
     // TC-21-02
@@ -94,7 +94,7 @@ void main() {
       expect(_in('totals-card-INR', '2 expenses'), findsOneWidget);
       expect(_in('totals-my-share', '₹225'), findsOneWidget);
       expect(_in('totals-my-paid', '₹600'), findsOneWidget);
-      expect(_row(t, 'm3').caption, 'paid ₹0 · share ₹225');
+      expect(_row(t, 'm3').caption, 'paid ₹0\u00A0· share ₹225');
 
       await t.tap(find.text('All time'));
       await settle(t);
@@ -104,11 +104,11 @@ void main() {
     // TC-21-02
     testWidgets('two currencies: a card each with its code, never added together', (t) async {
       await _pump(t, AsyncData(sampleTotals(withUsd: true)));
-      expect(_in('totals-card-INR', 'TOTAL SPENT · INR'), findsOneWidget);
-      expect(_in('totals-card-USD', 'TOTAL SPENT · USD'), findsOneWidget);
+      expect(_in('totals-card-INR', 'TOTAL SPENT\u00A0· INR'), findsOneWidget);
+      expect(_in('totals-card-USD', 'TOTAL SPENT\u00A0· USD'), findsOneWidget);
       expect(_in('totals-card-USD', '\$120'), findsOneWidget);
       expect(_in('totals-card-USD', '1 expense'), findsOneWidget);
-      expect(_row(t, 'm2', 'USD').caption, 'paid \$120 · share \$60');
+      expect(_row(t, 'm2', 'USD').caption, 'paid \$120\u00A0· share \$60');
       // Main currency first.
       expect(
         t.getTopLeft(find.byKey(const Key('totals-card-INR'))).dy,

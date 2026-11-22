@@ -73,10 +73,7 @@ class AmountStep extends StatelessWidget {
                 ),
                 const SizedBox(height: AppSpacing.s5),
                 Center(
-                  child: CurrencyChip(
-                    code: draft.currency,
-                    onTap: onPickCurrency ?? () => showComingSoon(context),
-                  ),
+                  child: CurrencyChip(code: draft.currency, onTap: onPickCurrency),
                 ),
                 const SizedBox(height: AppSpacing.s3),
                 Semantics(
@@ -160,8 +157,12 @@ class AmountKeypad extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
-    return ColoredBox(
-      color: c.bgSubtle,
+    return DecoratedBox(
+      // A hairline on top: content scrolling under the keypad reads as scrolled, not cut off.
+      decoration: BoxDecoration(
+        color: c.bgSubtle,
+        border: Border(top: BorderSide(color: c.border)),
+      ),
       child: Padding(
         padding: const EdgeInsets.fromLTRB(
           AppSpacing.s3,
