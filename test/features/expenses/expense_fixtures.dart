@@ -282,8 +282,6 @@ Widget expenseApp(
 }
 
 /// The detail screen reads the expense's repeat rule (#12) from the database; goldens have none.
-Override noRepeat(String expenseId) => expenseRecurringProvider((
-  expenseId: expenseId,
-  recurringId: null,
-)).overrideWith((ref) => Stream.value(null));
-
+Override noRepeat(String expenseId) =>
+    expenseRecurringProvider((expenseId: expenseId, recurringId: null))
+        .overrideWith((ref) => Stream.value(null));
