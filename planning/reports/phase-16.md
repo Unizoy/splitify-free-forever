@@ -1,7 +1,7 @@
 # Phase 16 report — Recurring bills and search
 
-- Date: 2026-11-22 · Branch: `phase/16-recurring-search` · Base: `origin/main` (phases 01–14; 17 merged in on the way)
-- Commits: `97bce1b..HEAD` · Status: GATES_STATUS
+- Date: 2026-11-22 · Branch: `phase/16-recurring-search` · Base: `origin/main` (phases 01–14; 17 and 15 merged in on the way)
+- Commits: `97bce1b..HEAD` · Status: done
 
 ## Summary
 
@@ -41,7 +41,7 @@ screen (Groups and Activity heroes) finds expenses offline by description, notes
 | G2 Tests | PASS | full `flutter test --coverage --concurrency=1` (2632 passed + 33 failed on the first run): the 33 failures were fixed (8 activity goldens gained the search button, 24 detail goldens needed `noRepeat`, 1 entity-icon count) and those files re-run green; `coverage_check` PASS |
 | G3 Backend | PASS | `0019_recurring` applied (after `list_migrations` showed 0017); dev pgTAP: `151_recurring` 49/49 and `001_schema` 32/32 (10 `bump_seq` triggers) and `041_pull_changes` 29/29 on the applied schema; `150_recurring_vectors` 52/52 in the pre-apply dry run (same SQL); security advisors: nothing new (pre-existing RPC WARNs only); no Edge Function touched |
 | G4 Build | PASS | `flutter build apk --debug --dart-define-from-file=secrets/env.dev.json` |
-| G5 Device | G5_RESULT | G5_EVIDENCE |
+| G5 Device | PASS | `integration_test/recurring_search_test.dart` on emulator-5554 against dev (PIN_HOST_IP), 55 s: offline editor Repeat → expense + template in the outbox, detail Repeats row + sheet with the pending marker, search by description / notes / person / `1,200` / `1200` / words + amount, no-match state, group filter, then online sync (server `next_date` = first copy, `recurring_created`), Stop repeating from the sheet syncs (`recurring_stopped`). Emulator UI review light/dark/200 % of the repeat picker, repeat detail, repeat sheet and search results in `C:\Users\mohit\OneDrive\Desktop\theCode\splitify-artifacts\phase-16\` (≥ 8/10 each); the search filter sheets were reviewed in goldens only |
 | G6 Docs | PASS | phase ticks + amendments (16, 18, 19), decisions S-170…S-179 + S-215, test catalog, LEARNINGS, PROGRESS, this report |
 
 ## Decisions made (S-0xx)
