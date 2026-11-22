@@ -31,9 +31,10 @@ if ($Only -ne 'absent') {
   & adb -s $Device logcat -c
   Write-Output 'fake UPI app installed: running the pay path'
   $r = Invoke-UpiTest 'installed'
-  $expected = (Select-String -Path $r.Log -Pattern 'UPI-EXPECT (\S+)' | Select-Object -Last 1).Matches.Groups[1].Value
-  $logged = (& adb -s $Device logcat -d -s 'FAKE_UPI:I' | Select-String -Pattern 'FAKE_UPI\s*:\s*(\S+)' |
-      Select-Object -Last 1).Matches.Groups[1].Value
+  $m = Select-String -Path $r.Log -Pattern 'UPI-EXPECT (\S+)' | Select-Object -Last 1
+  $expected = if ($m) { $m.Matches[0].Groups[1].Value } else { '' }
+  $m = & adb -s $Device logcat -d -s 'FAKE_UPI:I' | Select-String -Pattern 'FAKE_UPI\s*:\s*(\S+)' | Select-Object -Last 1
+  $logged = if ($m) { $m.Matches[0].Groups[1].Value } else { '' }
   Write-Output "  expected: $expected"
   Write-Output "  received: $logged"
   if ($r.Code -ne 0) { Write-Output 'FAIL: installed path test failed'; $ok = $false }

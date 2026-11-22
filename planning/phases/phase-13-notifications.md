@@ -30,3 +30,7 @@ TC-19-01…05, TC-23-01…02. If the FCM secret is missing: TC-19-02 live part a
 > **Amendment (D-020, 2026-11-21):** services the owner has not set up yet run in dummy mode — build and test them behind their config checks with fakes; missing Google client id / Resend / Firebase file is not a blocker.
 
 Pre-built (phase 06 session, branch prep/edge-functions): `supabase/functions/send-push/{index,push,push_test}.ts`, `supabase/functions/_shared/{fcm,fcm_test,admin_client,admin_client_test}.ts`; deploy + table DDL still in this phase.
+
+> **Amendment (S-125, phase 11):** the friend page (`lib/features/friends/presentation/friend_page.dart`) has no
+> Remind yet: add it to its `_ActionBar` (and/or the "By group" rows, which know `FriendLink.group` and
+> `friendMemberId`) for linked friends who owe me; hidden for name-only friends (`Friend.nameOnly`).

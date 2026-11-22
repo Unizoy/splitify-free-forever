@@ -150,7 +150,7 @@ void main() {
     Map<String, Object?> expense(String what, int total, String payer, Map<String, int> shares) => {
       'kind': 'expense',
       'description': what,
-      'category': 'food.dining',
+      'category': 'food.dining_out',
       'date': '2026-11-22',
       'currency': 'INR',
       'total': total,
