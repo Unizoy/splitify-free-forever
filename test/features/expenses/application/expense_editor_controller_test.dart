@@ -385,6 +385,35 @@ void main() {
       expect(r.draft.category, 'food.dining_out');
       expect(r.draft.canSave, isTrue);
     });
+
+    test('X1 an imported expense (non-member keys in split_values) opens without error', () async {
+      final a = env.ids['Asha']!;
+      await env.container.read(expensesRepositoryProvider).save(env.groupId, {
+        'kind': 'expense',
+        'description': 'Imported dinner',
+        'category': 'food.dining_out',
+        'date': '2026-11-20',
+        'currency': 'INR',
+        'total': 10000,
+        'payers': {env.me: 10000},
+        'shares': {env.me: 6000, a: 4000},
+        'split_kind': 'exact',
+        'split_values': {
+          env.me: 6000,
+          a: 4000,
+          'import_batch_id': 'batch-1',
+          'import_summary': {'source': 'splitwise', 'expenses': 1, 'payments': 0},
+        },
+        'source': 'import',
+      }, id: 'e-import');
+      final r = await env.open(expenseId: 'e-import');
+      expect(r.draft.isEdit, isTrue);
+      expect(r.draft.total, 10000);
+      expect(r.draft.split.kind, SplitKind.exact);
+      final shares = (r.draft.splitCheck as SplitReady).shares;
+      expect(shares[env.me], 6000);
+      expect(shares[a], 4000);
+    });
   });
 
   group('ExpenseNotFound', () {
