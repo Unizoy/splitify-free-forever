@@ -57,6 +57,7 @@ List<Override> appOverrides({
   mediaRemoteProvider.overrideWithValue(remote.media),
   historyRemoteProvider.overrideWithValue(remote.history),
   balancesRemoteProvider.overrideWithValue(remote.balances),
+  friendsRemoteProvider.overrideWithValue(remote.friends),
   fxRatesRemoteProvider.overrideWithValue(remote.fxRates),
   notificationsRemoteProvider.overrideWithValue(remote.notifications),
   pushMessagingProvider.overrideWithValue(push),

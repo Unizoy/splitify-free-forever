@@ -11,6 +11,7 @@ import 'package:splitify/domain/rules/group_rules.dart';
 import 'package:splitify/features/groups/application/groups_providers.dart';
 import 'package:splitify/features/groups/presentation/group_visuals.dart';
 import 'package:splitify/features/groups/presentation/invite_sheet.dart';
+import 'package:splitify/features/groups/presentation/simplify_setting.dart';
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/components/components.dart';
 import 'package:splitify/ui/theme/theme.dart';
@@ -84,6 +85,8 @@ class GroupSettingsScreen extends ConsumerWidget {
               showDivider: false,
               onTap: () => context.push(ExpenseRoutes.defaultSplit(groupId)),
             ),
+            // #17: simplify debts (phase 11); friend (direct) groups have only two people.
+            if (group.type != 'direct') SimplifySettingRow(group: group),
             const SizedBox(height: AppSpacing.s8),
             SectionLabel(
               '${l.membersSection} · ${members.length}',

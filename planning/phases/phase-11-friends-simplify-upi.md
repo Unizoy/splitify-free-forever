@@ -6,19 +6,19 @@
 
 ## Tasks
 
-- [ ] T1 Server: `find_or_create_direct_group` (unique pair; name-only friend allowed) — pgTAP; `my_overview`
+- [x] T1 Server: `find_or_create_direct_group` (unique pair; name-only friend allowed) — pgTAP; `my_overview`
       friend totals verified (TC-16-02).
-- [ ] T2 Friends tab (list with per-currency totals, search) and friend page (header, shared items across groups,
+- [x] T2 Friends tab (list with per-currency totals, search) and friend page (header, shared items across groups,
       Add expense / Settle up actions); add friend expense flow.
-- [ ] T3 Simplify toggle in group settings + Balances view switch + "Show original debts"; `settings_changed`
+- [x] T3 Simplify toggle in group settings + Balances view switch + "Show original debts"; `settings_changed`
       activity.
-- [ ] T4 UPI: `UpiLinkBuilder` (encoding, 2-dp amount, note ≤ 50 chars) unit-tested; `<queries>` for scheme
+- [x] T4 UPI: `UpiLinkBuilder` (encoding, 2-dp amount, note ≤ 50 chars) unit-tested; `<queries>` for scheme
       `upi`; launch chooser; return → "Did the payment go through?" sheet → Mark as paid (payment method `upi`);
       fallbacks: copy UPI ID, copy amount, UPI QR sheet; hidden for non-INR or receiver without UPI ID.
-- [ ] T5 `tool/fake_upi_app/` minimal Flutter (or Kotlin) debug app, package `dev.splitify.fakeupi`, intent-filter
+- [x] T5 `tool/fake_upi_app/` minimal Flutter (or Kotlin) debug app, package `dev.splitify.fakeupi`, intent-filter
       `upi://pay`, logs URI with tag `FAKE_UPI` and shows it; build script; integration test asserts params; test
       the "no UPI app" path after uninstalling it.
-- [ ] T6 Celebration animation on settling a person to zero.
+- [x] T6 Celebration animation on settling a person to zero.
 
 ## Tests
 
