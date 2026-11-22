@@ -9,7 +9,7 @@ import org.junit.Test
 
 /** TC-X4-01: every shared vector (test/fixtures/payment_capture_vectors.json) through the real recipes. */
 class PaymentParserTest {
-    private val recipes = Recipes.parse(File("src/main/assets/${Recipes.ASSET}").readText())
+    private val recipes = Recipes.parse(File("src/full/assets/${Recipes.ASSET}").readText())
     private val parser = PaymentParser(recipes)
     private val vectors = JSONObject(File("../../test/fixtures/payment_capture_vectors.json").readText())
         .getJSONArray("vectors")
