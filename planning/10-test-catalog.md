@@ -81,15 +81,15 @@ Total: 117 test ids (TC-18-03 golden added in phase 09).
 | 10 | TC-29-01 | unit | compression bounds (+ real compression on the device) | pass |
 | 10 | TC-29-02 | sql | storage policies (member-only) — `023_storage` 24/24 + `060_file_paths` 12/12 on dev | pass |
 | 10 | TC-29-03 | integ | offline photo uploads later — device `integration_test/receipts_offline_upload_test.dart` 2026-11-22 (receipt + cover uploaded after sync, B reads both via signed URLs) | pass |
-| 11 | TC-16-02 | sql | my_overview friend totals. | todo |
-| 11 | TC-17-03 | widget | toggle + link. | todo |
-| 11 | TC-2-01 | sql | one direct group per user pair | todo |
-| 11 | TC-2-02 | integ | friend expense appears on both friends' pages | todo |
-| 11 | TC-2-03 | widget | friend page states. | todo |
-| 11 | TC-26-01 | unit | link builder encoding/rounding | todo |
-| 11 | TC-26-02 | integ | fake UPI handler receives exact params | todo |
-| 11 | TC-26-03 | integ | no UPI app → fallback sheet | todo |
-| 11 | TC-26-04 | widget | hidden for non-INR / no VPA | todo |
+| 11 | TC-16-02 | sql | my_overview friend totals. | pass (`supabase/tests/110_friends_simplify.test.sql` on dev via MCP, 17/17, 2026-11-22; device `integration_test/friends_upi_test.dart`) |
+| 11 | TC-17-03 | widget | toggle + link. | pass (`test/features/groups/simplify_setting_test.dart`, goldens `friends_group_settings_simplify_*`; server `settings_changed` in 110 SQL + device) |
+| 11 | TC-2-01 | sql | one direct group per user pair | pass (`110_friends_simplify.test.sql` 17/17 on dev; device run finds the same group from both sides) |
+| 11 | TC-2-02 | integ | friend expense appears on both friends' pages | pass (`integration_test/friends_upi_test.dart` on emulator-5554, 2026-11-22) |
+| 11 | TC-2-03 | widget | friend page states. | pass (`test/features/friends/**`, goldens `friends_friend_page_*`, `friends_friends_*`) |
+| 11 | TC-26-01 | unit | link builder encoding/rounding | pass (`test/core/upi/upi_link_test.dart` + `test/fixtures/upi_vectors.json`, pre-built) |
+| 11 | TC-26-02 | integ | fake UPI handler receives exact params | pass (`tool/fake_upi_app/run_upi_e2e.ps1`: logcat `FAKE_UPI` = test's `UPI-EXPECT`) |
+| 11 | TC-26-03 | integ | no UPI app → fallback sheet | pass (same script, fake app uninstalled; widget part in `upi_pay_test.dart`) |
+| 11 | TC-26-04 | widget | hidden for non-INR / no VPA | pass (`test/features/payments/presentation/upi_pay_test.dart`) |
 | 11 | TC-26-05 | manual-opt | real UPI app on a phone. | manual-opt |
 | 12 | TC-13-03 | integ | add comment offline then | pass (`integration_test/history_comments_test.dart` on emulator + dev; unit `comments_providers_test.dart`) |
 | 12 | TC-13-04 | sql | comment delete only by author. | pass (`supabase/tests/060_history_comments.test.sql` on dev; widget: `comment_thread_test.dart`) |

@@ -47,8 +47,13 @@ if (Test-Path $wrapper) {
     $gradle = $dist
 }
 
-& $gradle -p $here --console=plain -q ':app:assembleDebug'
-if ($LASTEXITCODE -ne 0) { throw "fake UPI build failed ($LASTEXITCODE)" }
+# Gradle prints JDK warnings on stderr: do not let them stop the script.
+$ErrorActionPreference = 'Continue'
+& $gradle -p $here --console=plain -q ':app:assembleDebug' 2>&1 | ForEach-Object { "$_" } |
+    Where-Object { $_ -notmatch 'WARNING' } | Out-Host
+$code = $LASTEXITCODE
+$ErrorActionPreference = 'Stop'
+if ($code -ne 0) { throw "fake UPI build failed ($code)" }
 Write-Host "fake UPI app: $apk"
 
 if ($Install) {

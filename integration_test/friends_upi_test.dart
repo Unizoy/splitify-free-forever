@@ -340,7 +340,6 @@ void main() {
       await _capture(t, 'upi-return');
       await _tap(t, find.byKey(const Key('upi-mark-paid')));
       await _waitFor(t, find.byKey(const Key('settled-celebration')));
-      if (_hold > 0) await _capture(t, 'celebration');
       final paid = await (db.select(db.payments)..where((p) => p.groupId.equals(gid))).get();
       expect(paid, hasLength(1));
       expect((paid.single.method, paid.single.amount, paid.single.fromMember), ('upi', 30000, a));
