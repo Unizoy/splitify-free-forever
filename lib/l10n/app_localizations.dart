@@ -5191,6 +5191,666 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Done'**
   String get loanAmountDone;
+
+  /// No description provided for @impTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Import from Splitwise'**
+  String get impTitle;
+
+  /// No description provided for @impStepFile.
+  ///
+  /// In en, this message translates to:
+  /// **'File'**
+  String get impStepFile;
+
+  /// No description provided for @impStepGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Group'**
+  String get impStepGroup;
+
+  /// No description provided for @impStepPeople.
+  ///
+  /// In en, this message translates to:
+  /// **'People'**
+  String get impStepPeople;
+
+  /// No description provided for @impStepPreview.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview'**
+  String get impStepPreview;
+
+  /// No description provided for @impStepDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get impStepDone;
+
+  /// No description provided for @impFileQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Bring a Splitwise group over'**
+  String get impFileQuestion;
+
+  /// No description provided for @impHow1.
+  ///
+  /// In en, this message translates to:
+  /// **'In Splitwise, open the group, tap the settings gear, then Export as spreadsheet.'**
+  String get impHow1;
+
+  /// No description provided for @impHow2.
+  ///
+  /// In en, this message translates to:
+  /// **'Save the CSV file on this phone, then choose it here.'**
+  String get impHow2;
+
+  /// No description provided for @impHow3.
+  ///
+  /// In en, this message translates to:
+  /// **'Files exported from Splitify work too.'**
+  String get impHow3;
+
+  /// No description provided for @impChooseFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose CSV file'**
+  String get impChooseFile;
+
+  /// No description provided for @impChooseAnother.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose another file'**
+  String get impChooseAnother;
+
+  /// No description provided for @impErrTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Can\'t read this file'**
+  String get impErrTitle;
+
+  /// No description provided for @impErrEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'This file is empty.'**
+  String get impErrEmpty;
+
+  /// No description provided for @impErrHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'This doesn\'t look like a Splitwise or Splitify export. Its first row should start with Date, Description, Category.'**
+  String get impErrHeader;
+
+  /// No description provided for @impErrColumns.
+  ///
+  /// In en, this message translates to:
+  /// **'Row {row} has a different number of cells than the first row.'**
+  String impErrColumns(int row);
+
+  /// No description provided for @impErrDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Row {row}: “{value}” is not a date (YYYY-MM-DD).'**
+  String impErrDate(int row, String value);
+
+  /// No description provided for @impErrCurrency.
+  ///
+  /// In en, this message translates to:
+  /// **'Row {row}: “{value}” is not a currency code.'**
+  String impErrCurrency(int row, String value);
+
+  /// No description provided for @impErrAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Row {row}: “{value}” is not an amount.'**
+  String impErrAmount(int row, String value);
+
+  /// No description provided for @impErrUnbalanced.
+  ///
+  /// In en, this message translates to:
+  /// **'Row {row} doesn\'t add up: someone\'s share is missing.'**
+  String impErrUnbalanced(int row);
+
+  /// No description provided for @impErrDuplicateTotals.
+  ///
+  /// In en, this message translates to:
+  /// **'Row {row} repeats the Total balance row for {value}.'**
+  String impErrDuplicateTotals(int row, String value);
+
+  /// No description provided for @impErrTooLarge.
+  ///
+  /// In en, this message translates to:
+  /// **'This file is larger than 5 MB.'**
+  String get impErrTooLarge;
+
+  /// No description provided for @impErrNoRows.
+  ///
+  /// In en, this message translates to:
+  /// **'There are no expenses or payments in this file.'**
+  String get impErrNoRows;
+
+  /// No description provided for @impErrUnsupported.
+  ///
+  /// In en, this message translates to:
+  /// **'Splitify can\'t handle {code} amounts yet.'**
+  String impErrUnsupported(String code);
+
+  /// No description provided for @impEarlier.
+  ///
+  /// In en, this message translates to:
+  /// **'Imported on this phone'**
+  String get impEarlier;
+
+  /// No description provided for @impBatchTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{file}'**
+  String impBatchTitle(String file);
+
+  /// No description provided for @impBatchWhen.
+  ///
+  /// In en, this message translates to:
+  /// **'Imported {date}'**
+  String impBatchWhen(String date);
+
+  /// No description provided for @impGroupQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Where should it go?'**
+  String get impGroupQuestion;
+
+  /// No description provided for @impNewGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'New group'**
+  String get impNewGroup;
+
+  /// No description provided for @impGroupName.
+  ///
+  /// In en, this message translates to:
+  /// **'Group name'**
+  String get impGroupName;
+
+  /// No description provided for @impGroupNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Goa trip'**
+  String get impGroupNameHint;
+
+  /// No description provided for @impYourGroups.
+  ///
+  /// In en, this message translates to:
+  /// **'Your groups'**
+  String get impYourGroups;
+
+  /// No description provided for @impContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get impContinue;
+
+  /// No description provided for @impPeopleQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Who is who?'**
+  String get impPeopleQuestion;
+
+  /// No description provided for @impPeopleHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Match each person in the file to someone in “{group}”.'**
+  String impPeopleHint(String group);
+
+  /// No description provided for @impPeopleHintNew.
+  ///
+  /// In en, this message translates to:
+  /// **'Match each person in the file. Everyone except you joins as a name-only member.'**
+  String get impPeopleHintNew;
+
+  /// No description provided for @impChoiceNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New person'**
+  String get impChoiceNew;
+
+  /// No description provided for @impChoiceSkip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skipped'**
+  String get impChoiceSkip;
+
+  /// No description provided for @impPickFor.
+  ///
+  /// In en, this message translates to:
+  /// **'Who is {name}?'**
+  String impPickFor(String name);
+
+  /// No description provided for @impAddNew.
+  ///
+  /// In en, this message translates to:
+  /// **'Add “{name}” as a new person'**
+  String impAddNew(String name);
+
+  /// No description provided for @impSkip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip {name}'**
+  String impSkip(String name);
+
+  /// No description provided for @impSkipBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Rows that involve them are left out.'**
+  String get impSkipBody;
+
+  /// No description provided for @impNetPlus.
+  ///
+  /// In en, this message translates to:
+  /// **'gets back {amount}'**
+  String impNetPlus(String amount);
+
+  /// No description provided for @impNetMinus.
+  ///
+  /// In en, this message translates to:
+  /// **'owes {amount}'**
+  String impNetMinus(String amount);
+
+  /// No description provided for @impNetZero.
+  ///
+  /// In en, this message translates to:
+  /// **'settled up'**
+  String get impNetZero;
+
+  /// No description provided for @impProblemSameMember.
+  ///
+  /// In en, this message translates to:
+  /// **'Two people of the file point to the same member.'**
+  String get impProblemSameMember;
+
+  /// No description provided for @impProblemEmptyName.
+  ///
+  /// In en, this message translates to:
+  /// **'A new person needs a name.'**
+  String get impProblemEmptyName;
+
+  /// No description provided for @impProblemNobody.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose at least one person to import.'**
+  String get impProblemNobody;
+
+  /// No description provided for @impProblemTooMany.
+  ///
+  /// In en, this message translates to:
+  /// **'A group can have up to 100 members.'**
+  String get impProblemTooMany;
+
+  /// No description provided for @impPreviewQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Check before importing'**
+  String get impPreviewQuestion;
+
+  /// No description provided for @impCountExpenses.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 expense} other{{count} expenses}}'**
+  String impCountExpenses(int count);
+
+  /// No description provided for @impCountPayments.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 payment} other{{count} payments}}'**
+  String impCountPayments(int count);
+
+  /// No description provided for @impDateRange.
+  ///
+  /// In en, this message translates to:
+  /// **'{from} – {to}'**
+  String impDateRange(String from, String to);
+
+  /// No description provided for @impStatExpenses.
+  ///
+  /// In en, this message translates to:
+  /// **'Expenses'**
+  String get impStatExpenses;
+
+  /// No description provided for @impStatPayments.
+  ///
+  /// In en, this message translates to:
+  /// **'Payments'**
+  String get impStatPayments;
+
+  /// No description provided for @impStatPeople.
+  ///
+  /// In en, this message translates to:
+  /// **'People'**
+  String get impStatPeople;
+
+  /// No description provided for @impTotalsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Total balance check'**
+  String get impTotalsTitle;
+
+  /// No description provided for @impTotalsOk.
+  ///
+  /// In en, this message translates to:
+  /// **'Matches the file'**
+  String get impTotalsOk;
+
+  /// No description provided for @impTotalsNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No Total balance row to check against'**
+  String get impTotalsNone;
+
+  /// No description provided for @impTotalsMismatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Doesn\'t match the file'**
+  String get impTotalsMismatch;
+
+  /// No description provided for @impMismatchRow.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}: the file says {file}, its rows add up to {rows}'**
+  String impMismatchRow(String name, String file, String rows);
+
+  /// No description provided for @impImportAnyway.
+  ///
+  /// In en, this message translates to:
+  /// **'Import anyway'**
+  String get impImportAnyway;
+
+  /// No description provided for @impImportAnywaySub.
+  ///
+  /// In en, this message translates to:
+  /// **'Balances follow the rows, not the Total balance row.'**
+  String get impImportAnywaySub;
+
+  /// No description provided for @impDropped.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 row involves someone you skipped and is left out.} other{{count} rows involve people you skipped and are left out.}}'**
+  String impDropped(int count);
+
+  /// No description provided for @impZeroRows.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 row changes nobody\'s balance and is left out.} other{{count} rows change nobody\'s balance and are left out.}}'**
+  String impZeroRows(int count);
+
+  /// No description provided for @impNetsRows.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 expense with several payers comes in as net amounts; its original cost goes in the notes.} other{{count} expenses with several payers come in as net amounts; their original cost goes in the notes.}}'**
+  String impNetsRows(int count);
+
+  /// No description provided for @impBalancesAfter.
+  ///
+  /// In en, this message translates to:
+  /// **'Balances from this file'**
+  String get impBalancesAfter;
+
+  /// No description provided for @impImportButton.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Import 1 record} other{Import {count} records}}'**
+  String impImportButton(int count);
+
+  /// No description provided for @impRunning.
+  ///
+  /// In en, this message translates to:
+  /// **'Importing…'**
+  String get impRunning;
+
+  /// No description provided for @impRunningCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{done} of {total}'**
+  String impRunningCount(int done, int total);
+
+  /// No description provided for @impDoneLead.
+  ///
+  /// In en, this message translates to:
+  /// **'all'**
+  String get impDoneLead;
+
+  /// No description provided for @impDoneHighlight.
+  ///
+  /// In en, this message translates to:
+  /// **'imported'**
+  String get impDoneHighlight;
+
+  /// No description provided for @impDoneBody.
+  ///
+  /// In en, this message translates to:
+  /// **'{expenses} and {payments} are in “{group}”.'**
+  String impDoneBody(String expenses, String payments, String group);
+
+  /// No description provided for @impOpenGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Open group'**
+  String get impOpenGroup;
+
+  /// No description provided for @impDeleteImport.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this import'**
+  String get impDeleteImport;
+
+  /// No description provided for @impDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this import?'**
+  String get impDeleteTitle;
+
+  /// No description provided for @impDeleteBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Every expense and payment from this file is deleted. You can bring them back one by one from Deleted items.'**
+  String get impDeleteBody;
+
+  /// No description provided for @impDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Import deleted'**
+  String get impDeleted;
+
+  /// No description provided for @impDeletedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The records from this file are deleted. People added for the import stay in the group.'**
+  String get impDeletedBody;
+
+  /// No description provided for @impFallbackDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Imported expense'**
+  String get impFallbackDescription;
+
+  /// No description provided for @actImportCompletedFile.
+  ///
+  /// In en, this message translates to:
+  /// **'{actor} imported expenses from a Splitify file'**
+  String actImportCompletedFile(String actor);
+
+  /// No description provided for @actImportUndone.
+  ///
+  /// In en, this message translates to:
+  /// **'{actor} deleted an import'**
+  String actImportUndone(String actor);
+
+  /// No description provided for @actImportCounts.
+  ///
+  /// In en, this message translates to:
+  /// **'{expenses} · {payments}'**
+  String actImportCounts(String expenses, String payments);
+
+  /// No description provided for @lockSecurity.
+  ///
+  /// In en, this message translates to:
+  /// **'Security'**
+  String get lockSecurity;
+
+  /// No description provided for @lockSecuritySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'App lock'**
+  String get lockSecuritySubtitle;
+
+  /// No description provided for @lockAppLock.
+  ///
+  /// In en, this message translates to:
+  /// **'App lock'**
+  String get lockAppLock;
+
+  /// No description provided for @lockAppLockSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask for your fingerprint or screen lock to open Splitify.'**
+  String get lockAppLockSub;
+
+  /// No description provided for @lockAfter.
+  ///
+  /// In en, this message translates to:
+  /// **'Lock after'**
+  String get lockAfter;
+
+  /// No description provided for @lockMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 minute} other{{count} minutes}}'**
+  String lockMinutes(int count);
+
+  /// No description provided for @lockAfterSub.
+  ///
+  /// In en, this message translates to:
+  /// **'in the background. Splitify always locks when it starts.'**
+  String get lockAfterSub;
+
+  /// No description provided for @lockRecentsNote.
+  ///
+  /// In en, this message translates to:
+  /// **'While app lock is on, the preview of Splitify in recent apps is hidden.'**
+  String get lockRecentsNote;
+
+  /// No description provided for @lockNeedsScreenLock.
+  ///
+  /// In en, this message translates to:
+  /// **'Set a screen lock (PIN, pattern, password or fingerprint) on this phone first.'**
+  String get lockNeedsScreenLock;
+
+  /// No description provided for @lockReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock Splitify'**
+  String get lockReason;
+
+  /// No description provided for @lockTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Splitify is locked'**
+  String get lockTitle;
+
+  /// No description provided for @lockBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Use your fingerprint or screen lock to see your groups and balances.'**
+  String get lockBody;
+
+  /// No description provided for @lockUnlock.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock'**
+  String get lockUnlock;
+
+  /// No description provided for @lockOn.
+  ///
+  /// In en, this message translates to:
+  /// **'On'**
+  String get lockOn;
+
+  /// No description provided for @lockOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get lockOff;
+
+  /// No description provided for @lockConfirmFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t confirm it\'s you. Try again.'**
+  String get lockConfirmFailed;
+
+  /// No description provided for @lockTurnedOff.
+  ///
+  /// In en, this message translates to:
+  /// **'This phone has no screen lock any more, so app lock is off.'**
+  String get lockTurnedOff;
+
+  /// No description provided for @widgetRow.
+  ///
+  /// In en, this message translates to:
+  /// **'Home-screen widget'**
+  String get widgetRow;
+
+  /// No description provided for @widgetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Home-screen widget'**
+  String get widgetTitle;
+
+  /// No description provided for @widgetHowTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Long-press your home screen, tap Widgets and pick Splitify. It shows your overall balance and opens the app when tapped.'**
+  String get widgetHowTo;
+
+  /// No description provided for @widgetHideAmounts.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide amounts'**
+  String get widgetHideAmounts;
+
+  /// No description provided for @widgetHideAmountsSub.
+  ///
+  /// In en, this message translates to:
+  /// **'The widget shows whether you owe or are owed, without numbers.'**
+  String get widgetHideAmountsSub;
+
+  /// No description provided for @widgetUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Updated {time}'**
+  String widgetUpdated(String time);
+
+  /// No description provided for @widgetNotSynced.
+  ///
+  /// In en, this message translates to:
+  /// **'Not synced yet'**
+  String get widgetNotSynced;
+
+  /// No description provided for @widgetSignedOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Splitify to sign in'**
+  String get widgetSignedOut;
+
+  /// No description provided for @widgetHidden.
+  ///
+  /// In en, this message translates to:
+  /// **'Amounts hidden'**
+  String get widgetHidden;
+
+  /// No description provided for @widgetBrand.
+  ///
+  /// In en, this message translates to:
+  /// **'Splitify'**
+  String get widgetBrand;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

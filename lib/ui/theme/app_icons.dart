@@ -123,6 +123,16 @@ abstract final class AppIcons {
   static const IconData zoomIn = IconData(0xe310, fontFamily: _regular);
   static const IconData replace = IconData(0xe096, fontFamily: _regular);
   static const IconData cloudUpload = IconData(0xe1ae, fontFamily: _regular);
+
+  // Phase 18: import (file-csv, file-arrow-up), app lock (lock, lock-simple fill, fingerprint),
+  // home-screen widget (squares-four, eye-slash).
+  static const IconData fileCsv = IconData(0xeb1c, fontFamily: _regular);
+  static const IconData fileImport = IconData(0xe61e, fontFamily: _regular);
+  static const IconData lock = IconData(0xe2fa, fontFamily: _regular);
+  static const IconData lockFill = IconData(0xe308, fontFamily: _fill);
+  static const IconData fingerprint = IconData(0xe23e, fontFamily: _regular);
+  static const IconData widgets = IconData(0xe464, fontFamily: _regular);
+  static const IconData eyeSlash = IconData(0xe224, fontFamily: _regular);
 }
 
 /// Starting categories with their icon and colour (D-016, §2).

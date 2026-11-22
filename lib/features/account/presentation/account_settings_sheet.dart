@@ -7,6 +7,7 @@ import 'package:splitify/core/config/app_info.dart';
 import 'package:splitify/data/data_providers.dart';
 import 'package:splitify/features/account/application/theme_mode_controller.dart';
 import 'package:splitify/features/auth/application/auth_providers.dart';
+import 'package:splitify/features/import_splitwise/presentation/import_routes.dart';
 import 'package:splitify/features/notifications/application/notifications_providers.dart';
 import 'package:splitify/features/sync/application/sync_texts.dart';
 import 'package:splitify/l10n/app_localizations.dart';
@@ -140,6 +141,15 @@ class AccountSettingsBody extends ConsumerWidget {
           onTap: () {
             Navigator.of(context).pop();
             unawaited(context.push('/account/deleted-groups'));
+          },
+        ),
+        DashedListRow(
+          key: const Key('settings-import'),
+          icon: AppIcons.fileImport,
+          label: l.impTitle,
+          onTap: () {
+            Navigator.of(context).pop();
+            unawaited(context.push(ImportRoutes.fromAccount));
           },
         ),
         DashedListRow(
