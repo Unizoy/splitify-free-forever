@@ -1,6 +1,9 @@
 import 'dart:convert';
 
+import 'package:drift/drift.dart' show Value;
 import 'package:flutter_test/flutter_test.dart';
+import 'package:splitify/core/money/fx.dart';
+import 'package:splitify/data/local/app_database.dart' show LocalPayment;
 import 'package:splitify/data/repositories/ledger_repository.dart';
 import 'package:splitify/features/balances/application/balance_views.dart';
 import 'package:splitify/features/payments/application/settle_controller.dart';
@@ -442,6 +445,216 @@ void main() {
         ),
         isEmpty,
       );
+    });
+  });
+
+  group('currency and conversion (phase 14)', () {
+    /// Mohit paid $20.00 for himself and Ravi: Ravi owes him $10.00 (1000 cents).
+    Future<void> usdLunch() => env.db.seed(
+      expenses: [
+        seedExpense(
+          'e2',
+          groupId: env.groupId,
+          currency: 'USD',
+          total: 2000,
+          payers: {me: 2000},
+          shares: {me: 1000, ravi: 1000},
+          createdBy: 'u1',
+        ),
+      ],
+    );
+
+    /// A payment of $50.00 Asha to Mohit, converted to INR at 75.
+    Future<void> convertedPayment() => env.db.seed(
+      payments: [
+        seedPayment(
+          'p1',
+          groupId: env.groupId,
+          from: asha,
+          to: me,
+          amount: 5000,
+          currency: 'USD',
+          date: '2026-11-18',
+        ).copyWith(
+          fxRate: const Value('75.0000000000'),
+          fxRateDate: const Value('2026-11-17'),
+          fxSource: const Value('frankfurter'),
+          fxCurrency: const Value('INR'),
+          fxAmount: const Value(375000),
+        ),
+      ],
+    );
+
+    Future<LocalPayment> paymentRow(String id) =>
+        (env.db.select(env.db.payments)..where((p) => p.id.equals(id))).getSingle();
+
+    // TC-32-08
+    test('setCurrency makes the amount follow what is owed in the new currency', () async {
+      await dinner();
+      await usdLunch();
+      final a = args(from: ravi, to: me);
+      final d = await open(a);
+      expect((d.currency, d.amount), ('INR', 10000));
+
+      ctl(a).setCurrency('USD');
+      expect(draft(a).currency, 'USD');
+      expect(draft(a).owed, 1000);
+      expect(draft(a).amountText, '10');
+      expect(draft(a).amount, 1000);
+      expect(draft(a).amountEdited, isFalse);
+
+      ctl(a).setCurrency('EUR');
+      expect(draft(a).currency, 'EUR');
+      expect(draft(a).amountText, '');
+      expect(draft(a).canSave, isFalse);
+
+      ctl(a).setCurrency('INR');
+      expect(draft(a).amountText, '100');
+      // the people are kept
+      expect((draft(a).from, draft(a).to), (ravi, me));
+    });
+
+    // TC-32-08
+    test('a typed amount stays when the currency changes (read in the new exponent)', () async {
+      await dinner();
+      await usdLunch();
+      final a = args(from: ravi, to: me);
+      await open(a);
+      ctl(a).setAmountText('42.50');
+      ctl(a).setCurrency('USD');
+      expect(draft(a).amountText, '42.50');
+      expect(draft(a).amount, 4250);
+      expect(draft(a).amountEdited, isTrue);
+      // yen has no decimals: the same text is no longer an amount
+      ctl(a).setCurrency('JPY');
+      expect(draft(a).amountText, '42.50');
+      expect(draft(a).amount, isNull);
+      expect(draft(a).canSave, isFalse);
+      ctl(a).setAmountText('4250');
+      expect(draft(a).amount, 4250);
+    });
+
+    // TC-32-08
+    test('a new payment in another currency saves that currency, with no fx keys', () async {
+      await dinner();
+      await usdLunch();
+      final a = args(from: ravi, to: me);
+      await open(a);
+      ctl(a).setCurrency('USD');
+      final id = (await ctl(a).save())!;
+      final row = await paymentRow(id);
+      expect((row.currency, row.amount), ('USD', 1000));
+      expect(row.fxCurrency, isNull);
+      expect(row.fxAmount, isNull);
+      final p = await outboxPayload();
+      expect(p['currency'], 'USD');
+      expect(p.keys.where((k) => k.startsWith('fx_')), isEmpty);
+    });
+
+    // TC-32-08
+    test(
+      'editing a converted payment keeps the saved rate and re-converts the new amount',
+      () async {
+        await dinner();
+        await convertedPayment();
+        final a = args(paymentId: 'p1');
+        final d = await open(a);
+        expect((d.currency, d.amount), ('USD', 5000));
+
+        ctl(a).setAmountText('80');
+        expect(await ctl(a).save(), 'p1');
+        final row = await paymentRow('p1');
+        expect(row.amount, 8000);
+        expect(row.fxAmount, convert(8000, 'USD', 'INR', '75.0000000000'));
+        expect(row.fxAmount, 600000);
+        // saved rates are never recalculated: rate, its date and source are the ones saved
+        expect(row.fxRate, '75.0000000000');
+        expect(row.fxRateDate, '2026-11-17');
+        expect(row.fxSource, 'frankfurter');
+        expect(row.fxCurrency, 'INR');
+
+        final p = await outboxPayload();
+        expect(p['amount'], 8000);
+        expect(p['fx_amount'], 600000);
+        expect(p['fx_rate'], '75.0000000000');
+        expect(p['fx_currency'], 'INR');
+      },
+    );
+
+    // TC-32-08
+    test('editing other fields of a converted payment keeps its conversion', () async {
+      await dinner();
+      await convertedPayment();
+      final a = args(paymentId: 'p1');
+      await open(a);
+      ctl(a).setNote('thanks');
+      await ctl(a).save();
+      final row = await paymentRow('p1');
+      expect(row.note, 'thanks');
+      expect(row.fxAmount, 375000);
+      expect(row.fxRate, '75.0000000000');
+    });
+
+    // TC-32-08
+    test('changing the currency of a converted payment clears its conversion', () async {
+      await dinner();
+      await convertedPayment();
+      final a = args(paymentId: 'p1');
+      await open(a);
+      ctl(a).setCurrency('EUR');
+      expect(draft(a).amountEdited, isTrue); // an edit keeps the typed amount
+      expect(await ctl(a).save(), 'p1');
+      final row = await paymentRow('p1');
+      expect(row.currency, 'EUR');
+      expect(row.amount, 5000);
+      for (final v in [row.fxRate, row.fxRateDate, row.fxSource, row.fxCurrency]) {
+        expect(v, isNull);
+      }
+      expect(row.fxAmount, isNull);
+      final p = await outboxPayload();
+      expect(p['currency'], 'EUR');
+      for (final k in ['fx_rate', 'fx_rate_date', 'fx_source', 'fx_currency', 'fx_amount']) {
+        expect(p.containsKey(k), isTrue, reason: k);
+        expect(p[k], isNull, reason: k);
+      }
+    });
+
+    // TC-32-08
+    test('changing it to the currency of the conversion also clears it', () async {
+      await dinner();
+      await convertedPayment();
+      final a = args(paymentId: 'p1');
+      await open(a);
+      ctl(a).setCurrency('INR');
+      await ctl(a).save();
+      final row = await paymentRow('p1');
+      expect(row.currency, 'INR');
+      expect(row.fxAmount, isNull);
+      expect(row.fxRate, isNull);
+    });
+
+    // TC-32-08
+    test('editing a payment that was never converted adds no fx keys', () async {
+      await dinner();
+      await env.db.seed(
+        payments: [
+          seedPayment(
+            'p2',
+            groupId: env.groupId,
+            from: asha,
+            to: me,
+            amount: 5000,
+            currency: 'USD',
+          ),
+        ],
+      );
+      final a = args(paymentId: 'p2');
+      await open(a);
+      ctl(a).setAmountText('60');
+      await ctl(a).save();
+      final p = await outboxPayload();
+      expect(p['amount'], 6000);
+      expect(p.keys.where((k) => k.startsWith('fx_')), isEmpty);
     });
   });
 }

@@ -13,6 +13,7 @@ import 'package:splitify/features/balances/application/balance_views.dart';
 import 'package:splitify/features/balances/application/balances_providers.dart';
 import 'package:splitify/features/balances/presentation/balances_tab.dart' show TransferRow;
 import 'package:splitify/features/comments/application/comments_providers.dart';
+import 'package:splitify/features/currency/application/currency_providers.dart';
 import 'package:splitify/features/expenses/application/expense_providers.dart';
 import 'package:splitify/features/expenses/presentation/expense_list.dart';
 import 'package:splitify/features/payments/application/payment_providers.dart';
@@ -713,6 +714,89 @@ void main() {
       await pumpPicker(t, (c) => unawaited(showSettleEverywhere(c, [goaSettled(), goaEmpty()])));
       expect(find.byKey(const Key('settle-everywhere')), findsNothing);
       expect(find.text("You're all settled up"), findsOneWidget);
+    });
+  });
+
+  group('Settle up currency', () {
+    Future<_Handle> pumpWithPicker(WidgetTester t, {SettleDraft? draft}) async {
+      usePhone(t);
+      await t.pumpWidget(const SizedBox());
+      final handle = _Handle();
+      await t.pumpWidget(
+        _app(PushHost(_screen(settleArgs)), [
+          groupMainCurrencyProvider(gid).overrideWith((ref) => Stream.value('INR')),
+          recentCurrenciesProvider.overrideWith((ref) => Stream.value(const <String>['EUR'])),
+          settleProvider(settleArgs).overrideWith(() {
+            final c = FixedSettleController(settleArgs, draft ?? sampleSettleDraft());
+            handle.controller = c;
+            return c;
+          }),
+        ]),
+      );
+      await tapKey(t, 'open');
+      return handle;
+    }
+
+    Future<void> pick(WidgetTester t, String code) async {
+      await tapKey(t, 'settle-currency');
+      expect(find.text('Currency'), findsOneWidget);
+      await t.enterText(find.byKey(const Key('currency-search')), code);
+      await settle(t);
+      await t.tap(find.byKey(Key('currency-found-$code')));
+      await settle(t);
+    }
+
+    // TC-14-04
+    testWidgets('the currency chip opens the picker with the group currency and recent ones', (
+      t,
+    ) async {
+      await pumpWithPicker(t);
+      await tapKey(t, 'settle-currency');
+      expect(find.text('Currency'), findsOneWidget);
+      expect(find.byKey(const Key('currency-group-INR')), findsOneWidget);
+      expect(find.byKey(const Key('currency-recent-EUR')), findsOneWidget);
+    });
+
+    // TC-14-04
+    testWidgets('switching currency updates the chip and the amount follows what is owed', (
+      t,
+    ) async {
+      final h = await pumpWithPicker(t);
+      expect(_fieldText(t), '300');
+      await pick(t, 'USD');
+      expect(h.draft.currency, 'USD');
+      expect(
+        find.descendant(of: find.byKey(const Key('settle-currency')), matching: find.text('USD')),
+        findsOneWidget,
+      );
+      // nothing is owed in USD, the amount was not typed: the field empties
+      expect(h.draft.amountText, '');
+      expect(_fieldText(t), '');
+      expect(_canSave(t), isFalse);
+
+      await pick(t, 'INR');
+      expect(h.draft.currency, 'INR');
+      expect(_fieldText(t), '300');
+      expect(_canSave(t), isTrue);
+    });
+
+    // TC-14-04
+    testWidgets('a typed amount stays when the currency changes', (t) async {
+      final h = await pumpWithPicker(t);
+      await _type(t, 'settle-amount', '42');
+      await pick(t, 'USD');
+      expect(h.draft.currency, 'USD');
+      expect(h.draft.amount, 4200);
+      expect(_fieldText(t), '42');
+      expect(_canSave(t), isTrue);
+    });
+
+    // TC-14-04
+    testWidgets('picking the current currency changes nothing', (t) async {
+      final h = await pumpWithPicker(t);
+      await pick(t, 'INR');
+      expect(h.draft.currency, 'INR');
+      expect(_fieldText(t), '300');
     });
   });
 }

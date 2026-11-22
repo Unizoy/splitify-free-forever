@@ -6,6 +6,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:splitify/core/money/money_formatter.dart';
 import 'package:splitify/data/data_providers.dart';
+import 'package:splitify/features/currency/presentation/currency_picker_sheet.dart'
+    show pickGroupCurrency;
 import 'package:splitify/features/expenses/application/expense_draft.dart';
 import 'package:splitify/features/expenses/application/expense_editor_controller.dart';
 import 'package:splitify/features/expenses/application/split_draft.dart';
@@ -59,6 +61,11 @@ class _ExpenseEditorScreenState extends ConsumerState<ExpenseEditorScreen> {
 
   void _edit(ExpenseDraft Function(ExpenseDraft d) change) =>
       ref.read(expenseEditorProvider(_args).notifier).edit(change);
+
+  Future<void> _pickCurrency(ExpenseDraft d) async {
+    final code = await pickGroupCurrency(context, ref, groupId: d.groupId, selected: d.currency);
+    if (code != null && code != d.currency) _edit((x) => x.withCurrency(code));
+  }
 
   void _go(EditorStep step) {
     if (step == _step) return;
@@ -177,6 +184,7 @@ class _ExpenseEditorScreenState extends ConsumerState<ExpenseEditorScreen> {
         showErrors: _showErrors,
         onAmountText: (t) => _edit((d) => d.copyWith(amountText: t)),
         onDescription: (t) => _edit((d) => d.copyWith(description: t)),
+        onPickCurrency: () => unawaited(_pickCurrency(draft)),
       ),
       EditorStep.paidBy => PaidByStep(
         draft: draft,

@@ -6,6 +6,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:splitify/core/money/money_formatter.dart';
 import 'package:splitify/data/local/app_database.dart';
+import 'package:splitify/features/currency/application/conversion_actions.dart'
+    show savedFxOfExpense;
+import 'package:splitify/features/currency/presentation/conversion_tile.dart';
 import 'package:splitify/features/expenses/application/expense_draft.dart';
 import 'package:splitify/features/expenses/application/expense_providers.dart';
 import 'package:splitify/features/expenses/presentation/editor/step_body.dart';
@@ -250,6 +253,12 @@ class _Body extends StatelessWidget {
           icon: AppIcons.calendar,
           label: l.expDateLabel,
           value: shortDate(context, parseIsoDate(e.date)),
+        ),
+        ConversionTile(
+          recordId: e.id,
+          groupId: e.groupId,
+          currency: e.currency.trim(),
+          saved: savedFxOfExpense(e),
         ),
         if (e.notes != null && e.notes!.trim().isNotEmpty)
           Padding(

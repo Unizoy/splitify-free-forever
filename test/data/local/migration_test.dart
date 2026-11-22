@@ -12,28 +12,41 @@ void main() {
 
   setUpAll(() => verifier = SchemaVerifier(GeneratedHelper()));
 
-  test('schema v4 matches the dumped schema', () async {
-    final connection = await verifier.startAt(4);
+  test('schema v5 matches the dumped schema', () async {
+    final connection = await verifier.startAt(5);
     final db = AppDatabase(connection);
     addTearDown(db.close);
-    await verifier.migrateAndValidate(db, 4);
-    expect(db.schemaVersion, 4);
+    await verifier.migrateAndValidate(db, 5);
+    expect(db.schemaVersion, 5);
   });
 
-  test('v1 -> v4 adds the edit-history cache (phase 12) and the bell tables (phase 13)', () async {
+  test('v1 -> v5 adds the history (12), bell (13) and exchange-rate (14) caches', () async {
     final connection = await verifier.startAt(1);
     final db = AppDatabase(connection);
     addTearDown(db.close);
-    await verifier.migrateAndValidate(db, 4);
+    await verifier.migrateAndValidate(db, 5);
     expect(await db.select(db.recordVersions).get(), isEmpty);
     expect(await db.select(db.notifications).get(), isEmpty);
+    expect(await db.select(db.fxRates).get(), isEmpty);
   });
 
-  test('v2 -> v4 adds the notifications cache and settings (phase 13)', () async {
-    final connection = await verifier.startAt(2);
+  test(
+    'v2 -> v5 adds the notifications cache and settings (phase 13) and rates (phase 14)',
+    () async {
+      final connection = await verifier.startAt(2);
+      final db = AppDatabase(connection);
+      addTearDown(db.close);
+      await verifier.migrateAndValidate(db, 5);
+      expect(await db.select(db.notificationSettings).get(), isEmpty);
+      expect(await db.select(db.fxRates).get(), isEmpty);
+    },
+  );
+
+  test('v4 -> v5 adds the exchange-rate cache (phase 14)', () async {
+    final connection = await verifier.startAt(4);
     final db = AppDatabase(connection);
     addTearDown(db.close);
-    await verifier.migrateAndValidate(db, 4);
-    expect(await db.select(db.notificationSettings).get(), isEmpty);
+    await verifier.migrateAndValidate(db, 5);
+    expect(await db.select(db.fxRates).get(), isEmpty);
   });
 }

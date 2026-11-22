@@ -1,5 +1,6 @@
 import 'package:splitify/core/config/env.dart';
 import 'package:splitify/data/remote/balances_remote.dart';
+import 'package:splitify/data/remote/fx_rates_remote.dart';
 import 'package:splitify/data/remote/groups_remote.dart';
 import 'package:splitify/data/remote/history_remote.dart';
 import 'package:splitify/data/remote/media_remote.dart';
@@ -22,6 +23,7 @@ class RemoteServices {
     this.media = const UnconfiguredMediaRemote(),
     this.history = const UnconfiguredHistoryRemote(),
     this.balances = const UnconfiguredBalancesRemote(),
+    this.fxRates = const UnconfiguredFxRatesRemote(),
     this.notifications = const UnconfiguredNotificationsRemote(),
   });
 
@@ -42,6 +44,9 @@ class RemoteServices {
 
   /// Read-only balance RPCs (`group_balances`, `my_overview`).
   final BalancesRemote balances;
+
+  /// Read-only exchange rates (`fx_rates`, phase 14).
+  final FxRatesRemote fxRates;
 
   /// Bell, notification settings, device token and reminders (phase 13).
   final NotificationsRemote notifications;
@@ -67,6 +72,7 @@ Future<RemoteServices> initRemote(Env env) async {
     media: SupabaseMediaRemote.fromClient(client),
     history: SupabaseHistoryRemote.fromClient(client),
     balances: SupabaseBalancesRemote.fromClient(client),
+    fxRates: SupabaseFxRatesRemote(client),
     notifications: SupabaseNotificationsRemote.fromClient(client),
   );
 }

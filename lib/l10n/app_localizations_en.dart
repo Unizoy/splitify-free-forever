@@ -1378,6 +1378,189 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get curPickerTitle => 'Currency';
+
+  @override
+  String get curSearchLabel => 'Search currencies';
+
+  @override
+  String get curSearchHint => 'Code or name, e.g. USD';
+
+  @override
+  String get curGroupSection => 'Group currency';
+
+  @override
+  String get curRecentSection => 'Recent';
+
+  @override
+  String get curAllSection => 'All currencies';
+
+  @override
+  String curNoMatch(String query) {
+    return 'No currency matches “$query”';
+  }
+
+  @override
+  String curRowLabel(String name, String code) {
+    return '$name, $code';
+  }
+
+  @override
+  String get curSelected => 'selected';
+
+  @override
+  String fxConvertTo(String code) {
+    return 'Convert to $code';
+  }
+
+  @override
+  String fxInCurrency(String code) {
+    return 'In $code';
+  }
+
+  @override
+  String fxRateFieldLabel(String from) {
+    return 'Rate for 1 $from';
+  }
+
+  @override
+  String get fxRateNeeded => 'Rate needed';
+
+  @override
+  String get fxRateHint => 'e.g. 83.12';
+
+  @override
+  String fxRateLine(String from, String rate, String to) {
+    return '1 $from = $rate $to';
+  }
+
+  @override
+  String fxSourceFrankfurter(String date) {
+    return 'Frankfurter · $date';
+  }
+
+  @override
+  String fxSourceFallback(String date, String asked) {
+    return 'Frankfurter · $date, the latest before $asked';
+  }
+
+  @override
+  String fxSourceManual(String date) {
+    return 'Rate you typed · $date';
+  }
+
+  @override
+  String fxNoRateUnlisted(String code) {
+    return '$code has no published rate. Type the rate.';
+  }
+
+  @override
+  String fxNoRateMissing(String date) {
+    return 'No saved rate for $date on this phone. Type the rate, or connect to the internet.';
+  }
+
+  @override
+  String get fxReferenceNote => 'Reference rates from central banks, not your bank\'s rate.';
+
+  @override
+  String get fxRateError => 'Enter a rate above 0 with up to 10 decimals';
+
+  @override
+  String get fxTooLarge => 'The converted amount is too large';
+
+  @override
+  String get fxUseAuto => 'Use Frankfurter rate';
+
+  @override
+  String get fxSave => 'Save conversion';
+
+  @override
+  String get fxRemove => 'Remove conversion';
+
+  @override
+  String get fxSavedSnack => 'Conversion saved';
+
+  @override
+  String get fxRemovedSnack => 'Conversion removed';
+
+  @override
+  String fxApprox(String amount) {
+    return '≈ $amount';
+  }
+
+  @override
+  String get fxNotPossible => 'This record is already in the group\'s currency.';
+
+  @override
+  String get fxViewByCurrency => 'By currency';
+
+  @override
+  String fxViewInMain(String code) {
+    return 'In $code';
+  }
+
+  @override
+  String get fxViewLabel => 'Show balances';
+
+  @override
+  String fxMissingTitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count records need a rate',
+      one: '1 record needs a rate',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String fxMissingBody(String code) {
+    return 'Balances in $code use the rate saved with each record. Convert these first.';
+  }
+
+  @override
+  String get fxConvertAll => 'Convert all at their dates\' rates';
+
+  @override
+  String fxConvertedCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count converted',
+      one: '1 converted',
+      zero: 'Nothing converted',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String fxNeedRateCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count need a rate you type',
+      one: '1 needs a rate you type',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get fxConvertedNote => 'Every record counted at the rate saved with it.';
+
+  @override
+  String fxSectionInMain(String code) {
+    return 'Everything in $code';
+  }
+
+  @override
+  String fxSimplifyInMain(String code) {
+    return 'Simplify in $code';
+  }
+
+  @override
+  String get fxCombineError => 'These records can\'t be combined yet. Check their conversions.';
+
+  @override
   String get expAmountLabel => 'Amount';
 
   @override

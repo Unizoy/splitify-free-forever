@@ -255,5 +255,17 @@ CREATE TABLE notification_settings (
   sync_state TEXT NOT NULL DEFAULT 'synced'
 ) AS LocalNotificationSettings;
 
+-- Cache of the server's `fx_rates` (05 §6, phase 14): units of `currency` per 1 EUR on `date`, rate as exact
+-- decimal TEXT. Pulled by FxRatesRepository (not the change feed: the table is shared, not group-scoped).
+CREATE TABLE fx_rates (
+  date TEXT NOT NULL,
+  currency TEXT NOT NULL,
+  rate TEXT NOT NULL,
+  fetched_at TEXT,
+  PRIMARY KEY (date, currency)
+) AS LocalFxRate;
+
+CREATE INDEX fx_rates_currency_date ON fx_rates (currency, date);
+
 -- Offline search (#34); filled from phase 16.
 CREATE VIRTUAL TABLE expense_search USING fts5(description, notes, member_names, amount_text);

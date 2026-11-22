@@ -8,6 +8,9 @@ import 'package:splitify/data/local/app_database.dart';
 import 'package:splitify/data/repositories/ledger_repository.dart';
 import 'package:splitify/features/balances/application/balance_views.dart';
 import 'package:splitify/features/balances/application/balances_providers.dart';
+import 'package:splitify/features/currency/application/conversion_actions.dart'
+    show savedFxOfPayment;
+import 'package:splitify/features/currency/domain/conversion.dart' show paymentFxAfterEdit;
 import 'package:splitify/features/expenses/application/expense_draft.dart'
     show isoDate, parseIsoDate;
 import 'package:splitify/features/groups/application/groups_providers.dart';
@@ -103,6 +106,24 @@ class SettleDraft {
       'note': n.isEmpty ? null : n,
     };
   }
+
+  /// The same form in [code] (#14 currency picker).
+  SettleDraft withCurrency(String code) => SettleDraft(
+    groupId: groupId,
+    groupName: groupName,
+    members: members,
+    balances: balances,
+    meId: meId,
+    from: from,
+    to: to,
+    currency: code,
+    amountText: amountText,
+    amountEdited: amountEdited,
+    method: method,
+    date: date,
+    note: note,
+    paymentId: paymentId,
+  );
 
   SettleDraft copyWith({
     String? from,
@@ -253,6 +274,12 @@ class SettleController extends AsyncNotifier<SettleDraft> {
 
   void swap() => _set((d) => _people(d, d.to, d.from));
 
+  /// Another currency: the amount follows what is owed in it unless it was typed.
+  void setCurrency(String code) => _set((d) {
+    final next = d.withCurrency(code);
+    return d.amountEdited ? next : next.copyWith(amountText: _owedText(next));
+  });
+
   void setAmountText(String text) => _set((d) => d.copyWith(amountText: text, amountEdited: true));
 
   /// Fills in exactly what is owed.
@@ -270,6 +297,20 @@ class SettleController extends AsyncNotifier<SettleDraft> {
     if (d == null || !d.canSave) return null;
     final row = d.toRow();
     if (!d.isEdit) row['created_at'] = ref.read(clockProvider).now().toUtc().toIso8601String();
+    if (d.isEdit) {
+      // A saved conversion follows the edit (phase 14, S-151).
+      final saved = await ref.read(ledgerRepositoryProvider).watchPayment(d.paymentId!).first;
+      if (saved != null) {
+        row.addAll(
+          paymentFxAfterEdit(
+            saved: savedFxOfPayment(saved),
+            oldCurrency: saved.currency.trim(),
+            currency: d.currency,
+            amount: row['amount']! as int,
+          ),
+        );
+      }
+    }
     return ref.read(paymentsRepositoryProvider).save(d.groupId, row, id: d.paymentId);
   }
 }
