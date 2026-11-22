@@ -23,6 +23,9 @@ abstract final class WidgetKeys {
   /// "Updated %s" (`%s` = relative time, filled in natively).
   static const updatedTemplate = 'updated_template';
 
+  /// "Updated just now" (less than a minute ago).
+  static const updatedNow = 'updated_now';
+
   /// Set instead of the updated line while my changes are not on the server ("Not synced yet").
   static const pending = 'pending';
 }
@@ -36,6 +39,7 @@ typedef WidgetLabels = ({
   String mixed,
   String hidden,
   String updatedTemplate,
+  String updatedNow,
   String notSynced,
   String signedOut,
 });
@@ -55,6 +59,7 @@ Map<String, Object> buildWidgetData({
     WidgetKeys.brand: labels.brand,
     WidgetKeys.hidden: hideAmounts,
     WidgetKeys.updatedTemplate: labels.updatedTemplate,
+    WidgetKeys.updatedNow: labels.updatedNow,
     WidgetKeys.updatedAt: '${lastSync?.millisecondsSinceEpoch ?? 0}',
     WidgetKeys.pending: unsynced ? labels.notSynced : '',
   };

@@ -34,18 +34,16 @@ void main() {
     test('authenticate maps the outcome; device credential stays allowed', () async {
       when(prompt).thenAnswer((_) async => true);
       expect(await device.authenticate('Unlock'), DeviceAuthResult.success);
-      verify(
-        () => auth.authenticate(localizedReason: 'Unlock', persistAcrossBackgrounding: true),
-      ).called(1);
+      verify(() => auth.authenticate(localizedReason: 'Unlock', persistAcrossBackgrounding: true))
+          .called(1);
 
       when(prompt).thenAnswer((_) async => false);
       expect(await device.authenticate('Unlock'), DeviceAuthResult.failed);
     });
 
     test('no screen lock → unavailable; other errors → failed', () async {
-      when(prompt).thenThrow(
-        const LocalAuthException(code: LocalAuthExceptionCode.noCredentialsSet),
-      );
+      when(prompt)
+          .thenThrow(const LocalAuthException(code: LocalAuthExceptionCode.noCredentialsSet));
       expect(await device.authenticate('Unlock'), DeviceAuthResult.unavailable);
       when(prompt).thenThrow(const LocalAuthException(code: LocalAuthExceptionCode.userCanceled));
       expect(await device.authenticate('Unlock'), DeviceAuthResult.failed);

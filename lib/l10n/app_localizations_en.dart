@@ -3747,6 +3747,9 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get widgetUpdatedNow => 'Updated just now';
+
+  @override
   String get widgetNotSynced => 'Not synced yet';
 
   @override

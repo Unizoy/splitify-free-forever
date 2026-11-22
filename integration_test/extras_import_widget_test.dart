@@ -11,6 +11,7 @@ import 'dart:typed_data';
 
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -20,7 +21,6 @@ import 'package:splitify/app/router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:splitify/core/config/env.dart';
 import 'package:splitify/core/config/preferences.dart';
-import 'package:splitify/core/money/money_formatter.dart';
 import 'package:splitify/data/data_providers.dart';
 import 'package:splitify/data/local/app_database.dart';
 import 'package:splitify/data/remote/remote_providers.dart';
@@ -28,6 +28,7 @@ import 'package:splitify/data/remote/supabase_client.dart';
 import 'package:splitify/data/remote/supabase_remote_api.dart';
 import 'package:splitify/features/app_lock/presentation/security_routes.dart';
 import 'package:splitify/features/auth/application/auth_providers.dart';
+import 'package:splitify/features/balances/application/balances_providers.dart';
 import 'package:splitify/features/import_splitwise/application/import_providers.dart';
 import 'package:splitify/features/import_splitwise/presentation/import_routes.dart';
 import 'package:splitify/features/widget/application/home_widget_sync.dart';
@@ -273,23 +274,28 @@ void main() {
       // Widget after the sync: no "not synced yet", my INR balance.
       await _pumpFor(t, const Duration(seconds: 2));
       expect(await t.runAsync(() => HomeWidget.getWidgetData<String>('pending')), '');
-      final myInr = file.totals['INR']!['E2E A']!;
-      final usd = file.totals['USD']!['E2E A']!;
-      final signsDiffer = (myInr > 0) != (usd > 0);
-      if (!signsDiffer) {
-        expect(
-          await t.runAsync(() => HomeWidget.getWidgetData<String>('line1')),
-          MoneyFormatter.list.format(myInr.abs(), 'INR'),
-        );
+      // My balance in this group (part of the overall balance the widget shows) is my file net, and the
+      // widget shows what the app computes (the bridge wrote the provider's values).
+      final mine = container.read(myBalancesProvider).value!;
+      for (final c in file.totals.keys) {
+        expect(mine.byGroup[gid]?[c], file.totals[c]!['E2E A'], reason: c);
+      }
+      final shown = container.read(homeWidgetDataProvider)!;
+      for (final k in ['status', 'line1', 'line2']) {
+        expect(await t.runAsync(() => HomeWidget.getWidgetData<String>(k)), shown[k], reason: k);
       }
       expect(me.id, idOf['E2E A']);
 
       // Device review only: ask the launcher to pin both widgets (the host taps "Add" and screenshots).
       if (const bool.fromEnvironment('PIN_WIDGET')) {
         for (final w in ['BalanceWidgetWide', 'BalanceWidgetSmall']) {
-          await t.runAsync(
-            () => HomeWidget.requestPinWidget(qualifiedAndroidName: 'com.unizoy.splitify.$w'),
-          );
+          try {
+            await t.runAsync(
+              () => HomeWidget.requestPinWidget(qualifiedAndroidName: 'com.unizoy.splitify.$w'),
+            );
+          } on PlatformException catch (e) {
+            debugPrint('pin $w skipped: ${e.message}'); // app not in front yet (review aid only)
+          }
           debugPrint('UI-PIN-WIDGET $w');
           await Future<void>.delayed(const Duration(seconds: 30));
         }

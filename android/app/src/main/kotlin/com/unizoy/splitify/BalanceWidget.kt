@@ -40,13 +40,16 @@ abstract class BalanceWidget(private val layout: Int) : HomeWidgetProvider() {
         val pending = data.getString("pending", null) ?: ""
         val updatedAt = data.getString("updated_at", null)?.toLongOrNull() ?: 0L
         val template = data.getString("updated_template", null) ?: "%s"
+        val now = System.currentTimeMillis()
         val footer = when {
             pending.isNotEmpty() -> pending
+            updatedAt > 0L && now - updatedAt < DateUtils.MINUTE_IN_MILLIS ->
+                data.getString("updated_now", null) ?: ""
             updatedAt > 0L -> template.replace(
                 "%s",
                 DateUtils.getRelativeTimeSpanString(
                     updatedAt,
-                    System.currentTimeMillis(),
+                    now,
                     DateUtils.MINUTE_IN_MILLIS,
                     DateUtils.FORMAT_ABBREV_RELATIVE,
                 ).toString(),

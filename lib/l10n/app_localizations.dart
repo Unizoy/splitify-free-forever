@@ -6086,6 +6086,12 @@ abstract class AppLocalizations {
   /// **'Updated {time}'**
   String widgetUpdated(String time);
 
+  /// No description provided for @widgetUpdatedNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Updated just now'**
+  String get widgetUpdatedNow;
+
   /// No description provided for @widgetNotSynced.
   ///
   /// In en, this message translates to:

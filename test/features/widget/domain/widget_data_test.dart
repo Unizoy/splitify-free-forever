@@ -10,6 +10,7 @@ const WidgetLabels _labels = (
   mixed: 'Owed and owe',
   hidden: 'Amounts hidden',
   updatedTemplate: 'Updated %s',
+  updatedNow: 'Updated just now',
   notSynced: 'Not synced yet',
   signedOut: 'Sign in',
 );

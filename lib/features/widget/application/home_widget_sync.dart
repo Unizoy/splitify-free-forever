@@ -73,6 +73,7 @@ WidgetLabels widgetLabels([AppLocalizations? l10n]) {
     mixed: l.statusOwedAndOwe,
     hidden: l.widgetHidden,
     updatedTemplate: l.widgetUpdated('%s'),
+    updatedNow: l.widgetUpdatedNow,
     notSynced: l.widgetNotSynced,
     signedOut: l.widgetSignedOut,
   );

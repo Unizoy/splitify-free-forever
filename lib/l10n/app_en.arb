@@ -1277,6 +1277,7 @@
   "widgetHideAmountsSub": "The widget shows whether you owe or are owed, without numbers.",
   "widgetUpdated": "Updated {time}",
   "@widgetUpdated": {"placeholders": {"time": {"type": "String"}}},
+  "widgetUpdatedNow": "Updated just now",
   "widgetNotSynced": "Not synced yet",
   "widgetSignedOut": "Open Splitify to sign in",
   "widgetHidden": "Amounts hidden",
