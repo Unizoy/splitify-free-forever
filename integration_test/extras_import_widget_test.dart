@@ -284,6 +284,17 @@ void main() {
       }
       expect(me.id, idOf['E2E A']);
 
+      // Device review only: ask the launcher to pin both widgets (the host taps "Add" and screenshots).
+      if (const bool.fromEnvironment('PIN_WIDGET')) {
+        for (final w in ['BalanceWidgetWide', 'BalanceWidgetSmall']) {
+          await t.runAsync(
+            () => HomeWidget.requestPinWidget(qualifiedAndroidName: 'com.unizoy.splitify.$w'),
+          );
+          debugPrint('UI-PIN-WIDGET $w');
+          await Future<void>.delayed(const Duration(seconds: 30));
+        }
+      }
+
       // "Delete this import" → one undone entry on the server, every record soft-deleted.
       await _tap(t, find.byKey(const Key('import-delete')));
       await _pumpFor(t, const Duration(milliseconds: 1500));
