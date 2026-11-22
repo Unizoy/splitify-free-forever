@@ -9,6 +9,9 @@ import 'package:splitify/features/balances/application/balance_views.dart';
 import 'package:splitify/features/balances/application/balances_providers.dart';
 import 'package:splitify/features/balances/presentation/balance_copy.dart';
 import 'package:go_router/go_router.dart';
+import 'package:splitify/features/friends/application/friends_providers.dart' show friendsProvider;
+import 'package:splitify/features/friends/application/friends_view.dart' show Friend;
+import 'package:splitify/features/friends/presentation/friend_routes.dart' show FriendRoutes;
 import 'package:splitify/features/insights/presentation/insights_routes.dart';
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/components/components.dart';
@@ -26,6 +29,10 @@ class AccountScreen extends ConsumerWidget {
     final profile = ref.watch(profileProvider).value;
     final mine = ref.watch(myBalancesProvider).value;
     final stats = ref.watch(accountStatsProvider).value;
+    // 07 §2 (542): the avatar is flanked by faded avatars of the people you share the most groups with.
+    final frequent = ([
+      ...ref.watch(friendsProvider).value ?? const <Friend>[],
+    ]..sort((a, b) => b.links.length.compareTo(a.links.length))).take(4).toList();
     final first = profile?.defaultCurrency ?? 'INR';
     final totals = mine?.totals ?? const <String, int>{};
     final codes = orderCurrencies(totals.keys, first);
@@ -69,17 +76,33 @@ class AccountScreen extends ConsumerWidget {
                     child: Icon(AppIcons.user, size: 42, color: c.onPrimaryContainer),
                   )
                 else
-                  Semantics(
-                    button: true,
-                    child: GestureDetector(
-                      onTap: () => context.push('/account/profile'),
-                      child: Avatar(
-                        name: profile.displayName,
-                        seed: profile.id,
-                        size: AvatarSize.s96,
-                        ring: true,
+                  Row(
+                    key: const Key('account-avatars'),
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      for (final f in [
+                        for (var i = frequent.length - 1; i >= 0; i--)
+                          if (i.isOdd) frequent[i],
+                      ])
+                        _FriendAvatar(friend: f),
+                      Semantics(
+                        button: true,
+                        child: GestureDetector(
+                          onTap: () => context.push('/account/profile'),
+                          child: Avatar(
+                            name: profile.displayName,
+                            seed: profile.id,
+                            size: AvatarSize.s96,
+                            ring: true,
+                          ),
+                        ),
                       ),
-                    ),
+                      for (final f in [
+                        for (var i = 0; i < frequent.length; i++)
+                          if (i.isEven) frequent[i],
+                      ])
+                        _FriendAvatar(friend: f),
+                    ],
                   ),
                 const SizedBox(height: AppSpacing.s5),
                 Semantics(
@@ -214,6 +237,39 @@ class _Breakdown extends ConsumerWidget {
             },
           ),
       ],
+    );
+  }
+}
+
+/// A faded friend avatar beside yours (542); opens their friend page.
+class _FriendAvatar extends StatelessWidget {
+  const _FriendAvatar({required this.friend});
+
+  final Friend friend;
+
+  @override
+  Widget build(BuildContext context) {
+    void open() => context.push(FriendRoutes.page(friend.key));
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s1),
+      child: Semantics(
+        button: true,
+        label: friend.name,
+        excludeSemantics: true,
+        onTap: open,
+        child: GestureDetector(
+          onTap: open,
+          child: Opacity(
+            opacity: 0.55,
+            child: Avatar(
+              name: friend.name,
+              seed: friend.seed,
+              tint: friend.tint,
+              size: AvatarSize.s56,
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
