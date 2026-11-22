@@ -10,16 +10,14 @@ import 'package:splitify/data/remote/remote_providers.dart';
 import 'package:splitify/data/sync/background_sync.dart';
 import 'package:splitify/data/sync/sync_triggers.dart';
 import 'package:splitify/features/auth/application/auth_providers.dart';
+import 'package:splitify/features/groups/application/groups_providers.dart' show groupsListProvider;
 import 'package:splitify/l10n/app_localizations.dart';
 
 final _log = Logger('sync');
 
 /// The user's live groups, for the Realtime topics (`group:<id>`).
-final _groupIdsProvider = StreamProvider<Set<String>>(
-  (ref) => ref
-      .watch(groupsRepositoryProvider)
-      .watchAll()
-      .map((gs) => {for (final LocalGroup g in gs) g.id}),
+final _groupIdsProvider = Provider<AsyncValue<Set<String>>>(
+  (ref) => ref.watch(groupsListProvider).whenData((gs) => {for (final LocalGroup g in gs) g.id}),
 );
 
 /// Wraps the signed-in shell (04 §1, §8; S-046/S-160): syncs at start, when the network comes back, when the
@@ -44,16 +42,16 @@ class _SyncBindingState extends ConsumerState<SyncBinding> {
   @override
   void initState() {
     super.initState();
-    final engine = ref.read(syncEngineProvider);
+    final repo = ref.read(syncRepositoryProvider);
     _triggers = SyncTriggers(
-      sync: engine.sync,
+      sync: repo.syncNow,
       online: ref.read(networkStatusProvider).watch(),
       nudges: ref.read(changeNudgesProvider).nudges,
     );
     _lifecycle = AppLifecycleListener(onResume: _triggers.onResume, onPause: _paused);
-    _lost = engine.superseded.listen(_showLost);
+    _lost = repo.superseded.listen(_showLost);
     final background = ref.read(backgroundSyncProvider);
-    if (background is WorkmanagerBackgroundSync) _port = ForegroundSyncPort(engine.sync);
+    if (background is WorkmanagerBackgroundSync) _port = ForegroundSyncPort(repo.syncNow);
     ref.listenManual(_groupIdsProvider, (_, next) {
       final ids = next.value;
       if (ids == null) return;
@@ -78,7 +76,7 @@ class _SyncBindingState extends ConsumerState<SyncBinding> {
     }
     if (!mounted) return;
     unawaited(ref.read(backgroundSyncProvider).start());
-    unawaited(ref.read(syncEngineProvider).sync());
+    unawaited(ref.read(syncRepositoryProvider).syncNow());
   }
 
   /// Going to the background with changes waiting: let WorkManager send them once a network is there.

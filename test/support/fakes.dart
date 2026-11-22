@@ -214,6 +214,12 @@ class FakeSyncRepository implements SyncRepository {
   @override
   Future<void> wipeLocal() async => calls.add('wipe');
 
+  /// Push results that lost to newer server edits (snackbar).
+  final lostEdits = StreamController<int>.broadcast();
+
+  @override
+  Stream<int> get superseded => lostEdits.stream;
+
   @override
   Stream<List<SyncUpload>> watchUploads() => Stream.value(uploads);
 

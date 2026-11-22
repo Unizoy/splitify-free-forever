@@ -1,6 +1,5 @@
 // Phase 15: a group card is marked while any row of the group is not on the server yet.
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:splitify/data/data_providers.dart';
 import 'package:splitify/ui/components/components.dart';

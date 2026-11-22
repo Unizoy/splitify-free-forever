@@ -83,12 +83,25 @@ class _FakeGroups implements GroupsRepository {
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
+/// SyncBinding talks to the repository; its sync and lost-edit stream go to the counting engine.
+class _RigRepo extends FakeSyncRepository {
+  _RigRepo(this.e);
+
+  final _FakeEngine e;
+
+  @override
+  Future<void> syncNow() => e.sync();
+
+  @override
+  Stream<int> get superseded => e.lost.stream;
+}
+
 class _Rig {
   final network = _FakeNetwork();
   final nudges = _FakeNudges();
   final background = _FakeBackground();
   final engine = _FakeEngine();
-  final repo = FakeSyncRepository();
+  late final repo = _RigRepo(engine);
   final groups = _FakeGroups();
 }
 

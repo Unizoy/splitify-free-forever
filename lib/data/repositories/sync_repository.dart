@@ -260,6 +260,9 @@ class SyncRepository {
   /// "Sync now" / pull-to-refresh. Never throws; the outcome shows in [watchStatus].
   Future<void> syncNow() => engine.sync();
 
+  /// Count of local edits that lost to a newer server edit, per push (one-time snackbar, 04 §3).
+  Stream<int> get superseded => engine.superseded;
+
   /// Sync issues → retry: back in the queue, then sync.
   Future<void> retry(int seq) async {
     await engine.queue.retry(seq);
