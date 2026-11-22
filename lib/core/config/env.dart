@@ -21,6 +21,7 @@ class Env {
     required this.googleWebClientId,
     required this.devLogin,
     required this.e2ePassword,
+    required this.emailOtpLength,
   });
 
   /// Reads the compiled-in values and fails fast when one is missing.
@@ -30,6 +31,7 @@ class Env {
     googleWebClientId: const String.fromEnvironment('GOOGLE_WEB_CLIENT_ID'),
     devLogin: const String.fromEnvironment('DEV_LOGIN'),
     e2ePassword: const String.fromEnvironment('E2E_PASSWORD'),
+    emailOtpLength: const String.fromEnvironment('EMAIL_OTP_LENGTH'),
   );
 
   /// Validates raw values (also used by tests).
@@ -39,6 +41,7 @@ class Env {
     required String googleWebClientId,
     required String devLogin,
     required String e2ePassword,
+    String emailOtpLength = '',
   }) {
     final missing = <String>[
       if (supabaseUrl.isEmpty) 'SUPABASE_URL',
@@ -51,8 +54,22 @@ class Env {
       googleWebClientId: googleWebClientId,
       devLogin: devLogin == 'true',
       e2ePassword: e2ePassword,
+      emailOtpLength: parseOtpLength(emailOtpLength),
     );
   }
+
+  /// Supabase's default "Email OTP Length" (dashboard: Auth → Providers → Email).
+  static const defaultEmailOtpLength = 6;
+
+  /// `EMAIL_OTP_LENGTH` must match the project's "Email OTP Length" (Supabase allows 6 to 10); anything else
+  /// (missing, not a number, out of range) means the default 6 (S-232).
+  static int parseOtpLength(String raw) {
+    final n = int.tryParse(raw.trim());
+    return n != null && n >= 6 && n <= 10 ? n : defaultEmailOtpLength;
+  }
+
+  /// Digits in the email sign-in code: the code screen shows this many boxes.
+  final int emailOtpLength;
 
   final String supabaseUrl;
   final String supabasePublishableKey;

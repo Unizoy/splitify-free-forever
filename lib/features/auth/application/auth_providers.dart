@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logging/logging.dart';
+import 'package:splitify/core/config/env.dart';
 import 'package:splitify/core/config/preferences.dart';
 import 'package:splitify/data/data_providers.dart';
 import 'package:splitify/data/media_providers.dart';
@@ -23,6 +24,9 @@ final profileRemoteProvider = Provider<ProfileRemote?>((ref) => null);
 
 /// True when Google sign-in is set up in this build (D-020).
 final googleConfiguredProvider = Provider<bool>((ref) => false);
+
+/// Digits in the email sign-in code (`EMAIL_OTP_LENGTH`, S-232); bootstrap overrides it from [Env].
+final emailCodeLengthProvider = Provider<int>((ref) => Env.defaultEmailOtpLength);
 
 /// True when the debug-only developer sign-in is available (T4, TC-B1-08).
 final devLoginProvider = Provider<bool>((ref) => false);

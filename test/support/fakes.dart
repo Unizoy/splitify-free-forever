@@ -74,9 +74,14 @@ class FakeAuthRepository implements AuthRepository {
     yield* _changes.stream;
   }
 
+  /// When set, Google sign-in waits for it (the Credential Manager sheet is open).
+  Future<void>? googleGate;
+
   @override
   Future<void> signInWithGoogle() async {
     calls.add('google');
+    final gate = googleGate;
+    if (gate != null) await gate;
     _maybeFail();
     _signIn('g@splitify.test');
   }
