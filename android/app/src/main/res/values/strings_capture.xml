@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Payment bubble (phase 18b, X4). English only (D-009); Flutter screens use the ARB files. -->
+<resources>
+    <string name="capture_listener_label">Splitify payment alerts</string>
+    <string name="capture_smart_label">Splitify smart capture</string>
+    <string name="capture_smart_description">Reads the payment and success screens of the UPI apps you allow, so Splitify can offer to add a payment. It never reads PIN or password fields, and nothing leaves your phone until you tap Add.</string>
+    <string name="capture_channel">Payments to add</string>
+    <string name="capture_channel_description">Payments you made with a UPI app, ready to add to Splitify</string>
+    <string name="capture_bubble_handle">Splitify: paid %1$s to %2$s. Double tap to open</string>
+    <string name="capture_bubble_during">Splitting this?</string>
+    <string name="capture_bubble_during_caption">Payment in progress</string>
+    <string name="capture_bubble_during_body">Finish paying. Splitify will catch the amount and offer to add it.</string>
+    <string name="capture_bubble_hide">Hide</string>
+    <string name="capture_bubble_paid">Paid</string>
+    <string name="capture_bubble_to">to %1$s</string>
+    <string name="capture_bubble_paid_to">Paid %1$s to %2$s</string>
+    <string name="capture_bubble_paid_amount">Paid %1$s</string>
+    <string name="capture_bubble_add">Add to Splitify</string>
+    <string name="capture_bubble_add_short">Add</string>
+    <string name="capture_bubble_not_now">Not now</string>
+    <string name="capture_bubble_add_to">Add to</string>
+    <string name="capture_bubble_add_to_named">Add to %1$s</string>
+    <string name="capture_bubble_more">More options</string>
+    <string name="capture_bubble_mute_app">Don\'t show for %1$s</string>
+    <string name="capture_bubble_settings">Bubble settings</string>
+    <string name="capture_bubble_back">Back</string>
+    <string name="capture_bubble_target">Drop here to hide the bubble</string>
+    <string name="capture_notification_text">%1$s · Add it to Splitify?</string>
+</resources>
