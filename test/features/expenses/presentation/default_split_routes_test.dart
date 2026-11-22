@@ -98,12 +98,12 @@ void main() {
       expect(find.textContaining('start with this split'), findsOneWidget);
       expect(t.widget<TextField>(fieldIn('percent-m1')).controller!.text, '40');
       expect(t.widget<TextField>(fieldIn('percent-m4')).controller!.text, '5');
-      expect(footerText(t), '95 % of 100 % · 5 % left');
+      expect(footerText(t), '95% of 100%\u00A0· 5% left');
       expect(buttonEnabled(t, 'default-split-save'), isFalse);
 
       await t.enterText(fieldIn('percent-m4'), '10');
       await settle(t);
-      expect(footerText(t), '100 % · done');
+      expect(footerText(t), '100%\u00A0· done');
       expect(buttonEnabled(t, 'default-split-save'), isTrue);
     });
 
@@ -152,7 +152,7 @@ void main() {
       expect(buttonEnabled(t, 'default-split-save'), isTrue);
 
       await tapKind(t, '%');
-      expect(footerText(t), '100 % · done');
+      expect(footerText(t), '100%\u00A0· done');
     });
 
     // TC-35-02
@@ -233,7 +233,7 @@ void main() {
       expect(find.byType(ExpenseDetailScreen), findsOneWidget);
       await tapKey(t, 'expense-edit');
       expect(find.byType(ExpenseEditorScreen), findsOneWidget);
-      expect(find.text('Editing · Goa trip'), findsOneWidget);
+      expect(find.text('Editing\u00A0· Goa trip'), findsOneWidget);
       expect(router.state.uri.path, '/expense/e1/edit');
     });
 

@@ -392,38 +392,39 @@ void main() {
     expect(find.text('Dinner party snacks'), findsOneWidget);
   });
 
-  testWidgets('the date filter presets use today (21 Nov 2026) and Any time clears them', (
-    t,
-  ) async {
-    await _pump(t);
-    await _tap(t, 'search-filter-date');
-    for (final k in ['any', 'thisMonth', 'lastMonth', 'last3Months', 'thisYear', 'custom']) {
-      expect(find.byKey(Key('search-date-$k')), findsOneWidget, reason: k);
-    }
-    await _tap(t, 'search-date-thisMonth', rounds: 6);
-    expect(find.text('This month'), findsOneWidget);
-    expect(_count(t), '3 expenses');
-    expect(find.text('Beach shack'), findsNothing);
+  testWidgets(
+    'the date filter presets use today (21\u00A0Nov\u00A02026) and Any time clears them',
+    (t) async {
+      await _pump(t);
+      await _tap(t, 'search-filter-date');
+      for (final k in ['any', 'thisMonth', 'lastMonth', 'last3Months', 'thisYear', 'custom']) {
+        expect(find.byKey(Key('search-date-$k')), findsOneWidget, reason: k);
+      }
+      await _tap(t, 'search-date-thisMonth', rounds: 6);
+      expect(find.text('This month'), findsOneWidget);
+      expect(_count(t), '3 expenses');
+      expect(find.text('Beach shack'), findsNothing);
 
-    await _tap(t, 'search-filter-date');
-    await _tap(t, 'search-date-lastMonth', rounds: 6);
-    expect(find.text('Last month'), findsOneWidget);
-    expect(_count(t), '1 expense');
-    expect(find.text('Beach shack'), findsOneWidget);
+      await _tap(t, 'search-filter-date');
+      await _tap(t, 'search-date-lastMonth', rounds: 6);
+      expect(find.text('Last month'), findsOneWidget);
+      expect(_count(t), '1 expense');
+      expect(find.text('Beach shack'), findsOneWidget);
 
-    await _tap(t, 'search-filter-date');
-    await _tap(t, 'search-date-last3Months', rounds: 6);
-    expect(_count(t), '5 expenses');
+      await _tap(t, 'search-filter-date');
+      await _tap(t, 'search-date-last3Months', rounds: 6);
+      expect(_count(t), '5 expenses');
 
-    await _tap(t, 'search-filter-date');
-    await _tap(t, 'search-date-thisYear', rounds: 6);
-    expect(_count(t), '5 expenses');
+      await _tap(t, 'search-filter-date');
+      await _tap(t, 'search-date-thisYear', rounds: 6);
+      expect(_count(t), '5 expenses');
 
-    await _tap(t, 'search-filter-date');
-    await _tap(t, 'search-date-any', rounds: 6);
-    expect(find.text('Any time'), findsOneWidget);
-    expect(find.byKey(const Key('search-start')), findsOneWidget);
-  });
+      await _tap(t, 'search-filter-date');
+      await _tap(t, 'search-date-any', rounds: 6);
+      expect(find.text('Any time'), findsOneWidget);
+      expect(find.byKey(const Key('search-start')), findsOneWidget);
+    },
+  );
 
   testWidgets('a custom date range is picked on two calendars', (t) async {
     await _pump(t);
@@ -434,7 +435,7 @@ void main() {
     await _settleReal(t, 8);
     await t.tap(find.text('15'));
     await _settleReal(t, 6);
-    expect(find.text('5 Nov – 15 Nov'), findsOneWidget);
+    expect(find.text('5\u00A0Nov – 15\u00A0Nov'), findsOneWidget);
     expect(_count(t), '1 expense');
     expect(find.text('Cab to airport'), findsOneWidget);
   });

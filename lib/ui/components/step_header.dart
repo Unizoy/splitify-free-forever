@@ -65,7 +65,10 @@ class StepHeader extends StatelessWidget {
                   ),
                   Expanded(
                     child: Center(
-                      child: StatusPill(label: statusText, icon: statusIcon),
+                      child: MediaQuery.withClampedTextScaling(
+                        maxScaleFactor: 1.3,
+                        child: StatusPill(label: statusText, icon: statusIcon),
+                      ),
                     ),
                   ),
                   IconButton(

@@ -89,7 +89,7 @@ void main() {
     testWidgets('owed and owing in two currencies: one pill with both, signed', (t) async {
       await pumpPage(t, 'u:u8');
       expect(find.byKey(const Key('friend-status-mixed')), findsOneWidget);
-      expect(find.text('Owed and owing · +₹5 · −\$20'), findsOneWidget);
+      expect(find.text('Owed and owing\u00A0· +₹5\u00A0· −\$20'), findsOneWidget);
     });
 
     // TC-2-03
@@ -164,14 +164,17 @@ void main() {
       expect(find.byKey(const ValueKey('friend-item-p2')), findsNothing);
 
       expect(_inKey('friend-item-e1', find.text('Dinner')), findsOneWidget);
-      expect(_inKey('friend-item-e1', find.text('Goa trip · 20 Nov')), findsOneWidget);
+      expect(_inKey('friend-item-e1', find.text('Goa trip\u00A0· 20\u00A0Nov')), findsOneWidget);
       expect(_inKey('friend-item-e1', find.textContaining('₹100')), findsOneWidget);
       expect(_inKey('friend-item-e1', find.text('you lent')), findsOneWidget);
       expect(_inKey('friend-item-e3', find.text('you borrowed')), findsOneWidget);
-      expect(_inKey('friend-item-e5', find.text('Just you two · 22 Nov')), findsOneWidget);
+      expect(
+        _inKey('friend-item-e5', find.text('Just you two\u00A0· 22\u00A0Nov')),
+        findsOneWidget,
+      );
 
       expect(_inKey('friend-item-p1', find.text('Asha Rao paid you')), findsOneWidget);
-      expect(_inKey('friend-item-p1', find.text('Goa trip · 21 Nov')), findsOneWidget);
+      expect(_inKey('friend-item-p1', find.text('Goa trip\u00A0· 21\u00A0Nov')), findsOneWidget);
       expect(_inKey('friend-item-p1', find.textContaining('₹40')), findsOneWidget);
       expect(_inKey('friend-item-p1', find.text('you received')), findsOneWidget);
     });

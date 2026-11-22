@@ -199,8 +199,12 @@ class AmountKeypad extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
-    return ColoredBox(
-      color: c.bgSubtle,
+    return DecoratedBox(
+      // A hairline on top: content scrolling under the keypad reads as scrolled, not cut off.
+      decoration: BoxDecoration(
+        color: c.bgSubtle,
+        border: Border(top: BorderSide(color: c.border)),
+      ),
       child: Padding(
         padding: const EdgeInsets.fromLTRB(
           AppSpacing.s3,

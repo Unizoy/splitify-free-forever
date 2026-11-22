@@ -119,13 +119,19 @@ void main() {
       expect(find.text('Convert to INR'), findsNothing);
       expect(find.text('In INR'), findsOneWidget);
       expect(t.widget<Text>(find.byKey(const Key('conversion-tile-amount'))).data, '₹7,500.75');
-      expect(find.text('1 USD = 75 INR · Frankfurter · 20 Nov 2026'), findsOneWidget);
+      expect(
+        find.text('1 USD = 75 INR\u00A0· Frankfurter\u00A0· 20\u00A0Nov\u00A02026'),
+        findsOneWidget,
+      );
     });
 
     // TC-32-04
     testWidgets('a typed rate says "Rate you typed"', (t) async {
       await _pump(t, saved: _saved(source: FxSource.manual));
-      expect(find.text('1 USD = 75 INR · Rate you typed · 20 Nov 2026'), findsOneWidget);
+      expect(
+        find.text('1 USD = 75 INR\u00A0· Rate you typed\u00A0· 20\u00A0Nov\u00A02026'),
+        findsOneWidget,
+      );
     });
 
     // TC-32-04
@@ -150,7 +156,7 @@ void main() {
       await _pump(t, saved: _saved());
       expect(
         t.getSemantics(find.byKey(const Key('conversion-tile'))).label,
-        'In INR, ₹7,500.75, 1 USD = 75 INR · Frankfurter · 20 Nov 2026',
+        'In INR, ₹7,500.75, 1 USD = 75 INR\u00A0· Frankfurter\u00A0· 20\u00A0Nov\u00A02026',
       );
       handle.dispose();
     });

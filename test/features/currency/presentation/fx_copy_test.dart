@@ -79,7 +79,7 @@ void main() {
       await _withContext(t, (c) {
         line = sourceLine(c, _rate(FxSource.frankfurter, DateTime.utc(2026, 11, 20)));
       });
-      expect(line, 'Frankfurter · 20 Nov 2026');
+      expect(line, 'Frankfurter\u00A0· 20\u00A0Nov\u00A02026');
     });
 
     // TC-32-04
@@ -92,7 +92,7 @@ void main() {
           asked: DateTime.utc(2026, 11, 18),
         );
       });
-      expect(line, 'Frankfurter · 17 Nov 2026, the latest before 18 Nov 2026');
+      expect(line, 'Frankfurter\u00A0· 17\u00A0Nov\u00A02026 (latest before 18\u00A0Nov\u00A02026');
     });
 
     // TC-32-04
@@ -106,8 +106,8 @@ void main() {
         noAsked = sourceLine(c, r);
         same = sourceLine(c, r, asked: DateTime.utc(2026, 11, 17));
       });
-      expect(noAsked, 'Frankfurter · 17 Nov 2026');
-      expect(same, 'Frankfurter · 17 Nov 2026');
+      expect(noAsked, 'Frankfurter\u00A0· 17\u00A0Nov\u00A02026');
+      expect(same, 'Frankfurter\u00A0· 17\u00A0Nov\u00A02026');
     });
 
     // TC-32-04
@@ -116,7 +116,7 @@ void main() {
       await _withContext(t, (c) {
         line = sourceLine(c, _rate(FxSource.manual, DateTime.utc(2026, 11, 21)));
       });
-      expect(line, 'Rate you typed · 21 Nov 2026');
+      expect(line, 'Rate you typed\u00A0· 21\u00A0Nov\u00A02026');
     });
   });
 
@@ -157,7 +157,7 @@ void main() {
       });
       expect(
         text,
-        'No saved rate for 20 Nov 2026 on this phone. Type the rate, or connect to the internet.',
+        'No saved rate for 20\u00A0Nov\u00A02026 on this phone. Type the rate, or connect to the internet.',
       );
     });
   });
@@ -172,7 +172,7 @@ void main() {
         day = fxDate(c, DateTime.utc(2026, 1, 5));
       });
       expect(line, '1 USD = 89.6437 INR');
-      expect(day, '5 Jan 2026');
+      expect(day, '5\u00A0Jan\u00A02026');
     });
   });
 }

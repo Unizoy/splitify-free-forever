@@ -42,8 +42,8 @@ void main() {
     testWidgets('lists every version newest first with who did what', (t) async {
       await _pump(t, AsyncData(historyView(versions: fullExpenseVersions())));
       expect(find.text('Edit history'), findsOneWidget);
-      expect(find.text('Dinner at Thalassa · ₹2,400.00'), findsOneWidget);
-      expect(find.text('Change by Rahul Mehta'), findsOneWidget);
+      expect(find.text('Dinner at Thalassa\u00A0· ₹2,400.00'), findsOneWidget);
+      expect(find.text("Rahul Mehta's edit"), findsOneWidget);
       expect(find.text('Asha Rao restored this'), findsOneWidget);
       expect(find.text('You deleted this'), findsOneWidget);
       expect(find.text('Asha Rao edited this'), findsOneWidget);
@@ -200,7 +200,7 @@ void main() {
         AsyncData(historyView(target: paymentTarget, versions: paymentVersions())),
         target: paymentTarget,
       );
-      expect(find.text('Rahul Mehta paid Asha Rao · ₹600.00'), findsOneWidget);
+      expect(find.text('Rahul Mehta paid Asha Rao\u00A0· ₹600.00'), findsOneWidget);
       expect(find.text('Asha Rao edited this'), findsOneWidget);
       expect(find.text('Rahul Mehta added this'), findsOneWidget);
       final edit = find.byKey(const Key('history-entry-2'));

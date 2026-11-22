@@ -51,8 +51,8 @@ void main() {
     testWidgets('shows the sentence, group name with time and the unread count', (t) async {
       await _pump(t, rows: sampleNotifRows());
       expect(find.text('Asha added “Dinner” · ₹1,200'), findsOneWidget);
-      expect(find.textContaining('Goa trip · '), findsWidgets);
-      expect(find.textContaining('Flat 4B · '), findsOneWidget);
+      expect(find.textContaining('Goa trip\u00A0· '), findsWidgets);
+      expect(find.textContaining('Flat 4B\u00A0· '), findsOneWidget);
       expect(find.text('3 unread'), findsOneWidget);
     });
 
@@ -181,7 +181,7 @@ void main() {
     testWidgets('a failed refresh keeps the rows and adds the offline note', (t) async {
       await _pump(t, rows: sampleNotifRows(), refreshError: offlineError);
       expect(find.byKey(const Key('notifications-offline')), findsOneWidget);
-      expect(find.text("Offline · showing what's on this phone"), findsOneWidget);
+      expect(find.text("Offline\u00A0· showing what's on this phone"), findsOneWidget);
       expect(find.byType(NotificationRow), findsNWidgets(5));
     });
 

@@ -29,10 +29,10 @@ void main() {
     // TC-5-03
     testWidgets('footer shows the per-person amount and updates with the ticks', (t) async {
       final h = await split(t, SplitKind.equal);
-      expect(footerText(t), '3 people · ₹400 each');
+      expect(footerText(t), '3 people\u00A0· ₹400 each');
       expect(buttonEnabled(t, 'expense-save'), isTrue);
       await tapKey(t, 'tick-m4');
-      expect(footerText(t), '4 people · ₹300 each');
+      expect(footerText(t), '4 people\u00A0· ₹300 each');
       expect(h.draft.split.included, hasLength(4));
     });
 
@@ -45,7 +45,7 @@ void main() {
       expect(footerText(t), 'Pick at least one person');
       expect(buttonEnabled(t, 'expense-save'), isFalse);
       await tapKey(t, 'tick-m2');
-      expect(footerText(t), '1 person · ₹1,200 each');
+      expect(footerText(t), '1 person\u00A0· ₹1,200 each');
       expect(buttonEnabled(t, 'expense-save'), isTrue);
     });
 
@@ -64,7 +64,7 @@ void main() {
     // TC-6-03
     testWidgets('exact amounts that add up show "done" and Save is enabled', (t) async {
       await split(t, SplitKind.exact);
-      expect(footerText(t), '₹1,200 · done');
+      expect(footerText(t), '₹1,200\u00A0· done');
       expect(buttonEnabled(t, 'expense-save'), isTrue);
     });
 
@@ -77,11 +77,11 @@ void main() {
         SplitKind.exact,
         draft: base().withValues(SplitKind.exact, {'m1': 50000, 'm2': 30000}),
       );
-      expect(footerText(t), '₹800 of ₹1,200 · ₹400 left');
+      expect(footerText(t), '₹800 of ₹1,200\u00A0· ₹400 left');
       expect(buttonEnabled(t, 'expense-save'), isFalse);
       await t.enterText(fieldIn('exact-m3'), '400');
       await settle(t);
-      expect(footerText(t), '₹1,200 · done');
+      expect(footerText(t), '₹1,200\u00A0· done');
       expect(buttonEnabled(t, 'expense-save'), isTrue);
       expect(h.draft.split.text['m3'], '400');
     });
@@ -93,7 +93,7 @@ void main() {
         SplitKind.exact,
         draft: base().withValues(SplitKind.exact, {'m1': 90000, 'm2': 40000}),
       );
-      expect(footerText(t), '₹1,300 of ₹1,200 · ₹100 over');
+      expect(footerText(t), '₹1,300 of ₹1,200\u00A0· ₹100 over');
       expect(buttonEnabled(t, 'expense-save'), isFalse);
     });
 
@@ -111,7 +111,7 @@ void main() {
     // TC-7-03
     testWidgets('100 % shows done', (t) async {
       await split(t, SplitKind.percent);
-      expect(footerText(t), '100 % · done');
+      expect(footerText(t), '100%\u00A0· done');
       expect(buttonEnabled(t, 'expense-save'), isTrue);
     });
 
@@ -120,15 +120,15 @@ void main() {
       await split(t, SplitKind.percent);
       await t.enterText(fieldIn('percent-m4'), '5');
       await settle(t);
-      expect(footerText(t), '95 % of 100 % · 5 % left');
+      expect(footerText(t), '95% of 100%\u00A0· 5% left');
       expect(buttonEnabled(t, 'expense-save'), isFalse);
       await t.enterText(fieldIn('percent-m4'), '15');
       await settle(t);
-      expect(footerText(t), '105 % of 100 % · 5 % over');
+      expect(footerText(t), '105% of 100%\u00A0· 5% over');
       expect(buttonEnabled(t, 'expense-save'), isFalse);
       await t.enterText(fieldIn('percent-m4'), '10');
       await settle(t);
-      expect(footerText(t), '100 % · done');
+      expect(footerText(t), '100%\u00A0· done');
       expect(buttonEnabled(t, 'expense-save'), isTrue);
     });
   });
@@ -225,7 +225,7 @@ void main() {
     testWidgets('equal to exact fills in the equal amounts of the total', (t) async {
       await split(t, SplitKind.equal);
       await tapKind(t, '1.23');
-      expect(footerText(t), '₹1,200 · done');
+      expect(footerText(t), '₹1,200\u00A0· done');
       expect(
         find.textContaining('Type what each person owes.', findRichText: true),
         findsOneWidget,
