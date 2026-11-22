@@ -37,7 +37,10 @@ abstract final class ExpenseRoutes {
 List<RouteBase> expenseRoutes() => [
   GoRoute(
     path: '/expense/new',
-    builder: (context, state) => ExpenseEditorScreen(groupId: state.uri.queryParameters['group']),
+    builder: (context, state) => ExpenseEditorScreen(
+      groupId: state.uri.queryParameters['group'],
+      captureId: state.uri.queryParameters['capture'],
+    ),
   ),
   GoRoute(
     path: '/expense/:id',

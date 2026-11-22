@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:splitify/features/activity/application/activity_providers.dart';
 import 'package:splitify/features/activity/presentation/activity_feed.dart';
+import 'package:splitify/features/capture/presentation/payments_to_add.dart';
 import 'package:splitify/features/notifications/application/notifications_providers.dart';
 import 'package:splitify/features/search/presentation/search_screen.dart' show SearchRoutes;
 import 'package:splitify/l10n/app_localizations.dart';
@@ -97,6 +98,8 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
                     style: context.text.labelCaps.copyWith(color: c.textSecondary),
                   ),
                 ),
+                // Payment bubble (phase 18b): payments waiting to be added.
+                const PaymentsToAddSection(),
                 if (items != null && items.isNotEmpty) ...[
                   const SizedBox(height: AppSpacing.s4),
                   ActivityFilters(value: _filter, onChanged: (f) => setState(() => _filter = f)),

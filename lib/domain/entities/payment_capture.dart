@@ -146,7 +146,8 @@ class CaptureSettings {
       other.apps.entries.every((e) => apps[e.key] == e.value);
 
   @override
-  int get hashCode => Object.hash(enabled, notifications, smart, bubble, duringPayment, theme, apps.length);
+  int get hashCode =>
+      Object.hash(enabled, notifications, smart, bubble, duringPayment, theme, apps.length);
 }
 
 /// One allow-listed app from the recipes (for the per-app switches).

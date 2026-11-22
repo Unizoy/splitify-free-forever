@@ -10,6 +10,7 @@ import 'package:splitify/features/auth/application/auth_providers.dart' show pro
 import 'package:splitify/features/balances/application/balance_views.dart';
 import 'package:splitify/features/balances/application/balances_providers.dart';
 import 'package:splitify/features/balances/presentation/balance_copy.dart';
+import 'package:splitify/features/capture/presentation/payments_to_add.dart';
 import 'package:splitify/features/groups/application/groups_providers.dart';
 import 'package:splitify/features/groups/presentation/group_visuals.dart';
 import 'package:splitify/features/payments/presentation/settle_picker.dart';
@@ -260,6 +261,8 @@ class _Hero extends ConsumerWidget {
               const SizedBox(height: AppSpacing.s3),
               const _GlassSyncMarker(),
             ],
+            // Payment bubble (phase 18b): "N payments to add" while some wait.
+            const PaymentsToAddPill(),
             if (groupCount > 0) ...[
               const SizedBox(height: AppSpacing.s4),
               PillButton(

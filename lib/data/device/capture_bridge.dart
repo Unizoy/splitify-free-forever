@@ -67,12 +67,24 @@ class MethodChannelCaptureBridge implements CaptureBridge {
     }
   }
 
-  @override
-  Future<void> ack({required List<String> captures, required List<String> dismissed}) =>
-      _ch.invokeMethod<void>('ack', {'captures': captures, 'dismissed': dismissed});
+  /// Calls [method]; off Android (tests) the channel has no handler and the call is a no-op.
+  Future<T?> _call<T>(String method, [Map<String, Object?>? args]) async {
+    try {
+      return await _ch.invokeMethod<T>(method, args);
+    } on MissingPluginException {
+      return null;
+    } on PlatformException catch (e) {
+      _log.warning('capture $method failed: ${e.code}');
+      return null;
+    }
+  }
 
   @override
-  Future<void> dismiss(String id) => _ch.invokeMethod<void>('dismiss', {'id': id});
+  Future<void> ack({required List<String> captures, required List<String> dismissed}) =>
+      _call<void>('ack', {'captures': captures, 'dismissed': dismissed});
+
+  @override
+  Future<void> dismiss(String id) => _call<void>('dismiss', {'id': id});
 
   @override
   Future<CapturePermissions> permissions() async {
@@ -92,8 +104,7 @@ class MethodChannelCaptureBridge implements CaptureBridge {
   }
 
   @override
-  Future<bool> open(String access) async =>
-      await _ch.invokeMethod<bool>('open', {'access': access}) ?? false;
+  Future<bool> open(String access) async => await _call<bool>('open', {'access': access}) ?? false;
 
   @override
   Future<CaptureSettings> settings() async {
@@ -106,7 +117,7 @@ class MethodChannelCaptureBridge implements CaptureBridge {
 
   @override
   Future<void> saveSettings(CaptureSettings s) =>
-      _ch.invokeMethod<void>('setConfig', {'json': jsonEncode(s.toJson())});
+      _call<void>('setConfig', {'json': jsonEncode(s.toJson())});
 
   @override
   Future<List<CaptureApp>> apps() async {
@@ -143,7 +154,7 @@ class MethodChannelCaptureBridge implements CaptureBridge {
 
   @override
   Future<bool> showSample({required String payee, required String app}) async =>
-      await _ch.invokeMethod<bool>('sample', {'payee': payee, 'app': app}) ?? false;
+      await _call<bool>('sample', {'payee': payee, 'app': app}) ?? false;
 
   @override
   Future<void> reset() async {
@@ -162,7 +173,8 @@ class NoCaptureBridge implements CaptureBridge {
   @override
   bool get supported => false;
   @override
-  Future<CaptureExport> export() async => (captures: const <Object?>[], dismissed: const <String>[]);
+  Future<CaptureExport> export() async =>
+      (captures: const <Object?>[], dismissed: const <String>[]);
   @override
   Future<void> ack({required List<String> captures, required List<String> dismissed}) async {}
   @override

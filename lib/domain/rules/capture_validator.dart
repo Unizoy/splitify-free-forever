@@ -8,7 +8,9 @@ abstract final class CaptureValidator {
   static const maxAmount = 100000000;
   static const keep = Duration(days: 7);
 
-  static final _id = RegExp(r'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$');
+  static final _id = RegExp(
+    r'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$',
+  );
   static final _ref = RegExp(r'^[0-9A-Za-z]{6,20}$');
   static final _package = RegExp(r'^[A-Za-z][A-Za-z0-9_]*(\.[A-Za-z0-9_]+)+$');
   static final _control = RegExp(r'[\u0000-\u001F\u007F  ]');
@@ -32,7 +34,8 @@ abstract final class CaptureValidator {
     if (package is! String || package.length > 120 || !_package.hasMatch(package)) return null;
     if (appName == null || at is! int) return null;
     final time = DateTime.fromMillisecondsSinceEpoch(at, isUtc: true);
-    if (time.isAfter(now.add(const Duration(minutes: 5))) || now.difference(time) > keep) return null;
+    if (time.isAfter(now.add(const Duration(minutes: 5))) || now.difference(time) > keep)
+      return null;
     final ref = raw['ref'];
     if (ref != null && (ref is! String || !_ref.hasMatch(ref))) return null;
     final payee = raw['payee'];

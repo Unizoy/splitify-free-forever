@@ -5,7 +5,7 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:splitify/domain/entities/payment_capture.dart';
-import 'package:splitify/features/capture/domain/capture_validator.dart';
+import 'package:splitify/domain/rules/capture_validator.dart';
 
 import 'recipe_evaluator.dart';
 

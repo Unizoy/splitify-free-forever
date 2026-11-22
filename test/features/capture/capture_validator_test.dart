@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:splitify/domain/entities/payment_capture.dart';
-import 'package:splitify/features/capture/domain/capture_validator.dart';
+import 'package:splitify/domain/rules/capture_validator.dart';
 
 void main() {
   final now = DateTime.utc(2026, 11, 22, 12);
@@ -62,9 +62,7 @@ void main() {
       'older than 7 days': {
         'captured_at': now.subtract(const Duration(days: 8)).millisecondsSinceEpoch,
       },
-      'in the future': {
-        'captured_at': now.add(const Duration(hours: 1)).millisecondsSinceEpoch,
-      },
+      'in the future': {'captured_at': now.add(const Duration(hours: 1)).millisecondsSinceEpoch},
       'time not int': {'captured_at': '2026-11-22'},
     };
     for (final e in bad.entries) {
@@ -106,7 +104,12 @@ void main() {
       final on = s.copyWith(enabled: true, apps: {'com.whatsapp': true}, theme: 'dark');
       expect(CaptureSettings.fromJson(on.toJson()), on);
       expect(CaptureSettings.fromJson(null), s);
-      const whatsapp = CaptureApp(package: 'com.whatsapp', name: 'WhatsApp', kind: 'upi', defaultOn: false);
+      const whatsapp = CaptureApp(
+        package: 'com.whatsapp',
+        name: 'WhatsApp',
+        kind: 'upi',
+        defaultOn: false,
+      );
       expect(s.appOn(whatsapp), isFalse);
       expect(on.appOn(whatsapp), isTrue);
     });
