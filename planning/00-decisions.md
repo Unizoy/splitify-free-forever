@@ -43,6 +43,7 @@ reason and the alternatives it rejected. It never asks the owner.
 | D-022 | CI (2026-11-21) | GitHub Actions workflow stays **disabled**; gates run locally and SQL tests run on the dev project via MCP. Re-enable with `gh workflow enable CI`. | Owner choice for speed. |
 | D-023 | Release scope (2026-11-21) | Build up to **phase 19**; stop before phase 20 and leave checklist R (prod project) for the owner. | |
 | D-024 | Google sign-in (2026-11-21) | Supabase Google provider not enabled yet → keep "Coming soon" (D-020 dummy mode); email code + dev login only. | |
+| D-025 | Payment bubble (2026-11-22) | Owner asked for a new feature: when paying with any UPI app (GPay, PhonePe, …) a floating bubble (Wispr Flow-style) shows during and after the payment with the captured amount and payee and offers **Add to Splitify**. Planned by the coordinator as phase **18b** (X4, `phases/phase-18b-payment-bubble.md`), built, tested and merged like the other phases, before phase 19. | Opt-in, on-device only; owner checks real GPay/PhonePe on his phone. |
 
 ## Technical decisions
 
