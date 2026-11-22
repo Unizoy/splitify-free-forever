@@ -39,7 +39,7 @@ yet" marker when any of the group's records is pending. Long group lists show 10
   error mapping, sync texts, uploads card, Edit, Groups card marker, delete-account offline, list paging) · golden
   8 new (`sync_storage_uploads`, `sync_storage_skipped` light/dark × 1.0/2.0) + 2 updated (`sync_storage_issues`) ·
   integration/e2e 2 files (`offline_airplane_test.dart` 6 stages, `perf_test.dart` + `test_driver/perf_driver.dart`).
-- Coverage: see G2.
+- Coverage: overall 96.6 % · sync 99.5 % · data 93.3 % · domain 100 % · money 100 % (all floors met).
 - Test IDs now passing: TC-27-11, TC-27-12, TC-27-13 (device), TC-27-16..19 (unit/widget/golden), TC-27-20 measured.
 - Quarantined / skipped: none. WorkManager runs were not triggered on the device (only scheduled); the worker path is
   covered by `background_sync_test.dart` (port round trip) and shares the foreground engine wiring.
@@ -48,12 +48,12 @@ yet" marker when any of the group's records is pending. Long group lists show 10
 
 | Gate | Result | Evidence |
 | --- | --- | --- |
-| G1 Static | TBD | |
-| G2 Tests | TBD | |
+| G1 Static | PASS | `dart format --set-exit-if-changed` 0 changes; `flutter analyze --no-fatal-infos` 0 errors / 0 warnings (infos only); `dart run tool/guards.dart` OK |
+| G2 Tests | PASS | `flutter test --coverage --exclude-tags device,needs-owner,quarantine`: 2,526 passed, 0 failed; coverage overall 96.6 %, sync 99.5 % (floor 95), data 93.3 %, domain 100 %, money 100 %, application 97.1 %, presentation 96.4 %, core 96.6 % |
 | G3 Backend | N/A | no migration (0018 unused), no Edge Function change |
-| G4 Build | TBD | |
-| G5 Device | TBD | |
-| G6 Docs | TBD | |
+| G4 Build | PASS | `flutter build apk --debug --dart-define-from-file=secrets/env.dev.json` (also every e2e stage and the release x64 build for cold start) |
+| G5 Device | PASS | emulator-5554 + dev project with `PIN_HOST_IP`: `tool/e2e/airplane.ps1` A1–A3, K1–K2, C1 all green; `tool/e2e/perf.ps1` numbers; UI review of the new states (Sync & storage photos/Edit, group card marker, conflict snackbar, history) on device light/dark + goldens light/dark × 1.0/2.0 — every rubric line ≥ 8. Screenshots: `splitify-artifacts\phase-15\` (`airplane-*`, `conflict-*`, `perf-cold-start.png`) |
+| G6 Docs | PASS | phase boxes, decisions S-160..167, test catalog TC-27-11..20, LEARNINGS, PROGRESS, phase 19 amendment |
 
 ## Decisions made (S-0xx)
 
