@@ -24,6 +24,7 @@ import 'package:splitify/data/remote/supabase_remote_api.dart';
 import 'package:splitify/data/sync/sync_types.dart';
 import 'package:splitify/domain/rules/recurrence.dart';
 import 'package:splitify/features/auth/application/auth_providers.dart';
+import 'package:splitify/features/expenses/presentation/editor/step_body.dart' show StepBody;
 import 'package:splitify/features/expenses/presentation/expense_routes.dart';
 import 'package:splitify/features/search/presentation/search_screen.dart';
 import 'package:splitify/l10n/app_localizations.dart';
@@ -71,6 +72,15 @@ Future<void> _pumpFor(WidgetTester t, Duration d) async {
   while (DateTime.now().isBefore(end)) {
     await t.pump(const Duration(milliseconds: 100));
   }
+}
+
+/// Scrolls the editor step (a lazy ListView) until [f] is built and visible.
+Future<void> _reveal(WidgetTester t, Finder f) async {
+  if (f.evaluate().isEmpty) {
+    final step = find.descendant(of: find.byType(StepBody), matching: find.byType(Scrollable));
+    await t.scrollUntilVisible(f, 200, scrollable: step.first);
+  }
+  await t.ensureVisible(f);
 }
 
 Future<void> _tap(WidgetTester t, Finder f) async {
@@ -176,14 +186,19 @@ void main() {
     for (var i = 0; i < 3; i++) {
       await _tap(t, find.byKey(const Key('expense-next'))); // → Paid by → Split → Details
     }
+    await _reveal(t, find.byKey(const Key('repeat-monthly')));
     await _tap(t, find.byKey(const Key('repeat-monthly')));
+    await _reveal(t, find.byKey(const Key('repeat-hint')));
     expect(find.byKey(const Key('repeat-hint')), findsOneWidget);
-    await t.enterText(
-      find.descendant(of: find.byKey(const Key('expense-notes')), matching: find.byType(TextField)),
-      'maintenance included',
+    final notes = find.descendant(
+      of: find.byKey(const Key('expense-notes')),
+      matching: find.byType(TextField),
     );
+    await _reveal(t, notes);
+    await t.enterText(notes, 'maintenance included');
     FocusManager.instance.primaryFocus?.unfocus();
-    await t.ensureVisible(find.byKey(const Key('repeat-monthly')));
+    await _pumpFor(t, const Duration(milliseconds: 400));
+    await _reveal(t, find.byKey(const Key('repeat-monthly')));
     await _capture(t, 'repeat-picker');
     await _tap(t, find.byKey(const Key('expense-save')));
     await _pumpFor(t, const Duration(seconds: 2));
@@ -228,9 +243,15 @@ void main() {
     FocusManager.instance.primaryFocus?.unfocus();
     await _pumpFor(t, const Duration(milliseconds: 800));
     await _capture(t, 'search-results');
+    // The field lost focus for the capture: focus it again before typing.
+    await t.tap(find.byKey(const Key('search-field')));
+    await _pumpFor(t, const Duration(milliseconds: 400));
     await t.enterText(find.byKey(const Key('search-field')), '1201');
-    await _pumpFor(t, const Duration(milliseconds: 800));
-    expect(row, findsNothing);
+    for (var i = 0; i < 30 && row.evaluate().isNotEmpty; i++) {
+      await _pumpFor(t, const Duration(milliseconds: 200));
+    }
+    final field = t.widget<TextField>(find.byKey(const Key('search-field')));
+    expect(row, findsNothing, reason: 'field text "${field.controller?.text}"');
     expect(find.byKey(const Key('search-empty')), findsOneWidget);
     await t.enterText(find.byKey(const Key('search-field')), 'rent');
     await _pumpFor(t, const Duration(milliseconds: 600));
