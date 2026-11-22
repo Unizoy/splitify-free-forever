@@ -498,7 +498,12 @@ class _AmountField extends StatelessWidget {
                 style: style,
                 keyboardType: TextInputType.numberWithOptions(decimal: currency.exponent > 0),
                 inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]'))],
-                decoration: InputDecoration(isDense: true, border: InputBorder.none),
+                // ≥ 48 dp touch target with the smaller type scale (S-268).
+                decoration: const InputDecoration(
+                  isDense: true,
+                  border: InputBorder.none,
+                  constraints: BoxConstraints(minHeight: AppSpacing.minTouch),
+                ),
               ),
             ),
             CurrencyChip(
