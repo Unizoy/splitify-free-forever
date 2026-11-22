@@ -112,7 +112,7 @@ void main() {
   test('TC-B1-02 every failure maps to friendly copy', () async {
     final l = await AppLocalizations.delegate.load(const Locale('en'));
     final texts = {for (final code in AuthFailureCode.values) code: authFailureText(l, code)};
-    expect(texts[AuthFailureCode.tooManyTries], 'Too many tries, request a new code');
+    expect(texts[AuthFailureCode.tooManyTries], 'Too many tries. Request a new code.');
     expect(texts[AuthFailureCode.offline], contains('offline'));
     expect(texts.values.toSet().length, AuthFailureCode.values.length);
     expect(texts.values.every((t) => t.isNotEmpty), isTrue);

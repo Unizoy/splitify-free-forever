@@ -190,13 +190,13 @@ void main() {
       final actions = await _pump(t);
       await t.enterText(find.byKey(const Key('comment-field')), 'a' * 1001);
       await t.pump();
-      expect(find.text('Keep it under 1000 characters.'), findsOneWidget);
+      expect(find.text('Use up to 1,000 characters'), findsOneWidget);
       expect(_sendTap(t), isNull);
       expect(actions.added, isEmpty);
 
       await t.enterText(find.byKey(const Key('comment-field')), 'a' * 1000);
       await t.pump();
-      expect(find.text('Keep it under 1000 characters.'), findsNothing);
+      expect(find.text('Use up to 1,000 characters'), findsNothing);
       expect(_sendTap(t), isNotNull);
     });
 

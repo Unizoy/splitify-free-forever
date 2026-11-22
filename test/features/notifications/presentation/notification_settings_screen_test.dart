@@ -199,7 +199,7 @@ void main() {
       expect(banner(), findsOneWidget);
       expect(
         find.text(
-          "Push notifications aren't set up in this version yet. Everything still shows in the bell.",
+          "Push notifications aren't set up in this build. Everything still shows in the bell.",
         ),
         findsOneWidget,
       );

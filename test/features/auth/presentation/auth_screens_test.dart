@@ -100,16 +100,16 @@ void main() {
     await _pump(tester, Routes.signIn);
     expect(find.text('Continue with Google'), findsOneWidget);
     expect(find.text('Send code'), findsOneWidget);
-    expect(find.text('Coming soon'), findsOneWidget);
+    expect(find.text('Not set up in this build'), findsOneWidget);
     expect(find.text('Developer sign-in'), findsNothing);
 
     await tester.tap(find.text('Continue with Google'));
     await tester.pump();
-    expect(find.textContaining('Google sign-in is coming soon'), findsOneWidget);
+    expect(find.textContaining("Google sign-in isn't set up in this build"), findsOneWidget);
 
     await _pump(tester, Routes.signIn, dev: true, google: true);
     expect(find.text('Developer sign-in'), findsOneWidget);
-    expect(find.text('Coming soon'), findsNothing);
+    expect(find.text('Not set up in this build'), findsNothing);
   });
 
   testWidgets('email code flow: bad email, send, wrong code, right code → profile → groups', (
@@ -126,7 +126,7 @@ void main() {
     await _settle(tester);
     expect(find.text('Enter the 6-digit code'), findsOneWidget);
     expect(find.textContaining('asha@splitify.test'), findsOneWidget);
-    expect(find.text('Resend code in 60 s'), findsOneWidget);
+    expect(find.text('Resend code in 60\u00A0s'), findsOneWidget);
 
     await tester.enterText(find.byKey(const Key('code-input')), '000000');
     await _settle(tester);
@@ -231,7 +231,7 @@ void main() {
     await tester.enterText(find.byKey(const Key('profile-name')).last, '   ');
     await tester.tap(find.text('Save'));
     await tester.pump();
-    expect(find.text('Enter your name (1 to 50 letters)'), findsOneWidget);
+    expect(find.text('Enter your name (up to 50 characters)'), findsOneWidget);
 
     await tester.enterText(find.byKey(const Key('profile-name')).last, 'Asha R');
     await tester.tap(find.text('Change photo'));

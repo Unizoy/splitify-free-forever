@@ -78,8 +78,10 @@ class _WrongCodeController extends SignInController {
   );
 }
 
-/// Extra overrides per screen: an 8-digit project (S-232) and the refused-code state.
+/// Extra overrides per screen: Google set up (as in release builds, D-026), an 8-digit project (S-232)
+/// and the refused-code state.
 List<Override> _extraFor(String name) => switch (name) {
+  'sign_in' => [googleConfiguredProvider.overrideWithValue(true)],
   'sign_in_code_8' => [emailCodeLengthProvider.overrideWithValue(8)],
   'sign_in_code_wrong' => [signInControllerProvider.overrideWith(_WrongCodeController.new)],
   _ => const [],

@@ -34,8 +34,8 @@ String friendStatusText(AppLocalizations l, BalanceStatus s) => switch (s) {
 String friendGroupsCaption(AppLocalizations l, Friend f) {
   final names = [for (final g in f.sharedGroups) g.group.name];
   if (names.isEmpty) return l.friendDirectOnly;
-  if (names.length <= 2) return names.join(' · ');
-  return l.friendGroupsMore(names.take(2).join(' · '), names.length - 2);
+  if (names.length <= 2) return names.join('\u00A0· ');
+  return l.friendGroupsMore(names.take(2).join('\u00A0· '), names.length - 2);
 }
 
 /// The group a friend-page item or row belongs to ("Just you two" for the direct group).

@@ -83,7 +83,7 @@ class SyncIssueCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        '${l.syncIssueEntity(issue.entity.wire)} · ${l.syncIssueOp(issue.op.name)}',
+                        '${l.syncIssueEntity(issue.entity.wire)}\u00A0· ${l.syncIssueOp(issue.op.name)}',
                         style: context.text.body.w(600),
                       ),
                       const SizedBox(height: AppSpacing.s1),
@@ -93,7 +93,7 @@ class SyncIssueCard extends StatelessWidget {
                       ),
                       const SizedBox(height: AppSpacing.s1),
                       Text(
-                        '${l.syncIssueTries(issue.attempts)} · ${l.syncErrorCode(issue.code)}',
+                        l.syncIssueTries(issue.attempts),
                         style: context.text.caption.copyWith(color: c.textTertiary),
                       ),
                     ],

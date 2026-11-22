@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:splitify/data/data_providers.dart';
 import 'package:splitify/features/activity/application/activity_providers.dart';
 import 'package:splitify/features/balances/presentation/balance_copy.dart' show listMoney;
+import 'package:splitify/features/expenses/presentation/expense_copy.dart' show unbroken;
 import 'package:splitify/features/expenses/presentation/expense_routes.dart';
 import 'package:splitify/features/payments/presentation/payment_routes.dart';
 import 'package:splitify/l10n/app_localizations.dart';
@@ -90,7 +91,7 @@ String activityDay(BuildContext context, DateTime day, DateTime today) {
   if (d == t) return l.expToday;
   if (d == DateTime(t.year, t.month, t.day - 1)) return l.expYesterday;
   final locale = Localizations.localeOf(context).toLanguageTag();
-  return DateFormat(d.year == t.year ? 'EEE, d MMM' : 'EEE, d MMM y', locale).format(d);
+  return unbroken(DateFormat(d.year == t.year ? 'EEE, d MMM' : 'EEE, d MMM y', locale).format(d));
 }
 
 /// Filter chips: All · Expenses · Payments · Comments · Groups.
@@ -182,7 +183,9 @@ class ActivityRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     final i = item;
-    final time = DateFormat.jm(Localizations.localeOf(context).toLanguageTag()).format(i.at);
+    final time = unbroken(
+      DateFormat.jm(Localizations.localeOf(context).toLanguageTag()).format(i.at),
+    );
     final amount = i.amount;
     final currency = i.currency;
     // Initials come from the real name ("MB"), never from "You".
@@ -190,7 +193,7 @@ class ActivityRow extends StatelessWidget {
     return AmountRow(
       key: ValueKey('activity-${i.id}'),
       title: activitySentence(l, i),
-      caption: showGroup && i.groupName.isNotEmpty ? '${i.groupName} · $time' : time,
+      caption: showGroup && i.groupName.isNotEmpty ? '${i.groupName}\u00A0· $time' : time,
       amountText: amount == null || currency == null || amount <= 0
           ? ''
           : listMoney(amount, currency),

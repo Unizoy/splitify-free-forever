@@ -278,6 +278,22 @@ class _AccessRow extends StatelessWidget {
         l.captureAccessPostHint,
       ),
     };
+    final stacked = MediaQuery.textScalerOf(context).scale(1) >= 1.3;
+    final Widget trailing = granted
+        ? StatusPill(
+            key: Key('capture-allowed-${access.name}'),
+            label: l.captureAllowed,
+            icon: AppIcons.checkCircle,
+            tone: StatusPillTone.positive,
+          )
+        : PillButton(
+            key: Key('capture-grant-${access.name}'),
+            label: l.captureGrant,
+            variant: PillVariant.outline,
+            size: PillSize.medium,
+            expand: false,
+            onPressed: onGrant,
+          );
     return Column(
       key: Key('capture-access-${access.name}'),
       mainAxisSize: MainAxisSize.min,
@@ -299,26 +315,11 @@ class _AccessRow extends StatelessWidget {
                   children: [
                     Text(title, style: context.text.title.w(500)),
                     Text(hint, style: context.text.bodySmall.copyWith(color: c.textSecondary)),
+                    if (stacked) ...[const SizedBox(height: AppSpacing.s2), trailing],
                   ],
                 ),
               ),
-              const SizedBox(width: AppSpacing.s3),
-              if (granted)
-                StatusPill(
-                  key: Key('capture-allowed-${access.name}'),
-                  label: l.captureAllowed,
-                  icon: AppIcons.checkCircle,
-                  tone: StatusPillTone.positive,
-                )
-              else
-                PillButton(
-                  key: Key('capture-grant-${access.name}'),
-                  label: l.captureGrant,
-                  variant: PillVariant.outline,
-                  size: PillSize.medium,
-                  expand: false,
-                  onPressed: onGrant,
-                ),
+              if (!stacked) ...[const SizedBox(width: AppSpacing.s3), trailing],
             ],
           ),
         ),
@@ -359,8 +360,8 @@ class _RestrictedGuide extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  width: 28,
-                  height: 28,
+                  width: MediaQuery.textScalerOf(context).scale(28),
+                  height: MediaQuery.textScalerOf(context).scale(28),
                   alignment: Alignment.center,
                   decoration: BoxDecoration(color: c.ink, shape: BoxShape.circle),
                   child: Text(

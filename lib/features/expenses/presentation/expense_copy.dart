@@ -158,16 +158,27 @@ SplitFooter splitFooter(
   return (text: text, error: true);
 }
 
+/// Category row value: "Food · Dining out", or just "Rent" when the sub-category has the same name.
+String categoryValue(AppLocalizations l, String key) {
+  final parent = l.category(categoryOf(key).name);
+  final sub = l.category(key);
+  return sub == parent ? parent : '$parent\u00A0· $sub';
+}
+
 /// Icon category of a stored key (`travel.fuel` → travel).
 Category categoryOf(String key) => Category.values.byName(ExpenseCategories.parentOf(key));
 
-/// "21 Nov 2026" for a local calendar date.
+/// Joins the words of a date or time with no-break spaces, so "21 Nov 2026" or "9:05 PM" never wraps
+/// in the middle.
+String unbroken(String text) => text.replaceAll(' ', '\u00A0');
+
+/// "21 Nov 2026" for a local calendar date (never wraps inside).
 String shortDate(BuildContext context, DateTime d) =>
-    DateFormat('d MMM y', Localizations.localeOf(context).toLanguageTag()).format(d);
+    unbroken(DateFormat('d MMM y', Localizations.localeOf(context).toLanguageTag()).format(d));
 
 /// "21 Nov" (list rows; the month header carries the year).
 String dayMonth(BuildContext context, DateTime d) =>
-    DateFormat('d MMM', Localizations.localeOf(context).toLanguageTag()).format(d);
+    unbroken(DateFormat('d MMM', Localizations.localeOf(context).toLanguageTag()).format(d));
 
 /// "NOVEMBER 2026" header text for the month of [d].
 String monthHeader(BuildContext context, DateTime d) =>

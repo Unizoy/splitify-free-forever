@@ -106,7 +106,7 @@ void main() {
       expect(s('group_created'), 'You created the group');
       expect(s('group_updated'), 'You updated the group');
       expect(s('group_archived'), 'You archived the group');
-      expect(s('group_unarchived'), 'You brought the group back');
+      expect(s('group_unarchived'), 'You unarchived the group');
       expect(s('group_deleted'), 'You deleted the group');
       expect(s('group_restored'), 'You restored the group');
       expect(s('member_added', member: activityAsha), 'You added Asha Rao');
@@ -297,8 +297,11 @@ void main() {
       final today = DateTime(2026, 11, 21, 10);
       expect(activityDay(ctx, DateTime(2026, 11, 21, 0, 5), today), 'Today');
       expect(activityDay(ctx, DateTime(2026, 11, 20, 23, 59), today), 'Yesterday');
-      expect(activityDay(ctx, DateTime(2026, 11, 14, 11), today), 'Sat, 14 Nov');
-      expect(activityDay(ctx, DateTime(2025, 12, 31, 11), today), 'Wed, 31 Dec 2025');
+      expect(activityDay(ctx, DateTime(2026, 11, 14, 11), today), 'Sat,\u00A014\u00A0Nov');
+      expect(
+        activityDay(ctx, DateTime(2025, 12, 31, 11), today),
+        'Wed,\u00A031\u00A0Dec\u00A02025',
+      );
     });
   });
 
@@ -308,7 +311,7 @@ void main() {
       await _pump(t, _FeedHost(items: sampleActivity()));
       expect(find.text('TODAY'), findsOneWidget);
       expect(find.text('YESTERDAY'), findsOneWidget);
-      expect(find.text('SAT, 14 NOV'), findsOneWidget);
+      expect(find.text('SAT,\u00A014\u00A0NOV'), findsOneWidget);
       expect(find.byType(ActivityRow), findsNWidgets(6));
       double top(String id) => t.getTopLeft(find.byKey(ValueKey('activity-$id'))).dy;
       final order = ['a3', 'a1', 'a2', 'a4', 'a5', 'a6'];
@@ -326,13 +329,13 @@ void main() {
     ) async {
       await _pump(t, _FeedHost(items: sampleActivity()));
       expect(_row(t, 'a1').title, 'Asha Rao added “Dinner at Thalassa”');
-      expect(_caption(t, 'a1'), 'Goa trip · 9:30 AM');
+      expect(_caption(t, 'a1'), 'Goa trip\u00A0· 9:30 AM');
       expect(_row(t, 'a1').amountText, '₹2,400');
       expect(_row(t, 'a2').title, 'You recorded a payment from Asha Rao to you');
       expect(_row(t, 'a2').amountText, '₹500');
       expect(_row(t, 'a4').title, 'Rahul Mehta commented on “Dinner at Thalassa”');
       expect(_row(t, 'a4').amountText, '');
-      expect(_caption(t, 'a4'), 'Goa trip · 6:45 PM');
+      expect(_caption(t, 'a4'), 'Goa trip\u00A0· 6:45 PM');
       expect(_row(t, 'a5').title, 'Priya Nair joined the group');
       expect(_row(t, 'a6').title, 'You created the group');
     });

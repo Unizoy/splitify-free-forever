@@ -136,7 +136,7 @@ void main() {
       changes.last,
       RepeatDraft(interval: RecurrenceInterval.monthly, endsOn: DateTime(2026, 11, 30)),
     );
-    expect(find.text('Until 30 Nov 2026'), findsOneWidget);
+    expect(find.text('Until 30\u00A0Nov\u00A02026'), findsOneWidget);
     await tester.tap(find.byKey(const Key('repeat-no-end')));
     await settle(tester, 2);
     expect(changes.last.endsOn, isNull);
@@ -146,13 +146,22 @@ void main() {
   // TC-12-04
   testWidgets('hint names the first copy for every interval', (tester) async {
     await _pump(tester, initial: const RepeatDraft(interval: RecurrenceInterval.monthly));
-    expect(_hint(tester), 'A copy is added automatically on each date. First copy: 21 Dec 2026.');
+    expect(
+      _hint(tester),
+      'A copy is added automatically on each date. First copy: 21\u00A0Dec\u00A02026.',
+    );
     await tester.tap(find.byKey(const Key('repeat-weekly')));
     await settle(tester, 2);
-    expect(_hint(tester), 'A copy is added automatically on each date. First copy: 28 Nov 2026.');
+    expect(
+      _hint(tester),
+      'A copy is added automatically on each date. First copy: 28\u00A0Nov\u00A02026.',
+    );
     await tester.tap(find.byKey(const Key('repeat-yearly')));
     await settle(tester, 2);
-    expect(_hint(tester), 'A copy is added automatically on each date. First copy: 21 Nov 2027.');
+    expect(
+      _hint(tester),
+      'A copy is added automatically on each date. First copy: 21\u00A0Nov\u00A02027.',
+    );
   });
 
   // TC-12-04
@@ -161,7 +170,7 @@ void main() {
       tester,
       initial: RepeatDraft(interval: RecurrenceInterval.monthly, endsOn: DateTime(2026, 11, 10)),
     );
-    expect(_hint(tester), 'The end date can’t be before 21 Nov 2026');
+    expect(_hint(tester), "The end date can't be before 21\u00A0Nov\u00A02026");
   });
 
   // TC-12-04

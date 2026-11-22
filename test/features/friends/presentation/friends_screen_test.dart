@@ -79,7 +79,7 @@ void main() {
     // TC-2-03
     testWidgets('the hero, the section count and the search field show', (t) async {
       await pumpTab(t);
-      expect(find.text('FRIENDS · 4'), findsOneWidget);
+      expect(find.text('FRIENDS\u00A0· 4'), findsOneWidget);
       expect(find.byKey(const Key('friends-search')), findsOneWidget);
       expect(find.text('Search friends'), findsOneWidget);
       expect(find.text('Add friend expense'), findsOneWidget);
@@ -103,7 +103,7 @@ void main() {
         for (final r in t.widgetList<FriendRow>(find.byType(FriendRow))) r.friend.name,
       ];
       expect(names, ['Asha Rao', 'Dev Shah', 'Meera Iyer', 'Rahul Mehta']);
-      expect(_inRow('u:u2', find.text('Goa trip · Flat 4B')), findsOneWidget);
+      expect(_inRow('u:u2', find.text('Goa trip\u00A0· Flat 4B')), findsOneWidget);
       expect(_inRow('u:u3', find.text('Goa trip')), findsOneWidget);
       expect(_inRow('u:u8', find.text('Bali')), findsOneWidget);
     });
@@ -137,8 +137,8 @@ void main() {
     ) async {
       await pumpTab(t);
       expect(_inRow('u:u8', find.text('Owed and owing')), findsOneWidget);
-      expect(_inRow('u:u8', find.textContaining('+₹5')), findsOneWidget);
-      expect(_inRow('u:u8', find.textContaining('−\$20')), findsOneWidget);
+      expect(_inRow('u:u8', find.textContaining('+\u2060₹5')), findsOneWidget);
+      expect(_inRow('u:u8', find.textContaining('−\u2060\$20')), findsOneWidget);
     });
 
     // TC-2-03
@@ -152,7 +152,7 @@ void main() {
     testWidgets('three or more shared groups show the first two and a count', (t) async {
       final many = friendsOf([goaLedger(), flatLedger(), cycleLedger(), twoCurrencyLedger()], 'u1');
       await pumpTab(t, value: AsyncData(many));
-      expect(_inRow('u:u2', find.text('Goa trip · Flat 4B +2')), findsOneWidget);
+      expect(_inRow('u:u2', find.text('Goa trip\u00A0· Flat 4B +2')), findsOneWidget);
     });
 
     // TC-2-03
@@ -183,7 +183,7 @@ void main() {
       await type(t, 'ASH');
       expect(find.byType(FriendRow), findsOneWidget);
       expect(_row('u:u2'), findsOneWidget);
-      expect(find.text('FRIENDS · 4'), findsOneWidget, reason: 'the count is of all friends');
+      expect(find.text('FRIENDS\u00A0· 4'), findsOneWidget, reason: 'the count is of all friends');
     });
 
     // TC-2-03

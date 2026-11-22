@@ -129,10 +129,11 @@ void main() {
     );
     expect(find.text('2 changes need attention'), findsOneWidget);
     expect(find.text('NEEDS ATTENTION'), findsOneWidget);
-    expect(find.text('Expense · Edit'), findsOneWidget);
-    expect(find.text('Payment · Edit'), findsOneWidget);
+    expect(find.text('Expense\u00A0· Edit'), findsOneWidget);
+    expect(find.text('Payment\u00A0· Edit'), findsOneWidget);
     expect(find.text('You are no longer in this group.'), findsOneWidget);
-    expect(find.text('Tried 2 times · Code NOT_MEMBER'), findsOneWidget);
+    expect(find.text('Tried 2 times'), findsWidgets);
+    expect(find.textContaining('NOT_MEMBER'), findsNothing, reason: 'no developer codes on screen');
 
     await tester.tap(find.byKey(const Key('sync-retry-7')));
     await tester.pump();
@@ -176,6 +177,8 @@ void main() {
       issues: [sampleIssue()],
     );
     await tester.scrollUntilVisible(find.byKey(const Key('export-debug-log')), 200);
+    await tester.ensureVisible(find.byKey(const Key('export-debug-log')));
+    await tester.pump();
     await tester.tap(find.byKey(const Key('export-debug-log')));
     await tester.pump();
     final (subject, text) = share.shared.single;

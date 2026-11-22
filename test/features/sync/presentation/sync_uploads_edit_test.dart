@@ -1,4 +1,4 @@
-// Phase 15: photos waiting on Sync & storage (S-113) and "Edit" on a refused change.
+// Phase 15: waiting on Sync & storage (S-113) and "Edit" on a refused change.
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -73,7 +73,7 @@ void main() {
   ) async {
     await _pump(tester, uploads: [_retrying, _waiting]);
     expect(find.byKey(const Key('sync-uploads-card')), findsOneWidget);
-    expect(find.text('PHOTOS · 2 PHOTOS WAITING'), findsOneWidget);
+    expect(find.text('PHOTOS\u00A0· 2 WAITING'), findsOneWidget);
     expect(find.text('Upload failed 3 times, trying again'), findsOneWidget);
     expect(find.text('Waiting to upload'), findsOneWidget);
     expect(find.text('Group cover'), findsOneWidget);
@@ -94,7 +94,7 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('no photos waiting: no uploads card', (tester) async {
+  testWidgets('no waiting: no uploads card', (tester) async {
     await _pump(tester);
     expect(find.byKey(const Key('sync-uploads-card')), findsNothing);
   });

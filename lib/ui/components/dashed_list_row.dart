@@ -30,6 +30,10 @@ class DashedListRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.colors;
     final fg = destructive ? c.oweText : c.textPrimary;
+    final stacked = value != null && MediaQuery.textScalerOf(context).scale(1) >= 1.3;
+    final valueText = value == null
+        ? null
+        : Text(value!, style: context.text.amount.copyWith(color: valueColor ?? c.primary));
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -46,14 +50,20 @@ class DashedListRow extends StatelessWidget {
                     Icon(icon, size: 24, color: fg),
                     const SizedBox(width: AppSpacing.s4),
                     Expanded(
-                      child: Text(label, style: context.text.body.w(600).copyWith(color: fg)),
+                      child: stacked
+                          ? Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(label, style: context.text.body.w(600).copyWith(color: fg)),
+                                const SizedBox(height: 2),
+                                valueText!,
+                              ],
+                            )
+                          : Text(label, style: context.text.body.w(600).copyWith(color: fg)),
                     ),
-                    if (value != null) ...[
+                    if (valueText != null && !stacked) ...[
                       const SizedBox(width: AppSpacing.s3),
-                      Text(
-                        value!,
-                        style: context.text.amount.copyWith(color: valueColor ?? c.primary),
-                      ),
+                      valueText,
                     ],
                     if (onTap != null) ...[
                       const SizedBox(width: AppSpacing.s3),

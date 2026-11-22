@@ -142,7 +142,7 @@ class _SyncStorageScreenState extends ConsumerState<SyncStorageScreen> {
           ],
           if (uploads.isNotEmpty) ...[
             const SizedBox(height: AppSpacing.s8),
-            _SectionLabel('${l.syncUploadsTitle} · ${l.syncUploadsWaiting(uploads.length)}'),
+            _SectionLabel('${l.syncUploadsTitle}\u00A0· ${l.syncUploadsWaiting(uploads.length)}'),
             const SizedBox(height: AppSpacing.s3),
             SyncUploadsCard(
               uploads: uploads,

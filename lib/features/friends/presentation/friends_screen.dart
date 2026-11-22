@@ -88,7 +88,7 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 SectionLabel(
-                  all == null ? l.friendsSection : '${l.friendsSection} · ${all.length}',
+                  all == null ? l.friendsSection : '${l.friendsSection}\u00A0· ${all.length}',
                   trailing: unsynced ? const SyncMarker() : null,
                 ),
                 const SizedBox(height: AppSpacing.s4),

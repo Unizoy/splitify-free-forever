@@ -78,7 +78,7 @@ class RepeatPicker extends StatelessWidget {
           ],
         ),
         if (value.repeats) ...[
-          const SizedBox(height: AppSpacing.s4),
+          const SizedBox(height: AppSpacing.s6),
           SectionLabel(l.repeatEndsLabel),
           Wrap(
             spacing: AppSpacing.s2,

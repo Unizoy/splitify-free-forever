@@ -43,7 +43,7 @@ class AmountRow extends StatelessWidget {
     final c = context.colors;
     final color = tone.textColor(c);
     final sign = tone.sign;
-    final signed = sign.isEmpty ? amountText : '$sign $amountText';
+    final signed = sign.isEmpty ? amountText : '$sign$amountText';
     final large = MediaQuery.textScalerOf(context).scale(1) > 1.4;
 
     final left = Column(
