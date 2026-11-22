@@ -486,17 +486,26 @@ void main() {
     final ids = (s['expenses']! as List).cast<String>();
     final db = c.read(appDatabaseProvider);
     final left = await t.runAsync(() => _count(db, 'SELECT COUNT(*) AS n FROM outbox'));
-    debugPrint('after the kill: $left of 300 still queued');
-    expect(left, inExclusiveRange(0, 300), reason: 'the kill landed mid-push');
+    final client = Supabase.instance.client;
+    // Rows the server already has: > 0 with 300 still queued = the killed batch was applied but never
+    // acknowledged, so its resend must come back as duplicates.
+    final before = (await t.runAsync(
+      () => client.from('expenses').select('id').eq('group_id', gid),
+    ))!.length;
+    debugPrint('after the kill: $left of 300 still queued, server has $before');
+    expect(left, inInclusiveRange(1, 300), reason: 'the kill landed before the push finished');
     await _show(t, c); // app start syncs
     await _until(
       t,
       () async => await _count(db, 'SELECT COUNT(*) AS n FROM outbox') == 0,
       reason: 'rest pushed after relaunch',
     );
-    final client = Supabase.instance.client;
     final rows = (await t.runAsync(
-      () => client.from('expenses').select('id, description, seq').eq('group_id', gid).order('seq'),
+      () => client
+          .from('expenses')
+          .select('id, description, seq')
+          .eq('group_id', gid)
+          .order('seq', ascending: true),
     ))!;
     expect(rows, hasLength(300));
     expect(rows.map((r) => r['id']).toList(), ids, reason: 'server order = phone order');

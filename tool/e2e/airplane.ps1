@@ -14,6 +14,7 @@ param(
   [int]$Hold = 8,
   [switch]$NoLock
 )
+$Stages = @($Stages | ForEach-Object { $_ -split ',' } | Where-Object { $_ })   # `-File` passes "K2,C1" as one string
 $ErrorActionPreference = 'Continue'   # adb writes to stderr; failures are checked by exit codes
 $repo = (Resolve-Path "$PSScriptRoot\..\..").Path
 Set-Location $repo
