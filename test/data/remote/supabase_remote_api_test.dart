@@ -101,4 +101,41 @@ void main() {
       throwsA(isA<AuthExpiredException>()),
     );
   });
+
+  // Phase 15 (S-160): being offline is never "signed out".
+  test(
+    'refreshSession offline keeps the session: network errors become NetworkException',
+    () async {
+      for (final e in <Object>[
+        AuthRetryableFetchException(message: 'no route'),
+        const SocketException('down'),
+        TimeoutException('slow'),
+      ]) {
+        await expectLater(
+          api((_, _) => null, refreshError: e).refreshSession(),
+          throwsA(isA<NetworkException>()),
+        );
+      }
+    },
+  );
+
+  test(
+    'a call whose token refresh could not reach the server is offline, a plain auth error is 401',
+    () async {
+      Future<Object?> call(Object error) =>
+          api((_, _) => throw error).pullChanges(cursors: {}, userSeq: 0);
+      await expectLater(
+        call(AuthRetryableFetchException(message: 'no route')),
+        throwsA(isA<NetworkException>()),
+      );
+      await expectLater(
+        call(const AuthException('refresh token invalid')),
+        throwsA(isA<AuthExpiredException>()),
+      );
+      await expectLater(
+        api((_, _) => throw AuthRetryableFetchException(message: 'x')).applyMutations(const []),
+        throwsA(isA<NetworkException>()),
+      );
+    },
+  );
 }

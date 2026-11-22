@@ -7,7 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:splitify/app/router.dart';
 import 'package:splitify/core/config/preferences.dart';
-import 'package:splitify/data/data_providers.dart' show clockProvider;
+import 'package:splitify/data/data_providers.dart' show clockProvider, syncRepositoryProvider;
 import 'package:splitify/data/remote/remote_providers.dart';
 import 'package:splitify/data/repositories/auth_repository.dart';
 import 'package:splitify/features/auth/application/auth_providers.dart' hide clockProvider;
@@ -62,6 +62,8 @@ class _PhoneApp extends StatelessWidget {
           profileRemoteProvider.overrideWithValue(FakeProfileRemote(sampleProfile)),
           groupsRemoteProvider.overrideWithValue(remote ?? FakeGroupsRemote()),
           syncNowProvider.overrideWithValue(() async {}),
+          // The shell's SyncBinding and the Groups cards read sync state: no on-disk database here.
+          syncRepositoryProvider.overrideWithValue(FakeSyncRepository()),
           clockProvider.overrideWithValue(FakeClock(DateTime.utc(2026, 11, 22, 10))),
           ...data,
         ],

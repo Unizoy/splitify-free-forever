@@ -93,6 +93,21 @@ void main() {
     });
   });
 
+  test('refreshHomeWidget (background sync) writes the current values once', () async {
+    final bridge = _FakeBridge();
+    final c = ProviderContainer(
+      overrides: [
+        homeWidgetBridgeProvider.overrideWithValue(bridge),
+        homeWidgetDataProvider.overrideWith((ref) => const {'line1': '₹500'}),
+      ],
+    );
+    addTearDown(c.dispose);
+    await refreshHomeWidget(c);
+    expect(bridge.saved, [
+      {'line1': '₹500'},
+    ]);
+  });
+
   test('widgetLabels returns the ARB texts', () {
     final l = widgetLabels();
     expect(l.brand, isNotEmpty);

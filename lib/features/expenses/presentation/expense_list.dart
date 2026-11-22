@@ -20,6 +20,9 @@ import 'package:splitify/ui/theme/theme.dart';
 class ExpenseList extends ConsumerWidget {
   const ExpenseList({required this.groupId, super.key});
 
+  /// Records shown at first and added by each "Show older".
+  static const pageSize = 100;
+
   final String groupId;
 
   @override
@@ -60,14 +63,25 @@ class ExpenseList extends ConsumerWidget {
   }
 }
 
-class _Rows extends StatelessWidget {
+/// The newest [ExpenseList.pageSize] records, then "Show older" adds a page: the group page is one scroll
+/// view, so every shown row is built and laid out on each change (T7: 2,000 expenses, S-167).
+class _Rows extends StatefulWidget {
   const _Rows({required this.views, this.payments = const []});
 
   final List<ExpenseView> views;
   final List<PaymentView> payments;
 
   @override
+  State<_Rows> createState() => _RowsState();
+}
+
+class _RowsState extends State<_Rows> {
+  int _limit = ExpenseList.pageSize;
+
+  @override
   Widget build(BuildContext context) {
+    final views = widget.views;
+    final payments = widget.payments;
     // Expenses and payments by date, newest first (both lists already are; merge keeps that).
     final items = <(String date, Widget Function(bool divider) row)>[];
     var e = 0;
@@ -85,8 +99,9 @@ class _Rows extends StatelessWidget {
       }
     }
     final children = <Widget>[];
+    final shown = items.length < _limit ? items.length : _limit;
     String? month;
-    for (var i = 0; i < items.length; i++) {
+    for (var i = 0; i < shown; i++) {
       final header = monthHeader(context, parseIsoDate(items[i].$1));
       if (header != month) {
         month = header;
@@ -94,7 +109,23 @@ class _Rows extends StatelessWidget {
       }
       final nextSameMonth =
           i + 1 < items.length && monthHeader(context, parseIsoDate(items[i + 1].$1)) == header;
-      children.add(items[i].$2(nextSameMonth));
+      children.add(items[i].$2(nextSameMonth && i + 1 < shown));
+    }
+    final hidden = items.length - shown;
+    if (hidden > 0) {
+      children.add(
+        Padding(
+          padding: const EdgeInsets.only(top: AppSpacing.s4),
+          child: PillButton(
+            key: const Key('expenses-show-older'),
+            label: AppLocalizations.of(context).expShowOlder(hidden),
+            icon: AppIcons.chevronDown,
+            variant: PillVariant.outline,
+            size: PillSize.medium,
+            onPressed: () => setState(() => _limit += ExpenseList.pageSize),
+          ),
+        ),
+      );
     }
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: children);
   }

@@ -226,6 +226,7 @@ List<Override> fixedGroupData({
   }),
   groupMembersProvider.overrideWith((ref, id) => Stream.value(members[id] ?? const [])),
   groupUnsyncedProvider.overrideWith((ref, id) => Stream.value(unsynced.contains(id))),
+  unsyncedGroupIdsProvider.overrideWith((ref) => Stream.value(unsynced)),
   deletedGroupsProvider.overrideWith((ref) => Stream.value(deleted)),
   syncOfflineProvider.overrideWith((ref) => Stream.value(offline)),
 ];

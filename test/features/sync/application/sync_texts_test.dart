@@ -97,4 +97,63 @@ void main() {
     );
     expect(empty, isNot(contains('sync:')));
   });
+
+  // TC-OFF-EDIT: where "Edit" opens each kind of refused change.
+  group('syncIssueRoute', () {
+    SyncIssue issue(
+      SyncEntity e, {
+      SyncOp op = SyncOp.upsert,
+      String? targetType,
+      String? targetId,
+    }) => SyncIssue(
+      seq: 1,
+      entity: e,
+      op: op,
+      recordId: 'r1',
+      groupId: 'g1',
+      code: 'X',
+      attempts: 1,
+      createdAt: null,
+      targetType: targetType,
+      targetId: targetId,
+    );
+
+    test('every entity opens its own screen', () {
+      expect(syncIssueRoute(issue(SyncEntity.expense)), '/expense/r1');
+      expect(syncIssueRoute(issue(SyncEntity.payment)), '/payment/r1');
+      expect(syncIssueRoute(issue(SyncEntity.group)), '/groups/r1/edit');
+      expect(syncIssueRoute(issue(SyncEntity.member)), '/groups/g1/settings');
+    });
+
+    test('comments open what they are on, or nothing when unknown', () {
+      expect(
+        syncIssueRoute(issue(SyncEntity.comment, targetType: 'expense', targetId: 'e7')),
+        '/expense/e7',
+      );
+      expect(
+        syncIssueRoute(issue(SyncEntity.comment, targetType: 'payment', targetId: 'p7')),
+        '/payment/p7',
+      );
+      expect(syncIssueRoute(issue(SyncEntity.comment)), isNull);
+      expect(syncIssueRoute(issue(SyncEntity.comment, targetType: 'group', targetId: 'x')), isNull);
+      expect(syncIssueRoute(issue(SyncEntity.comment, targetType: 'expense')), isNull);
+    });
+
+    test('a refused delete has nothing to edit', () {
+      for (final e in SyncEntity.values) {
+        expect(syncIssueRoute(issue(e, op: SyncOp.delete)), isNull, reason: e.name);
+      }
+    });
+  });
+
+  test('upload texts: waiting, retrying, skipped, kind', () {
+    SyncUpload u(int attempts, [String bucket = 'receipts']) =>
+        SyncUpload(id: 'a', bucket: bucket, recordId: 'r', attempts: attempts);
+    expect(syncUploadState(l, u(0)), l.syncUploadWaiting);
+    expect(syncUploadState(l, u(3)), l.syncUploadRetrying(3));
+    expect(syncUploadState(l, u(8)), l.syncUploadSkipped(8));
+    expect(syncUploadTitle(l, u(0)), 'Receipt photo');
+    expect(syncUploadTitle(l, u(0, 'group-covers')), 'Group cover');
+    expect(syncUploadTitle(l, u(0, 'zzz')), 'Photo');
+  });
 }

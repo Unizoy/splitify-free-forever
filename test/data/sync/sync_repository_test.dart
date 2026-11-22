@@ -2,6 +2,7 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:drift/drift.dart' show Value;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:splitify/data/local/app_database.dart';
 import 'package:splitify/data/remote/remote_api.dart';
@@ -150,6 +151,117 @@ void main() {
     expect(await db.select(db.expenses).get(), isEmpty);
     expect(await db.select(db.groups).get(), isEmpty);
     expect(await db.select(db.outbox).get(), isEmpty);
+  });
+
+  group('phase 15', () {
+    Future<void> upload(String id, {int attempts = 0, String record = 'r1'}) => db
+        .into(db.pendingUploads)
+        .insert(
+          PendingUploadsCompanion.insert(
+            id: id,
+            bucket: 'receipts',
+            localPath: 'p/$id.jpg',
+            remotePath: 'g/$id.jpg',
+            recordId: record,
+            attempts: Value(attempts),
+          ),
+        );
+
+    // TC-SYNC-OWNER: the local database belongs to one account.
+    test('adoptOwner: first owner is set, same owner keeps data, another owner wipes', () async {
+      expect(await repo.adoptOwner('u1'), isFalse);
+      expect(await db.select(db.groups).get(), isNotEmpty);
+      expect(await repo.adoptOwner('u1'), isFalse);
+      expect(await db.select(db.groups).get(), isNotEmpty);
+      expect(await engine.dao.meta(SyncRepository.ownerKey), 'u1');
+
+      expect(await repo.adoptOwner('u2'), isTrue);
+      expect(await db.select(db.groups).get(), isEmpty);
+      expect(await db.select(db.groupMembers).get(), isEmpty);
+      expect(await engine.dao.meta(SyncRepository.ownerKey), 'u2');
+      expect(await repo.adoptOwner('u2'), isFalse);
+    });
+
+    // TC-SYNC-WAITING: only work that can still go up counts.
+    test('hasWaiting: queued or retryable photo yes; failed or skipped only no', () async {
+      expect(await repo.hasWaiting(), isFalse);
+      await expenses.save(gid, data('A'));
+      expect(await repo.hasWaiting(), isTrue);
+      remote.applyScript.add(rejectAll);
+      await repo.syncNow();
+      expect((await repo.watchIssues().first), hasLength(1));
+      expect(await repo.hasWaiting(), isFalse);
+
+      await upload('u-skipped', attempts: 8);
+      expect(await repo.hasWaiting(), isFalse);
+      await upload('u-retrying', attempts: 7);
+      expect(await repo.hasWaiting(), isTrue);
+    });
+
+    test('hasWaiting: a fresh pending photo alone is waiting', () async {
+      await upload('u-new');
+      expect(await repo.hasWaiting(), isTrue);
+    });
+
+    // TC-SYNC-UPLOADS: skipped first, then by id.
+    test('watchUploads: skipped photos first, flag follows attempts', () async {
+      await upload('a', attempts: 1);
+      await upload('b', attempts: 8);
+      await upload('c');
+      final list = await repo.watchUploads().first;
+      expect(list.map((u) => u.id), ['b', 'a', 'c']);
+      expect(list.map((u) => u.skipped), [true, false, false]);
+      expect(list.first.bucket, 'receipts');
+      expect(list.first.recordId, 'r1');
+      expect(list.first, list.first);
+      expect(list.first.hashCode, list.first.hashCode);
+    });
+
+    test('retryUpload gives a skipped photo a fresh set of tries and syncs', () async {
+      await upload('b', attempts: 8);
+      final pulls = remote.pulls.length;
+      await repo.retryUpload('b');
+      final row = (await db.select(db.pendingUploads).get()).single;
+      expect(row.attempts, 0);
+      expect((await repo.watchUploads().first).single.skipped, isFalse);
+      expect(remote.pulls.length, greaterThan(pulls));
+    });
+
+    // TC-SYNC-GROUP-MARKER: one query for every group card.
+    test('watchUnsyncedGroupIds: groups with a not-synced row', () async {
+      expect(await repo.watchUnsyncedGroupIds().first, isEmpty);
+      await expenses.save(gid, data('A'));
+      expect(await repo.watchUnsyncedGroupIds().first, {gid});
+    });
+
+    test('issue targets come from the comment payload; bad payload gives none', () async {
+      await engine.queue.enqueue(
+        entity: SyncEntity.comment,
+        op: SyncOp.upsert,
+        recordId: 'c1',
+        groupId: gid,
+        data: {'target_type': 'payment', 'target_id': 'p9', 'body': 'hi'},
+        clientUpdatedAt: '2026-11-21T10:00:00Z',
+        createdAt: '2026-11-21T10:00:00Z',
+      );
+      await engine.queue.enqueue(
+        entity: SyncEntity.comment,
+        op: SyncOp.upsert,
+        recordId: 'c2',
+        groupId: gid,
+        data: {'body': 'x'},
+        clientUpdatedAt: '2026-11-21T10:00:01Z',
+        createdAt: '2026-11-21T10:00:01Z',
+      );
+      remote.applyScript.add(rejectAll);
+      await repo.syncNow();
+      await db.customStatement("UPDATE outbox SET payload = 'not json' WHERE record_id = 'c2'");
+      final issues = await repo.watchIssues().first;
+      final c1 = issues.firstWhere((i) => i.recordId == 'c1');
+      final c2 = issues.firstWhere((i) => i.recordId == 'c2');
+      expect((c1.entity, c1.targetType, c1.targetId), (SyncEntity.comment, 'payment', 'p9'));
+      expect((c2.targetType, c2.targetId), (null, null));
+    });
   });
 
   test('unconfigured remote behaves like offline', () async {

@@ -133,3 +133,19 @@ bool _same(Map<String, Object> a, Map<String, Object>? b) {
   }
   return true;
 }
+
+/// Background sync (WorkManager isolate, phase 15) has no app widget tree watching
+/// [homeWidgetSyncProvider]: after its sync it calls this once to write the widget's values.
+Future<void> refreshHomeWidget(ProviderContainer container) async {
+  final sub = container.listen(homeWidgetDataProvider, (_, _) {});
+  try {
+    // Balances come from Drift streams: give them a moment to load.
+    for (var i = 0; i < 50 && container.read(homeWidgetDataProvider) == null; i++) {
+      await Future<void>.delayed(const Duration(milliseconds: 100));
+    }
+    final data = container.read(homeWidgetDataProvider);
+    if (data != null) await container.read(homeWidgetBridgeProvider).save(data);
+  } finally {
+    sub.close();
+  }
+}
