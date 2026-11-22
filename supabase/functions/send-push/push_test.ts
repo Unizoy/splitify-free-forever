@@ -303,3 +303,78 @@ Deno.test("handleSendPush validates method and body, maps outcomes to HTTP", asy
   assertEquals(err.status, 500);
   assertEquals(await err.json(), { error: "INTERNAL" });
 });
+
+Deno.test("handleSendPush rejects bad requests with 4xx and sends nothing", async () => {
+  const db = withTokens(new FakeDb(), "a");
+  const fcm = fakeFcm();
+  const deps = { db, fcm };
+  const req = (method: string, body?: BodyInit) =>
+    new Request("http://x", { method, body });
+  const cases: [string, Request, number, string][] = [
+    ["PUT", req("PUT", "{}"), 405, "METHOD_NOT_ALLOWED"],
+    ["DELETE", req("DELETE"), 405, "METHOD_NOT_ALLOWED"],
+    ["PATCH", req("PATCH", "{}"), 405, "METHOD_NOT_ALLOWED"],
+    ["empty body", req("POST"), 400, "INVALID_BODY"],
+    ["empty string", req("POST", ""), 400, "INVALID_BODY"],
+    ["non-JSON", req("POST", "notification_id=abc"), 400, "INVALID_BODY"],
+    ["truncated JSON", req("POST", '{"notification_id":'), 400, "INVALID_BODY"],
+    ["JSON null", req("POST", "null"), 400, "INVALID_BODY"],
+    ["JSON array", req("POST", "[]"), 400, "INVALID_BODY"],
+    ["JSON string", req("POST", '"abc"'), 400, "INVALID_BODY"],
+    ["missing field", req("POST", '{"id":"x"}'), 400, "INVALID_BODY"],
+    ["number id", req("POST", '{"notification_id":42}'), 400, "INVALID_BODY"],
+    ["null id", req("POST", '{"notification_id":null}'), 400, "INVALID_BODY"],
+    [
+      "object id",
+      req("POST", '{"notification_id":{"a":1}}'),
+      400,
+      "INVALID_BODY",
+    ],
+    [
+      "array id",
+      req("POST", `{"notification_id":["${ID}"]}`),
+      400,
+      "INVALID_BODY",
+    ],
+    [
+      "non-uuid id",
+      req("POST", '{"notification_id":"abc"}'),
+      400,
+      "INVALID_BODY",
+    ],
+    [
+      "uuid plus suffix",
+      req("POST", `{"notification_id":"${ID}x"}`),
+      400,
+      "INVALID_BODY",
+    ],
+    [
+      "uuid plus newline",
+      req("POST", `{"notification_id":"${ID}\n"}`),
+      400,
+      "INVALID_BODY",
+    ],
+    [
+      "sql in id",
+      req("POST", `{"notification_id":"${ID}' or '1'='1"}`),
+      400,
+      "INVALID_BODY",
+    ],
+    [
+      "huge body",
+      req(
+        "POST",
+        JSON.stringify({ notification_id: ID, pad: "x".repeat(10000) }),
+      ),
+      413,
+      "PAYLOAD_TOO_LARGE",
+    ],
+  ];
+  for (const [name, request, status, code] of cases) {
+    const res = await handleSendPush(request, deps);
+    assertEquals(res.status, status, name);
+    assertEquals((await res.json()).error, code, name);
+  }
+  assertEquals(fcm.sent.length, 0);
+  assertEquals(db.rows.get(ID)?.push_status, "pending");
+});

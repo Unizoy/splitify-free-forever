@@ -251,3 +251,32 @@ Deno.test("handleFetchRates: POST only, JSON result, 502 on upstream, 500 on DB 
   assertEquals(broken.status, 500);
   assertEquals(await broken.json(), { error: "INTERNAL" });
 });
+
+Deno.test("handleFetchRates rejects other methods with 405 and touches neither the database nor Frankfurter", async () => {
+  for (const method of ["GET", "PUT", "PATCH", "DELETE", "OPTIONS"]) {
+    const db = new FakeDb();
+    const mock = mockFetch(latest);
+    const res = await handleFetchRates(
+      new Request("http://x", { method }),
+      { db, fetch: mock.fn, now: () => NOW },
+    );
+    assertEquals(res.status, 405, method);
+    assertEquals((await res.json()).error, "METHOD_NOT_ALLOWED", method);
+    assertEquals(res.headers.get("Allow"), "POST");
+    assertEquals(mock.urls.length, 0, method);
+  }
+});
+
+Deno.test("handleFetchRates ignores the request body: a garbage or huge POST body changes nothing", async () => {
+  for (const body of ["not json", "[]", "x".repeat(100000)]) {
+    const db = new FakeDb();
+    const mock = mockFetch(latest);
+    const res = await handleFetchRates(
+      new Request("http://x", { method: "POST", body }),
+      { db, fetch: mock.fn, now: () => NOW },
+    );
+    assertEquals(res.status, 200);
+    await res.body?.cancel();
+    assertEquals(mock.urls.length >= 1, true);
+  }
+});

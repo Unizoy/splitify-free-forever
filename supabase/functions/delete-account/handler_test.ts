@@ -217,3 +217,77 @@ Deno.test("network errors and bad list bodies answer 502", async () => {
   assertEquals(await res3.json(), { error: "AVATAR_LIST_FAILED" });
   assertEquals(badList.calls.length, 3);
 });
+
+Deno.test("bad requests are rejected 4xx before any upstream call", async () => {
+  const cases: [string, Request, number, string][] = [
+    [
+      "GET",
+      new Request("http://x", { method: "GET" }),
+      405,
+      "METHOD_NOT_ALLOWED",
+    ],
+    [
+      "PUT",
+      new Request("http://x", { method: "PUT", body: "{}" }),
+      405,
+      "METHOD_NOT_ALLOWED",
+    ],
+    [
+      "DELETE",
+      new Request("http://x", { method: "DELETE" }),
+      405,
+      "METHOD_NOT_ALLOWED",
+    ],
+    ["no Authorization", post({}, null), 401, "NOT_AUTHENTICATED"],
+    ["empty Authorization", post({}, ""), 401, "NOT_AUTHENTICATED"],
+    ["Bearer without token", post({}, "Bearer "), 401, "NOT_AUTHENTICATED"],
+    ["Basic scheme", post({}, "Basic dXNlcjpwYXNz"), 401, "NOT_AUTHENTICATED"],
+    ["two tokens", post({}, "Bearer a b"), 401, "NOT_AUTHENTICATED"],
+    ["token only", post({}, "user-jwt"), 401, "NOT_AUTHENTICATED"],
+  ];
+  for (const [name, request, status, code] of cases) {
+    const up = upstream();
+    const res = await handler(up.fetch)(request);
+    assertEquals(res.status, status, name);
+    assertEquals((await res.json()).error, code, name);
+    assertEquals(up.calls.length, 0, name);
+  }
+});
+
+Deno.test("a foreign, expired or forged JWT changes nothing; the JWT, never the body, names the user", async () => {
+  for (const status of [400, 401, 403, 404]) {
+    const up = upstream({
+      "GET /auth/v1/user": () => json({ msg: "bad jwt" }, status),
+    });
+    const res = await handler(up.fetch)(
+      post({ user_id: OTHER }, "Bearer foreign-jwt"),
+    );
+    assertEquals(res.status, 401);
+    assertEquals((await res.json()).error, "NOT_AUTHENTICATED");
+    assertEquals(up.calls.map((c) => c.method), ["GET"]);
+  }
+  // The auth server answers 200 but without a usable user id: still 401, nothing deleted.
+  for (
+    const answer of [{}, { id: 42 }, { id: "not-a-uuid" }, {
+      id: `${UID}/../${OTHER}`,
+    }, null]
+  ) {
+    const up = upstream({ "GET /auth/v1/user": () => json(answer) });
+    const res = await handler(up.fetch)(post({ user_id: OTHER }));
+    assertEquals(res.status, 401);
+    assertEquals(up.calls.length, 1);
+  }
+  // Non-JSON, huge or hostile bodies are never read: same flow, same user.
+  for (const body of ["not json", "", "x".repeat(200000)]) {
+    const up = upstream();
+    const res = await handler(up.fetch)(
+      new Request("http://x", {
+        method: "POST",
+        headers: { Authorization: "Bearer user-jwt" },
+        body,
+      }),
+    );
+    assertEquals(res.status, 200);
+    assertEquals(up.calls.some((c) => c.url.includes(OTHER)), false);
+  }
+});
