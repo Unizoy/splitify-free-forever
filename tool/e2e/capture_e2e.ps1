@@ -95,7 +95,16 @@ function Bubble-Lines {
   if ($from -lt 0) { return '' }
   return $log.Substring($from)
 }
-function Bubble-Has([string]$text) { (Bubble-Lines) -match [regex]::Escape("ui text $text") }
+function Bubble-Has([string]$text) {
+  # The view log comes right after the first layout pass: allow a few seconds.
+  for ($i = 0; $i -lt 8; $i++) {
+    if ((Bubble-Lines) -match [regex]::Escape("ui text $text")) { return $true }
+    Start-Sleep -Milliseconds 700
+  }
+  $b = Bubble-Lines
+  Write-Host "  (bubble log has no 'ui text $text'; $($b.Length) chars: $($b.Substring(0, [Math]::Min(240, $b.Length)) -replace "`n", ' | '))"
+  return $false
+}
 function Tap-Bubble([string]$label) {
   $ms = [regex]::Matches((Bubble-Lines), "ui tap $([regex]::Escape($label)) @ (\d+) (\d+)")
   if ($ms.Count -eq 0) { return $false }
@@ -255,10 +264,14 @@ try {
     Start-Sleep -Milliseconds 500
     $text = Get-Content $log -Raw -ErrorAction SilentlyContinue
     if (-not $text) { continue }
-    $marks = [regex]::Matches($text, 'E2E-GRANT|E2E-READY|UI-CAPTURE ([\w-]+)')
+    $marks = [regex]::Matches($text, 'E2E-GRANT|E2E-READY|E2E-DONE|UI-CAPTURE ([\w-]+)')
     for ($i = $handled; $i -lt $marks.Count; $i++) {
       $m = $marks[$i]
       if ($m.Value -eq 'E2E-GRANT') { Grant }
+      elseif ($m.Value -eq 'E2E-DONE') {
+        # Accessibility off before the test ends (an active service keeps a Flutter semantics handle open).
+        Adb shell settings delete secure enabled_accessibility_services | Out-Null
+      }
       elseif ($m.Value -eq 'E2E-READY') { try { Scenarios } catch { Check $false "scenario error: $_" } }
       else {
         # Light, dark and 200 % text while the test holds the screen (UI_HOLD).

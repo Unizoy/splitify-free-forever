@@ -234,8 +234,10 @@ void main() {
     await _capture(t, 'bubble-settings');
 
     // Leave the switches on for the script's screenshot stage; the next run resets the store.
+    // The script now turns smart capture's accessibility service off: while any accessibility service runs,
+    // Flutter keeps a semantics handle open and the test framework fails the test at the end.
     debugPrint('E2E-DONE');
     await t.pumpWidget(const SizedBox());
-    await _pumpFor(t, const Duration(seconds: 1));
+    await _pumpFor(t, const Duration(seconds: 8));
   }, skip: !_staged);
 }
