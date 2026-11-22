@@ -32,19 +32,33 @@ class StepBody extends StatelessWidget {
 
 /// Letter-spaced caps section label ("CATEGORY").
 class SectionLabel extends StatelessWidget {
-  const SectionLabel(this.text, {super.key});
+  const SectionLabel(this.text, {this.trailing, super.key});
 
   final String text;
 
+  /// Small widget after the label (the category's "Auto" tag).
+  final Widget? trailing;
+
   @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.only(bottom: AppSpacing.s3),
-    child: Semantics(
+  Widget build(BuildContext context) {
+    final label = Semantics(
       header: true,
       child: Text(
         text.toUpperCase(),
         style: context.text.labelCaps.copyWith(color: context.colors.textSecondary),
       ),
-    ),
-  );
+    );
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppSpacing.s3),
+      child: trailing == null
+          ? label
+          : Row(
+              children: [
+                label,
+                const SizedBox(width: AppSpacing.s2),
+                trailing!,
+              ],
+            ),
+    );
+  }
 }

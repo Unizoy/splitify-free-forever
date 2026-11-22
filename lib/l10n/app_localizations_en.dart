@@ -2222,6 +2222,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get expCategoryLabel => 'Category';
 
   @override
+  String get expCategoryAuto => 'Auto';
+
+  @override
+  String expCategoryHintLabel(String category) {
+    return 'Category: $category';
+  }
+
+  @override
+  String expCategoryAutoLabel(String category) {
+    return 'Category: $category, picked from the description';
+  }
+
+  @override
   String get expDateLabel => 'Date';
 
   @override

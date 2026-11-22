@@ -132,16 +132,18 @@ class AccountSettingsBody extends ConsumerWidget {
                 unawaited(context.push('/account/notifications'));
               },
             ),
-            AccordionRow(
-              label: l.captureRow,
-              value: (ref.watch(captureSettingsProvider).value?.enabled ?? false)
-                  ? l.captureRowOn
-                  : l.captureRowOff,
-              onTap: () {
-                Navigator.of(context).pop();
-                unawaited(context.push(CaptureRoutes.settings));
-              },
-            ),
+            // Payment bubble: only builds that have it (the `full` flavour, D-028).
+            if (ref.watch(captureBridgeProvider).supported)
+              AccordionRow(
+                label: l.captureRow,
+                value: (ref.watch(captureSettingsProvider).value?.enabled ?? false)
+                    ? l.captureRowOn
+                    : l.captureRowOff,
+                onTap: () {
+                  Navigator.of(context).pop();
+                  unawaited(context.push(CaptureRoutes.settings));
+                },
+              ),
           ],
         ),
         const SizedBox(height: AppSpacing.s3),

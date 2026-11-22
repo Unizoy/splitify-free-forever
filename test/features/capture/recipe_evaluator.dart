@@ -1,4 +1,4 @@
-// Dart port of android/app/src/main/kotlin/com/unizoy/splitify/capture/PaymentParser.kt (phase 18b, S-221/S-229).
+// Dart port of android/app/src/full/kotlin/com/unizoy/splitify/capture/PaymentParser.kt (phase 18b, S-221/S-229).
 // It proves the recipes JSON means the same in Dart's regex engine as in Java's, and that the Kotlin text rules
 // (normalising, paise, payee clean-up) are reproducible. Keep both in step.
 import 'dart:convert';
@@ -20,7 +20,7 @@ class RecipeEvaluator {
       _success = [for (final r in (json['screen']! as Map)['success'] as List) _Rule.of(r as Map)];
 
   factory RecipeEvaluator.load() => RecipeEvaluator(
-    jsonDecode(File('android/app/src/main/assets/payment_recipes.json').readAsStringSync())
+    jsonDecode(File('android/app/src/full/assets/payment_recipes.json').readAsStringSync())
         as Map<String, Object?>,
   );
 

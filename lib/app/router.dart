@@ -36,6 +36,8 @@ import 'package:splitify/features/onboarding/presentation/welcome_screen.dart';
 import 'package:splitify/features/payments/presentation/payment_routes.dart';
 import 'package:splitify/features/sync/presentation/sync_storage_screen.dart';
 import 'package:splitify/features/search/presentation/search_screen.dart' show searchRoutes;
+import 'package:splitify/features/capture/application/capture_providers.dart'
+    show captureBridgeProvider;
 import 'package:splitify/features/capture/presentation/capture_routes.dart' show captureRoutes;
 
 /// Route paths (planning/07-screens-and-flows.md §1).
@@ -140,8 +142,13 @@ class AuthGate extends ChangeNotifier {
 final _rootKey = GlobalKey<NavigatorState>(debugLabel: 'root');
 
 /// Builds the app router. [initialLocation] is for tests; without a [gate]
-/// there are no auth redirects (screenshots, widget tests).
-GoRouter buildRouter({String initialLocation = Routes.welcome, AuthGate? gate}) => GoRouter(
+/// there are no auth redirects (screenshots, widget tests). [capture] = false leaves out the payment
+/// bubble's routes (builds without it, D-028).
+GoRouter buildRouter({
+  String initialLocation = Routes.welcome,
+  AuthGate? gate,
+  bool capture = true,
+}) => GoRouter(
   navigatorKey: _rootKey,
   initialLocation: initialLocation,
   refreshListenable: gate,
@@ -270,7 +277,7 @@ GoRouter buildRouter({String initialLocation = Routes.welcome, AuthGate? gate}) 
     ...friendRoutes(),
     ...searchRoutes(),
     ...notificationRoutes(),
-    ...captureRoutes(),
+    if (capture) ...captureRoutes(),
     ...importRoutes(),
     ...securityRoutes(),
     if (kDebugMode) ...[
@@ -290,7 +297,7 @@ final routerProvider = Provider<GoRouter>((ref) {
     signedIn: auth.currentUser != null,
     changes: auth.authStateChanges().map((u) => u != null),
   );
-  final router = buildRouter(gate: gate);
+  final router = buildRouter(gate: gate, capture: ref.read(captureBridgeProvider).supported);
   ref.onDispose(() {
     router.dispose();
     gate.dispose();

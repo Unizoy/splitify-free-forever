@@ -17,6 +17,21 @@ const maxNotes = 1000;
 /// Why the description cannot be saved.
 enum DescriptionProblem { missing, tooLong }
 
+/// Where the draft's category came from (auto-category, D-028).
+enum CategoryOrigin {
+  /// A new expense's starting category (the group's last one); typing a description may replace it.
+  initial,
+
+  /// Suggested from the description; follows further typing.
+  auto,
+
+  /// Picked by the user in this edit: it sticks, and is learned on save.
+  manual,
+
+  /// The saved expense's (or template's) own category: never changed automatically.
+  saved,
+}
+
 /// Result of checking "Multiple people" payer amounts against the total (#10, 05 §4 Payers).
 sealed class PayersCheck {
   const PayersCheck();
@@ -58,13 +73,15 @@ final class ExpenseDraft {
     this.amountText = '',
     this.description = '',
     this.category = 'other.general',
+    this.categoryOrigin = CategoryOrigin.saved,
+    String? baseCategory,
     this.notes = '',
     this.receipt = const ReceiptDraft.none(),
     this.repeat = RepeatDraft.never,
     this.canRepeat = false,
     this.templateId,
     this.captureId,
-  });
+  }) : baseCategory = baseCategory ?? category;
 
   final String groupId;
   final String groupName;
@@ -91,6 +108,12 @@ final class ExpenseDraft {
   final String amountText;
   final String description;
   final String category;
+
+  /// How [category] was chosen; only [CategoryOrigin.initial] and [CategoryOrigin.auto] follow the description.
+  final CategoryOrigin categoryOrigin;
+
+  /// The category to go back to when the description stops matching anything (the starting one).
+  final String baseCategory;
   final String notes;
 
   /// Receipt photo: unchanged, newly picked or removed (#29).
@@ -111,6 +134,13 @@ final class ExpenseDraft {
   final String? captureId;
 
   bool get isEdit => expenseId != null;
+
+  /// Typing the description may still change the category (a new expense whose category was not picked).
+  bool get categoryFollowsDescription =>
+      categoryOrigin == CategoryOrigin.initial || categoryOrigin == CategoryOrigin.auto;
+
+  /// The category shown was suggested from the description ("Auto" hint).
+  bool get categoryIsAuto => categoryOrigin == CategoryOrigin.auto;
 
   bool get isTemplate => templateId != null;
 
@@ -264,6 +294,8 @@ final class ExpenseDraft {
     amountText: amountText,
     description: description,
     category: category,
+    categoryOrigin: categoryOrigin,
+    baseCategory: baseCategory,
     notes: notes,
     receipt: receipt,
     repeat: repeat,
@@ -271,6 +303,24 @@ final class ExpenseDraft {
     templateId: templateId,
     captureId: captureId,
   );
+
+  /// The user picked [key] in the category picker: it sticks for this edit (and is learned on save).
+  ExpenseDraft pickCategory(String key) =>
+      _copy(payerId: payerId, payerText: payerText, category: key, origin: CategoryOrigin.manual);
+
+  /// The description now suggests [key] (null: nothing): applied only while [categoryFollowsDescription];
+  /// without a suggestion the starting category comes back.
+  ExpenseDraft withSuggestedCategory(String? key) {
+    if (!categoryFollowsDescription) return this;
+    return key == null
+        ? _copy(
+            payerId: payerId,
+            payerText: payerText,
+            category: baseCategory,
+            origin: CategoryOrigin.initial,
+          )
+        : _copy(payerId: payerId, payerText: payerText, category: key, origin: CategoryOrigin.auto);
+  }
 
   /// One payer for the whole amount.
   ExpenseDraft withSinglePayer(String id) => _copy(payerId: id, payerText: payerText);
@@ -314,6 +364,7 @@ final class ExpenseDraft {
     String? notes,
     ReceiptDraft? receipt,
     RepeatDraft? repeat,
+    CategoryOrigin? origin,
   }) => ExpenseDraft(
     groupId: groupId,
     groupName: groupName,
@@ -328,6 +379,8 @@ final class ExpenseDraft {
     amountText: amountText ?? this.amountText,
     description: description ?? this.description,
     category: category ?? this.category,
+    categoryOrigin: origin ?? categoryOrigin,
+    baseCategory: baseCategory,
     notes: notes ?? this.notes,
     receipt: receipt ?? this.receipt,
     repeat: repeat ?? this.repeat,

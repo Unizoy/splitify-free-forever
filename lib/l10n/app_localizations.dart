@@ -3614,6 +3614,24 @@ abstract class AppLocalizations {
   /// **'Category'**
   String get expCategoryLabel;
 
+  /// Tiny tag beside a category that was picked from the description (auto-category). Keep it one short word.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto'**
+  String get expCategoryAuto;
+
+  /// Screen-reader label of the category chip under the description.
+  ///
+  /// In en, this message translates to:
+  /// **'Category: {category}'**
+  String expCategoryHintLabel(String category);
+
+  /// Screen-reader label of the category chip when the category was suggested from the description.
+  ///
+  /// In en, this message translates to:
+  /// **'Category: {category}, picked from the description'**
+  String expCategoryAutoLabel(String category);
+
   /// No description provided for @expDateLabel.
   ///
   /// In en, this message translates to:

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:logging/logging.dart';
+import 'package:splitify/core/config/build_flavor.dart';
 import 'package:splitify/domain/entities/payment_capture.dart';
 
 final _log = Logger('capture');
@@ -43,8 +44,9 @@ class MethodChannelCaptureBridge implements CaptureBridge {
 
   final MethodChannel _ch;
 
+  /// Android builds of the `full` flavour (D-028); the `standard` flavour's channel only opens system screens.
   @override
-  bool get supported => defaultTargetPlatform == TargetPlatform.android;
+  bool get supported => BuildFlavor.capture && defaultTargetPlatform == TargetPlatform.android;
 
   Future<Map<String, Object?>> _json(String method, [Map<String, Object?>? args]) async {
     final s = await _ch.invokeMethod<String>(method, args);

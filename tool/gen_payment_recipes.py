@@ -1,4 +1,4 @@
-# Generates android/app/src/main/assets/payment_recipes.json (phase 18b, S-221): python tool/gen_payment_recipes.py android/app/src/main/assets/payment_recipes.json
+# Generates android/app/src/full/assets/payment_recipes.json (phase 18b, S-221): python tool/gen_payment_recipes.py android/app/src/full/assets/payment_recipes.json
 # Patterns are written raw here and dumped as JSON; edit here or in the JSON, then run both vector tests.
 import json, sys
 CUR = r"(?:₹|\brs\.?|\binr) ?"

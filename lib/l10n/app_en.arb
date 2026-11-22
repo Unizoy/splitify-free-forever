@@ -778,6 +778,20 @@
   "expErrGeneric": "This split doesn't add up yet",
   "expDetailsQuestion": "A few details",
   "expCategoryLabel": "Category",
+  "expCategoryAuto": "Auto",
+  "@expCategoryAuto": {
+    "description": "Tiny tag beside a category that was picked from the description (auto-category). Keep it one short word."
+  },
+  "expCategoryHintLabel": "Category: {category}",
+  "@expCategoryHintLabel": {
+    "description": "Screen-reader label of the category chip under the description.",
+    "placeholders": {"category": {"type": "String"}}
+  },
+  "expCategoryAutoLabel": "Category: {category}, picked from the description",
+  "@expCategoryAutoLabel": {
+    "description": "Screen-reader label of the category chip when the category was suggested from the description.",
+    "placeholders": {"category": {"type": "String"}}
+  },
   "expDateLabel": "Date",
   "expNotesLabel": "Notes",
   "expNotesHint": "Anything worth remembering",
