@@ -381,7 +381,7 @@ class _Link extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Semantics(
     button: true,
-    child: InkWell(
+    child: Pressable(
       onTap: onTap,
       borderRadius: AppRadii.allPill,
       child: ConstrainedBox(

@@ -126,7 +126,7 @@ class _SettleUpScreenState extends ConsumerState<SettleUpScreen> {
     if (d == null) {
       return Scaffold(
         appBar: AppBar(
-          leading: IconButton(
+          leading: AppIconButton(
             tooltip: l.back,
             icon: const Icon(AppIcons.back),
             onPressed: () => Navigator.of(context).maybePop(),
@@ -168,7 +168,7 @@ class _SettleUpScreenState extends ConsumerState<SettleUpScreen> {
             children: [
               Align(
                 alignment: AlignmentDirectional.centerStart,
-                child: IconButton(
+                child: AppIconButton(
                   tooltip: l.back,
                   icon: const Icon(AppIcons.back),
                   onPressed: () => Navigator.of(context).maybePop(),
@@ -430,7 +430,7 @@ class _Person extends StatelessWidget {
     button: true,
     label: tooltip,
     excludeSemantics: true,
-    child: InkWell(
+    child: Pressable(
       onTap: onTap,
       borderRadius: AppRadii.all16,
       child: Padding(

@@ -165,32 +165,32 @@ class PressMotion {
   double get value => controller.value;
 
   /// Finger down.
-  void down(AppMotion m) {
+  void down(AppMotion motion) {
     _down = true;
-    if (m.reduced) {
+    if (motion.reduced) {
       controller.value = 1;
       return;
     }
-    controller.animateTo(1, duration: m.press, curve: Curves.easeOut).then((_) {
-      if (!_down) _release(m);
+    controller.animateTo(1, duration: motion.press, curve: Curves.easeOut).then((_) {
+      if (!_down) _release(motion);
     }, onError: (Object _) {});
   }
 
   /// Finger up or cancelled.
-  void up(AppMotion m) {
+  void up(AppMotion motion) {
     _down = false;
-    if (!controller.isAnimating) _release(m);
+    if (!controller.isAnimating) _release(motion);
   }
 
   /// [down] or [up] from a pressed flag (icon buttons report a pressed state).
-  void set(AppMotion m, {required bool pressed}) => pressed ? down(m) : up(m);
+  void set(AppMotion motion, {required bool pressed}) => pressed ? down(motion) : up(motion);
 
-  void _release(AppMotion m) {
-    if (m.reduced) {
+  void _release(AppMotion motion) {
+    if (motion.reduced) {
       controller.value = 0;
       return;
     }
-    unawaited(controller.animateBack(0, duration: m.release, curve: m.spring));
+    unawaited(controller.animateBack(0, duration: motion.release, curve: motion.spring));
   }
 
   void dispose() => controller.dispose();

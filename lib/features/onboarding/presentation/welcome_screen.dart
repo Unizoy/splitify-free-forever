@@ -94,7 +94,7 @@ class WelcomeScreen extends StatelessWidget {
                                       style: context.text.heroDisplay.copyWith(
                                         color: c.owedOnDark,
                                         fontStyle: FontStyle.italic,
-                                        fontSize: 52,
+                                        fontSize: 46,
                                       ),
                                     ),
                                   ],
@@ -102,7 +102,7 @@ class WelcomeScreen extends StatelessWidget {
                                 textAlign: TextAlign.center,
                                 style: context.text.heroDisplay.copyWith(
                                   color: c.onHero,
-                                  fontSize: 52,
+                                  fontSize: 46,
                                   height: 1.05,
                                 ),
                               ),

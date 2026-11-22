@@ -86,7 +86,7 @@ class _SyncStorageScreenState extends ConsumerState<SyncStorageScreen> {
     final syncing = _syncing || s?.phase == SyncPhase.syncing;
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
+        leading: AppIconButton(
           tooltip: l.back,
           icon: const Icon(AppIcons.back),
           onPressed: () => Navigator.of(context).maybePop(),

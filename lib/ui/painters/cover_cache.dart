@@ -92,9 +92,18 @@ class CoverArt extends StatefulWidget {
   State<CoverArt> createState() => _CoverArtState();
 }
 
+/// Below this, [CoverArt] paints directly instead of caching (hero flights change its size every frame).
+class CoverCacheOff extends InheritedWidget {
+  const CoverCacheOff({required super.child, super.key});
+
+  @override
+  bool updateShouldNotify(CoverCacheOff old) => false;
+}
+
 class _CoverArtState extends State<CoverArt> {
   @override
   Widget build(BuildContext context) {
+    final cache = widget.cache && context.getInheritedWidgetOfExactType<CoverCacheOff>() == null;
     final painter = CoverPainter(
       seed: widget.seed,
       family: widget.family,
@@ -106,7 +115,7 @@ class _CoverArtState extends State<CoverArt> {
       child: LayoutBuilder(
         builder: (context, constraints) {
           final size = constraints.biggest;
-          if (!widget.cache || !size.isFinite) {
+          if (!cache || !size.isFinite) {
             return CustomPaint(painter: painter, size: size.isFinite ? size : Size.zero);
           }
           final dpr = MediaQuery.devicePixelRatioOf(context);

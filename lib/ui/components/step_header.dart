@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:splitify/l10n/app_localizations.dart';
+import 'package:splitify/ui/components/app_icon_button.dart';
 import 'package:splitify/ui/components/pressable.dart';
 import 'package:splitify/ui/components/status_pill.dart';
 import 'package:splitify/ui/theme/theme.dart';
@@ -59,7 +60,7 @@ class StepHeader extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  IconButton(
+                  AppIconButton(
                     onPressed: onBack ?? () => Navigator.maybePop(context),
                     tooltip: l.back,
                     icon: Icon(AppIcons.back, color: c.textPrimary),
@@ -72,7 +73,7 @@ class StepHeader extends StatelessWidget {
                       ),
                     ),
                   ),
-                  IconButton(
+                  AppIconButton(
                     onPressed: onHome,
                     tooltip: l.home,
                     icon: Container(

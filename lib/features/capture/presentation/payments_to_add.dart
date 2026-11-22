@@ -52,13 +52,13 @@ class PaymentsToAddPill extends ConsumerWidget {
         button: true,
         label: l.paymentsToAdd(n),
         excludeSemantics: true,
-        child: Material(
-          color: c.money,
+        child: Pressable(
+          key: const Key('payments-to-add-pill'),
+          onTap: () => unawaited(showPaymentsToAdd(context)),
           borderRadius: AppRadii.allPill,
-          child: InkWell(
-            key: const Key('payments-to-add-pill'),
+          child: Material(
+            color: c.money,
             borderRadius: AppRadii.allPill,
-            onTap: () => unawaited(showPaymentsToAdd(context)),
             child: ConstrainedBox(
               constraints: const BoxConstraints(minHeight: AppSpacing.minTouch),
               child: Padding(

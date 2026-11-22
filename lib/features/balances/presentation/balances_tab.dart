@@ -287,8 +287,9 @@ class TransferRow extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        InkWell(
+        Pressable(
           onTap: open,
+          scale: AppMotion.rowPressScale,
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: AppSpacing.s4),
             child: Row(
@@ -370,7 +371,7 @@ class _LinkButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Semantics(
     button: true,
-    child: InkWell(
+    child: Pressable(
       onTap: onTap,
       borderRadius: AppRadii.allPill,
       child: ConstrainedBox(
@@ -405,39 +406,41 @@ class BalancesSkeleton extends StatelessWidget {
     );
     return Semantics(
       label: l.loading,
-      child: Column(
-        children: [
-          const SizedBox(height: AppSpacing.s4),
-          Container(
-            height: 88,
-            decoration: BoxDecoration(color: fill, borderRadius: AppRadii.all24),
-          ),
-          const SizedBox(height: AppSpacing.s6),
-          for (var i = 0; i < 3; i++)
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: AppSpacing.s4),
-              child: Row(
-                children: [
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(color: fill, shape: BoxShape.circle),
-                  ),
-                  const SizedBox(width: AppSpacing.s3),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        bar(150, 14),
-                        const SizedBox(height: AppSpacing.s2),
-                        bar(80, 12),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+      child: Shimmer(
+        child: Column(
+          children: [
+            const SizedBox(height: AppSpacing.s4),
+            Container(
+              height: 88,
+              decoration: BoxDecoration(color: fill, borderRadius: AppRadii.all24),
             ),
-        ],
+            const SizedBox(height: AppSpacing.s6),
+            for (var i = 0; i < 3; i++)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: AppSpacing.s4),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(color: fill, shape: BoxShape.circle),
+                    ),
+                    const SizedBox(width: AppSpacing.s3),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          bar(150, 14),
+                          const SizedBox(height: AppSpacing.s2),
+                          bar(80, 12),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }

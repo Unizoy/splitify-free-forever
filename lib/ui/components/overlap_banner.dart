@@ -42,7 +42,7 @@ class OverlapBanner extends StatelessWidget {
               children: [
                 Text(line1, style: context.text.body.copyWith(color: fg.withValues(alpha: 0.9))),
                 const SizedBox(height: 2),
-                Text(line2, style: context.text.title.w(700).copyWith(color: fg, fontSize: 22)),
+                Text(line2, style: context.text.title.w(700).copyWith(color: fg, fontSize: 20)),
               ],
             ),
           ),

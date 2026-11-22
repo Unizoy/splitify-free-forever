@@ -152,12 +152,12 @@ class _CurrencyChip extends StatelessWidget {
       button: true,
       label: l.expCurrencyLabel(code),
       excludeSemantics: true,
-      child: Material(
-        color: c.primaryContainer,
-        shape: const StadiumBorder(),
-        child: InkWell(
-          onTap: onTap,
-          customBorder: const StadiumBorder(),
+      child: Pressable(
+        onTap: onTap,
+        borderRadius: AppRadii.allPill,
+        child: Material(
+          color: c.primaryContainer,
+          shape: const StadiumBorder(),
           child: ConstrainedBox(
             constraints: const BoxConstraints(minHeight: 36, minWidth: AppSpacing.minTouch),
             child: Padding(
@@ -277,19 +277,19 @@ class _Key extends StatelessWidget {
       enabled: enabled,
       label: label,
       excludeSemantics: true,
-      child: Material(
-        color: op ? c.surfaceMuted : c.surface,
+      child: Pressable(
+        key: Key('key-${keyValue.name}'),
+        onTap: enabled
+            ? () {
+                HapticFeedback.selectionClick();
+                onTap();
+              }
+            : null,
+        onLongPress: onLongPress,
         borderRadius: AppRadii.all16,
-        child: InkWell(
-          key: Key('key-${keyValue.name}'),
+        child: Material(
+          color: op ? c.surfaceMuted : c.surface,
           borderRadius: AppRadii.all16,
-          onTap: enabled
-              ? () {
-                  HapticFeedback.selectionClick();
-                  onTap();
-                }
-              : null,
-          onLongPress: onLongPress,
           child: SizedBox(height: 52, child: Center(child: face)),
         ),
       ),

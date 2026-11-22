@@ -56,7 +56,7 @@ class NotificationSettingsScreen extends ConsumerWidget {
           children: [
             Align(
               alignment: AlignmentDirectional.centerStart,
-              child: IconButton(
+              child: AppIconButton(
                 tooltip: l.back,
                 icon: const Icon(AppIcons.back),
                 onPressed: () => Navigator.of(context).maybePop(),

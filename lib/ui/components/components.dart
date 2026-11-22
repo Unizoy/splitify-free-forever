@@ -25,6 +25,7 @@ export 'fade_through_stack.dart';
 export 'folder_tabs.dart';
 export 'glass_card.dart';
 export 'group_cover_card.dart';
+export 'hero_flight.dart';
 export 'hero_header.dart';
 export 'icon_chip.dart';
 export 'metal_card.dart';

@@ -15,6 +15,7 @@ class AnimatedAmount extends StatefulWidget {
     this.style,
     this.textAlign,
     this.maxLines,
+    this.textKey,
     super.key,
   });
 
@@ -24,6 +25,9 @@ class AnimatedAmount extends StatefulWidget {
   final TextStyle? style;
   final TextAlign? textAlign;
   final int? maxLines;
+
+  /// Key for the inner [Text] (tests read its data).
+  final Key? textKey;
 
   @override
   State<AnimatedAmount> createState() => _AnimatedAmountState();
@@ -76,6 +80,7 @@ class _AnimatedAmountState extends State<AnimatedAmount> with SingleTickerProvid
       child: AnimatedBuilder(
         animation: _c,
         builder: (context, _) => Text(
+          key: widget.textKey,
           _c.isAnimating ? widget.format(_value) : finalText,
           style: widget.style,
           textAlign: widget.textAlign,

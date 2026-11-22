@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:splitify/l10n/app_localizations.dart';
+import 'package:splitify/ui/components/hero_flight.dart';
 import 'package:splitify/ui/components/money_tone.dart';
 import 'package:splitify/ui/components/pressable.dart';
 import 'package:splitify/ui/components/sync_marker.dart';
@@ -21,6 +22,7 @@ class GroupCoverCard extends StatelessWidget {
     this.photo,
     this.unsynced = false,
     this.onTap,
+    this.heroTag,
     super.key,
   });
 
@@ -57,6 +59,9 @@ class GroupCoverCard extends StatelessWidget {
     CoverFamily.direct => AppIcons.typeDirect,
   };
 
+  /// Flies into the group page's hero ([AppHeroTags.group]); null for no flight.
+  final Object? heroTag;
+
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
@@ -74,70 +79,76 @@ class GroupCoverCard extends StatelessWidget {
         onTap: onTap,
         borderRadius: AppRadii.all28,
         // The press only scales the cached layer; the card itself is not re-recorded.
-        child: RepaintBoundary(
-          child: ClipRRect(
-            borderRadius: AppRadii.all28,
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                if (photo != null) ...[
-                  Image(image: photo!, fit: BoxFit.cover),
-                  const _BottomShade(),
-                ] else
-                  CoverArt(seed: seed, family: family),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(
-                    AppSpacing.s4,
-                    AppSpacing.s4,
-                    AppSpacing.s4,
-                    AppSpacing.s4,
-                  ),
-                  child: Column(
-                    children: [
-                      if (unsynced)
-                        const Align(alignment: AlignmentDirectional.topEnd, child: _UnsyncedDot()),
-                      const Spacer(),
-                      Container(
-                        width: 30,
-                        height: 30,
-                        decoration: BoxDecoration(
-                          color: c.onHero.withValues(alpha: 0.92),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(iconFor(family), size: 16, color: AppPalette.black),
-                      ),
-                      const SizedBox(height: AppSpacing.s2),
-                      WordFitText(
-                        name.toUpperCase(),
-                        textAlign: TextAlign.center,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: context.text.cardTitle.copyWith(color: c.onHero),
-                      ),
-                      const SizedBox(height: AppSpacing.s3),
-                      Divider(height: 1, thickness: 1, color: c.onHero.withValues(alpha: 0.22)),
-                      const SizedBox(height: AppSpacing.s3),
-                      _Footer(
-                        label: Text(
-                          statusLabel.toUpperCase(),
-                          maxLines: 2,
-                          style: context.text.labelCaps.copyWith(
-                            color: c.onHero.withValues(alpha: 0.7),
-                            letterSpacing: 1.2,
-                            fontSize: 11,
+        child: _maybeHero(
+          heroTag,
+          RepaintBoundary(
+            child: ClipRRect(
+              borderRadius: AppRadii.all28,
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  if (photo != null) ...[
+                    Image(image: photo!, fit: BoxFit.cover),
+                    const _BottomShade(),
+                  ] else
+                    CoverArt(seed: seed, family: family),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(
+                      AppSpacing.s4,
+                      AppSpacing.s4,
+                      AppSpacing.s4,
+                      AppSpacing.s4,
+                    ),
+                    child: Column(
+                      children: [
+                        if (unsynced)
+                          const Align(
+                            alignment: AlignmentDirectional.topEnd,
+                            child: _UnsyncedDot(),
                           ),
+                        const Spacer(),
+                        Container(
+                          width: 30,
+                          height: 30,
+                          decoration: BoxDecoration(
+                            color: c.onHero.withValues(alpha: 0.92),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(iconFor(family), size: 16, color: AppPalette.black),
                         ),
-                        amount: amountText == null
-                            ? null
-                            : Text(
-                                amountText!,
-                                style: context.text.amount.w(700).copyWith(color: amountColor),
-                              ),
-                      ),
-                    ],
+                        const SizedBox(height: AppSpacing.s2),
+                        WordFitText(
+                          name.toUpperCase(),
+                          textAlign: TextAlign.center,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: context.text.cardTitle.copyWith(color: c.onHero),
+                        ),
+                        const SizedBox(height: AppSpacing.s3),
+                        Divider(height: 1, thickness: 1, color: c.onHero.withValues(alpha: 0.22)),
+                        const SizedBox(height: AppSpacing.s3),
+                        _Footer(
+                          label: Text(
+                            statusLabel.toUpperCase(),
+                            maxLines: 2,
+                            style: context.text.labelCaps.copyWith(
+                              color: c.onHero.withValues(alpha: 0.7),
+                              letterSpacing: 1.2,
+                              fontSize: 11,
+                            ),
+                          ),
+                          amount: amountText == null
+                              ? null
+                              : Text(
+                                  amountText!,
+                                  style: context.text.amount.w(700).copyWith(color: amountColor),
+                                ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
@@ -229,3 +240,6 @@ class _Footer extends StatelessWidget {
     );
   }
 }
+
+Widget _maybeHero(Object? tag, Widget child) =>
+    tag == null ? child : Hero(tag: tag, flightShuttleBuilder: coverHeroShuttle, child: child);

@@ -41,7 +41,7 @@ class PaymentDetailScreen extends ConsumerWidget {
     if (v == null) {
       return Scaffold(
         appBar: AppBar(
-          leading: IconButton(
+          leading: AppIconButton(
             tooltip: l.back,
             icon: const Icon(AppIcons.back),
             onPressed: () => Navigator.of(context).maybePop(),
@@ -181,12 +181,7 @@ class _Hero extends ConsumerWidget {
               MoneyFormatter.detail.format(p.amount, p.currency.trim()),
               key: const Key('payment-detail-amount'),
               maxLines: 1,
-              style: context.text.heroDisplay.copyWith(
-                color: c.onHero,
-                // Instrument Serif has no ₹ glyph: the symbol falls back to Inter (S-085).
-                fontFamilyFallback: const [AppFonts.sans],
-                fontFeatures: const [FontFeature.tabularFigures()],
-              ),
+              style: context.text.amountHero.copyWith(color: c.onHero),
             ),
           ),
           const SizedBox(height: AppSpacing.s4),

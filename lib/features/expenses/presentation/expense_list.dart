@@ -49,7 +49,9 @@ class ExpenseList extends ConsumerWidget {
           ],
         ),
       ),
-      AsyncData(:final value) => _Rows(views: value, payments: payments),
+      AsyncData(:final value) => EntranceScope(
+        child: _Rows(views: value, payments: payments),
+      ),
       AsyncError() => Padding(
         padding: const EdgeInsets.symmetric(vertical: AppSpacing.s8),
         child: EmptyState(
@@ -93,7 +95,7 @@ class _RowsState extends State<_Rows> {
           (e < views.length && views[e].expense.date.compareTo(payments[p].payment.date) >= 0);
       if (takeExpense) {
         final v = views[e++];
-        items.add((v.expense.date, (d) => ExpenseRow(view: v, showDivider: d)));
+        items.add((v.expense.date, (d) => ExpenseRow(view: v, showDivider: d, hero: true)));
       } else {
         final v = payments[p++];
         items.add((v.payment.date, (d) => PaymentRow(view: v, showDivider: d)));
@@ -142,12 +144,14 @@ class _RowsState extends State<_Rows> {
     if (widget.sliver) {
       return SliverList.builder(
         itemCount: entries.length,
-        itemBuilder: (context, i) => entries[i](context),
+        itemBuilder: (context, i) => Entrance(index: i, child: entries[i](context)),
       );
     }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [for (final build in entries) build(context)],
+      children: [
+        for (final (i, build) in entries.indexed) Entrance(index: i, child: build(context)),
+      ],
     );
   }
 }
@@ -164,10 +168,9 @@ class ExpenseListSliver extends ConsumerWidget {
     final views = ref.watch(groupExpenseViewsProvider(groupId));
     final payments = ref.watch(groupPaymentViewsProvider(groupId)).value ?? const <PaymentView>[];
     return switch (views) {
-      AsyncData(:final value) when value.isNotEmpty || payments.isNotEmpty => _Rows(
-        views: value,
-        payments: payments,
-        sliver: true,
+      // The first rows rise in once when the list shows (S-265); later rebuilds just appear.
+      AsyncData(:final value) when value.isNotEmpty || payments.isNotEmpty => EntranceScope(
+        child: _Rows(views: value, payments: payments, sliver: true),
       ),
       _ => SliverToBoxAdapter(child: ExpenseList(groupId: groupId)),
     };
@@ -196,10 +199,19 @@ class _MonthHeader extends StatelessWidget {
 /// One expense in the list: category circle, description, "Rahul paid ₹1,200 · 21 Nov", and the
 /// viewer's side on the right.
 class ExpenseRow extends StatelessWidget {
-  const ExpenseRow({required this.view, this.showDivider = true, this.groupName, super.key});
+  const ExpenseRow({
+    required this.view,
+    this.showDivider = true,
+    this.groupName,
+    this.hero = false,
+    super.key,
+  });
 
   final ExpenseView view;
   final bool showDivider;
+
+  /// The icon flies into the expense page (one row per expense on the screen, e.g. the group list).
+  final bool hero;
 
   /// Named in the caption when rows of several groups are listed (search results).
   final String? groupName;
@@ -242,9 +254,12 @@ class ExpenseRow extends StatelessWidget {
                     label: l.receiptOnList,
                     child: Icon(AppIcons.image, size: 16, color: context.colors.textTertiary),
                   )),
-      leading: view.isLoan
-          ? TintedIcon(icon: AppIcons.loanFill, color: context.colors.primary, size: 44)
-          : TintedIcon.category(categoryOf(e.category), size: 44),
+      leading: _heroIcon(
+        hero ? AppHeroTags.expense(e.id) : null,
+        view.isLoan
+            ? TintedIcon(icon: AppIcons.loanFill, color: context.colors.primary, size: 44)
+            : TintedIcon.category(categoryOf(e.category), size: 44),
+      ),
       onTap: () => unawaited(context.push(ExpenseRoutes.detail(e.id))),
     );
   }
@@ -286,35 +301,39 @@ class _Skeleton extends StatelessWidget {
     );
     return Semantics(
       label: l.loading,
-      child: Column(
-        children: [
-          for (var i = 0; i < 3; i++)
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: AppSpacing.s4),
-              child: Row(
-                children: [
-                  Container(
-                    width: 44,
-                    height: 44,
-                    decoration: BoxDecoration(color: fill, shape: BoxShape.circle),
-                  ),
-                  const SizedBox(width: AppSpacing.s3),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        bar(160, 14),
-                        const SizedBox(height: AppSpacing.s2),
-                        bar(110, 10),
-                      ],
+      child: Shimmer(
+        child: Column(
+          children: [
+            for (var i = 0; i < 3; i++)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: AppSpacing.s4),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 44,
+                      height: 44,
+                      decoration: BoxDecoration(color: fill, shape: BoxShape.circle),
                     ),
-                  ),
-                  bar(56, 14),
-                ],
+                    const SizedBox(width: AppSpacing.s3),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          bar(160, 14),
+                          const SizedBox(height: AppSpacing.s2),
+                          bar(110, 10),
+                        ],
+                      ),
+                    ),
+                    bar(56, 14),
+                  ],
+                ),
               ),
-            ),
-        ],
+          ],
+        ),
       ),
     );
   }
 }
+
+Widget _heroIcon(Object? tag, Widget icon) => tag == null ? icon : Hero(tag: tag, child: icon);

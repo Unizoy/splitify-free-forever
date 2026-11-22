@@ -125,7 +125,7 @@ class _InviteSheetBodyState extends ConsumerState<InviteSheetBody> {
               ),
             ),
             const SizedBox(width: AppSpacing.s1),
-            IconButton(
+            AppIconButton(
               tooltip: l.copyCode,
               icon: Icon(AppIcons.copy, color: c.primary),
               onPressed: () async {

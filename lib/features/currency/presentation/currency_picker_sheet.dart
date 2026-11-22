@@ -179,7 +179,7 @@ class CurrencyRow extends StatelessWidget {
       selected: selected,
       label: selected ? '$label, ${l.curSelected}' : label,
       excludeSemantics: true,
-      child: InkWell(
+      child: Pressable(
         onTap: onTap,
         borderRadius: AppRadii.all16,
         child: ConstrainedBox(
@@ -249,12 +249,12 @@ class CurrencyChip extends StatelessWidget {
       button: onTap != null,
       label: l.expCurrencyLabel(code),
       excludeSemantics: true,
-      child: Material(
-        color: c.primaryContainer,
-        shape: const StadiumBorder(),
-        child: InkWell(
-          onTap: onTap,
-          customBorder: const StadiumBorder(),
+      child: Pressable(
+        onTap: onTap,
+        borderRadius: AppRadii.allPill,
+        child: Material(
+          color: c.primaryContainer,
+          shape: const StadiumBorder(),
           child: ConstrainedBox(
             constraints: const BoxConstraints(minHeight: 36, minWidth: AppSpacing.minTouch),
             child: Padding(

@@ -96,3 +96,46 @@ class _EntranceState extends State<Entrance> with SingleTickerProviderStateMixin
     );
   }
 }
+
+/// Fades its child in once when it first builds (220 ms): the content of a newly picked in-page tab
+/// (S-263). Give it a key per tab so a switch replays it. [sliver] for sliver children.
+class FadeIn extends StatefulWidget {
+  const FadeIn({required this.child, this.sliver = false, super.key});
+
+  final Widget child;
+  final bool sliver;
+
+  @override
+  State<FadeIn> createState() => _FadeInState();
+}
+
+class _FadeInState extends State<FadeIn> with SingleTickerProviderStateMixin {
+  late final _c = AnimationController(vsync: this);
+  late final _t = CurvedAnimation(parent: _c, curve: Curves.easeOut);
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_c.isAnimating || _c.isCompleted) return;
+    final motion = context.motion;
+    if (motion.reduced) {
+      _c.value = 1;
+    } else {
+      _c
+        ..duration = motion.tab
+        ..forward();
+    }
+  }
+
+  @override
+  void dispose() {
+    _t.dispose();
+    _c.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.sliver
+      ? SliverFadeTransition(opacity: _t, sliver: widget.child)
+      : FadeTransition(opacity: _t, child: widget.child);
+}

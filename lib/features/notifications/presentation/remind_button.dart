@@ -6,6 +6,7 @@ import 'package:splitify/data/data_providers.dart';
 import 'package:splitify/data/remote/notifications_remote.dart';
 import 'package:splitify/features/notifications/application/reminders.dart';
 import 'package:splitify/l10n/app_localizations.dart';
+import 'package:splitify/ui/components/components.dart';
 import 'package:splitify/ui/theme/theme.dart';
 
 /// "Remind" on a row where [toMember] owes me (08 #23, TC-23-02): a round bell button. Hidden for name-only
@@ -98,14 +99,15 @@ class _RemindButtonState extends ConsumerState<RemindButton> {
         button: true,
         label: label,
         excludeSemantics: true,
-        child: InkResponse(
+        child: Pressable(
           key: Key('remind-${widget.toMember}'),
-          radius: 24,
           onTap: _busy
               ? null
               : throttled
               ? () => _snack(l.remindThrottled(widget.name, _hoursLeft(retryAt, now)))
               : () => unawaited(_send()),
+          circle: true,
+          scale: 0.9,
           child: SizedBox.square(
             dimension: AppSpacing.minTouch,
             child: Center(

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:splitify/ui/components/glass_card.dart';
+import 'package:splitify/ui/components/hero_flight.dart';
 import 'package:splitify/ui/components/pressable.dart';
 import 'package:splitify/ui/painters/cover_cache.dart';
 import 'package:splitify/ui/theme/theme.dart';
@@ -24,6 +25,7 @@ class HeroHeader extends StatelessWidget {
     this.art,
     this.photo,
     this.overlap = AppSpacing.sheetOverlap,
+    this.heroTag,
     super.key,
   });
 
@@ -50,6 +52,9 @@ class HeroHeader extends StatelessWidget {
   /// Space kept free at the bottom for the sheet that overlaps the hero.
   final double overlap;
 
+  /// The background flies in from a card with this tag ([AppHeroTags.group]).
+  final Object? heroTag;
+
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
@@ -63,48 +68,57 @@ class HeroHeader extends StatelessWidget {
                 textAlign: TextAlign.center,
                 style: context.text.heroDisplay.copyWith(color: c.onHero),
               ));
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: SystemUiOverlayStyle.light.copyWith(statusBarColor: AppPalette.clear),
-      // The background never moves under the content: glass cards paint a pre-blurred slice of it.
-      child: GlassBackdropHost(
-        snapshot: photo == null,
-        background: _HeroBackground(art: art, photo: photo),
-        child: Padding(
-          padding: EdgeInsets.fromLTRB(
-            AppSpacing.screen,
-            topInset + AppSpacing.s2,
-            AppSpacing.screen,
-            overlap + AppSpacing.s8,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              SizedBox(
-                height: AppSpacing.minTouch,
-                child: Row(
-                  children: [
-                    ?leading,
-                    const Spacer(),
-                    for (var i = 0; i < actions.length; i++) ...[
-                      if (i > 0) const SizedBox(width: AppSpacing.s1),
-                      actions[i],
-                    ],
-                  ],
+    // Its own layer: a scroll moves the hero without re-recording it (S-267).
+    return RepaintBoundary(
+      child: AnnotatedRegion<SystemUiOverlayStyle>(
+        value: SystemUiOverlayStyle.light.copyWith(statusBarColor: AppPalette.clear),
+        // The background never moves under the content: glass cards paint a pre-blurred slice of it.
+        child: GlassBackdropHost(
+          snapshot: photo == null,
+          background: heroTag == null
+              ? _HeroBackground(art: art, photo: photo)
+              : Hero(
+                  tag: heroTag!,
+                  flightShuttleBuilder: coverHeroShuttle,
+                  child: _HeroBackground(art: art, photo: photo),
                 ),
-              ),
-              if (top != null) ...[const SizedBox(height: AppSpacing.s4), top!],
-              if (headline != null) ...[
-                const SizedBox(height: AppSpacing.s8),
-                Semantics(
-                  header: true,
-                  child: MediaQuery.withClampedTextScaling(
-                    maxScaleFactor: AppText.maxSerifScale,
-                    child: headline,
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(
+              AppSpacing.screen,
+              topInset + AppSpacing.s2,
+              AppSpacing.screen,
+              overlap + AppSpacing.s8,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                SizedBox(
+                  height: AppSpacing.minTouch,
+                  child: Row(
+                    children: [
+                      ?leading,
+                      const Spacer(),
+                      for (var i = 0; i < actions.length; i++) ...[
+                        if (i > 0) const SizedBox(width: AppSpacing.s1),
+                        actions[i],
+                      ],
+                    ],
                   ),
                 ),
+                if (top != null) ...[const SizedBox(height: AppSpacing.s4), top!],
+                if (headline != null) ...[
+                  const SizedBox(height: AppSpacing.s8),
+                  Semantics(
+                    header: true,
+                    child: MediaQuery.withClampedTextScaling(
+                      maxScaleFactor: AppText.maxSerifScale,
+                      child: headline,
+                    ),
+                  ),
+                ],
+                if (child != null) ...[const SizedBox(height: AppSpacing.s8), child!],
               ],
-              if (child != null) ...[const SizedBox(height: AppSpacing.s8), child!],
-            ],
+            ),
           ),
         ),
       ),

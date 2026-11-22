@@ -39,7 +39,7 @@ class FriendPage extends ConsumerWidget {
     if (friend == null) {
       return Scaffold(
         appBar: AppBar(
-          leading: IconButton(
+          leading: AppIconButton(
             tooltip: l.back,
             icon: const Icon(AppIcons.back),
             onPressed: () => _close(context),
@@ -56,52 +56,72 @@ class FriendPage extends ConsumerWidget {
     final first = ref.watch(profileProvider).value?.defaultCurrency ?? 'INR';
     final items = friendItems(friend);
     final groups = friend.links.where((g) => !g.isDirect || g.amounts.isNotEmpty).toList();
+    final rows = items.isEmpty ? const <Widget>[] : _itemRows(context, friend, items);
+    // Shared items can run to hundreds: they follow the sheet as a lazy sliver (S-267).
     return Scaffold(
-      body: SingleChildScrollView(
-        child: OverlapColumn(
-          top: _Hero(
-            friend: friend,
-            firstCurrency: first,
-            onLoan: () => unawaited(startFriendLoan(context, ref, friend)),
-          ),
-          bottom: OverlapSheet(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                if (unsynced) ...[
-                  const Align(alignment: AlignmentDirectional.centerStart, child: SyncMarker()),
-                  const SizedBox(height: AppSpacing.s4),
-                ],
-                // Shared normal groups, or a group where they owe me (its row carries Remind, #23).
-                if (groups.isNotEmpty &&
-                    (friend.sharedGroups.isNotEmpty || friend.links.any((g) => g.owesMe))) ...[
-                  SectionLabel(l.friendByGroup),
-                  for (var i = 0; i < groups.length; i++)
-                    _GroupRow(
-                      link: groups[i],
-                      friendName: friend.name,
-                      firstCurrency: first,
-                      showDivider: i < groups.length - 1,
-                    ),
-                  const SizedBox(height: AppSpacing.s8),
-                ],
-                SectionLabel(l.friendSharedItems),
-                if (items.isEmpty)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: AppSpacing.s6),
-                    child: EmptyState(
-                      icon: AppIcons.receipt,
-                      title: l.friendNoItemsTitle,
-                      message: l.friendNoItemsBody(friend.name),
-                    ),
-                  )
-                else
-                  ..._itemRows(context, friend, items),
-                const SizedBox(height: AppSpacing.s8),
-              ],
+      body: CustomScrollView(
+        slivers: [
+          SliverToBoxAdapter(
+            child: OverlapColumn(
+              top: _Hero(
+                friend: friend,
+                firstCurrency: first,
+                onLoan: () => unawaited(startFriendLoan(context, ref, friend)),
+              ),
+              bottom: OverlapSheet(
+                padding: EdgeInsets.fromLTRB(
+                  AppSpacing.screen,
+                  AppSpacing.s6 + AppSpacing.s1,
+                  AppSpacing.screen,
+                  rows.isEmpty ? MediaQuery.paddingOf(context).bottom + AppSpacing.s6 : 0,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    if (unsynced) ...[
+                      const Align(alignment: AlignmentDirectional.centerStart, child: SyncMarker()),
+                      const SizedBox(height: AppSpacing.s4),
+                    ],
+                    // Shared normal groups, or a group where they owe me (its row carries Remind, #23).
+                    if (groups.isNotEmpty &&
+                        (friend.sharedGroups.isNotEmpty || friend.links.any((g) => g.owesMe))) ...[
+                      SectionLabel(l.friendByGroup),
+                      for (var i = 0; i < groups.length; i++)
+                        _GroupRow(
+                          link: groups[i],
+                          friendName: friend.name,
+                          firstCurrency: first,
+                          showDivider: i < groups.length - 1,
+                        ),
+                      const SizedBox(height: AppSpacing.s8),
+                    ],
+                    SectionLabel(l.friendSharedItems),
+                    if (items.isEmpty)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: AppSpacing.s6),
+                        child: EmptyState(
+                          icon: AppIcons.receipt,
+                          title: l.friendNoItemsTitle,
+                          message: l.friendNoItemsBody(friend.name),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
             ),
           ),
-        ),
+          if (rows.isNotEmpty)
+            EntranceScope(
+              child: SliverPadding(
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
+                sliver: SliverList.builder(
+                  itemCount: rows.length,
+                  itemBuilder: (context, i) => Entrance(index: i, child: rows[i]),
+                ),
+              ),
+            ),
+          const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.s8)),
+        ],
       ),
       bottomNavigationBar: _ActionBar(friend: friend),
     );

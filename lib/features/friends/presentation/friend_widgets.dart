@@ -174,34 +174,36 @@ class FriendsSkeleton extends StatelessWidget {
     );
     return Semantics(
       label: l.loading,
-      child: Column(
-        children: [
-          for (var i = 0; i < 3; i++)
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: AppSpacing.s4),
-              child: Row(
-                children: [
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(color: fill, shape: BoxShape.circle),
-                  ),
-                  const SizedBox(width: AppSpacing.s3),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        bar(140, 14),
-                        const SizedBox(height: AppSpacing.s2),
-                        bar(90, 12),
-                      ],
+      child: Shimmer(
+        child: Column(
+          children: [
+            for (var i = 0; i < 3; i++)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: AppSpacing.s4),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(color: fill, shape: BoxShape.circle),
                     ),
-                  ),
-                  bar(56, 14),
-                ],
+                    const SizedBox(width: AppSpacing.s3),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          bar(140, 14),
+                          const SizedBox(height: AppSpacing.s2),
+                          bar(90, 12),
+                        ],
+                      ),
+                    ),
+                    bar(56, 14),
+                  ],
+                ),
               ),
-            ),
-        ],
+          ],
+        ),
       ),
     );
   }

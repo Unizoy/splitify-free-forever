@@ -134,11 +134,11 @@ class _Bubble extends ConsumerWidget {
           padding: const EdgeInsetsDirectional.only(start: AppSpacing.s12),
           child: Align(
             alignment: AlignmentDirectional.centerEnd,
-            child: InkWell(
+            child: Pressable(
               key: Key('comment-${view.comment.id}'),
-              borderRadius: AppRadii.all16,
               onTap: () => unawaited(_options(context, ref)),
               onLongPress: () => unawaited(_options(context, ref)),
+              borderRadius: AppRadii.all16,
               child: content,
             ),
           ),
@@ -323,13 +323,14 @@ class _SendButton extends StatelessWidget {
       enabled: enabled,
       label: label,
       excludeSemantics: true,
-      child: Material(
-        color: enabled ? c.primary : c.textTertiary,
-        shape: const CircleBorder(),
-        child: InkWell(
-          key: const Key('comment-send'),
-          customBorder: const CircleBorder(),
-          onTap: enabled ? () => unawaited(onPressed()) : null,
+      child: Pressable(
+        key: const Key('comment-send'),
+        onTap: enabled ? () => unawaited(onPressed()) : null,
+        circle: true,
+        scale: 0.9,
+        child: Material(
+          color: enabled ? c.primary : c.textTertiary,
+          shape: const CircleBorder(),
           child: SizedBox.square(
             dimension: AppSpacing.buttonLarge,
             child: Icon(AppIcons.send, size: 22, color: c.surface),
