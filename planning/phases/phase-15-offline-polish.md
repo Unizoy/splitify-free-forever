@@ -6,10 +6,10 @@
 
 ## Tasks
 
-- [ ] T1 Audit every write path: goes through outbox; online-only actions show "This needs internet".
-- [ ] T2 Audit every balance/list/card: SyncMarker on pending/failed data; Groups/Account totals marked.
-- [ ] T3 Sync & storage screen complete: failed mutations with Edit / Retry / Discard, export debug log.
-- [ ] T4 Conflict UX: superseded snackbar, history shows both versions (TC-27-13).
+- [x] T1 Audit every write path: goes through outbox; online-only actions show "This needs internet".
+- [x] T2 Audit every balance/list/card: SyncMarker on pending/failed data; Groups/Account totals marked.
+- [x] T3 Sync & storage screen complete: failed mutations with Edit / Retry / Discard, export debug log.
+- [x] T4 Conflict UX: superseded snackbar, history shows both versions (TC-27-13).
 - [ ] T5 `tool/e2e/airplane.ps1` helpers; E2E TC-27-11: airplane mode → add 5 expenses, edit 1, delete 1, record a
       payment, add a comment → kill app → relaunch offline (data still there, markers on) → online → all synced,
       harness B sees exact server state, markers cleared.

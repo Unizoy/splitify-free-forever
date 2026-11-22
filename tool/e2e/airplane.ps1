@@ -5,6 +5,7 @@
 #   E2E-KILL         -> adb force-stop of the app (kill mid-push)
 #   UI-CAPTURE name  -> light + dark screenshots into splitify-artifacts\phase-NN\
 # Holds the shared emulator lock for the whole run and always switches airplane mode off at the end.
+# `--no-uninstall` keeps the app (and its data) between stages: `flutter test` uninstalls it by default.
 #   powershell -File tool\e2e\airplane.ps1                 # all stages: A1 A2 A3 K1 K2 C1
 #   powershell -File tool\e2e\airplane.ps1 -Stages C1      # one stage
 param(
@@ -68,7 +69,7 @@ function Exit-Lock {
 function Invoke-Stage([string]$stage, [string]$ip) {
   $log = Join-Path $out "e2e-$stage.log"
   Remove-Item $log -ErrorAction SilentlyContinue
-  $argv = @('test', 'integration_test/offline_airplane_test.dart', '-d', 'emulator-5554',
+  $argv = @('test', 'integration_test/offline_airplane_test.dart', '-d', 'emulator-5554', '--no-uninstall',
     '--dart-define-from-file=secrets/env.dev.json', "--dart-define=PIN_HOST_IP=$ip",
     '--dart-define=E2E_AIRPLANE=true', "--dart-define=UI_HOLD=$Hold", '--plain-name', $stage)
   $p = Start-Process -FilePath 'flutter.bat' -NoNewWindow -PassThru -RedirectStandardOutput $log -ArgumentList $argv
