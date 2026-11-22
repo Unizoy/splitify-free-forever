@@ -17,6 +17,7 @@ import 'package:splitify/features/activity/application/activity_providers.dart';
 import 'package:splitify/features/balances/application/account_stats.dart';
 import 'package:splitify/features/balances/application/balance_views.dart';
 import 'package:splitify/features/balances/application/balances_providers.dart';
+import 'package:splitify/features/friends/application/friends_providers.dart';
 import 'package:splitify/features/groups/application/groups_providers.dart';
 
 /// Clock that only moves when the test says so.
@@ -249,4 +250,6 @@ List<Override> emptyBalanceOverrides({
   allGroupBalancesProvider.overrideWithValue(AsyncData(all)),
   accountStatsProvider.overrideWithValue(AsyncData(stats)),
   activityItemsProvider(null).overrideWithValue(const AsyncData([])),
+  // Phase 11: the Friends tab reads every ledger.
+  friendsProvider.overrideWithValue(const AsyncData([])),
 ];

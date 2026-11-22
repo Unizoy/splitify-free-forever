@@ -244,12 +244,15 @@ void main() {
     });
 
     // TC-2-03
-    test('a direct group the friend list does not know yet: the member comes from the phone', () async {
-      final direct = directLedger(id: 'g-new');
-      await db.seed(groups: [direct.group], members: direct.members);
-      final t = await container.read(friendActionsProvider).loanTargetFor(asha([goaLedger()]));
-      expect((t.groupId, t.memberId), ('g-new', 'c2'));
-    });
+    test(
+      'a direct group the friend list does not know yet: the member comes from the phone',
+      () async {
+        final direct = directLedger(id: 'g-new');
+        await db.seed(groups: [direct.group], members: direct.members);
+        final t = await container.read(friendActionsProvider).loanTargetFor(asha([goaLedger()]));
+        expect((t.groupId, t.memberId), ('g-new', 'c2'));
+      },
+    );
 
     // TC-2-03
     test('made on the server but not pulled yet: no member picked', () async {
