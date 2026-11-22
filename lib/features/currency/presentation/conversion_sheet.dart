@@ -120,7 +120,7 @@ class _ConversionSheetState extends ConsumerState<ConversionSheet> {
         const SizedBox(height: AppSpacing.s6),
         UnderlineField(
           key: const Key('conversion-rate'),
-          label: l.fxRateFieldLabel(d.from, d.to),
+          label: l.fxRateFieldLabel(d.from),
           hint: l.fxRateHint,
           controller: _rate,
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
@@ -208,7 +208,9 @@ class _Summary extends StatelessWidget {
     final d = draft;
     final converted = d.converted;
     final fromText = MoneyFormatter.detail.format(d.record.amount, d.from);
-    final toText = converted == null ? '—' : MoneyFormatter.detail.format(converted, d.to);
+    final toText = converted == null
+        ? l.fxRateNeeded
+        : MoneyFormatter.detail.format(converted, d.to);
     final large = MediaQuery.textScalerOf(context).scale(1) > 1.4;
     Widget side(String code, String amount, {required bool result}) => Column(
       crossAxisAlignment: result && !large ? CrossAxisAlignment.end : CrossAxisAlignment.start,
@@ -221,7 +223,15 @@ class _Summary extends StatelessWidget {
             result && converted != null ? l.fxApprox(amount) : amount,
             key: Key(result ? 'conversion-result' : 'conversion-original'),
             maxLines: 1,
-            style: context.text.title.w(700).copyWith(color: result ? c.primary : c.textPrimary),
+            style: context.text.title
+                .w(700)
+                .copyWith(
+                  color: !result
+                      ? c.textPrimary
+                      : converted == null
+                      ? c.textSecondary
+                      : c.primary,
+                ),
           ),
         ),
       ],

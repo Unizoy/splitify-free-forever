@@ -57,14 +57,15 @@ class _BalancesTabState extends ConsumerState<BalancesTab> {
     }
     final simplified = b.simplify && !_original;
     final multi = b.currencies.length > 1;
-    final foreign = ref.watch(convertedGroupProvider(widget.groupId)).value?.hasForeign ?? false;
+    final fx = ref.watch(convertedGroupProvider(widget.groupId)).value;
+    final foreign = fx?.hasForeign ?? false;
     final inMain = foreign && _inMain;
     return Column(
       key: const Key('balances-tab'),
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         const SizedBox(height: AppSpacing.s4),
-        _Banner(balances: b),
+        _Banner(balances: (inMain ? fx?.inMain : null) ?? b),
         if (foreign) ...[
           const SizedBox(height: AppSpacing.s6),
           BalancesViewToggle(

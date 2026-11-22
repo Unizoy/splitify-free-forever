@@ -316,20 +316,57 @@ class _TransferLine extends StatelessWidget {
     final title = t.from == b.meId
         ? l.balYouOwePerson(personName(l, b, t.to, start: false))
         : l.balPairOwes(personName(l, b, t.from), personName(l, b, t.to, start: false));
-    final from = b.member(t.from);
-    final to = b.member(t.to);
     return AmountRow(
       title: title,
       amountText: listMoney(t.amount, view.currency),
       tone: tone,
-      leading: AvatarStack(
-        people: [
-          (name: b.nameOf(t.from), seed: t.from, tint: from?.tint),
-          (name: b.nameOf(t.to), seed: t.to, tint: to?.tint),
-        ],
-        max: 2,
-      ),
+      leading: _PairAvatars(view: view, from: t.from, to: t.to),
       showDivider: showDivider,
+    );
+  }
+}
+
+/// Payer avatar overlapping the receiver's with an arrow badge (same look as the Balances tab rows).
+class _PairAvatars extends StatelessWidget {
+  const _PairAvatars({required this.view, required this.from, required this.to});
+
+  final ConvertedGroupView view;
+  final String from;
+  final String to;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final g = view.group;
+    return ExcludeSemantics(
+      child: SizedBox(
+        width: 74,
+        height: 40,
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            Avatar(name: g.nameOf(from), seed: from, tint: g.member(from)?.tint),
+            Positioned(
+              left: 34,
+              child: Avatar(name: g.nameOf(to), seed: to, tint: g.member(to)?.tint, ring: true),
+            ),
+            Positioned(
+              left: 27,
+              top: 24,
+              child: Container(
+                width: 18,
+                height: 18,
+                decoration: BoxDecoration(
+                  color: c.ink,
+                  shape: BoxShape.circle,
+                  border: Border.all(color: c.bg, width: 1.5),
+                ),
+                child: Icon(AppIcons.arrowRight, size: 10, color: c.onInk),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

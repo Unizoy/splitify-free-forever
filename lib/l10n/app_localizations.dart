@@ -2135,8 +2135,14 @@ abstract class AppLocalizations {
   /// No description provided for @fxRateFieldLabel.
   ///
   /// In en, this message translates to:
-  /// **'1 {from} in {to}'**
-  String fxRateFieldLabel(String from, String to);
+  /// **'Rate for 1 {from}'**
+  String fxRateFieldLabel(String from);
+
+  /// No description provided for @fxRateNeeded.
+  ///
+  /// In en, this message translates to:
+  /// **'Rate needed'**
+  String get fxRateNeeded;
 
   /// No description provided for @fxRateHint.
   ///

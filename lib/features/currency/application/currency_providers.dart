@@ -44,6 +44,24 @@ class ConvertedGroupView {
 
   /// The group has a record in a currency other than its main one (the converted view is worth offering).
   bool get hasForeign => records.values.any((r) => r.currency != currency);
+
+  /// [group] with the converted balances as its only currency (the banner of the "In INR" view), or null
+  /// while a record still needs a conversion.
+  GroupBalances? get inMain {
+    final b = converted.balances;
+    if (!converted.complete || b == null) return null;
+    return GroupBalances(
+      groupId: group.groupId,
+      groupName: group.groupName,
+      mainCurrency: currency,
+      members: group.members,
+      byCurrency: {currency: b},
+      simplify: group.simplify,
+      meId: group.meId,
+      hasRecords: group.hasRecords,
+      unsynced: group.unsynced,
+    );
+  }
 }
 
 /// The converted view of [groupId] (null while the group is not on this phone).

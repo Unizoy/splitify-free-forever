@@ -104,10 +104,17 @@ Total: 117 test ids (TC-18-03 golden added in phase 09).
 | 13 | TC-19-05 | unit | settings model. | todo |
 | 13 | TC-23-01 | sql | throttle + recipient | todo |
 | 13 | TC-23-02 | widget | remind button states. | todo |
-| 14 | TC-14-02 | widget | multi-currency balance sections | pass (phase 09: `balances_tab_test.dart` two-currency sections; currency picker still phase 14) |
-| 14 | TC-32-02 | edge | fetch-rates upsert/throttle/backfill | todo |
-| 14 | TC-32-04 | widget | conversion sheet manual/auto | todo |
-| 14 | TC-32-05 | unit | missing date uses previous rate. | todo |
+| 14 | TC-14-02 | widget | multi-currency balance sections | pass (phase 09 `balances_tab_test.dart`; phase 14 goldens `currency_balances_by_currency_*`) |
+| 14 | TC-14-04 | widget | currency picker: group currency first, recent, search, pick (editor + Settle up chips) | pass (`currency_picker_test.dart`, `expense_editor_test.dart`, `settle_up_screen_test.dart`) |
+| 14 | TC-14-05 | sql | fx_rates RLS/keys, currency parity, saved-conversion checks, fetch-rates cron wiring | pass (`140_fx.test.sql`, 22/22 on dev via MCP) |
+| 14 | TC-32-02 | edge | fetch-rates upsert/throttle/backfill | pass (`fetch-rates/rates_test.ts`, deno 45/45; live: backfill 4,561 rows, 01:15 cron run throttled) |
+| 14 | TC-32-04 | widget | conversion sheet manual/auto | pass (`conversion_sheet_test.dart`, `conversion_tile_test.dart`, `fx_copy_test.dart`, goldens `currency_convert_*`) |
+| 14 | TC-32-05 | unit | missing date uses previous rate. | pass (`fx_service_test.dart`, `conversion_actions_test.dart`) |
+| 14 | TC-32-06 | unit | rates cache refresh/throttle/paging + Convert all at each record date | pass (`fx_rates_repository_test.dart`, `conversion_actions_test.dart`, `converted_balances_test.dart`) |
+| 14 | TC-32-07 | widget | "Show balances in INR": missing list, Convert all, converted nets | pass (`converted_balances_view_test.dart`, goldens `currency_balances_in_inr_*`) |
+| 14 | TC-32-08 | unit | edits keep the saved rate and re-convert; new currency drops the conversion | pass (`expense_editor_fx_test.dart`, `settle_controller_test.dart`, `conversion_test.dart`) |
+| 14 | TC-17-04 | unit | simplify after converting to the main currency (converted nets) | pass (`converted_balances_test.dart`, `converted_balances_view_test.dart`) |
+| 14 | TC-32-09 | integ | USD expense offline → convert at cached rate → server fx columns + INR view | todo |
 | 15 | TC-27-13 | integ | conflict both versions in history. | todo (core already proven by phase 06 T7, `integration_test/sync_offline_test.dart`: A's older offline edit superseded, both in `record_versions`) |
 | 16 | TC-12-01 | sql | generation idempotent (double run = one copy) | todo |
 | 16 | TC-12-02 | sql | 31st clamp for Feb/Apr | todo |

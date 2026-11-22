@@ -111,7 +111,10 @@ void main() {
         'SAR': 'SAR',
         'LKR': 'LKR',
         'NPR': 'NPR',
-        'BDT': '৳',
+        'BDT': 'BDT',
+        'AFN': 'AFN',
+        'AMD': 'AMD',
+        'KHR': 'KHR',
         'CHF': 'CHF',
       };
       expected.forEach(

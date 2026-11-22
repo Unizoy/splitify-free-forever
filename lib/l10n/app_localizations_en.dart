@@ -1236,9 +1236,12 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String fxRateFieldLabel(String from, String to) {
-    return '1 $from in $to';
+  String fxRateFieldLabel(String from) {
+    return 'Rate for 1 $from';
   }
+
+  @override
+  String get fxRateNeeded => 'Rate needed';
 
   @override
   String get fxRateHint => 'e.g. 83.12';
