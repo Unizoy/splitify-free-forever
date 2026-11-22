@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Dark widget colours (lib/ui/theme/app_colors.dart dark). -->
+<resources>
+    <color name="widget_surface">#FF141419</color>
+    <color name="widget_border">#FF2C2C36</color>
+    <color name="widget_text_primary">#FFF5F5F7</color>
+    <color name="widget_text_secondary">#FFA1A1AA</color>
+    <color name="widget_primary">#FF7C83FF</color>
+    <color name="widget_primary_container">#FF23244A</color>
+    <color name="widget_on_primary_container">#FFC9CBFF</color>
+    <color name="widget_owed">#FF4ADE80</color>
+    <color name="widget_owe">#FFF87171</color>
+    <color name="widget_settled">#FFA1A1AA</color>
+    <color name="widget_unsynced">#FFFBBF24</color>
+</resources>

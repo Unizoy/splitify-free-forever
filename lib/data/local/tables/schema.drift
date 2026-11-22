@@ -294,6 +294,22 @@ CREATE TABLE recurring_templates (
 CREATE INDEX recurring_templates_group ON recurring_templates (group_id);
 CREATE INDEX recurring_templates_expense ON recurring_templates (expense_id);
 
+-- Imports done on this phone (X1, phase 18): the records each one wrote, for "Delete this import".
+-- Local only; expenses also carry the batch id in split_values (S-190). ids as JSON text.
+CREATE TABLE import_batches (
+  id TEXT NOT NULL PRIMARY KEY,
+  group_id TEXT NOT NULL,
+  source TEXT NOT NULL,
+  file_name TEXT,
+  expense_ids TEXT NOT NULL DEFAULT '[]',
+  payment_ids TEXT NOT NULL DEFAULT '[]',
+  member_ids TEXT NOT NULL DEFAULT '[]',
+  created_at TEXT NOT NULL,
+  deleted_at TEXT
+) AS LocalImportBatch;
+
+CREATE INDEX import_batches_group ON import_batches (group_id, created_at);
+
 -- Offline search (#34, phase 16, S-175): one row per live expense, rebuilt with every expense write or pull and
 -- when member names change (lib/data/local/daos/search_index_dao.dart).
 CREATE VIRTUAL TABLE expense_search USING fts5(

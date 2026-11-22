@@ -12,6 +12,7 @@ import 'package:splitify/core/money/money.dart';
 import 'package:splitify/core/money/money_error.dart';
 import 'package:splitify/core/money/money_formatter.dart';
 import 'package:splitify/core/money/split.dart';
+import 'package:splitify/domain/rules/expense_categories.dart';
 import 'package:splitify/features/import_splitwise/domain/splitwise_csv_parser.dart';
 
 /// How an expense was rebuilt.
@@ -85,6 +86,7 @@ final class ImportedPayment {
     required this.from,
     required this.to,
     required this.amountMinor,
+    this.note,
   });
 
   final int row;
@@ -94,6 +96,9 @@ final class ImportedPayment {
   final String from;
   final String to;
   final int amountMinor;
+
+  /// Notes cell of the row (Splitify's own export), else null.
+  final String? note;
 
   Money get amount => Money(amountMinor, currency);
 
@@ -163,6 +168,7 @@ SplitwiseImport reconstructSplitwise(SplitwiseCsv file, {bool acceptTotalsMismat
             from: t.to,
             to: t.from,
             amountMinor: t.amount,
+            note: r.notes,
           ),
         );
       }
@@ -245,16 +251,24 @@ ImportedExpense _expense(
     shares: shares,
     kind: exact ? ImportedExpenseKind.exact : ImportedExpenseKind.nets,
     originalCostMinor: r.cost,
-    notes: exact
-        ? null
-        : 'Imported from Splitwise as net amounts. Original cost: '
-              '${MoneyFormatter.plain(r.cost, r.currency)} ${r.currency}.',
+    notes: _notes(r, exact: exact),
   );
+}
+
+String? _notes(SplitwiseRow r, {required bool exact}) {
+  final own = r.notes?.trim() ?? '';
+  if (exact) return own.isEmpty ? null : own;
+  final cost =
+      'Imported from Splitwise as net amounts. Original cost: '
+      '${MoneyFormatter.plain(r.cost, r.currency)} ${r.currency}.';
+  return own.isEmpty ? cost : '$own\n$cost';
 }
 
 /// Best-effort map from a Splitwise category (`Dining out`, `Utilities - Electricity`,
 /// `Transportation - Other`) to a D-016 key (planning/08-feature-specs.md #13).
 String splitwiseCategoryKey(String category) {
+  // Splitify's own export writes D-016 keys (`food.dining_out`); keep them.
+  if (ExpenseCategories.isKnown(category.trim())) return category.trim();
   final text = category.trim().toLowerCase();
   final dash = text.lastIndexOf(' - ');
   final sub = dash < 0 ? text : text.substring(dash + 3);

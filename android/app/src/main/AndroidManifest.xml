@@ -44,6 +44,23 @@
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
             android:value="expenses" />
+        <!-- Home-screen balance widgets (X3, phase 18): 2x2 and 4x2, drawn by BalanceWidget.kt. -->
+        <receiver android:name=".BalanceWidgetSmall" android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_balance_small_info" />
+        </receiver>
+        <receiver android:name=".BalanceWidgetWide" android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_balance_wide_info" />
+        </receiver>
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data

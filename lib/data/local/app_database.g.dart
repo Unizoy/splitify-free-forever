@@ -10990,6 +10990,532 @@ class RecurringTemplatesCompanion extends UpdateCompanion<LocalRecurring> {
   }
 }
 
+class ImportBatches extends Table with TableInfo<ImportBatches, LocalImportBatch> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  ImportBatches(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL PRIMARY KEY',
+  );
+  static const VerificationMeta _groupIdMeta = const VerificationMeta('groupId');
+  late final GeneratedColumn<String> groupId = GeneratedColumn<String>(
+    'group_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL',
+  );
+  static const VerificationMeta _sourceMeta = const VerificationMeta('source');
+  late final GeneratedColumn<String> source = GeneratedColumn<String>(
+    'source',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL',
+  );
+  static const VerificationMeta _fileNameMeta = const VerificationMeta('fileName');
+  late final GeneratedColumn<String> fileName = GeneratedColumn<String>(
+    'file_name',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    $customConstraints: '',
+  );
+  static const VerificationMeta _expenseIdsMeta = const VerificationMeta('expenseIds');
+  late final GeneratedColumn<String> expenseIds = GeneratedColumn<String>(
+    'expense_ids',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    $customConstraints: 'NOT NULL DEFAULT \'[]\'',
+    defaultValue: const CustomExpression('\'[]\''),
+  );
+  static const VerificationMeta _paymentIdsMeta = const VerificationMeta('paymentIds');
+  late final GeneratedColumn<String> paymentIds = GeneratedColumn<String>(
+    'payment_ids',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    $customConstraints: 'NOT NULL DEFAULT \'[]\'',
+    defaultValue: const CustomExpression('\'[]\''),
+  );
+  static const VerificationMeta _memberIdsMeta = const VerificationMeta('memberIds');
+  late final GeneratedColumn<String> memberIds = GeneratedColumn<String>(
+    'member_ids',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    $customConstraints: 'NOT NULL DEFAULT \'[]\'',
+    defaultValue: const CustomExpression('\'[]\''),
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta('createdAt');
+  late final GeneratedColumn<String> createdAt = GeneratedColumn<String>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL',
+  );
+  static const VerificationMeta _deletedAtMeta = const VerificationMeta('deletedAt');
+  late final GeneratedColumn<String> deletedAt = GeneratedColumn<String>(
+    'deleted_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    $customConstraints: '',
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    groupId,
+    source,
+    fileName,
+    expenseIds,
+    paymentIds,
+    memberIds,
+    createdAt,
+    deletedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'import_batches';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<LocalImportBatch> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('group_id')) {
+      context.handle(_groupIdMeta, groupId.isAcceptableOrUnknown(data['group_id']!, _groupIdMeta));
+    } else if (isInserting) {
+      context.missing(_groupIdMeta);
+    }
+    if (data.containsKey('source')) {
+      context.handle(_sourceMeta, source.isAcceptableOrUnknown(data['source']!, _sourceMeta));
+    } else if (isInserting) {
+      context.missing(_sourceMeta);
+    }
+    if (data.containsKey('file_name')) {
+      context.handle(
+        _fileNameMeta,
+        fileName.isAcceptableOrUnknown(data['file_name']!, _fileNameMeta),
+      );
+    }
+    if (data.containsKey('expense_ids')) {
+      context.handle(
+        _expenseIdsMeta,
+        expenseIds.isAcceptableOrUnknown(data['expense_ids']!, _expenseIdsMeta),
+      );
+    }
+    if (data.containsKey('payment_ids')) {
+      context.handle(
+        _paymentIdsMeta,
+        paymentIds.isAcceptableOrUnknown(data['payment_ids']!, _paymentIdsMeta),
+      );
+    }
+    if (data.containsKey('member_ids')) {
+      context.handle(
+        _memberIdsMeta,
+        memberIds.isAcceptableOrUnknown(data['member_ids']!, _memberIdsMeta),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(
+        _deletedAtMeta,
+        deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  LocalImportBatch map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return LocalImportBatch(
+      id: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      groupId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}group_id'],
+      )!,
+      source: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}source'],
+      )!,
+      fileName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}file_name'],
+      ),
+      expenseIds: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}expense_ids'],
+      )!,
+      paymentIds: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}payment_ids'],
+      )!,
+      memberIds: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}member_ids'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}created_at'],
+      )!,
+      deletedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}deleted_at'],
+      ),
+    );
+  }
+
+  @override
+  ImportBatches createAlias(String alias) {
+    return ImportBatches(attachedDatabase, alias);
+  }
+
+  @override
+  bool get dontWriteConstraints => true;
+}
+
+class LocalImportBatch extends DataClass implements Insertable<LocalImportBatch> {
+  final String id;
+  final String groupId;
+  final String source;
+  final String? fileName;
+  final String expenseIds;
+  final String paymentIds;
+  final String memberIds;
+  final String createdAt;
+  final String? deletedAt;
+  const LocalImportBatch({
+    required this.id,
+    required this.groupId,
+    required this.source,
+    this.fileName,
+    required this.expenseIds,
+    required this.paymentIds,
+    required this.memberIds,
+    required this.createdAt,
+    this.deletedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['group_id'] = Variable<String>(groupId);
+    map['source'] = Variable<String>(source);
+    if (!nullToAbsent || fileName != null) {
+      map['file_name'] = Variable<String>(fileName);
+    }
+    map['expense_ids'] = Variable<String>(expenseIds);
+    map['payment_ids'] = Variable<String>(paymentIds);
+    map['member_ids'] = Variable<String>(memberIds);
+    map['created_at'] = Variable<String>(createdAt);
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<String>(deletedAt);
+    }
+    return map;
+  }
+
+  ImportBatchesCompanion toCompanion(bool nullToAbsent) {
+    return ImportBatchesCompanion(
+      id: Value(id),
+      groupId: Value(groupId),
+      source: Value(source),
+      fileName: fileName == null && nullToAbsent ? const Value.absent() : Value(fileName),
+      expenseIds: Value(expenseIds),
+      paymentIds: Value(paymentIds),
+      memberIds: Value(memberIds),
+      createdAt: Value(createdAt),
+      deletedAt: deletedAt == null && nullToAbsent ? const Value.absent() : Value(deletedAt),
+    );
+  }
+
+  factory LocalImportBatch.fromJson(Map<String, dynamic> json, {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return LocalImportBatch(
+      id: serializer.fromJson<String>(json['id']),
+      groupId: serializer.fromJson<String>(json['group_id']),
+      source: serializer.fromJson<String>(json['source']),
+      fileName: serializer.fromJson<String?>(json['file_name']),
+      expenseIds: serializer.fromJson<String>(json['expense_ids']),
+      paymentIds: serializer.fromJson<String>(json['payment_ids']),
+      memberIds: serializer.fromJson<String>(json['member_ids']),
+      createdAt: serializer.fromJson<String>(json['created_at']),
+      deletedAt: serializer.fromJson<String?>(json['deleted_at']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'group_id': serializer.toJson<String>(groupId),
+      'source': serializer.toJson<String>(source),
+      'file_name': serializer.toJson<String?>(fileName),
+      'expense_ids': serializer.toJson<String>(expenseIds),
+      'payment_ids': serializer.toJson<String>(paymentIds),
+      'member_ids': serializer.toJson<String>(memberIds),
+      'created_at': serializer.toJson<String>(createdAt),
+      'deleted_at': serializer.toJson<String?>(deletedAt),
+    };
+  }
+
+  LocalImportBatch copyWith({
+    String? id,
+    String? groupId,
+    String? source,
+    Value<String?> fileName = const Value.absent(),
+    String? expenseIds,
+    String? paymentIds,
+    String? memberIds,
+    String? createdAt,
+    Value<String?> deletedAt = const Value.absent(),
+  }) => LocalImportBatch(
+    id: id ?? this.id,
+    groupId: groupId ?? this.groupId,
+    source: source ?? this.source,
+    fileName: fileName.present ? fileName.value : this.fileName,
+    expenseIds: expenseIds ?? this.expenseIds,
+    paymentIds: paymentIds ?? this.paymentIds,
+    memberIds: memberIds ?? this.memberIds,
+    createdAt: createdAt ?? this.createdAt,
+    deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+  );
+  LocalImportBatch copyWithCompanion(ImportBatchesCompanion data) {
+    return LocalImportBatch(
+      id: data.id.present ? data.id.value : this.id,
+      groupId: data.groupId.present ? data.groupId.value : this.groupId,
+      source: data.source.present ? data.source.value : this.source,
+      fileName: data.fileName.present ? data.fileName.value : this.fileName,
+      expenseIds: data.expenseIds.present ? data.expenseIds.value : this.expenseIds,
+      paymentIds: data.paymentIds.present ? data.paymentIds.value : this.paymentIds,
+      memberIds: data.memberIds.present ? data.memberIds.value : this.memberIds,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LocalImportBatch(')
+          ..write('id: $id, ')
+          ..write('groupId: $groupId, ')
+          ..write('source: $source, ')
+          ..write('fileName: $fileName, ')
+          ..write('expenseIds: $expenseIds, ')
+          ..write('paymentIds: $paymentIds, ')
+          ..write('memberIds: $memberIds, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('deletedAt: $deletedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    groupId,
+    source,
+    fileName,
+    expenseIds,
+    paymentIds,
+    memberIds,
+    createdAt,
+    deletedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is LocalImportBatch &&
+          other.id == this.id &&
+          other.groupId == this.groupId &&
+          other.source == this.source &&
+          other.fileName == this.fileName &&
+          other.expenseIds == this.expenseIds &&
+          other.paymentIds == this.paymentIds &&
+          other.memberIds == this.memberIds &&
+          other.createdAt == this.createdAt &&
+          other.deletedAt == this.deletedAt);
+}
+
+class ImportBatchesCompanion extends UpdateCompanion<LocalImportBatch> {
+  final Value<String> id;
+  final Value<String> groupId;
+  final Value<String> source;
+  final Value<String?> fileName;
+  final Value<String> expenseIds;
+  final Value<String> paymentIds;
+  final Value<String> memberIds;
+  final Value<String> createdAt;
+  final Value<String?> deletedAt;
+  final Value<int> rowid;
+  const ImportBatchesCompanion({
+    this.id = const Value.absent(),
+    this.groupId = const Value.absent(),
+    this.source = const Value.absent(),
+    this.fileName = const Value.absent(),
+    this.expenseIds = const Value.absent(),
+    this.paymentIds = const Value.absent(),
+    this.memberIds = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ImportBatchesCompanion.insert({
+    required String id,
+    required String groupId,
+    required String source,
+    this.fileName = const Value.absent(),
+    this.expenseIds = const Value.absent(),
+    this.paymentIds = const Value.absent(),
+    this.memberIds = const Value.absent(),
+    required String createdAt,
+    this.deletedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       groupId = Value(groupId),
+       source = Value(source),
+       createdAt = Value(createdAt);
+  static Insertable<LocalImportBatch> custom({
+    Expression<String>? id,
+    Expression<String>? groupId,
+    Expression<String>? source,
+    Expression<String>? fileName,
+    Expression<String>? expenseIds,
+    Expression<String>? paymentIds,
+    Expression<String>? memberIds,
+    Expression<String>? createdAt,
+    Expression<String>? deletedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (groupId != null) 'group_id': groupId,
+      if (source != null) 'source': source,
+      if (fileName != null) 'file_name': fileName,
+      if (expenseIds != null) 'expense_ids': expenseIds,
+      if (paymentIds != null) 'payment_ids': paymentIds,
+      if (memberIds != null) 'member_ids': memberIds,
+      if (createdAt != null) 'created_at': createdAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ImportBatchesCompanion copyWith({
+    Value<String>? id,
+    Value<String>? groupId,
+    Value<String>? source,
+    Value<String?>? fileName,
+    Value<String>? expenseIds,
+    Value<String>? paymentIds,
+    Value<String>? memberIds,
+    Value<String>? createdAt,
+    Value<String?>? deletedAt,
+    Value<int>? rowid,
+  }) {
+    return ImportBatchesCompanion(
+      id: id ?? this.id,
+      groupId: groupId ?? this.groupId,
+      source: source ?? this.source,
+      fileName: fileName ?? this.fileName,
+      expenseIds: expenseIds ?? this.expenseIds,
+      paymentIds: paymentIds ?? this.paymentIds,
+      memberIds: memberIds ?? this.memberIds,
+      createdAt: createdAt ?? this.createdAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (groupId.present) {
+      map['group_id'] = Variable<String>(groupId.value);
+    }
+    if (source.present) {
+      map['source'] = Variable<String>(source.value);
+    }
+    if (fileName.present) {
+      map['file_name'] = Variable<String>(fileName.value);
+    }
+    if (expenseIds.present) {
+      map['expense_ids'] = Variable<String>(expenseIds.value);
+    }
+    if (paymentIds.present) {
+      map['payment_ids'] = Variable<String>(paymentIds.value);
+    }
+    if (memberIds.present) {
+      map['member_ids'] = Variable<String>(memberIds.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<String>(createdAt.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<String>(deletedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ImportBatchesCompanion(')
+          ..write('id: $id, ')
+          ..write('groupId: $groupId, ')
+          ..write('source: $source, ')
+          ..write('fileName: $fileName, ')
+          ..write('expenseIds: $expenseIds, ')
+          ..write('paymentIds: $paymentIds, ')
+          ..write('memberIds: $memberIds, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class ExpenseSearch extends Table
     with
         TableInfo<ExpenseSearch, ExpenseSearchData>,
@@ -11459,6 +11985,11 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     'recurring_templates_expense',
     'CREATE INDEX recurring_templates_expense ON recurring_templates (expense_id)',
   );
+  late final ImportBatches importBatches = ImportBatches(this);
+  late final Index importBatchesGroup = Index(
+    'import_batches_group',
+    'CREATE INDEX import_batches_group ON import_batches (group_id, created_at)',
+  );
   late final ExpenseSearch expenseSearch = ExpenseSearch(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
@@ -11494,6 +12025,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     recurringTemplates,
     recurringTemplatesGroup,
     recurringTemplatesExpense,
+    importBatches,
+    importBatchesGroup,
     expenseSearch,
   ];
   @override
@@ -16221,6 +16754,238 @@ typedef $RecurringTemplatesProcessedTableManager =
       LocalRecurring,
       PrefetchHooks Function()
     >;
+typedef $ImportBatchesCreateCompanionBuilder = ImportBatchesCompanion Function({
+  required String id,
+  required String groupId,
+  required String source,
+  Value<String?> fileName,
+  Value<String> expenseIds,
+  Value<String> paymentIds,
+  Value<String> memberIds,
+  required String createdAt,
+  Value<String?> deletedAt,
+  Value<int> rowid,
+});
+typedef $ImportBatchesUpdateCompanionBuilder = ImportBatchesCompanion Function({
+  Value<String> id,
+  Value<String> groupId,
+  Value<String> source,
+  Value<String?> fileName,
+  Value<String> expenseIds,
+  Value<String> paymentIds,
+  Value<String> memberIds,
+  Value<String> createdAt,
+  Value<String?> deletedAt,
+  Value<int> rowid,
+});
+
+class $ImportBatchesFilterComposer extends Composer<_$AppDatabase, ImportBatches> {
+  $ImportBatchesFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get groupId =>
+      $composableBuilder(column: $table.groupId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get source =>
+      $composableBuilder(column: $table.source, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get fileName =>
+      $composableBuilder(column: $table.fileName, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get expenseIds =>
+      $composableBuilder(column: $table.expenseIds, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get paymentIds =>
+      $composableBuilder(column: $table.paymentIds, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get memberIds =>
+      $composableBuilder(column: $table.memberIds, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => ColumnFilters(column));
+}
+
+class $ImportBatchesOrderingComposer extends Composer<_$AppDatabase, ImportBatches> {
+  $ImportBatchesOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get groupId =>
+      $composableBuilder(column: $table.groupId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get source =>
+      $composableBuilder(column: $table.source, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get fileName =>
+      $composableBuilder(column: $table.fileName, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get expenseIds =>
+      $composableBuilder(column: $table.expenseIds, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get paymentIds =>
+      $composableBuilder(column: $table.paymentIds, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get memberIds =>
+      $composableBuilder(column: $table.memberIds, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $ImportBatchesAnnotationComposer extends Composer<_$AppDatabase, ImportBatches> {
+  $ImportBatchesAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get groupId =>
+      $composableBuilder(column: $table.groupId, builder: (column) => column);
+
+  GeneratedColumn<String> get source =>
+      $composableBuilder(column: $table.source, builder: (column) => column);
+
+  GeneratedColumn<String> get fileName =>
+      $composableBuilder(column: $table.fileName, builder: (column) => column);
+
+  GeneratedColumn<String> get expenseIds =>
+      $composableBuilder(column: $table.expenseIds, builder: (column) => column);
+
+  GeneratedColumn<String> get paymentIds =>
+      $composableBuilder(column: $table.paymentIds, builder: (column) => column);
+
+  GeneratedColumn<String> get memberIds =>
+      $composableBuilder(column: $table.memberIds, builder: (column) => column);
+
+  GeneratedColumn<String> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<String> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
+}
+
+class $ImportBatchesTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          ImportBatches,
+          LocalImportBatch,
+          $ImportBatchesFilterComposer,
+          $ImportBatchesOrderingComposer,
+          $ImportBatchesAnnotationComposer,
+          $ImportBatchesCreateCompanionBuilder,
+          $ImportBatchesUpdateCompanionBuilder,
+          (LocalImportBatch, BaseReferences<_$AppDatabase, ImportBatches, LocalImportBatch>),
+          LocalImportBatch,
+          PrefetchHooks Function()
+        > {
+  $ImportBatchesTableManager(_$AppDatabase db, ImportBatches table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () => $ImportBatchesFilterComposer($db: db, $table: table),
+          createOrderingComposer: () => $ImportBatchesOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $ImportBatchesAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> groupId = const Value.absent(),
+                Value<String> source = const Value.absent(),
+                Value<String?> fileName = const Value.absent(),
+                Value<String> expenseIds = const Value.absent(),
+                Value<String> paymentIds = const Value.absent(),
+                Value<String> memberIds = const Value.absent(),
+                Value<String> createdAt = const Value.absent(),
+                Value<String?> deletedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ImportBatchesCompanion(
+                id: id,
+                groupId: groupId,
+                source: source,
+                fileName: fileName,
+                expenseIds: expenseIds,
+                paymentIds: paymentIds,
+                memberIds: memberIds,
+                createdAt: createdAt,
+                deletedAt: deletedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String groupId,
+                required String source,
+                Value<String?> fileName = const Value.absent(),
+                Value<String> expenseIds = const Value.absent(),
+                Value<String> paymentIds = const Value.absent(),
+                Value<String> memberIds = const Value.absent(),
+                required String createdAt,
+                Value<String?> deletedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ImportBatchesCompanion.insert(
+                id: id,
+                groupId: groupId,
+                source: source,
+                fileName: fileName,
+                expenseIds: expenseIds,
+                paymentIds: paymentIds,
+                memberIds: memberIds,
+                createdAt: createdAt,
+                deletedAt: deletedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<ImportBatches, LocalImportBatch>(table),
+                  BaseReferences<_$AppDatabase, ImportBatches, LocalImportBatch>(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $ImportBatchesProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      ImportBatches,
+      LocalImportBatch,
+      $ImportBatchesFilterComposer,
+      $ImportBatchesOrderingComposer,
+      $ImportBatchesAnnotationComposer,
+      $ImportBatchesCreateCompanionBuilder,
+      $ImportBatchesUpdateCompanionBuilder,
+      (LocalImportBatch, BaseReferences<_$AppDatabase, ImportBatches, LocalImportBatch>),
+      LocalImportBatch,
+      PrefetchHooks Function()
+    >;
 typedef $ExpenseSearchCreateCompanionBuilder = ExpenseSearchCompanion Function({
   required String expenseId,
   required String groupId,
@@ -16434,6 +17199,8 @@ class $AppDatabaseManager {
   $FxRatesTableManager get fxRates => $FxRatesTableManager(_db, _db.fxRates);
   $RecurringTemplatesTableManager get recurringTemplates =>
       $RecurringTemplatesTableManager(_db, _db.recurringTemplates);
+  $ImportBatchesTableManager get importBatches =>
+      $ImportBatchesTableManager(_db, _db.importBatches);
   $ExpenseSearchTableManager get expenseSearch =>
       $ExpenseSearchTableManager(_db, _db.expenseSearch);
 }

@@ -95,6 +95,10 @@ Then view the PNG with the Read tool (that is how you "see" the screen).
 Enroll a fingerprint once: Settings → Security → set a PIN, add fingerprint, and when asked to touch the sensor run
 `& $adb -e emu finger touch 1`. In tests, trigger the prompt then send `& $adb -e emu finger touch 1` (match) or
 `... touch 2` (no match).
+Without a fingerprint (faster, used by phase 18): `powershell -File tool\e2e\run_lock_e2e.ps1` sets PIN 1234, runs
+`integration_test/app_lock_test.dart` (`LOCK_E2E=true`), types the PIN on each `LOCK-PROMPT`, checks `FLAG_SECURE`
+in `dumpsys window windows`, sends the app home and back, and clears the PIN in `finally`. Screenshots of a
+`FLAG_SECURE` window come out black — that is expected.
 
 ## 9. Fake UPI handler (phase 11+)
 

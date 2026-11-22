@@ -271,10 +271,21 @@ class ExpenseEditorController extends AsyncNotifier<ExpenseDraft> {
   ];
 }
 
-Map<String, int> _map(Object? v) =>
-    v is Map ? {for (final e in v.entries) e.key as String: (e.value! as num).toInt()} : const {};
+/// Member id → minor units of a template's JSON map; non-number entries (an imported expense's
+/// batch id and summary, S-190) are skipped.
+Map<String, int> _map(Object? v) => v is Map
+    ? {
+        for (final e in v.entries)
+          if (e.value is num) e.key as String: (e.value! as num).toInt(),
+      }
+    : const {};
 
+/// Member id → minor units. Non-number entries are skipped: imported expenses keep their batch id
+/// and summary in `split_values` (phase 18, S-190).
 Map<String, int> _ints(String json) {
   final m = jsonDecode(json) as Map<String, Object?>;
-  return {for (final e in m.entries) e.key: e.value! as int};
+  return {
+    for (final e in m.entries)
+      if (e.value is int) e.key: e.value! as int,
+  };
 }

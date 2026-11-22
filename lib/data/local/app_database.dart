@@ -11,7 +11,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 6;
+  int get schemaVersion => 7;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -41,6 +41,11 @@ class AppDatabase extends _$AppDatabase {
         await m.deleteTable('expense_search');
         await m.create(expenseSearch);
         await SearchIndex.all(this);
+      }
+      // v7 (phase 18): imports done on this phone.
+      if (from < 7) {
+        await m.createTable(importBatches);
+        await m.createIndex(importBatchesGroup);
       }
     },
     beforeOpen: (details) async {

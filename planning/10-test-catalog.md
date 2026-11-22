@@ -137,11 +137,12 @@ Total: 121 test ids (TC-18-03 golden added in phase 09; TC-19-06..09 in phase 13
 | 17 | TC-22-01 | unit | CSV writer escaping, BOM, totals | pass (domain + Drift mapping, share-sheet flow) |
 | 17 | TC-33-01 | unit | aggregation | pass (domain + ledger mapping, Group/Me, saved conversions) |
 | 17 | TC-33-02 | golden | charts. | pass (8 screens × light/dark × 1.0/2.0 + widget tests) |
-| 18 | TC-22-02 | unit | round trip with X1 importer. | todo (needs the phase 18 importer, S-184) |
-| 18 | TC-X1-01 | unit | parser fixtures (quotes, BOM, multi-currency, payments, totals row, JPY) | todo |
-| 18 | TC-X1-03 | widget | mapping/preview | todo |
-| 18 | TC-X1-04 | integ | import 200 rows | todo |
-| 18 | TC-X2-01 | unit | lock timer logic | todo |
-| 18 | TC-X2-02 | integ | fingerprint via `adb -e emu finger touch`. | todo |
-| 18 | TC-X3-01 | unit | widget data builder | todo |
-| 18 | TC-X3-02 | integ | widget data updated after expense (read shared prefs). | todo |
+| 18 | TC-22-02 | unit | round trip with X1 importer. | pass (`import_csv_test.dart`: export → parseImportCsv → reconstruct, nets equal, S-192) |
+| 18 | TC-X1-01 | unit | parser fixtures (quotes, BOM, multi-currency, payments, totals row, JPY) | pass (pre-built parser tests + Splitify-format reader) |
+| 18 | TC-X1-02 | unit | reconstruction keeps nets equal to the file | pass (pre-built + mapping/skip + import rows + repository tests) |
+| 18 | TC-X1-03 | widget | mapping/preview | pass (`import_screen_test.dart` full flow on memory Drift + 11 golden scenarios × light/dark × 1.0/2.0) |
+| 18 | TC-X1-04 | integ | import 200 rows | pass (`extras_import_widget_test.dart` on emulator: 200 rows offline through the screens → sync → server rows/source, one `import_completed`, balances = file totals; Delete this import → rows soft-deleted, one undone entry; pgTAP `180_import.test.sql` 13/13) |
+| 18 | TC-X2-01 | unit | lock timer logic | pass (`lock_policy_test.dart`, `app_lock_controller_test.dart`) |
+| 18 | TC-X2-02 | integ | fingerprint via `adb -e emu finger touch`. | pass with the device PIN instead of a fingerprint (`app_lock_test.dart` + `tool/e2e/run_lock_e2e.ps1`: locked on start, PIN unlock, home + 2 min → locked again, FLAG_SECURE seen on the window, PIN cleared) |
+| 18 | TC-X3-01 | unit | widget data builder | pass (`widget_data_test.dart`, `home_widget_sync_test.dart`) |
+| 18 | TC-X3-02 | integ | widget data updated after expense (read shared prefs). | pass (same device test: `pending` = "Not synced yet" after the local import, cleared after sync; `status/line1/line2` equal the app's values; widget pinned and screenshotted) |

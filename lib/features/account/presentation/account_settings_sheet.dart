@@ -6,9 +6,13 @@ import 'package:go_router/go_router.dart';
 import 'package:splitify/core/config/app_info.dart';
 import 'package:splitify/data/data_providers.dart';
 import 'package:splitify/features/account/application/theme_mode_controller.dart';
+import 'package:splitify/features/app_lock/application/app_lock_controller.dart';
+import 'package:splitify/features/app_lock/presentation/security_routes.dart';
 import 'package:splitify/features/auth/application/auth_providers.dart';
+import 'package:splitify/features/import_splitwise/presentation/import_routes.dart';
 import 'package:splitify/features/notifications/application/notifications_providers.dart';
 import 'package:splitify/features/sync/application/sync_texts.dart';
+import 'package:splitify/features/widget/application/home_widget_sync.dart';
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/components/components.dart';
 import 'package:splitify/ui/theme/theme.dart';
@@ -58,7 +62,7 @@ Future<void> confirmSignOut(BuildContext context, WidgetRef ref) async {
 
 /// Settings sheet content (07 §2): Profile and Preferences accordions, then
 /// Sync & storage, Deleted groups, About & licences, Sign out, Delete account and the version.
-/// Later phases add Security and Import.
+/// Security (app lock, widget) and Import from Splitwise came with phase 18.
 class AccountSettingsBody extends ConsumerWidget {
   const AccountSettingsBody({super.key});
 
@@ -121,6 +125,33 @@ class AccountSettingsBody extends ConsumerWidget {
             ),
           ],
         ),
+        const SizedBox(height: AppSpacing.s3),
+        // X2 app lock, X3 home-screen widget (phase 18).
+        AccordionCard(
+          key: const Key('settings-security'),
+          icon: AppIcons.lock,
+          iconColor: c.primary,
+          title: l.lockSecurity,
+          subtitle: l.lockSecuritySubtitle,
+          rows: [
+            AccordionRow(
+              label: l.lockAppLock,
+              value: ref.watch(appLockProvider).enabled ? l.lockOn : l.lockOff,
+              onTap: () {
+                Navigator.of(context).pop();
+                unawaited(context.push(SecurityRoutes.security));
+              },
+            ),
+            AccordionRow(
+              label: l.widgetRow,
+              value: ref.watch(widgetHideAmountsProvider) ? l.widgetHidden : null,
+              onTap: () {
+                Navigator.of(context).pop();
+                unawaited(context.push(SecurityRoutes.widget));
+              },
+            ),
+          ],
+        ),
         const SizedBox(height: AppSpacing.s4),
         DashedListRow(
           key: const Key('settings-sync'),
@@ -140,6 +171,15 @@ class AccountSettingsBody extends ConsumerWidget {
           onTap: () {
             Navigator.of(context).pop();
             unawaited(context.push('/account/deleted-groups'));
+          },
+        ),
+        DashedListRow(
+          key: const Key('settings-import'),
+          icon: AppIcons.fileImport,
+          label: l.impTitle,
+          onTap: () {
+            Navigator.of(context).pop();
+            unawaited(context.push(ImportRoutes.fromAccount));
           },
         ),
         DashedListRow(
