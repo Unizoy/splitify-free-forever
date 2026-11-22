@@ -128,7 +128,9 @@ List<ActivityItem> buildActivityItems(ActivitySources s, String? userId) {
   final out = <ActivityItem>[];
   for (final a in s.activity) {
     final d = _json(a.data);
-    final type = refineActivityType(a.type, d);
+    final type = a.type == 'expense_added' && d['recurring'] == true
+        ? 'expense_added_recurring'
+        : refineActivityType(a.type, d);
     var targetType = a.targetType;
     var targetId = a.targetId;
     String? description;
@@ -136,8 +138,12 @@ List<ActivityItem> buildActivityItems(ActivitySources s, String? userId) {
       targetType = d['target_type'] as String?;
       targetId = d['target_id'] as String?;
       description = targetType == 'expense' ? s.expenses[targetId]?.description : null;
-    } else if (type.startsWith('expense_')) {
+    } else if (type.startsWith('expense_') || type.startsWith('recurring_')) {
       description = d['description'] as String?;
+      if (type.startsWith('recurring_') && d['expense_id'] is String) {
+        targetType = 'expense';
+        targetId = d['expense_id']! as String;
+      }
     } else if (type.startsWith('group_') || type.startsWith('settings_')) {
       description = (d['name'] as String?) ?? groupName(a.groupId);
     }
@@ -272,6 +278,28 @@ ActivityItem? _pendingItem(
         description: groupName,
         targetType: 'group',
         targetId: o.groupId,
+        pending: true,
+      );
+    case 'recurring':
+      final t = s.recurring[o.recordId];
+      final isNew = t == null || t.seq == 0;
+      final template = payload['template'];
+      return ActivityItem(
+        id: base.id,
+        type: isNew
+            ? 'recurring_created'
+            : (payload['active'] == false || op == 'delete'
+                  ? 'recurring_stopped'
+                  : 'recurring_updated'),
+        groupId: base.groupId,
+        groupName: groupName,
+        at: base.at,
+        actor: me,
+        description: template is Map
+            ? template['description'] as String?
+            : s.expenses[t?.expenseId]?.description,
+        targetType: t?.expenseId == null && payload['expense_id'] == null ? 'group' : 'expense',
+        targetId: (t?.expenseId ?? payload['expense_id'] as String?) ?? o.groupId,
         pending: true,
       );
     case 'comment':

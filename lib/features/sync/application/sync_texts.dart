@@ -90,6 +90,7 @@ IconData syncEntityIcon(SyncEntity e) => switch (e) {
   SyncEntity.expense => AppIcons.receipt,
   SyncEntity.payment => AppIcons.coins,
   SyncEntity.comment => AppIcons.chat,
+  SyncEntity.recurring => AppIcons.repeat,
 };
 
 /// Where "Edit" opens the record of a refused change so the person can fix it; null when there is nothing
@@ -101,6 +102,8 @@ String? syncIssueRoute(SyncIssue i) {
     SyncEntity.payment => '/payment/${i.recordId}',
     SyncEntity.group => '/groups/${i.recordId}/edit',
     SyncEntity.member => '/groups/${i.groupId}/settings',
+    // A refused repeat rule opens "Edit future copies" (phase 16).
+    SyncEntity.recurring => '/recurring/${i.recordId}/edit',
     SyncEntity.comment => switch ((i.targetType, i.targetId)) {
       ('expense', final String id) => '/expense/$id',
       ('payment', final String id) => '/payment/$id',

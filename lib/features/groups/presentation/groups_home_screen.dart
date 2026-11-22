@@ -13,6 +13,7 @@ import 'package:splitify/features/balances/presentation/balance_copy.dart';
 import 'package:splitify/features/groups/application/groups_providers.dart';
 import 'package:splitify/features/groups/presentation/group_visuals.dart';
 import 'package:splitify/features/payments/presentation/settle_picker.dart';
+import 'package:splitify/features/search/presentation/search_screen.dart' show SearchRoutes;
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/components/components.dart';
 import 'package:splitify/ui/theme/theme.dart';
@@ -190,9 +191,10 @@ class _Hero extends ConsumerWidget {
       art: (seed: 'groups-home', family: CoverFamily.other),
       actions: [
         HeroIconButton(
+          key: const Key('groups-search'),
           icon: AppIcons.search,
-          tooltip: l.search,
-          onPressed: () => showComingSoon(context),
+          tooltip: l.searchTooltip,
+          onPressed: () => unawaited(context.push(SearchRoutes.search())),
         ),
         HeroIconButton(
           icon: AppIcons.bell,

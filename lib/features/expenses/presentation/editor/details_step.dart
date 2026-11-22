@@ -9,12 +9,15 @@ import 'package:splitify/features/expenses/application/receipt_draft.dart';
 import 'package:splitify/features/expenses/presentation/editor/receipt_field.dart';
 import 'package:splitify/features/expenses/presentation/editor/step_body.dart';
 import 'package:splitify/features/expenses/presentation/expense_copy.dart';
+import 'package:splitify/features/recurring/application/repeat_draft.dart';
+import 'package:splitify/features/recurring/presentation/repeat_picker.dart';
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/components/components.dart';
 import 'package:splitify/ui/theme/theme.dart';
 
 /// Step 4 "A few details": category (parent → sub IconChips), date (today / yesterday / calendar
-/// sheet like 534), notes and the receipt photo (#29).
+/// sheet like 534), repeat (#12), notes and the receipt photo (#29). Editing future copies of a
+/// repeating expense shows its first date read-only and no receipt.
 class DetailsStep extends StatelessWidget {
   const DetailsStep({
     required this.draft,
@@ -24,6 +27,7 @@ class DetailsStep extends StatelessWidget {
     required this.onDate,
     required this.onNotes,
     this.onReceipt,
+    this.onRepeat,
     super.key,
   });
 
@@ -39,6 +43,9 @@ class DetailsStep extends StatelessWidget {
   /// Receipt changes; null hides the receipt section.
   final ValueChanged<ReceiptDraft>? onReceipt;
 
+  /// Repeat changes; null hides the repeat section.
+  final ValueChanged<RepeatDraft>? onRepeat;
+
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
@@ -49,8 +56,44 @@ class DetailsStep extends StatelessWidget {
         SectionLabel(l.expCategoryLabel),
         CategoryPicker(value: draft.category, onChanged: onCategory),
         const SizedBox(height: AppSpacing.s8),
-        SectionLabel(l.expDateLabel),
-        DateChips(value: draft.date, today: today, onChanged: onDate),
+        if (draft.isTemplate) ...[
+          DashedListRow(
+            key: const Key('template-start'),
+            icon: AppIcons.calendar,
+            label: l.repeatStartsLabel,
+            value: shortDate(context, draft.date),
+            showDivider: false,
+          ),
+          const SizedBox(height: AppSpacing.s2),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(AppIcons.info, size: 18, color: context.colors.textSecondary),
+              const SizedBox(width: AppSpacing.s2),
+              Expanded(
+                child: Text(
+                  l.recurringEditNote,
+                  key: const Key('template-note'),
+                  style: context.text.bodySmall.copyWith(color: context.colors.textSecondary),
+                ),
+              ),
+            ],
+          ),
+        ] else ...[
+          SectionLabel(l.expDateLabel),
+          DateChips(value: draft.date, today: today, onChanged: onDate),
+        ],
+        if (onRepeat != null) ...[
+          const SizedBox(height: AppSpacing.s8),
+          SectionLabel(l.repeatLabel),
+          RepeatPicker(
+            value: draft.repeat,
+            start: draft.date,
+            today: today,
+            allowNever: !draft.isTemplate,
+            onChanged: onRepeat!,
+          ),
+        ],
         const SizedBox(height: AppSpacing.s8),
         UnderlineField(
           key: const Key('expense-notes'),

@@ -60,7 +60,7 @@ void main() {
     expect(syncRowValue(l, st(SyncPhase.idle, waiting: 3, failed: 1)), '1 problem');
     expect(syncIssueReason(l, sampleIssue()), 'You are no longer in this group.');
     expect(syncIssueReason(l, sampleIssue(code: 'INVALID_SHARES')), l.syncErrorRejected);
-    expect({for (final e in SyncEntity.values) syncEntityIcon(e)}, hasLength(5));
+    expect({for (final e in SyncEntity.values) syncEntityIcon(e)}, hasLength(6));
     expect(l.syncIssueEntity('payment'), 'Payment');
     expect(l.syncIssueOp('delete'), 'Delete');
     expect(l.syncIssueTries(1), 'Tried once');

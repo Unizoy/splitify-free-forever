@@ -28,6 +28,11 @@
 All gates green on release build; catalog has no `todo`/`fail` (only `pass`, `manual-opt`, or `needs-owner` with
 open BLK).
 
+> **Amendment (S-172, phase 16):** `0019_recurring.sql` redefined `public.apply_mutations` (routes
+> `entity = 'recurring'` to `private.sync_apply_recurring`) and `public.pull_changes` (adds the
+> `recurring_templates` rows). A migration that redefines either function must start from the 0019 body and keep
+> those lines; `private.sync_apply_one` was not changed. Templates are a synced entity (`SyncEntity.recurring`).
+
 > **Amendment (S-167, phase 15):** with 2,000 expenses, scrolling a group is smooth (0 missed frames in profile on the
 > emulator) but the frame that opens the group page costs ~265 ms: the page is one scroll view (overlap layout), so
 > the first 100 rows are built at once. Consider moving the group page to slivers (lazy rows) and re-run
