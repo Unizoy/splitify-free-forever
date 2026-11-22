@@ -14,7 +14,7 @@ class ReminderSent {
       for (final e in ((j['amounts'] as Map?) ?? const {}).entries)
         if (e.value is num) e.key as String: (e.value as num).toInt(),
     },
-    retryAt: DateTime.tryParse((j['retry_at'] as String?) ?? '')?.toUtc(),
+    retryAt: _time(j['retry_at']),
   );
 
   /// What the reminded person owes, minor units per currency.
@@ -23,6 +23,8 @@ class ReminderSent {
   /// When this pair may remind again.
   final DateTime? retryAt;
 }
+
+DateTime? _time(Object? v) => v is String ? DateTime.tryParse(v)?.toUtc() : null;
 
 /// Why a reminder was not sent (codes from `0016_notifications.sql`).
 enum ReminderFailureCode { offline, throttled, nameOnly, nothingOwed, notMember, unknown }
@@ -220,7 +222,7 @@ class SupabaseNotificationsRemote implements NotificationsRemote {
     if (details is! String || details.isEmpty) return null;
     try {
       final j = jsonDecode(details);
-      return j is Map ? DateTime.tryParse((j['retry_at'] as String?) ?? '')?.toUtc() : null;
+      return j is Map ? _time(j['retry_at']) : null;
     } on FormatException {
       return null;
     }
