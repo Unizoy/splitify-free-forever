@@ -56,7 +56,7 @@ class StatGrid extends StatelessWidget {
                                     maxLines: 1,
                                     style: context.text.amountHero.copyWith(
                                       color: valueColor,
-                                      fontSize: 32,
+                                      fontSize: 28,
                                       height: 1.15,
                                     ),
                                   ),

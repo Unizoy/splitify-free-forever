@@ -130,7 +130,7 @@ class _SettleUpScreenState extends ConsumerState<SettleUpScreen> {
     if (d == null) {
       return Scaffold(
         appBar: AppBar(
-          leading: IconButton(
+          leading: AppIconButton(
             tooltip: l.back,
             icon: const Icon(AppIcons.back),
             onPressed: () => Navigator.of(context).maybePop(),
@@ -179,7 +179,7 @@ class _SettleUpScreenState extends ConsumerState<SettleUpScreen> {
             children: [
               Align(
                 alignment: AlignmentDirectional.centerStart,
-                child: IconButton(
+                child: AppIconButton(
                   tooltip: l.back,
                   icon: const Icon(AppIcons.back),
                   onPressed: () => Navigator.of(context).maybePop(),
@@ -444,7 +444,7 @@ class _Person extends StatelessWidget {
     label: tooltip,
     excludeSemantics: true,
     onTap: onTap,
-    child: InkWell(
+    child: Pressable(
       onTap: onTap,
       borderRadius: AppRadii.all16,
       child: Padding(
@@ -512,7 +512,12 @@ class _AmountField extends StatelessWidget {
                 style: style,
                 keyboardType: TextInputType.numberWithOptions(decimal: currency.exponent > 0),
                 inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]'))],
-                decoration: InputDecoration(isDense: true, border: InputBorder.none),
+                // ≥ 48 dp touch target with the smaller type scale (S-268).
+                decoration: const InputDecoration(
+                  isDense: true,
+                  border: InputBorder.none,
+                  constraints: BoxConstraints(minHeight: AppSpacing.minTouch),
+                ),
               ),
             ),
             CurrencyChip(

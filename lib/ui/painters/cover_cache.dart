@@ -22,7 +22,7 @@ class CoverCache {
   /// Cache key for a cover.
   static String keyFor(CoverPainter p, Size size, double dpr) =>
       '${p.family.name}|${p.seed}|${size.width.round()}x${size.height.round()}@$dpr'
-      '|${p.dark}|${p.legibilityScrim}';
+      '|${p.dark}|${p.legibilityScrim}|${p.topFade}';
 
   /// The cached image for [key], if it is ready.
   ui.Image? get(String key) {
@@ -73,6 +73,7 @@ class CoverArt extends StatefulWidget {
     required this.seed,
     required this.family,
     this.legibilityScrim = true,
+    this.topFade = false,
     this.cache = true,
     super.key,
   });
@@ -81,6 +82,9 @@ class CoverArt extends StatefulWidget {
   final CoverFamily family;
   final bool legibilityScrim;
 
+  /// See [CoverPainter.topFade].
+  final bool topFade;
+
   /// Turn off to always paint directly (golden tests, one-off art).
   final bool cache;
 
@@ -88,20 +92,30 @@ class CoverArt extends StatefulWidget {
   State<CoverArt> createState() => _CoverArtState();
 }
 
+/// Below this, [CoverArt] paints directly instead of caching (hero flights change its size every frame).
+class CoverCacheOff extends InheritedWidget {
+  const CoverCacheOff({required super.child, super.key});
+
+  @override
+  bool updateShouldNotify(CoverCacheOff old) => false;
+}
+
 class _CoverArtState extends State<CoverArt> {
   @override
   Widget build(BuildContext context) {
+    final cache = widget.cache && context.getInheritedWidgetOfExactType<CoverCacheOff>() == null;
     final painter = CoverPainter(
       seed: widget.seed,
       family: widget.family,
       dark: context.isDark,
       legibilityScrim: widget.legibilityScrim,
+      topFade: widget.topFade,
     );
     return ExcludeSemantics(
       child: LayoutBuilder(
         builder: (context, constraints) {
           final size = constraints.biggest;
-          if (!widget.cache || !size.isFinite) {
+          if (!cache || !size.isFinite) {
             return CustomPaint(painter: painter, size: size.isFinite ? size : Size.zero);
           }
           final dpr = MediaQuery.devicePixelRatioOf(context);

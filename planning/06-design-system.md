@@ -73,20 +73,22 @@ Fonts are bundled assets (offline-first, no runtime download), both SIL OFL 1.1 
 
 | Style | Font | Size/line (sp) | Weight | Letter spacing | Use |
 | --- | --- | --- | --- | --- | --- |
-| `heroDisplay` | Instrument Serif | 40/44 | 400 | −0.6 | hero headlines, lowercase sentence ("split it. settle it.") |
-| `sheetTitle` | Instrument Serif | 32/36 | 400 | −0.4 | bottom-sheet & screen titles ("Account settings") |
-| `cardTitle` | Instrument Serif | 22/26 | 400 | −0.2, UPPERCASE | group card names (438 "THAILAND") |
-| `headline` | Inter | 22/28 | 700 | −0.2 | step questions ("Who paid?") (532) |
-| `title` | Inter | 18/24 | 600 | 0 | list titles, app bar |
-| `body` | Inter | 16/22 | 400 | 0 | default |
-| `bodySmall` | Inter | 14/20 | 400 | 0 | secondary lines |
-| `caption` | Inter | 12/16 | 500 | 0.2 | dates, meta |
-| `labelCaps` | Inter | 12/16 | 700 | 1.6, UPPERCASE | "YOU ARE OWED", "PAID BY", field labels (602, 542) |
-| `amountHero` | Inter | 40/44 | 700 | −1.0, tabular | big balance in glass/wallet card |
-| `amount` | Inter | 16/20 | 600 | tabular | list amounts |
-| `button` | Inter | 17/22 | 600 | 0 | buttons |
+| `heroDisplay` | Instrument Serif | 34/38 | 400 | −0.5 | hero headlines, lowercase sentence ("split it. settle it.") |
+| `sheetTitle` | Instrument Serif | 28/32 | 400 | −0.3 | bottom-sheet & screen titles ("Account settings") |
+| `cardTitle` | Instrument Serif | 19/23 | 400 | −0.1, UPPERCASE | group card names (438 "THAILAND") |
+| `headline` | Inter | 20/26 | 700 | −0.3 | step questions ("Who paid?") (532) |
+| `title` | Inter | 16/22 | 600 | −0.1 | list titles, app bar |
+| `body` | Inter | 15/21 | 400 | −0.1 | default |
+| `bodySmall` | Inter | 13/18 | 400 | 0 | secondary lines |
+| `caption` | Inter | 11.5/15 | 500 | 0.2 | dates, meta |
+| `labelCaps` | Inter | 11/14 | 700 | 1.4, UPPERCASE | "YOU ARE OWED", "PAID BY", field labels (602, 542) |
+| `amountHero` | Inter | 34/38 | 700 | −0.8, tabular | big balance in glass/wallet card |
+| `amount` | Inter | 15/20 | 600 | −0.1, tabular | list amounts |
+| `button` | Inter | 16/20 | 600 | −0.1 | buttons |
 
 Text scaling: everything must work at 200 %; serif hero clamps to 1.6× to avoid absurd sizes.
+Scale one step down since S-268 (owner D-027, Atlys 438/602). Amounts — hero ones included — are always Inter
+`amountHero`/`amount` (tabular); serif is for words only (S-269).
 
 ## 4. Layout, spacing, radii, elevation
 
@@ -104,13 +106,24 @@ Text scaling: everything must work at 200 %; serif hero clamps to 1.6× to avoid
 
 | Token | Value | Use |
 | --- | --- | --- |
-| `fast` | 150 ms, `easeOut` | presses, toggles |
-| `base` | 250 ms, `Cubic(0.2,0,0,1)` | most transitions, accordions |
-| `slow` | 400 ms, `Cubic(0.2,0,0,1)` | sheets, hero/sheet overlap reveal |
-| `showcase` | 700–900 ms, spring (stiffness 300, damping 26) | nav pill morph, stacked-card shuffle, celebration |
+| `press` / `release` | 90 ms easeOut / 160 ms spring | every tap (`Pressable`, scale 0.97; rows 0.985; icon buttons 0.9) |
+| `fast` | 150 ms, `easeOut` | toggles, sheet close, folder-tab fill |
+| `base` | 240 ms, `Cubic(0.2,0,0,1)` | most transitions, accordions |
+| `slow` | 300 ms, emphasized `Cubic(0.05,0.7,0.1,1)` | sheets (≤ 320 ms) |
+| `route` / `routeBack` | 280 / 240 ms | shared-axis push / pop (`SharedAxisPageTransitionsBuilder`) |
+| `tab` | 220 ms | fade-through between nav tabs, in-page tab fade-in |
+| `count` | 350 ms, easeOutCubic | balance totals counting to a new value (`AnimatedAmount`) |
+| `entrance` + `stagger` | 220 ms + 30 ms/row, rows 0–7 | first-load list entrance (`EntranceScope`/`Entrance`) |
+| `showcase` | 300 ms, spring (stiffness 300, damping 26) | nav pill morph |
+| `shimmer` | 1.2 s sweep, 8 sweeps max | skeleton loaders |
 
-Respect `MediaQuery.disableAnimations` (all durations → 0, loaders become static progress). Haptics:
-`selectionClick` on toggles/steps, `mediumImpact` on Save and Mark as paid, `heavyImpact` never.
+Amendment (S-260..S-267, owner D-027): durations stay 90–300 ms (sheets ≤ 320), nothing blocks input, the
+phone runs at its highest refresh rate; Hero flights for group card → group page and expense row → expense
+page; the glass blur is pre-rendered from the static hero background (no live blur while scrolling).
+
+Respect `MediaQuery.disableAnimations` (all durations → 0, loaders become static progress). Haptics (`AppHaptics`):
+`selection` on toggles/steps/chips/tabs/nav, `light` on primary pills and the + button, `success` (medium) on Save
+and Mark as paid, `heavyImpact` never.
 
 ## 6. Components (`lib/ui/components/`, each with a golden test in light + dark + 2.0× text)
 

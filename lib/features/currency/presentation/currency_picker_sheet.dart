@@ -186,7 +186,7 @@ class CurrencyRow extends StatelessWidget {
       label: selected ? '$label, ${l.curSelected}' : label,
       excludeSemantics: true,
       onTap: onTap,
-      child: InkWell(
+      child: Pressable(
         onTap: onTap,
         borderRadius: AppRadii.all16,
         child: ConstrainedBox(
@@ -258,9 +258,11 @@ class CurrencyChip extends StatelessWidget {
       label: l.expCurrencyLabel(code),
       excludeSemantics: true,
       onTap: onTap,
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
+      // 48 dp touch area around the 36 dp pill; the whole thing presses in (S-261).
+      child: Pressable(
         onTap: onTap,
+        scale: 0.95,
+        highlight: false,
         child: ConstrainedBox(
           constraints: const BoxConstraints(
             minHeight: AppSpacing.minTouch,
@@ -271,29 +273,25 @@ class CurrencyChip extends StatelessWidget {
             child: Material(
               color: c.primaryContainer,
               shape: const StadiumBorder(),
-              child: InkWell(
-                onTap: onTap,
-                customBorder: const StadiumBorder(),
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(minHeight: 36, minWidth: AppSpacing.minTouch),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.s4,
-                      vertical: AppSpacing.s1,
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          code,
-                          style: context.text.labelCaps.copyWith(color: c.onPrimaryContainer),
-                        ),
-                        if (onTap != null) ...[
-                          const SizedBox(width: AppSpacing.s1),
-                          Icon(AppIcons.chevronDown, size: 14, color: c.onPrimaryContainer),
-                        ],
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(minHeight: 36, minWidth: AppSpacing.minTouch),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.s4,
+                    vertical: AppSpacing.s1,
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        code,
+                        style: context.text.labelCaps.copyWith(color: c.onPrimaryContainer),
+                      ),
+                      if (onTap != null) ...[
+                        const SizedBox(width: AppSpacing.s1),
+                        Icon(AppIcons.chevronDown, size: 14, color: c.onPrimaryContainer),
                       ],
-                    ),
+                    ],
                   ),
                 ),
               ),

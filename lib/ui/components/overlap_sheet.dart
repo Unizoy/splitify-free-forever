@@ -22,20 +22,23 @@ class OverlapSheet extends StatelessWidget {
     final bars = (context.isDark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark).copyWith(
       statusBarColor: AppPalette.clear,
     );
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: bars,
-      child: DecoratedBox(
-        decoration: BoxDecoration(color: context.colors.bg, borderRadius: AppRadii.overlapTop),
-        child: Padding(
-          padding:
-              padding ??
-              EdgeInsets.fromLTRB(
-                AppSpacing.screen,
-                AppSpacing.s6 + AppSpacing.s1,
-                AppSpacing.screen,
-                bottom + AppSpacing.s6,
-              ),
-          child: child,
+    // Its own layer: a scroll moves it without re-recording its content (S-267).
+    return RepaintBoundary(
+      child: AnnotatedRegion<SystemUiOverlayStyle>(
+        value: bars,
+        child: DecoratedBox(
+          decoration: BoxDecoration(color: context.colors.bg, borderRadius: AppRadii.overlapTop),
+          child: Padding(
+            padding:
+                padding ??
+                EdgeInsets.fromLTRB(
+                  AppSpacing.screen,
+                  AppSpacing.s6 + AppSpacing.s1,
+                  AppSpacing.screen,
+                  bottom + AppSpacing.s6,
+                ),
+            child: child,
+          ),
         ),
       ),
     );

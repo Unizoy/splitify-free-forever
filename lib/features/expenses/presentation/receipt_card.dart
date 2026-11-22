@@ -11,6 +11,7 @@ import 'package:splitify/features/photos/presentation/photo_source_sheet.dart';
 import 'package:splitify/features/photos/presentation/photo_viewer_screen.dart';
 import 'package:splitify/features/photos/presentation/stored_photo.dart';
 import 'package:splitify/l10n/app_localizations.dart';
+import 'package:splitify/ui/components/components.dart';
 import 'package:splitify/ui/theme/theme.dart';
 
 /// The receipt on the expense detail (07 "receipt thumbnail"): a wide rounded photo with "Open photo"
@@ -70,9 +71,10 @@ class ReceiptCard extends ConsumerWidget {
       label: l.photoView,
       excludeSemantics: true,
       onTap: () => unawaited(_open(context, ref)),
-      child: GestureDetector(
+      child: Pressable(
         key: const Key('expense-receipt'),
         onTap: () => unawaited(_open(context, ref)),
+        scale: AppMotion.rowPressScale,
         child: ClipRRect(
           borderRadius: AppRadii.all24,
           child: SizedBox(

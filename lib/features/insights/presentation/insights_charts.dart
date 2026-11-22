@@ -8,6 +8,7 @@ import 'package:splitify/features/balances/presentation/balance_copy.dart' show 
 import 'package:splitify/features/expenses/presentation/expense_copy.dart';
 import 'package:splitify/features/insights/domain/aggregations.dart';
 import 'package:splitify/l10n/app_localizations.dart';
+import 'package:splitify/ui/components/components.dart';
 import 'package:splitify/ui/theme/theme.dart';
 
 /// The chart colour and icon of a top-level category key (06 §2: chart colours = category colours).
@@ -231,18 +232,19 @@ class LegendChip extends StatelessWidget {
     return Semantics(
       button: true,
       selected: selected,
-      child: Material(
-        color: selected ? c.ink : c.surface,
-        shape: RoundedRectangleBorder(
-          borderRadius: AppRadii.all24,
-          side: BorderSide(color: selected ? c.ink : c.border, width: 1.2),
-        ),
-        clipBehavior: Clip.antiAlias,
-        child: InkWell(
-          onTap: () {
-            unawaited(HapticFeedback.selectionClick());
-            onTap();
-          },
+      child: Pressable(
+        onTap: () {
+          unawaited(HapticFeedback.selectionClick());
+          onTap();
+        },
+        scale: AppMotion.rowPressScale,
+        child: Material(
+          color: selected ? c.ink : c.surface,
+          shape: RoundedRectangleBorder(
+            borderRadius: AppRadii.all24,
+            side: BorderSide(color: selected ? c.ink : c.border, width: 1.2),
+          ),
+          clipBehavior: Clip.antiAlias,
           child: ConstrainedBox(
             constraints: const BoxConstraints(minHeight: 52),
             child: Padding(
@@ -424,10 +426,11 @@ class MonthBars extends StatelessWidget {
                             listMoney(m.minor, currency),
                           ),
                           excludeSemantics: true,
-                          child: InkWell(
+                          child: Pressable(
                             key: Key('insights-bar-${m.month}'),
-                            borderRadius: AppRadii.all16,
                             onTap: () => onSelect(m.month),
+                            borderRadius: AppRadii.all16,
+                            child: const SizedBox.expand(),
                           ),
                         ),
                       ),

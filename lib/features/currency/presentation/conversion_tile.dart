@@ -70,9 +70,10 @@ class ConversionTile extends ConsumerWidget {
           label: '${l.fxInCurrency(main)}, $amount, $caption',
           excludeSemantics: true,
           onTap: open,
-          child: InkWell(
+          child: Pressable(
             key: const Key('conversion-tile'),
             onTap: open,
+            scale: AppMotion.rowPressScale,
             child: ConstrainedBox(
               constraints: const BoxConstraints(minHeight: 60),
               child: Padding(

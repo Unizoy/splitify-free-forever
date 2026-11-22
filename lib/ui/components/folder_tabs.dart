@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:splitify/ui/components/pressable.dart';
 import 'package:splitify/ui/components/word_fit_text.dart';
 import 'package:splitify/ui/painters/folder_tab_painter.dart';
 import 'package:splitify/ui/theme/theme.dart';
@@ -108,15 +109,22 @@ class _Tab extends StatelessWidget {
     return Semantics(
       button: true,
       selected: active,
-      child: CustomPaint(
-        painter: FolderTabPainter(
-          fill: active ? c.bg : c.chip,
-          stroke: active ? c.border : null,
-          slant: FolderTabs._slant,
-        ),
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(AppRadii.r24)),
+      child: Pressable(
+        onTap: onTap,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(AppRadii.r24)),
+        // The active tab's fill cross-fades in (the indicator moves smoothly, S-263).
+        child: TweenAnimationBuilder<Color?>(
+          tween: ColorTween(end: active ? c.bg : c.chip),
+          duration: context.motion.fast,
+          curve: context.motion.fastCurve,
+          builder: (context, fill, child) => CustomPaint(
+            painter: FolderTabPainter(
+              fill: fill ?? (active ? c.bg : c.chip),
+              stroke: active ? c.border : null,
+              slant: FolderTabs._slant,
+            ),
+            child: child,
+          ),
           child: _TabLabel(tab: tab, active: active, scaler: scaler),
         ),
       ),

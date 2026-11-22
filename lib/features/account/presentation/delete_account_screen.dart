@@ -58,7 +58,7 @@ class _DeleteAccountScreenState extends ConsumerState<DeleteAccountScreen> {
     final armed = _confirm.text.trim() == l.deleteWord;
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
+        leading: AppIconButton(
           tooltip: l.back,
           icon: const Icon(AppIcons.back),
           onPressed: () => Navigator.of(context).maybePop(),

@@ -42,7 +42,7 @@ class ExpenseDetailScreen extends ConsumerWidget {
     if (v == null) {
       return Scaffold(
         appBar: AppBar(
-          leading: IconButton(
+          leading: AppIconButton(
             tooltip: l.back,
             icon: const Icon(AppIcons.back),
             onPressed: () => Navigator.of(context).maybePop(),
@@ -155,13 +155,16 @@ class _Hero extends ConsumerWidget {
       ],
       titleWidget: Column(
         children: [
-          Container(
-            width: 56,
-            height: 56,
-            decoration: BoxDecoration(color: c.onHero, shape: BoxShape.circle),
-            child: view.isLoan
-                ? Icon(AppIcons.loanFill, size: 28, color: c.primary)
-                : Icon(category.icon, size: 28, color: category.color),
+          Hero(
+            tag: AppHeroTags.expense(e.id),
+            child: Container(
+              width: 56,
+              height: 56,
+              decoration: BoxDecoration(color: c.onHero, shape: BoxShape.circle),
+              child: view.isLoan
+                  ? Icon(AppIcons.loanFill, size: 28, color: c.primary)
+                  : Icon(category.icon, size: 28, color: category.color),
+            ),
           ),
           if (view.isLoan) ...[
             const SizedBox(height: AppSpacing.s3),
@@ -189,12 +192,7 @@ class _Hero extends ConsumerWidget {
               money(e.total),
               key: const Key('expense-detail-amount'),
               maxLines: 1,
-              style: context.text.heroDisplay.copyWith(
-                color: c.onHero,
-                // Instrument Serif has no ₹ glyph: the symbol falls back to Inter.
-                fontFamilyFallback: const [AppFonts.sans],
-                fontFeatures: const [FontFeature.tabularFigures()],
-              ),
+              style: context.text.amountHero.copyWith(color: c.onHero),
             ),
           ),
           const SizedBox(height: AppSpacing.s4),

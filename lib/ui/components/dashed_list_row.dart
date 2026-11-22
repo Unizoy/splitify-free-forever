@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:splitify/ui/components/dashed_divider.dart';
+import 'package:splitify/ui/components/pressable.dart';
 import 'package:splitify/ui/theme/theme.dart';
 
 /// Settings-style row (614): icon, label, optional value and chevron, with a
@@ -39,8 +40,9 @@ class DashedListRow extends StatelessWidget {
       children: [
         Semantics(
           button: onTap != null,
-          child: InkWell(
+          child: Pressable(
             onTap: onTap,
+            scale: AppMotion.rowPressScale,
             child: ConstrainedBox(
               constraints: const BoxConstraints(minHeight: 60),
               child: Padding(

@@ -98,7 +98,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
     final photo = _photo;
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
+        leading: AppIconButton(
           tooltip: l.back,
           icon: const Icon(AppIcons.back),
           onPressed: () => Navigator.of(context).maybePop(),

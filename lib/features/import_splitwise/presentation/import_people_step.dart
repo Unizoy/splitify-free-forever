@@ -230,9 +230,10 @@ class _PersonRow extends StatelessWidget {
     );
     return Semantics(
       button: true,
-      child: InkWell(
+      child: Pressable(
         key: Key('import-person-$name'),
         onTap: onTap,
+        scale: AppMotion.rowPressScale,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [

@@ -276,12 +276,12 @@ class _MonthCalendarState extends State<MonthCalendar> {
                 style: context.text.title.w(700),
               ),
             ),
-            IconButton(
+            AppIconButton(
               tooltip: l.expPrevMonth,
               onPressed: () => _shift(-1),
               icon: Icon(AppIcons.backChevron, size: 18, color: c.textPrimary),
             ),
-            IconButton(
+            AppIconButton(
               tooltip: l.expNextMonth,
               onPressed: () => _shift(1),
               icon: Icon(AppIcons.chevronRight, size: 18, color: c.textPrimary),
@@ -350,9 +350,10 @@ class _DayCell extends StatelessWidget {
       label: shortDate(context, day),
       excludeSemantics: true,
       onTap: onTap,
-      child: InkResponse(
+      child: Pressable(
         onTap: onTap,
-        radius: 24,
+        circle: true,
+        scale: 0.9,
         child: SizedBox(
           height: AppSpacing.minTouch,
           child: Center(

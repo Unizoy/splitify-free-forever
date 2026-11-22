@@ -90,7 +90,7 @@ class _UnderlineFieldState extends State<UnderlineField> {
     final hasError = widget.errorText != null;
     final lineColor = hasError ? c.oweText : (focused ? c.primary : c.divider);
     final l = AppLocalizations.of(context);
-    final inputStyle = context.text.body.copyWith(fontSize: 18, height: 1.35);
+    final inputStyle = context.text.body.copyWith(fontSize: 16, height: 1.35);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,

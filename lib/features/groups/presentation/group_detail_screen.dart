@@ -66,7 +66,7 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen> {
     if (group == null || group.deletedAt != null) {
       return Scaffold(
         appBar: AppBar(
-          leading: IconButton(
+          leading: AppIconButton(
             tooltip: l.back,
             icon: const Icon(AppIcons.back),
             onPressed: () => _close(context),
@@ -124,17 +124,30 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen> {
                       const Align(alignment: AlignmentDirectional.centerStart, child: SyncMarker()),
                     ],
                     const SizedBox(height: AppSpacing.s2),
-                    if (_tab == 1) GroupBalancesTab(groupId: group.id),
-                    if (_tab == 2) GroupTotalsTab(groupId: group.id),
+                    // The picked tab's content fades in (S-263).
+                    if (_tab == 1)
+                      FadeIn(
+                        key: const ValueKey(1),
+                        child: GroupBalancesTab(groupId: group.id),
+                      ),
+                    if (_tab == 2)
+                      FadeIn(
+                        key: const ValueKey(2),
+                        child: GroupTotalsTab(groupId: group.id),
+                      ),
                   ],
                 ),
               ),
             ),
           ),
           if (_tab == 0) ...[
-            SliverPadding(
-              padding: sides,
-              sliver: ExpenseListSliver(groupId: group.id),
+            FadeIn(
+              key: const ValueKey(0),
+              sliver: true,
+              child: SliverPadding(
+                padding: sides,
+                sliver: ExpenseListSliver(groupId: group.id),
+              ),
             ),
             SliverPadding(
               padding: sides,
@@ -235,6 +248,7 @@ class _Hero extends ConsumerWidget {
     final l = AppLocalizations.of(context);
     final c = context.colors;
     return HeroHeader(
+      heroTag: AppHeroTags.group(group.id),
       art: (seed: group.id, family: coverFamilyFor(group.type)),
       photo: groupCoverImage(ref, group, width: 1200),
       leading: HeroIconButton(

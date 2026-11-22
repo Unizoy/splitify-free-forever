@@ -33,7 +33,7 @@ class AuthPage extends StatelessWidget {
         backgroundColor: c.bg,
         leading: onBack == null
             ? null
-            : IconButton(tooltip: l.back, icon: const Icon(AppIcons.back), onPressed: onBack),
+            : AppIconButton(tooltip: l.back, icon: const Icon(AppIcons.back), onPressed: onBack),
         automaticallyImplyLeading: false,
       ),
       body: SafeArea(
@@ -57,7 +57,7 @@ class AuthPage extends StatelessWidget {
                   textAlign: TextAlign.center,
                   style: context.text.heroDisplay.copyWith(
                     color: c.textPrimary,
-                    fontSize: 38,
+                    fontSize: 34,
                     height: 1.1,
                   ),
                 ),

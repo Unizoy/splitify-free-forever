@@ -176,7 +176,7 @@ class _CaptureScreenState extends ConsumerState<CaptureScreen> {
           children: [
             Align(
               alignment: AlignmentDirectional.centerStart,
-              child: IconButton(
+              child: AppIconButton(
                 tooltip: l.back,
                 icon: const Icon(AppIcons.back),
                 onPressed: () => context.canPop() ? context.pop() : context.go('/groups'),

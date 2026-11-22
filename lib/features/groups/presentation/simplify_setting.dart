@@ -40,9 +40,10 @@ class SimplifySettingRow extends ConsumerWidget {
       children: [
         const DashedDivider(),
         MergeSemantics(
-          child: InkWell(
+          child: Pressable(
             key: const Key('settings-simplify'),
             onTap: () => toggle(!on),
+            scale: AppMotion.rowPressScale,
             child: ConstrainedBox(
               constraints: const BoxConstraints(minHeight: 72),
               child: Padding(

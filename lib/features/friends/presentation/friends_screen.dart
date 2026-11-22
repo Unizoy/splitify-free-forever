@@ -66,13 +66,23 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen> {
         ),
       );
     } else {
-      content = Column(
-        key: const Key('friends-list'),
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          for (var i = 0; i < shown.length; i++)
-            FriendRow(friend: shown[i], firstCurrency: first, showDivider: i < shown.length - 1),
-        ],
+      // Rows rise in once when the list first shows (S-265).
+      content = EntranceScope(
+        child: Column(
+          key: const Key('friends-list'),
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            for (var i = 0; i < shown.length; i++)
+              Entrance(
+                index: i,
+                child: FriendRow(
+                  friend: shown[i],
+                  firstCurrency: first,
+                  showDivider: i < shown.length - 1,
+                ),
+              ),
+          ],
+        ),
       );
     }
 
@@ -153,7 +163,7 @@ class _SearchPill extends StatelessWidget {
                 ),
               ),
               if (controller.text.isNotEmpty)
-                IconButton(
+                AppIconButton(
                   key: const Key('friends-search-clear'),
                   tooltip: l.cancelLabel,
                   icon: Icon(AppIcons.close, color: c.textSecondary, size: 20),

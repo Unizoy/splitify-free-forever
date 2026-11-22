@@ -30,18 +30,19 @@ class AppText extends ThemeExtension<AppText> {
 
   /// Builds the scale with [primary] as the default colour.
   factory AppText.withColor(Color primary) => AppText(
-    heroDisplay: _serif(40, 44, -0.6, primary),
-    sheetTitle: _serif(32, 36, -0.4, primary),
-    cardTitle: _serif(22, 26, -0.2, primary),
-    headline: _sans(22, 28, 700, -0.2, primary),
-    title: _sans(18, 24, 600, 0, primary),
-    body: _sans(16, 22, 400, 0, primary),
-    bodySmall: _sans(14, 20, 400, 0, primary),
-    caption: _sans(12, 16, 500, 0.2, primary),
-    labelCaps: _sans(12, 16, 700, 1.6, primary),
-    amountHero: _sans(40, 44, 700, -1, primary, tabular: true),
-    amount: _sans(16, 20, 600, 0, primary, tabular: true),
-    button: _sans(17, 22, 600, 0, primary),
+    // One step smaller and a touch tighter than phase 02 (S-268, owner D-027, Atlys refs 438/602).
+    heroDisplay: _serif(34, 38, -0.5, primary),
+    sheetTitle: _serif(28, 32, -0.3, primary),
+    cardTitle: _serif(19, 23, -0.1, primary),
+    headline: _sans(20, 26, 700, -0.3, primary),
+    title: _sans(16, 22, 600, -0.1, primary),
+    body: _sans(15, 21, 400, -0.1, primary),
+    bodySmall: _sans(13, 18, 400, 0, primary),
+    caption: _sans(11.5, 15, 500, 0.2, primary),
+    labelCaps: _sans(11, 14, 700, 1.4, primary),
+    amountHero: _sans(34, 38, 700, -0.8, primary, tabular: true),
+    amount: _sans(15, 20, 600, -0.1, primary, tabular: true),
+    button: _sans(16, 20, 600, -0.1, primary),
   );
 
   /// Serif display: hero headlines, lowercase sentences.

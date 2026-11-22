@@ -84,26 +84,29 @@ class _GroupsHomeScreenState extends ConsumerState<GroupsHomeScreen> {
         ],
       );
     } else {
-      content = Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          if (active.isNotEmpty) _GroupGrid(groups: active, balances: byGroup),
-          if (archived.isNotEmpty) ...[
-            const SizedBox(height: AppSpacing.s4),
-            DashedListRow(
-              key: const Key('groups-archived'),
-              icon: AppIcons.archive,
-              label: l.archivedGroups,
-              value: '${archived.length}',
-              showDivider: false,
-              onTap: () => setState(() => _showArchived = !_showArchived),
-            ),
-            if (_showArchived) ...[
-              const SizedBox(height: AppSpacing.s3),
-              _GroupGrid(groups: archived, balances: byGroup),
+      // The cards rise in once, when the list first shows (S-265).
+      content = EntranceScope(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (active.isNotEmpty) _GroupGrid(groups: active, balances: byGroup),
+            if (archived.isNotEmpty) ...[
+              const SizedBox(height: AppSpacing.s4),
+              DashedListRow(
+                key: const Key('groups-archived'),
+                icon: AppIcons.archive,
+                label: l.archivedGroups,
+                value: '${archived.length}',
+                showDivider: false,
+                onTap: () => setState(() => _showArchived = !_showArchived),
+              ),
+              if (_showArchived) ...[
+                const SizedBox(height: AppSpacing.s3),
+                _GroupGrid(groups: archived, balances: byGroup),
+              ],
             ],
           ],
-        ],
+        ),
       );
     }
 
@@ -249,9 +252,16 @@ class _Hero extends ConsumerWidget {
             FittedBox(
               fit: BoxFit.scaleDown,
               alignment: AlignmentDirectional.centerStart,
-              child: Text(
-                codes.isEmpty ? listMoney(0, first) : amount(codes.first),
-                key: const Key('groups-overall-amount'),
+              child: AnimatedAmount(
+                textKey: const Key('groups-overall-amount'),
+                // Counts to a new total when a change lands (S-264).
+                minor: codes.isEmpty
+                    ? 0
+                    : (mixed ? totals[codes.first]! : totals[codes.first]!.abs()),
+                currency: codes.isEmpty ? first : codes.first,
+                format: (m) => codes.isEmpty
+                    ? listMoney(m, first)
+                    : (mixed ? signedMoney(m, codes.first) : listMoney(m, codes.first)),
                 style: context.text.amountHero.copyWith(
                   color: codes.isEmpty || mixed ? c.onHero : toneOf(status).onDarkColor(c),
                 ),
@@ -331,14 +341,17 @@ class _GroupGrid extends ConsumerWidget {
       crossAxisSpacing: AppSpacing.gutter,
       childAspectRatio: GroupCoverCard.aspectRatioFor(context),
       children: [
-        for (final g in groups)
-          _groupCard(
-            l,
-            context,
-            g,
-            balances,
-            unsynced: g.syncState != SyncState.synced || unsynced.contains(g.id),
-            photo: groupCoverImage(ref, g, width: 600),
+        for (final (i, g) in groups.indexed)
+          Entrance(
+            index: i,
+            child: _groupCard(
+              l,
+              context,
+              g,
+              balances,
+              unsynced: g.syncState != SyncState.synced || unsynced.contains(g.id),
+              photo: groupCoverImage(ref, g, width: 600),
+            ),
           ),
       ],
     );
@@ -371,6 +384,7 @@ Widget _groupCard(
     tone: toneOf(status),
     unsynced: unsynced,
     photo: photo,
+    heroTag: AppHeroTags.group(g.id),
     onTap: () => context.push('/groups/${g.id}'),
   );
 }
@@ -383,20 +397,22 @@ class _GridSkeleton extends StatelessWidget {
     final c = context.colors;
     return Semantics(
       label: AppLocalizations.of(context).groupsLoading,
-      child: GridView.count(
-        crossAxisCount: 2,
-        shrinkWrap: true,
-        padding: EdgeInsets.zero,
-        physics: const NeverScrollableScrollPhysics(),
-        mainAxisSpacing: AppSpacing.gutter,
-        crossAxisSpacing: AppSpacing.gutter,
-        childAspectRatio: GroupCoverCard.aspectRatioFor(context),
-        children: [
-          for (var i = 0; i < 2; i++)
-            DecoratedBox(
-              decoration: BoxDecoration(color: c.surfaceMuted, borderRadius: AppRadii.all28),
-            ),
-        ],
+      child: Shimmer(
+        child: GridView.count(
+          crossAxisCount: 2,
+          shrinkWrap: true,
+          padding: EdgeInsets.zero,
+          physics: const NeverScrollableScrollPhysics(),
+          mainAxisSpacing: AppSpacing.gutter,
+          crossAxisSpacing: AppSpacing.gutter,
+          childAspectRatio: GroupCoverCard.aspectRatioFor(context),
+          children: [
+            for (var i = 0; i < 2; i++)
+              DecoratedBox(
+                decoration: BoxDecoration(color: c.surfaceMuted, borderRadius: AppRadii.all28),
+              ),
+          ],
+        ),
       ),
     );
   }

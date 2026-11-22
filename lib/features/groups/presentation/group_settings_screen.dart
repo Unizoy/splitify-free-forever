@@ -38,7 +38,7 @@ class GroupSettingsScreen extends ConsumerWidget {
     final members = ref.watch(groupMembersProvider(groupId)).value ?? const [];
     final me = ref.watch(currentUserIdProvider);
     final back = AppBar(
-      leading: IconButton(
+      leading: AppIconButton(
         tooltip: l.back,
         icon: const Icon(AppIcons.back),
         onPressed: () => Navigator.of(context).maybePop(),
@@ -344,9 +344,10 @@ class _MemberRow extends StatelessWidget {
         : null;
     return Column(
       children: [
-        InkWell(
+        Pressable(
           key: Key('member-${m.id}'),
           onTap: onTap,
+          scale: AppMotion.rowPressScale,
           child: ConstrainedBox(
             constraints: const BoxConstraints(minHeight: 64),
             child: Padding(
@@ -474,10 +475,11 @@ class _MemberNameFormState extends State<MemberNameForm> {
                     label: l.memberColourOption(i + 1),
                     excludeSemantics: true,
                     onTap: () => setState(() => _tint = i),
-                    child: InkResponse(
+                    child: Pressable(
                       key: Key('member-tint-$i'),
                       onTap: () => setState(() => _tint = i),
-                      radius: 28,
+                      circle: true,
+                      scale: 0.9,
                       child: Container(
                         padding: const EdgeInsets.all(3),
                         decoration: BoxDecoration(

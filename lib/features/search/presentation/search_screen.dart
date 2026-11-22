@@ -70,7 +70,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
               ),
               child: Row(
                 children: [
-                  IconButton(
+                  AppIconButton(
                     key: const Key('search-back'),
                     tooltip: l.back,
                     icon: const Icon(AppIcons.back),
@@ -155,7 +155,7 @@ class _SearchField extends StatelessWidget {
             listenable: controller,
             builder: (context, _) => controller.text.isEmpty
                 ? const SizedBox(width: AppSpacing.s3)
-                : IconButton(
+                : AppIconButton(
                     key: const Key('search-clear'),
                     tooltip: l.searchClear,
                     icon: Icon(AppIcons.clearCircle, size: 20, color: c.textTertiary),
