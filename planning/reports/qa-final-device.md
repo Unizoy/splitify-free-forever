@@ -22,8 +22,8 @@ Branch `qa/final-device`. Decisions S-250 to S-259. No migration. Defect log wit
 | Sync | No pull to refresh on Groups, a group, Friends, Activity; a refused Realtime join (new group) was never retried; Sync & storage said "Everything is synced" with a stopped photo upload. |
 | Money and dates | Default dates and "Today/Yesterday" used the UTC day (00:08 IST saved the day before); settle prefill read "8822.5"; FX rate field showed 10 decimals; "You owes / gets back" on your own row. |
 | Settle up | UPI method offered for USD; "Pay via UPI" stayed after picking Cash; no Settle up when all settled. |
-| Sheets and forms | Messages from sheets were hidden under the sheet (copy code, reset); e-mail/UPI/code fields auto-capitalised; group/profile currency was a 160-button list without search; push pre-prompt never appeared after the first group (removed with the replaced page). |
-| Consistency | One colour per person on every screen; split rows in member order; payment detail says who added it; review step shows the repeat; deleted groups left out of search and activity. |
+| Sheets and forms | Messages from sheets were hidden under the sheet (copy code, reset); e-mail/UPI/code fields auto-capitalised; group/profile currency was a 160-button list without search; push pre-prompt never appeared after the first group (removed with the replaced page) or after an invite-link join (shell not mounted). Airplane mode now shows offline at once. |
+| Consistency | One colour per person on every screen; split rows in member order; payment detail says who added it; review step shows the repeat; deleted groups left out of search and activity; "You joined as Mohit" (was "as you"); Account shows faded frequent friends beside your avatar (07 §2). |
 | Android | Launcher label "Splitify" (was cut to "Splitify Free …"); widget picker previews with sample values and names; bubble header time on one line; two "Kotak" apps renamed; notifications row says On only when Android allows it; blocked push shows disabled switches and Open phone settings; Delete my account is a danger button; Continue with Google uses the official G. |
 
 ## Checked, no change needed
@@ -41,3 +41,10 @@ Branch `qa/final-device`. Decisions S-250 to S-259. No migration. Defect log wit
 - Realtime live updates cannot be seen on this emulator (DNS pin; no websocket reaches the dev project); verified by
   unit tests, resume and pull to refresh. Check on a real phone: another member's expense should appear without
   pulling.
+
+## Gates
+
+- `dart format`, `flutter analyze` (0 errors/warnings), `dart run tool/guards.dart`: pass.
+- `flutter test --exclude-tags device,needs-owner,quarantine`: 3,129 passed (goldens re-recorded only where a fix changes pixels).
+- Release x64 build installed on emulator-5554, signed in, sample data kept, Groups screen, light, text 1.0.
+- Device integration suites: SKIPPED (manual device walkthrough instead; the motion agent shared the emulator).
