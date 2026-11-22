@@ -67,9 +67,7 @@ abstract final class SearchIndex {
     final names = await _names(db, {for (final e in live) e.groupId});
     for (final e in live) {
       final people = {..._keys(e.payers), ..._keys(e.shares)};
-      final text = [
-        for (final m in people) ...?names[m],
-      ].toSet().join(' ');
+      final text = [for (final m in people) ...?names[m]].toSet().join(' ');
       await db.customInsert(
         'INSERT INTO expense_search (expense_id, group_id, description, notes, member_names, amount_text) '
         'VALUES (?, ?, ?, ?, ?, ?)',

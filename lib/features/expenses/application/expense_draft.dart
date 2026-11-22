@@ -5,6 +5,7 @@ import 'package:splitify/core/money/scaled_input.dart';
 import 'package:splitify/core/money/split.dart';
 import 'package:splitify/features/expenses/application/receipt_draft.dart';
 import 'package:splitify/features/expenses/application/split_draft.dart';
+import 'package:splitify/features/recurring/application/repeat_draft.dart';
 
 /// A member as the editor shows it.
 typedef EditorMember = ({String id, String name, bool isMe});
@@ -59,6 +60,9 @@ final class ExpenseDraft {
     this.category = 'other.general',
     this.notes = '',
     this.receipt = const ReceiptDraft.none(),
+    this.repeat = RepeatDraft.never,
+    this.canRepeat = false,
+    this.templateId,
   });
 
   final String groupId;
@@ -91,7 +95,22 @@ final class ExpenseDraft {
   /// Receipt photo: unchanged, newly picked or removed (#29).
   final ReceiptDraft receipt;
 
+  /// "Repeat" choice (#12); saved as a template next to the expense.
+  final RepeatDraft repeat;
+
+  /// The repeat picker is offered: new expenses, and saved ones that neither repeat yet nor are copies.
+  final bool canRepeat;
+
+  /// Set when the editor edits a repeating expense's future copies (its template, #12) instead of one
+  /// expense; [date] is then the template's first date and only the repeat can change it.
+  final String? templateId;
+
   bool get isEdit => expenseId != null;
+
+  bool get isTemplate => templateId != null;
+
+  /// The repeat's end date is before the expense date.
+  bool get repeatProblem => (canRepeat || isTemplate) && repeat.endsBefore(date);
 
   AmountResult get amount => AmountExpression.evaluate(amountText, currency);
 
@@ -176,7 +195,11 @@ final class ExpenseDraft {
   bool get fastPathReady => total != null && descriptionProblem == null;
 
   bool get canSave =>
-      fastPathReady && notes.trim().length <= maxNotes && payersOk && splitCheck is SplitReady;
+      fastPathReady &&
+      notes.trim().length <= maxNotes &&
+      payersOk &&
+      splitCheck is SplitReady &&
+      !repeatProblem;
 
   EditorMember? member(String id) {
     for (final m in members) {
@@ -210,6 +233,14 @@ final class ExpenseDraft {
     };
   }
 
+  /// The expense fields every copy of a repeating expense gets (#12): [toRow] without the date, the
+  /// receipt and conversions (those belong to one expense).
+  Map<String, Object?> templateFields() => {...toRow()}..remove('date');
+
+  /// Another repeat choice.
+  ExpenseDraft withRepeat(RepeatDraft r) =>
+      _copy(payerId: payerId, payerText: payerText, repeat: r);
+
   /// The same draft in [code] (#14 currency picker): typed amounts are checked again for its decimals.
   ExpenseDraft withCurrency(String code) => ExpenseDraft(
     groupId: groupId,
@@ -227,6 +258,9 @@ final class ExpenseDraft {
     category: category,
     notes: notes,
     receipt: receipt,
+    repeat: repeat,
+    canRepeat: canRepeat,
+    templateId: templateId,
   );
 
   /// One payer for the whole amount.
@@ -270,6 +304,7 @@ final class ExpenseDraft {
     DateTime? date,
     String? notes,
     ReceiptDraft? receipt,
+    RepeatDraft? repeat,
   }) => ExpenseDraft(
     groupId: groupId,
     groupName: groupName,
@@ -286,6 +321,9 @@ final class ExpenseDraft {
     category: category ?? this.category,
     notes: notes ?? this.notes,
     receipt: receipt ?? this.receipt,
+    repeat: repeat ?? this.repeat,
+    canRepeat: canRepeat,
+    templateId: templateId,
   );
 }
 

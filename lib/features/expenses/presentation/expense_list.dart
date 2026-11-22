@@ -122,10 +122,13 @@ class _MonthHeader extends StatelessWidget {
 /// One expense in the list: category circle, description, "Rahul paid ₹1,200 · 21 Nov", and the
 /// viewer's side on the right.
 class ExpenseRow extends StatelessWidget {
-  const ExpenseRow({required this.view, this.showDivider = true, super.key});
+  const ExpenseRow({required this.view, this.showDivider = true, this.groupName, super.key});
 
   final ExpenseView view;
   final bool showDivider;
+
+  /// Named in the caption when rows of several groups are listed (search results).
+  final String? groupName;
 
   @override
   Widget build(BuildContext context) {
@@ -141,7 +144,11 @@ class ExpenseRow extends StatelessWidget {
     return AmountRow(
       key: ValueKey('expense-${e.id}'),
       title: e.description,
-      caption: '${paidCaption(l, view)} · ${dayMonth(context, parseIsoDate(e.date))}',
+      caption: [
+        ?groupName,
+        paidCaption(l, view),
+        dayMonth(context, parseIsoDate(e.date)),
+      ].join(' · '),
       amountText: amount,
       amountCaption: side,
       tone: tone,
@@ -149,6 +156,12 @@ class ExpenseRow extends StatelessWidget {
       showDivider: showDivider,
       badge: view.isLoan
           ? TagChip(key: ValueKey('loan-chip-${e.id}'), label: l.loanChip)
+          : e.source == 'recurring'
+          ? TagChip(
+              key: ValueKey('recurring-chip-${e.id}'),
+              label: l.recurringChip,
+              icon: AppIcons.repeat,
+            )
           : (e.receiptPath == null
                 ? null
                 : Semantics(

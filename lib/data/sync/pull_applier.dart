@@ -65,7 +65,9 @@ class PullApplier {
     }
     // Offline search (#34): new names re-index their groups, other pulled expenses one by one.
     if (profiles.isNotEmpty) {
-      final linked = await (db.select(db.groupMembers)..where((m) => m.userId.isIn(profiles))).get();
+      final linked = await (db.select(
+        db.groupMembers,
+      )..where((m) => m.userId.isIn(profiles))).get();
       indexGroups.addAll(linked.map((m) => m.groupId));
     }
     await SearchIndex.groups(db, indexGroups);

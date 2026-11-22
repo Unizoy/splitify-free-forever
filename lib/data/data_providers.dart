@@ -4,7 +4,9 @@ import 'package:splitify/core/time/clock.dart';
 import 'package:splitify/data/local/app_database.dart';
 import 'package:splitify/data/media_providers.dart';
 import 'package:splitify/data/remote/remote_providers.dart';
+import 'package:splitify/data/repositories/recurring_repository.dart';
 import 'package:splitify/data/repositories/repositories.dart';
+import 'package:splitify/data/repositories/search_repository.dart';
 import 'package:splitify/data/repositories/sync_repository.dart';
 import 'package:splitify/data/sync/local_writer.dart';
 import 'package:splitify/data/sync/sync_engine.dart';
@@ -56,6 +58,16 @@ final paymentsRepositoryProvider = Provider<PaymentsRepository>(
 );
 final commentsRepositoryProvider = Provider<CommentsRepository>(
   (ref) => CommentsRepository(ref.watch(appDatabaseProvider), ref.watch(localWriterProvider)),
+);
+
+/// Repeating expenses (#12), written through the outbox.
+final recurringRepositoryProvider = Provider<RecurringRepository>(
+  (ref) => RecurringRepository(ref.watch(appDatabaseProvider), ref.watch(localWriterProvider)),
+);
+
+/// Offline search (#34).
+final searchRepositoryProvider = Provider<SearchRepository>(
+  (ref) => SearchRepository(ref.watch(appDatabaseProvider)),
 );
 
 /// Sync state and actions ("Sync & storage", markers, sign-out flush).

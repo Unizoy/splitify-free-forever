@@ -8,6 +8,8 @@ import 'package:splitify/features/expenses/presentation/default_split_screen.dar
 import 'package:splitify/features/expenses/presentation/editor/expense_editor_screen.dart';
 import 'package:splitify/features/expenses/presentation/expense_detail_screen.dart';
 import 'package:splitify/features/expenses/presentation/loan_screen.dart';
+import 'package:splitify/features/recurring/presentation/recurring_tile.dart'
+    show recurringEditRoute;
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/components/components.dart';
 import 'package:splitify/ui/theme/theme.dart';
@@ -26,6 +28,9 @@ abstract final class ExpenseRoutes {
   static String addLoan(String groupId, {String? withMember}) =>
       Uri(path: '/loan/new', queryParameters: {'group': groupId, 'with': ?withMember}).toString();
   static String editLoan(String id) => '/loan/$id/edit';
+
+  /// "Edit future copies" of a repeating expense (#12).
+  static String editRecurring(String templateId) => recurringEditRoute(templateId);
 }
 
 /// Top-level routes (they cover the tab shell); spread into the app router.
@@ -58,6 +63,10 @@ List<RouteBase> expenseRoutes() => [
   GoRoute(
     path: '/loan/:id/edit',
     builder: (context, state) => LoanScreen(expenseId: state.pathParameters['id']),
+  ),
+  GoRoute(
+    path: '/recurring/:id/edit',
+    builder: (context, state) => ExpenseEditorScreen(templateId: state.pathParameters['id']),
   ),
 ];
 

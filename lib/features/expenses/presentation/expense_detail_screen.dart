@@ -19,6 +19,9 @@ import 'package:splitify/features/groups/presentation/group_visuals.dart' show g
 import 'package:splitify/features/comments/application/comments_providers.dart';
 import 'package:splitify/features/comments/presentation/comment_thread.dart';
 import 'package:splitify/features/history/presentation/history_routes.dart';
+import 'package:splitify/data/data_providers.dart' show recurringRepositoryProvider;
+import 'package:splitify/features/recurring/application/recurring_providers.dart';
+import 'package:splitify/features/recurring/presentation/recurring_tile.dart';
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/components/components.dart';
 import 'package:splitify/ui/theme/theme.dart';
@@ -65,7 +68,9 @@ class ExpenseDetailScreen extends ConsumerWidget {
       body: SingleChildScrollView(
         child: OverlapColumn(
           top: _Hero(view: v, group: group),
-          bottom: OverlapSheet(child: _Body(view: v)),
+          bottom: OverlapSheet(
+            child: _Body(view: v, readOnly: group?.archivedAt != null),
+          ),
         ),
       ),
       bottomNavigationBar: CommentComposer(
@@ -91,14 +96,21 @@ class _Hero extends ConsumerWidget {
     final navigator = Navigator.of(context);
     final actions = ref.read(expenseActionsProvider);
     final e = view.expense;
+    // Deleting the expense a repeat was started from also stops the repeat (copies made stay, #12).
+    final template = await ref
+        .read(recurringRepositoryProvider)
+        .watchForExpense(e.id, recurringId: e.recurringId)
+        .first;
+    final stops = template != null && template.active && template.expenseId == e.id;
     await actions.delete(e);
+    if (stops) await ref.read(recurringActionsProvider).stop(template);
     unawaited(HapticFeedback.mediumImpact());
     await navigator.maybePop();
     messenger
       ..hideCurrentSnackBar()
       ..showSnackBar(
         SnackBar(
-          content: Text(l.expDeleted),
+          content: Text(stops ? l.recurringDeleteAlsoStops : l.expDeleted),
           duration: const Duration(seconds: 6),
           action: SnackBarAction(label: l.expUndo, onPressed: () => unawaited(actions.restore(e))),
         ),
@@ -157,6 +169,15 @@ class _Hero extends ConsumerWidget {
             const SizedBox(height: AppSpacing.s3),
             StatusPill(label: l.loanChip, icon: AppIcons.loan, tone: StatusPillTone.glass),
           ],
+          if (e.source == 'recurring') ...[
+            const SizedBox(height: AppSpacing.s3),
+            StatusPill(
+              key: const Key('expense-recurring-pill'),
+              label: l.recurringChip,
+              icon: AppIcons.repeat,
+              tone: StatusPillTone.glass,
+            ),
+          ],
           const SizedBox(height: AppSpacing.s4),
           Text(
             e.description,
@@ -195,9 +216,12 @@ class _Hero extends ConsumerWidget {
 }
 
 class _Body extends StatelessWidget {
-  const _Body({required this.view});
+  const _Body({required this.view, this.readOnly = false});
 
   final ExpenseView view;
+
+  /// Archived group (read-only).
+  final bool readOnly;
 
   @override
   Widget build(BuildContext context) {
@@ -254,6 +278,8 @@ class _Body extends StatelessWidget {
           label: l.expDateLabel,
           value: shortDate(context, parseIsoDate(e.date)),
         ),
+        if (!view.isLoan)
+          RecurringTile(expenseId: e.id, recurringId: e.recurringId, readOnly: readOnly),
         ConversionTile(
           recordId: e.id,
           groupId: e.groupId,
@@ -284,6 +310,15 @@ class _Body extends StatelessWidget {
           showDivider: false,
           onTap: () => unawaited(context.push(HistoryRoutes.expense(e.id))),
         ),
+        if (e.source == 'recurring') ...[
+          const SizedBox(height: AppSpacing.s2),
+          Text(
+            l.recurringCopyLine,
+            key: const Key('expense-recurring-line'),
+            textAlign: TextAlign.center,
+            style: context.text.caption.copyWith(color: c.textSecondary),
+          ),
+        ],
         if (added != null) ...[
           const SizedBox(height: AppSpacing.s2),
           Text(
