@@ -162,6 +162,8 @@ class HeroIconButton extends StatelessWidget {
     required this.icon,
     required this.tooltip,
     required this.onPressed,
+    this.badge = 0,
+    this.semanticLabel,
     super.key,
   });
 
@@ -169,14 +171,30 @@ class HeroIconButton extends StatelessWidget {
   final String tooltip;
   final VoidCallback? onPressed;
 
+  /// Count in an amber badge on the circle (the bell's unread count, phase 13); 0 hides it, 10+ shows "9+".
+  final int badge;
+
+  /// Screen-reader label when it should say more than [tooltip] ("Notifications, 3 unread").
+  final String? semanticLabel;
+
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
+    final circle = Container(
+      width: 40,
+      height: 40,
+      decoration: BoxDecoration(
+        color: c.onHero.withValues(alpha: 0.18),
+        shape: BoxShape.circle,
+        border: Border.all(color: c.onHero.withValues(alpha: 0.22)),
+      ),
+      child: Icon(icon, size: 20, color: c.onHero),
+    );
     return Tooltip(
       message: tooltip,
       child: Semantics(
         button: true,
-        label: tooltip,
+        label: semanticLabel ?? tooltip,
         excludeSemantics: true,
         child: InkResponse(
           onTap: onPressed,
@@ -184,19 +202,48 @@ class HeroIconButton extends StatelessWidget {
           child: SizedBox.square(
             dimension: AppSpacing.minTouch,
             child: Center(
-              child: Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: c.onHero.withValues(alpha: 0.18),
-                  shape: BoxShape.circle,
-                  border: Border.all(color: c.onHero.withValues(alpha: 0.22)),
-                ),
-                child: Icon(icon, size: 20, color: c.onHero),
-              ),
+              child: badge <= 0
+                  ? circle
+                  : Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        circle,
+                        PositionedDirectional(
+                          top: -3,
+                          end: -5,
+                          child: _CountBadge(text: badge > 9 ? '9+' : '$badge'),
+                        ),
+                      ],
+                    ),
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// Small amber count pill with a ring in the background colour.
+class _CountBadge extends StatelessWidget {
+  const _CountBadge({required this.text});
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    return MediaQuery.withNoTextScaling(
+      child: Container(
+        key: const Key('hero-badge'),
+        constraints: const BoxConstraints(minWidth: 20, minHeight: 20),
+        padding: const EdgeInsets.symmetric(horizontal: 5),
+        decoration: BoxDecoration(
+          color: c.money,
+          borderRadius: AppRadii.allPill,
+          border: Border.all(color: c.surface, width: 1.5),
+        ),
+        alignment: Alignment.center,
+        child: Text(text, style: context.text.caption.w(700).copyWith(color: c.onMoney, height: 1.1)),
       ),
     );
   }

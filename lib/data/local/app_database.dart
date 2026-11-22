@@ -10,7 +10,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -20,6 +20,13 @@ class AppDatabase extends _$AppDatabase {
       if (from < 2) {
         await m.createTable(recordVersions);
         await m.createIndex(recordVersionsRecord);
+      }
+      // v4 (phase 13): bell cache + notification settings. (v3 is phase 14's rates cache; steps are
+      // independent, so either order of merging works.)
+      if (from < 4) {
+        await m.createTable(notifications);
+        await m.createIndex(notificationsSeq);
+        await m.createTable(notificationSettings);
       }
     },
     beforeOpen: (details) async {
