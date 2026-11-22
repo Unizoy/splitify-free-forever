@@ -4326,4 +4326,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get captureNotesSmsNoRef => 'From a bank SMS';
+
+  @override
+  String captureRef(String ref) {
+    return 'UPI ref $ref';
+  }
 }

@@ -21,7 +21,7 @@ leaves it until the user saves. Missed bubbles wait under "Payments to add" (Gro
 | T2 sources | done | `PaymentNotificationListener`, `SmartCaptureService` (UPI apps only, no editable/password nodes, stops at "UPI PIN"), `CaptureStore`, MethodChannel `splitify/capture` |
 | T3 bubble | done | native overlay (handle, card, ✕ target, chips, ⋮ menu, 8 s collapse / 60 s hide), heads-up notification fallback, light/dark tokens, TalkBack labels, sp text |
 | T4 Flutter | done | Drift v8 `payment_captures` (local only), import on start/resume/link, `/capture` screen, editor prefill + `source='capture'`, Payments to add (Groups pill, Activity section, sheet), settings screen, ARB, goldens; migration 0023 applied on dev + pgTAP |
-| T5 emulator e2e | see Gates G5 | `tool/e2e/capture_e2e.ps1` + `integration_test/capture_bubble_test.dart` + fake UPI `FlowActivity`/`Notifier` |
+| T5 emulator e2e | done | `tool/e2e/capture_e2e.ps1` + `integration_test/capture_bubble_test.dart` + fake UPI `FlowActivity`/`Notifier`; debug builds log the bubble's texts/tap centres for the script (overlays are invisible to uiautomator) |
 | T6 docs | done | catalog TC-X4-01…08, LEARNINGS, this report, real-phone checklist below |
 
 ## Features delivered
@@ -35,18 +35,18 @@ leaves it until the user saves. Missed bubbles wait under "Payments to add" (Gro
 - New: Kotlin JUnit 12 (68 vectors inside) · Dart unit/widget ≈ 160 (vectors, validator, repository, editor
   prefill, settings, payments to add, capture screen) · golden 16 (4 screens × light/dark × text 1.0/2.0) ·
   SQL 14 (`230_capture.test.sql`) · e2e 1 scripted device scenario.
-- Test IDs: TC-X4-01, 02, 06 (unit), 07 (unit), 08 pass; device rows in Gates.
+- Test IDs passing: TC-X4-01 … TC-X4-08 (device rows on the emulator with the fake UPI app; real GPay/PhonePe/Paytm: owner checklist).
 
 ## Gates
 
 | Gate | Result | Evidence |
 | --- | --- | --- |
-| G1 Static | | |
-| G2 Tests | | |
-| G3 Backend | PASS | 0023 dry run + applied; `230_capture` 14/14, `040_apply_mutations` 35/35 after 0023; advisors: no new finding |
-| G4 Build | | |
-| G5 Device | | `…\splitify-artifacts\phase-18b\` |
-| G6 Docs | PASS | |
+| G1 Static | PASS | `dart format` 0 changes, `flutter analyze` 0 errors/warnings, `tool/guards.dart` OK (after the last merge of main) |
+| G2 Tests | PASS | `flutter test --coverage` 3071 passed (after merging main); coverage overall 95.3 %, application 95.4 %, domain 98.2 %, money 100 %; Kotlin JUnit 13/13 (`gradlew :app:testDebugUnitTest`, 68 vectors) |
+| G3 Backend | PASS | 0023 dry run + applied on dev; `230_capture` 14/14, `040_apply_mutations` 35/35 after 0023; security advisors: no new finding |
+| G4 Build | PASS | `flutter build apk --debug` (google-services applied) |
+| G5 Device | PASS | `tool/e2e/capture_e2e.ps1` on emulator-5554 (lock held): 23/23 checks + `capture_bubble_test.dart` pass — ignores (OTP/credit/promo/request/failed), smart capture pay → PIN hidden → success, UPI notification bubble, notification + SMS = one capture, drag to ✕, SMS-only bubble, Add → capture screen → editor → saved `source=capture` on dev. UI review (light/dark/200 %): bubble expanded/collapsed, capture screen, editor, Groups pill, Activity section, settings — screenshots in `…\splitify-artifacts\phase-18b\`; rubric ≥ 8 on every line after fixes (brand-mark handle, no grey focus box, restyle on theme change, chips at 200 %, ref pill) |
+| G6 Docs | PASS | phase boxes, catalog TC-X4-01…08, decisions S-220…S-229, LEARNINGS, this report, PROGRESS |
 
 ## Decisions made (S-0xx)
 

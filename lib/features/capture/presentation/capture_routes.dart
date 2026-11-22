@@ -252,10 +252,7 @@ class CaptureSummaryCard extends StatelessWidget {
               ],
               if (capture.ref != null) ...[
                 const SizedBox(height: AppSpacing.s3),
-                StatusPill(
-                  label: '${captureSourceLabel(l, capture.source)} · ${capture.ref}',
-                  tone: StatusPillTone.glass,
-                ),
+                StatusPill(label: l.captureRef(capture.ref!), tone: StatusPillTone.glass),
               ],
             ],
           ),

@@ -108,7 +108,7 @@ key is the UPI ref when present, else amount + normalised payee within 10 minute
       - the Payment bubble settings screen with permission states, the restricted-settings guide and the sample
         bubble;
       - ARB strings, goldens in light, dark and text 2.0.
-- [ ] T5 Emulator E2E, holding the lock:
+- [x] T5 Emulator E2E, holding the lock:
       - grant access via adb:
         - `appops set com.unizoy.splitify SYSTEM_ALERT_WINDOW allow`
         - `cmd notification allow_listener com.unizoy.splitify/<listener>`
@@ -120,7 +120,7 @@ key is the UPI ref when present, else amount + normalised payee within 10 minute
         prefilled editor, Save syncs to dev, and a duplicate notification + SMS gives one bubble;
       - check that credit, OTP and promo texts give no bubble;
       - screenshots in light, dark and 200 %.
-- [ ] T6 Docs: test catalog rows TC-X4-01…08, LEARNINGS, a report and a real-phone checklist for the owner (pay ₹1
+- [x] T6 Docs: test catalog rows TC-X4-01…08, LEARNINGS, a report and a real-phone checklist for the owner (pay ₹1
       with GPay, PhonePe and Paytm; note which ones bubble).
 
 ## Tests

@@ -7021,6 +7021,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'From a bank SMS'**
   String get captureNotesSmsNoRef;
+
+  /// No description provided for @captureRef.
+  ///
+  /// In en, this message translates to:
+  /// **'UPI ref {ref}'**
+  String captureRef(String ref);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

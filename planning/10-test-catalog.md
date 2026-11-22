@@ -151,10 +151,10 @@ Total: 121 test ids (TC-18-03 golden added in phase 09; TC-19-06..09 in phase 13
 | 18 | TC-X3-01 | unit | widget data builder | pass (`widget_data_test.dart`, `home_widget_sync_test.dart`) |
 | 18 | TC-X3-02 | integ | widget data updated after expense (read shared prefs). | pass (same device test: `pending` = "Not synced yet" after the local import, cleared after sync; `status/line1/line2` equal the app's values; widget pinned and screenshotted) |
 | 18b | TC-X4-01 | unit | parser vectors (68 shared: 38 debits across UPI apps, 9 banks and cards, 25 ignore cases, 5 screen stages) in Kotlin and Dart | pass (`android/app/src/test/.../PaymentParserTest.kt` via `gradlew :app:testDebugUnitTest`; `test/features/capture/recipes_vectors_test.dart`) |
-| 18b | TC-X4-02 | unit + integ | dedup (same ref; no-ref notification + bank SMS within 10 min merge; dismissed/imported still block) | pass (`CaptureStoreTest.kt`, `capture_repository_test.dart`; device: notification + duplicate SMS = one capture, `capture_e2e.ps1`) |
-| 18b | TC-X4-03 | e2e | UPI app notification → bubble with amount + payee | see report (`tool/e2e/capture_e2e.ps1` + `integration_test/capture_bubble_test.dart`) |
-| 18b | TC-X4-04 | e2e | bank SMS (`adb emu sms send`) → bubble | see report (same script) |
-| 18b | TC-X4-05 | e2e | smart capture: pay screen → "Splitting this?", PIN screen → hidden, success → expanded | see report (fake UPI `FlowActivity`) |
-| 18b | TC-X4-06 | unit + e2e | Add → prefilled editor → Save → server row `source = 'capture'` | pass (`capture_editor_test.dart`, pgTAP `230_capture.test.sql` 14/14 on dev); device: see report |
-| 18b | TC-X4-07 | unit + e2e | credit / OTP / promo / request / failure / future / spoofed sender give no bubble | pass (vectors); device: see report |
+| 18b | TC-X4-02 | unit + integ | dedup (same ref; no-ref notification + bank SMS within 10 min merge; dismissed/imported still block) | pass (`CaptureStoreTest.kt`, `capture_repository_test.dart`; device: notification + bank SMS of the same payment = one capture) |
+| 18b | TC-X4-03 | e2e | UPI app notification → bubble with amount + payee | pass (emulator, `tool/e2e/capture_e2e.ps1` + `integration_test/capture_bubble_test.dart`: fake UPI notification → expanded bubble ₹420 to Neha Gupta) |
+| 18b | TC-X4-04 | e2e | bank SMS (`adb emu sms send`) → bubble | pass (SBI-format SMS via Google Messages → bubble ₹99 to Chai Point) |
+| 18b | TC-X4-05 | e2e | smart capture: pay screen → "Splitting this?", PIN screen → hidden, success → expanded | pass (fake UPI `FlowActivity`; PIN field never read) |
+| 18b | TC-X4-06 | unit + e2e | Add → prefilled editor → Save → server row `source = 'capture'` | pass (`capture_editor_test.dart`, pgTAP `230_capture.test.sql` 14/14 on dev; device: bubble Add → capture screen → group → editor ₹99 "Chai Point" → save → dev row `source=capture`, total 9900) |
+| 18b | TC-X4-07 | unit + e2e | credit / OTP / promo / request / failure / future / spoofed sender give no bubble | pass (vectors; device: OTP, credit, promo, request, failed alerts → logged ignores, no bubble) |
 | 18b | TC-X4-08 | widget + golden | settings: off by default, sources, live access states + Grant, restricted-settings guide, per-app switches, sample bubble | pass (`capture_settings_screen_test.dart`, `capture_golden_test.dart` light/dark/text 2.0) |

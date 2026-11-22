@@ -1462,5 +1462,7 @@
   "paymentsToAddEmpty": "Nothing to add right now.",
   "captureNotesSms": "From a bank SMS · UPI ref {ref}",
   "@captureNotesSms": {"placeholders": {"ref": {"type": "String"}}},
-  "captureNotesSmsNoRef": "From a bank SMS"
+  "captureNotesSmsNoRef": "From a bank SMS",
+  "captureRef": "UPI ref {ref}",
+  "@captureRef": {"placeholders": {"ref": {"type": "String"}}}
 }
