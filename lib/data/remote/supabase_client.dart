@@ -2,8 +2,9 @@ import 'package:splitify/core/config/env.dart';
 import 'package:splitify/data/remote/balances_remote.dart';
 import 'package:splitify/data/remote/friends_remote.dart';
 import 'package:splitify/data/remote/groups_remote.dart';
-import 'package:splitify/data/remote/media_remote.dart';
 import 'package:splitify/data/remote/history_remote.dart';
+import 'package:splitify/data/remote/media_remote.dart';
+import 'package:splitify/data/remote/notifications_remote.dart';
 import 'package:splitify/data/remote/remote_api.dart';
 import 'package:splitify/data/remote/supabase_auth_repository.dart';
 import 'package:splitify/data/remote/supabase_profile_remote.dart';
@@ -23,6 +24,7 @@ class RemoteServices {
     this.history = const UnconfiguredHistoryRemote(),
     this.balances = const UnconfiguredBalancesRemote(),
     this.friends = const UnconfiguredFriendsRemote(),
+    this.notifications = const UnconfiguredNotificationsRemote(),
   });
 
   final AuthRepository auth;
@@ -45,6 +47,9 @@ class RemoteServices {
 
   /// Online-only friend RPC (`find_or_create_direct_group`, phase 11).
   final FriendsRemote friends;
+
+  /// Bell, notification settings, device token and reminders (phase 13).
+  final NotificationsRemote notifications;
 }
 
 /// Starts Supabase from the build settings (02 §2). With placeholder values
@@ -68,5 +73,6 @@ Future<RemoteServices> initRemote(Env env) async {
     history: SupabaseHistoryRemote.fromClient(client),
     balances: SupabaseBalancesRemote.fromClient(client),
     friends: SupabaseFriendsRemote.fromClient(client),
+    notifications: SupabaseNotificationsRemote.fromClient(client),
   );
 }

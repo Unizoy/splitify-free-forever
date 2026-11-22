@@ -7,6 +7,7 @@ import 'package:splitify/core/config/app_info.dart';
 import 'package:splitify/data/data_providers.dart';
 import 'package:splitify/features/account/application/theme_mode_controller.dart';
 import 'package:splitify/features/auth/application/auth_providers.dart';
+import 'package:splitify/features/notifications/application/notifications_providers.dart';
 import 'package:splitify/features/sync/application/sync_texts.dart';
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/components/components.dart';
@@ -108,6 +109,14 @@ class AccountSettingsBody extends ConsumerWidget {
               onTap: () {
                 Navigator.of(context).pop();
                 context.push('/account/appearance');
+              },
+            ),
+            AccordionRow(
+              label: l.notifications,
+              value: ref.watch(pushMessagingProvider).available ? l.notifRowOn : l.notifRowBellOnly,
+              onTap: () {
+                Navigator.of(context).pop();
+                unawaited(context.push('/account/notifications'));
               },
             ),
           ],

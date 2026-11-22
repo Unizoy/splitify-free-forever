@@ -1,12 +1,16 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:splitify/features/activity/application/activity_providers.dart';
 import 'package:splitify/features/activity/presentation/activity_feed.dart';
+import 'package:splitify/features/notifications/application/notifications_providers.dart';
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/components/components.dart';
 import 'package:splitify/ui/theme/theme.dart';
 
-/// Activity tab (`/activity`, #18): hero with the bell (phase 13), filter chips, every group's
+/// Activity tab (`/activity`, #18): hero with the bell and its unread badge (opens `/notifications`), filter chips, every group's
 /// activity newest first by day, my unsynced changes with the "not synced yet" marker; blob
 /// empty state.
 class ActivityScreen extends ConsumerStatefulWidget {
@@ -25,6 +29,7 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
     final c = context.colors;
     final async = ref.watch(activityItemsProvider(null));
     final items = async.value;
+    final unread = ref.watch(unreadNotificationsProvider).value ?? 0;
     final Widget content;
     if (items == null) {
       content = async.hasError
@@ -65,9 +70,12 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
             art: (seed: 'activity-home', family: CoverFamily.trip),
             actions: [
               HeroIconButton(
+                key: const Key('activity-bell'),
                 icon: AppIcons.bell,
                 tooltip: l.notifications,
-                onPressed: () => showComingSoon(context),
+                badge: unread,
+                semanticLabel: l.notifBellLabel(unread),
+                onPressed: () => unawaited(context.push('/notifications')),
               ),
             ],
           ),

@@ -17,6 +17,7 @@ import 'package:splitify/features/friends/presentation/add_friend_sheet.dart';
 import 'package:splitify/features/friends/presentation/friend_widgets.dart';
 import 'package:splitify/features/groups/presentation/group_visuals.dart' show SectionLabel;
 import 'package:splitify/features/groups/presentation/invite_sheet.dart';
+import 'package:splitify/features/notifications/presentation/remind_button.dart';
 import 'package:splitify/features/payments/presentation/payment_routes.dart';
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/components/components.dart';
@@ -24,7 +25,7 @@ import 'package:splitify/ui/theme/theme.dart';
 
 /// Friend page (`/friends/:key`, 542 header, #2/#16): avatar and name on a generated hero with the total
 /// per currency, what each shared group shows between us, every shared expense and payment across groups
-/// (group named on each row), and Settle up / Add expense. Remind arrives with phase 13.
+/// (group named on each row), Remind on groups where they owe me, and Settle up / Add expense.
 class FriendPage extends ConsumerWidget {
   const FriendPage({required this.friendKey, super.key});
 
@@ -71,11 +72,14 @@ class FriendPage extends ConsumerWidget {
                   const Align(alignment: AlignmentDirectional.centerStart, child: SyncMarker()),
                   const SizedBox(height: AppSpacing.s4),
                 ],
-                if (groups.isNotEmpty && friend.sharedGroups.isNotEmpty) ...[
+                // Shared normal groups, or a group where they owe me (its row carries Remind, #23).
+                if (groups.isNotEmpty &&
+                    (friend.sharedGroups.isNotEmpty || friend.links.any((g) => g.owesMe))) ...[
                   SectionLabel(l.friendByGroup),
                   for (var i = 0; i < groups.length; i++)
                     _GroupRow(
                       link: groups[i],
+                      friendName: friend.name,
                       firstCurrency: first,
                       showDivider: i < groups.length - 1,
                     ),
@@ -218,9 +222,15 @@ class _Hero extends StatelessWidget {
 
 /// What one shared group shows between us ("Goa trip · owes you ₹300"); tap opens the group.
 class _GroupRow extends StatelessWidget {
-  const _GroupRow({required this.link, required this.firstCurrency, required this.showDivider});
+  const _GroupRow({
+    required this.link,
+    required this.friendName,
+    required this.firstCurrency,
+    required this.showDivider,
+  });
 
   final FriendLink link;
+  final String friendName;
   final String firstCurrency;
   final bool showDivider;
 
@@ -230,15 +240,38 @@ class _GroupRow extends StatelessWidget {
     final c = context.colors;
     final amounts = link.amounts;
     final status = balanceStatusOf(amounts.values);
-    return AmountRow(
+    final row = AmountRow(
       key: ValueKey('friend-group-${link.group.id}'),
       title: friendLinkLabel(l, link),
       amountText: amounts.isEmpty ? '' : friendAmounts(amounts, firstCurrency),
       amountCaption: friendStatusText(l, status),
       tone: toneOf(status),
-      showDivider: showDivider,
+      showDivider: showDivider && !link.owesMe,
       leading: TintedIcon(icon: groupTypeIcon(link.group.type), color: c.primary, size: 44),
       onTap: link.isDirect ? null : () => unawaited(context.push('/groups/${link.group.id}')),
+    );
+    if (!link.owesMe) return row;
+    // They owe me here: Remind (phase 13 #23; the button hides itself for name-only friends).
+    final friendMember = link.ledger.members.where((m) => m.id == link.friendMemberId).firstOrNull;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Row(
+          children: [
+            Expanded(child: row),
+            const SizedBox(width: AppSpacing.s2),
+            RemindButton(
+              groupId: link.group.id,
+              fromMember: link.meId,
+              toMember: link.friendMemberId,
+              name: friendName,
+              linked: friendMember?.userId != null,
+            ),
+          ],
+        ),
+        // Same line as AmountRow's own divider.
+        if (showDivider) Divider(height: 1, thickness: 1, color: c.divider),
+      ],
     );
   }
 }

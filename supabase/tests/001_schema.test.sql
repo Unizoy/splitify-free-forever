@@ -65,8 +65,8 @@ select is(
   'every app function sets search_path');
 select is(
   (select count(*) from pg_trigger where tgfoid = 'private.bump_seq'::regproc and not tgisinternal),
-  8::bigint,
-  'seq trigger on every synced table');
+  9::bigint,
+  'seq trigger on every synced table (+ notifications, phase 13)');
 
 -- Reference data.
 select is(

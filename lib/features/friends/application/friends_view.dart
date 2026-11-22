@@ -31,6 +31,10 @@ class FriendLink {
     simplify: balances.simplify,
   );
 
+  /// The friend owes me something here (as the group shows it): Remind is offered.
+  bool get owesMe =>
+      transfers.any((t) => t.transfer.from == friendMemberId && t.transfer.to == meId);
+
   /// The transfers between us this group's Balances tab shows (simplified when it has simplify on).
   List<({String currency, Transfer transfer})> get transfers => [
     for (final c in balances.currencies)

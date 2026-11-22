@@ -20,6 +20,8 @@ import 'package:splitify/features/balances/application/balances_providers.dart';
 import 'package:splitify/features/friends/application/friends_providers.dart';
 import 'package:splitify/features/groups/application/groups_providers.dart';
 
+import 'notification_fakes.dart';
+
 /// Clock that only moves when the test says so.
 class FakeClock implements Clock {
   FakeClock(this._now);
@@ -228,6 +230,7 @@ List<Override> emptyGroupsOverrides() => [
   syncOfflineProvider.overrideWith((ref) => Stream.value(false)),
   syncNowProvider.overrideWithValue(() async {}),
   ...emptyBalanceOverrides(),
+  ...quietNotificationOverrides(),
 ];
 
 /// No balances or activity anywhere (phase 09 reads), without a database.

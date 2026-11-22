@@ -138,10 +138,14 @@ void main() {
     });
 
     // TC-2-03
-    testWidgets('a friend I only share a direct group with has no "By group" section', (t) async {
+    testWidgets('a friend I only share a direct group with: "By group" only to offer Remind', (
+      t,
+    ) async {
       final only = friendsOf([directLedger()], 'u1');
       await pumpPage(t, 'u:u2', friends: only);
-      expect(find.text('BY GROUP'), findsNothing);
+      // Asha owes me in our direct group (the movie), so its row is there with Remind (phase 13 #23).
+      expect(find.text('BY GROUP'), findsOneWidget);
+      expect(find.byKey(const Key('remind-c2')), findsOneWidget);
       expect(find.text('SHARED EXPENSES'), findsOneWidget);
       expect(find.byKey(const ValueKey('friend-item-e5')), findsOneWidget);
     });
@@ -368,6 +372,26 @@ void main() {
       await t.tap(find.byKey(const Key('friend-loan')));
       await settle(t);
       expect(find.textContaining('Connect to the internet once'), findsOneWidget);
+    });
+
+    // TC-23-02 on the friend page (phase 13 RemindButton)
+    testWidgets('Remind sits on each group row where they owe me, never for a name-only friend', (
+      t,
+    ) async {
+      await pumpPage(t, 'u:u2');
+      final f = sampleFriends().firstWhere((x) => x.key == 'u:u2');
+      for (final link in f.links) {
+        expect(
+          find.byKey(Key('remind-${link.friendMemberId}')),
+          link.owesMe ? findsOneWidget : findsNothing,
+          reason: link.group.name,
+        );
+      }
+      final nameOnly = sampleFriends().where((x) => x.nameOnly).firstOrNull;
+      if (nameOnly != null) {
+        await pumpPage(t, nameOnly.key);
+        expect(find.byWidgetPredicate((w) => '${w.key}'.contains('remind-')), findsNothing);
+      }
     });
   });
 }

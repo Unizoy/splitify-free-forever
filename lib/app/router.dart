@@ -26,6 +26,7 @@ import 'package:splitify/features/groups/presentation/group_settings_screen.dart
 import 'package:splitify/features/groups/presentation/groups_home_screen.dart';
 import 'package:splitify/features/groups/presentation/join_screen.dart';
 import 'package:splitify/features/history/presentation/history_routes.dart';
+import 'package:splitify/features/notifications/presentation/notifications_binding.dart';
 import 'package:splitify/features/onboarding/presentation/welcome_screen.dart';
 import 'package:splitify/features/payments/presentation/payment_routes.dart';
 import 'package:splitify/features/sync/presentation/sync_storage_screen.dart';
@@ -157,8 +158,10 @@ GoRouter buildRouter({String initialLocation = Routes.welcome, AuthGate? gate}) 
                 GoRoute(
                   path: ':id',
                   parentNavigatorKey: _rootKey,
-                  builder: (context, state) =>
-                      GroupDetailScreen(groupId: state.pathParameters['id']!),
+                  builder: (context, state) => GroupDetailScreen(
+                    groupId: state.pathParameters['id']!,
+                    initialTab: state.uri.queryParameters['tab'],
+                  ),
                   routes: [
                     GoRoute(
                       path: 'edit',
@@ -229,6 +232,7 @@ GoRouter buildRouter({String initialLocation = Routes.welcome, AuthGate? gate}) 
     ...historyRoutes(),
     ...paymentRoutes(),
     ...friendRoutes(),
+    ...notificationRoutes(),
     if (kDebugMode) ...[
       GoRoute(path: Routes.gallery, builder: (context, state) => const GalleryScreen()),
       GoRoute(

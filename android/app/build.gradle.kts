@@ -4,6 +4,15 @@ plugins {
     id("dev.flutter.flutter-gradle-plugin")
 }
 
+// Push (phase 13, D-020): only when the owner has put the Firebase file in the git-ignored secrets/ folder.
+// It is copied next to this script (also git-ignored) and the Google Services plugin turns it into resources,
+// so Firebase.initializeApp() works without firebase_options.dart. Without it the app runs with push off.
+val firebaseConfig = rootProject.file("../secrets/google-services.json")
+if (firebaseConfig.exists()) {
+    firebaseConfig.copyTo(file("google-services.json"), overwrite = true)
+    apply(plugin = "com.google.gms.google-services")
+}
+
 android {
     namespace = "com.unizoy.splitify"
     compileSdk = 37

@@ -16,6 +16,9 @@ scoped to the **dev** project (`project_ref` in its URL), so tools take no proje
 2. Write idempotent-where-reasonable SQL; every new table: `alter table … enable row level security;` + policies +
    revokes (`03-backend.md` §1, §3). Functions: `security definer` only when needed, always
    `set search_path = ''`, fully-qualified names.
+2b. Before applying, dry-run it: one `execute_sql` with `begin; <migration>; <its pgTAP body>; rollback;` (plpgsql
+   bodies are only parsed at create time; an applied file can't be edited). Avoid the word "truncate" anywhere in
+   the SQL, comments included: the MCP guard blocks it.
 3. Apply: `mcp__supabase__apply_migration` with `name` = file name without `.sql` and `query` = file content.
 4. Check: `mcp__supabase__list_migrations` matches the files; `mcp__supabase__get_advisors` (`security`, then
    `performance`) — fix every security ERROR/WARN in a follow-up migration.

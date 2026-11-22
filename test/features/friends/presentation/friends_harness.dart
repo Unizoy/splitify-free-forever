@@ -13,6 +13,7 @@ import 'package:splitify/features/auth/application/auth_providers.dart'
 import 'package:splitify/features/friends/application/friends_providers.dart';
 import 'package:splitify/features/friends/application/friends_view.dart';
 
+import '../../../support/notification_fakes.dart';
 import '../../expenses/presentation/presentation_harness.dart';
 
 class FixedProfile extends ProfileController {
@@ -65,6 +66,8 @@ List<Override> friendOverrides(
   anyUnsyncedProvider.overrideWith((ref) => Stream.value(unsynced)),
   profileProvider.overrideWith(() => FixedProfile(profile)),
   if (actions != null) friendActionsProvider.overrideWith(actions),
+  // Remind on "By group" rows (phase 13) without a database.
+  ...quietNotificationOverrides(),
 ];
 
 /// Pumps [home] at `/` with stub routes for everything the friends screens push; returns the router.

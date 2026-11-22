@@ -2,6 +2,8 @@
     <!-- Supabase, exchange rates and push need the network in release builds too. -->
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.USE_BIOMETRIC"/>
+    <!-- Android 13+: asked after the pre-prompt sheet (phase 13, 08 #19). -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
     <application
         android:label="Splitify Free Forever"
         android:name="${applicationName}"
@@ -34,6 +36,14 @@
                 <data android:scheme="splitify"/>
             </intent-filter>
         </activity>
+        <!-- FCM pushes that arrive in the background: status-bar icon and the fallback channel (the server
+             sets android.notification.channel_id to the kind; the app creates one channel per kind). -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/ic_stat_splitify" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="expenses" />
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data

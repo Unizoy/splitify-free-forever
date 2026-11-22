@@ -9,6 +9,7 @@ import 'package:splitify/data/repositories/auth_repository.dart';
 import 'package:splitify/data/repositories/local_wipe.dart';
 import 'package:splitify/data/repositories/profile_repository.dart';
 import 'package:splitify/domain/entities/profile.dart';
+import 'package:splitify/features/notifications/application/notifications_providers.dart';
 
 export 'package:splitify/data/data_providers.dart' show clockProvider;
 
@@ -82,6 +83,12 @@ class ProfileController extends AsyncNotifier<Profile?> {
   }
 }
 
+/// Runs before signing out while the session is still valid (phase 13: remove the push token). Never throws.
+final signOutHooksProvider = Provider<Future<void> Function()>(
+  (ref) =>
+      () => ref.read(pushRegistrationProvider).unregister(),
+);
+
 /// Sign out (T8) and delete account (T7): server call, then wipe this phone.
 /// The router redirect then shows the welcome screen.
 final accountActionsProvider = Provider<AccountActions>(AccountActions.new);
@@ -91,10 +98,11 @@ class AccountActions {
 
   final Ref _ref;
 
-  /// 04 §7: send waiting changes (10 s best effort) → sign out → wipe the local database and sign-in data.
-  /// Phase 13 adds "unregister the device token" before the sign-out.
+  /// 04 §7: send waiting changes (10 s best effort) → unregister this phone's push token (rule 10, best
+  /// effort) → sign out → wipe the local database and sign-in data.
   Future<void> signOut() async {
     await _ref.read(syncRepositoryProvider).pushBeforeSignOut();
+    await _ref.read(signOutHooksProvider)();
     try {
       await _ref.read(authRepositoryProvider).signOut();
     } finally {
@@ -105,6 +113,7 @@ class AccountActions {
   /// Online only: waiting changes go first so they stay in the groups, then the server deletes the account.
   Future<void> deleteAccount() async {
     await _ref.read(syncRepositoryProvider).pushBeforeSignOut();
+    await _ref.read(signOutHooksProvider)();
     await _ref.read(authRepositoryProvider).deleteAccount();
     await _ref.read(localWipeProvider).wipe();
   }

@@ -30,6 +30,7 @@ import 'package:splitify/ui/theme/theme.dart';
 import '../data/sync/sync_fakes.dart';
 import 'fakes.dart' hide FakeClock;
 import 'group_fakes.dart';
+import 'notification_fakes.dart';
 
 /// What a groups widget test gets back from [pumpGroups].
 class GroupHarness {
@@ -184,6 +185,7 @@ List<Override> fixedGroupData({
     expenses: 0,
   ),
 }) => [
+  ...quietNotificationOverrides(),
   // Phase 09 reads: fixed balances per group (none = no records), no payments, totals or activity.
   for (final g in groups) ...[
     groupPaymentViewsProvider(g.id).overrideWithValue(const AsyncData([])),
