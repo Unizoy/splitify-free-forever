@@ -15,7 +15,7 @@ recipes = {
     {"package": "com.phonepe.app", "name": "PhonePe", "kind": "upi"},
     {"package": "net.one97.paytm", "name": "Paytm", "kind": "upi"},
     {"package": "in.org.npci.upiapp", "name": "BHIM", "kind": "upi"},
-    {"package": "in.amazon.mShop.android.shopping", "name": "Amazon Pay", "kind": "upi"},
+    {"package": "in.amazon.mShop.android.shopping", "name": "Amazon Pay", "kind": "upi", "defaultOn": False},  # shopping app: off until chosen (phase 19, S-208)
     {"package": "com.dreamplug.androidapp", "name": "CRED", "kind": "upi"},
     {"package": "money.super.payments", "name": "super.money", "kind": "upi"},
     {"package": "com.whatsapp", "name": "WhatsApp", "kind": "upi", "defaultOn": False},

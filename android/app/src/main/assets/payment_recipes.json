@@ -26,7 +26,8 @@
     {
       "package": "in.amazon.mShop.android.shopping",
       "name": "Amazon Pay",
-      "kind": "upi"
+      "kind": "upi",
+      "defaultOn": false
     },
     {
       "package": "com.dreamplug.androidapp",

@@ -35,6 +35,7 @@ contact apply to their copy.
 | Local database: a copy of your groups, and an outbox of changes not yet sent | Your phone | To work offline | Wiped when you sign out |
 | App lock setting | Your phone | To lock the app with biometrics or the device PIN | Until you change it or clear app data |
 | Home-screen widget data: a balance summary | Your phone, in the app's private storage | To draw the widget | Until you hide it, sign out or clear app data |
+| Payment bubble captures (only if you turn it on): amount, payee, UPI reference, app, time | Your phone only | To offer "Add to Splitify" after a payment | 7 days, or until you add or dismiss it; wiped on sign-out |
 | One-time email codes | Sent through the project's SMTP provider | To sign you in by email | Not kept by the app; the mail provider keeps its own delivery logs |
 | Hosting and API logs | Supabase | To run and secure the service | Set by Supabase |
 
@@ -87,10 +88,12 @@ The payment bubble is an optional Android feature. It is off until you turn it o
   optional advanced screen capture.
 - It works on your device only. Nothing is sent to a server until you tap Add and save the expense.
 - It reads only apps on a fixed allow-list of payment, bank and SMS apps, and you can switch apps off one by one.
+  Apps that do much more than payments (WhatsApp, the Amazon shopping app) start switched off.
 - It keeps only the parsed fields (amount, payee, UPI reference, app, time) in the phone's local database. It
   does not store the raw notification text or screen text.
 - It never reads PIN or password fields, and never reads the UPI PIN pad.
 - Captures are removed after 7 days, or as soon as you add or dismiss them.
+- Signing out switches it off and forgets every waiting capture and the group names used for its shortcuts.
 - To turn it off, switch off Payment bubble in Account. You can also revoke notification access, "display over
   other apps" and accessibility access in Android settings.
 
