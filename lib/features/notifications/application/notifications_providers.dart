@@ -160,6 +160,10 @@ class NotificationActions {
     } on Exception catch (e) {
       _log.fine('notifications refresh failed: $e');
       return false;
+    } on StateError catch (e) {
+      // The database closed under a refresh in flight (sign-out wipe, app torn down): nothing to keep.
+      _log.fine('notifications refresh stopped: $e');
+      return false;
     }
   }
 

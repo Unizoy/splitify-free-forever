@@ -113,14 +113,26 @@ void main() {
           (await a.from('groups').select('invite_code').eq('id', gid).single())['invite_code']!
               as String;
       expect((await b.rpc('join_group', {'code': code}))['status'], 'joined');
-      final page = await b.rpc('pull_changes', {
-        'cursors': {gid: 0},
-        'since_user_seq': 0,
-        'page_size': 500,
-      });
-      final rows = (page['rows']! as Map).cast<String, Object?>();
+      // B (an e2e user since phase 06) belongs to many test groups by now: page like the sync engine does,
+      // following next_cursors / user_seq until has_more is false (phase 19).
+      final rows = <String, List<Object?>>{};
+      Object? cursors = {gid: 0};
+      Object? userSeq = 0;
+      for (var i = 0; i < 50; i++) {
+        final page = await b.rpc('pull_changes', {
+          'cursors': cursors,
+          'since_user_seq': userSeq,
+          'page_size': 500,
+        });
+        (page['rows']! as Map).forEach(
+          (k, v) => rows.putIfAbsent(k as String, () => []).addAll((v as List?) ?? const []),
+        );
+        cursors = {...(cursors! as Map), ...((page['next_cursors'] as Map?) ?? const {})};
+        userSeq = page['user_seq'];
+        if (page['has_more'] != true) break;
+      }
       List<Map<String, Object?>> table(String t) => [
-        for (final r in (rows[t] as List?) ?? const []) (r! as Map).cast<String, Object?>(),
+        for (final r in rows[t] ?? const []) (r! as Map).cast<String, Object?>(),
       ];
       expect(table('groups').where((g) => g['id'] == gid).single['name'], groupName);
       final seen = table('expenses').where((e) => e['id'] == eid).single;

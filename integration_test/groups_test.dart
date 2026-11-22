@@ -2,6 +2,9 @@
 // phase E2E scenario). The phone is user A; user B is the multi-user harness (its own Supabase client).
 //   flutter test integration_test/groups_test.dart -d emulator-5554 --dart-define-from-file=secrets/env.dev.json
 // "Offline" = the sync engine's server switched off (every call fails like a dropped network), as in phase 08.
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:splitify/core/config/preferences.dart';
+
 import 'dart:convert';
 
 import 'package:drift/drift.dart' show BooleanExpressionOperators;
@@ -129,8 +132,11 @@ Future<_Phone> _open(
 }) async {
   final db = AppDatabase(NativeDatabase.memory());
   final server = SwitchableRemote(services.api, online: online);
+  // The shell reads local settings (app lock, phase 18; profile cache): give it the real preferences.
+  final prefs = (await t.runAsync(SharedPreferences.getInstance))!;
   final container = ProviderContainer(
     overrides: [
+      sharedPreferencesProvider.overrideWithValue(prefs),
       appDatabaseProvider.overrideWithValue(db),
       remoteApiProvider.overrideWithValue(server),
       groupsRemoteProvider.overrideWithValue(services.groups),
