@@ -220,6 +220,8 @@ void main() {
     binding.reportData!.addAll(numbers);
     // Only the numbers: printing the timelines through debugPrint takes minutes (it is throttled).
     debugPrint('PERF-NUMBERS ${jsonEncode(numbers)}');
-    await t.runAsync(db.close);
+    // Unmount; the in-memory database is left open (closing it under live app streams never completed).
+    await t.pumpWidget(const SizedBox());
+    await frames(30);
   });
 }

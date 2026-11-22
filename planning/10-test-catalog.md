@@ -126,7 +126,7 @@ Total: 121 test ids (TC-18-03 golden added in phase 09; TC-19-06..09 in phase 13
 | 15 | TC-27-17 | unit | worker ↔ app sync port; second 401 → session-expired handler; offline refresh = NetworkException; owner check wipes another account's data | pass (`background_sync_test.dart`, `session_expired_provider_test.dart`, `supabase_remote_api_test.dart`, `sync_repository_test.dart`) |
 | 15 | TC-27-18 | widget+golden | Sync & storage: Edit (route per entity), photos waiting/retrying/skipped + Retry; goldens light/dark × 1.0/2.0 | pass (`sync_uploads_edit_test.dart`, `sync_texts_test.dart`, `screens_golden_test.dart`) |
 | 15 | TC-27-19 | widget | Groups card marked for any pending row of the group; delete account offline says "Needs internet"; long expense list pages by 100 | pass (`groups_home_unsynced_marker_test.dart`, `delete_account_offline_test.dart`, `auth_screens_test.dart`, `expense_list_detail_test.dart`) |
-| 15 | TC-27-20 | perf | 2,000 expenses: list scroll frame times (profile), balance recompute, cold start | TBD (`integration_test/perf_test.dart`, `tool/e2e/perf.ps1`) |
+| 15 | TC-27-20 | perf | 2,000 expenses: list scroll frame times (profile), balance recompute, cold start | measured (2026-11-22, emulator x86_64, profile: scroll 55 frames build p90 6.5 ms / raster p90 6.8 ms, 0 missed; open-group frame 265 ms; ledger load + balances median 31 ms; write → balances 229 ms; release cold start 1.23–1.55 s to the first screen, 4.6 s first launch after install; `integration_test/perf_test.dart`, `tool/e2e/perf.ps1`) |
 | 16 | TC-12-01 | sql | generation idempotent (double run = one copy) | todo |
 | 16 | TC-12-02 | sql | 31st clamp for Feb/Apr | todo |
 | 16 | TC-12-03 | sql | stop/ends_on | todo |

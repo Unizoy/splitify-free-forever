@@ -14,7 +14,7 @@
       payment, add a comment → kill app → relaunch offline (data still there, markers on) → online → all synced,
       harness B sees exact server state, markers cleared.
 - [x] T6 TC-27-12: force-stop during a 300-mutation push → relaunch → no duplicates, order kept.
-- [ ] T7 Performance: seed 2,000 expenses in one group (harness) → list scroll 60 fps in profile mode
+- [x] T7 Performance: seed 2,000 expenses in one group (harness) → list scroll 60 fps in profile mode
       (`flutter drive --profile` timeline summary), balance recompute < 200 ms, cold start < 2.5 s on emulator;
       fix hot spots (indexes, isolates for big recomputes).
 

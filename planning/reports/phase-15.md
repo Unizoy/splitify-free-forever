@@ -2,7 +2,7 @@
 
 - Date: 2026-11-22 · Branch: `phase/15-offline-polish` · Base: `origin/main` (phases 01–14); phase 17 merged in
   (`83e4931`)
-- Commits: `8bd01fd..HEAD` · Status: DRAFT
+- Commits: `8bd01fd..HEAD` · Status: done
 
 ## Summary
 
@@ -24,9 +24,9 @@ yet" marker when any of the group's records is pending. Long group lists show 10
 | T2 Marker audit | done | Groups home cards now marked for any pending row of the group (one query); everything else was already marked (S-162) |
 | T3 Sync & storage | done | Edit / Retry / Discard for refused changes, Photos section (waiting / retrying / skipped + Retry), debug log lists uploads (S-163) |
 | T4 Conflict UX | done | Snackbar from `SyncBinding` (S-164); history already shows the losing version (phase 12) |
-| T5 Airplane e2e TC-27-11 (+ phase 10 receipts offline) | TBD | |
-| T6 Kill mid-push TC-27-12 | TBD | |
-| T7 Performance | TBD | |
+| T5 Airplane e2e TC-27-11 (+ phase 10 receipts offline) | done | `tool/e2e/airplane.ps1` + `integration_test/offline_airplane_test.dart` A1–A3, real airplane mode and a real app kill: 5 expenses (one with a receipt photo, real compression), edit, delete, payment, comment offline → killed → relaunched offline with all 9 changes, the photo and the markers → airplane mode off → synced by the connectivity trigger in 6.4 s (no "Sync now"), photo uploaded after its row, user B saw exactly the phone's rows (deleted one as a tombstone) and downloaded the receipt; markers gone (S-165) |
+| T6 Kill mid-push TC-27-12 | done | K1–K2: 300 changes, killed with 250 queued while the server already had 100 (one batch acknowledged, one applied but never acknowledged); relaunch → 300 rows, 300 `insert` versions, server order = phone order. An earlier run killed with the first batch in flight (300 queued, server 50) and was checked by SQL: same result |
+| T7 Performance | done (numbers) | 2,000 expenses, emulator x86_64, profile: flinging the list 55 frames, build p90 6.5 ms, raster p90 6.8 ms, 0 missed frames (60 fps); ledger load + balances median 31 ms (max 35, cold 59) — target < 200 ms met; a local write until the balances include it 229 ms; release cold start 1.23–1.55 s (median 1.34 s) to the first screen, 4.6 s on the first launch after install (dex/AOT setup) — target < 2.5 s met. Hot spot fixed: the group list built every row of every record (S-167, pages of 100). Still open: the frame that opens a 2,000-expense group costs ~265 ms (page + 100 rows at once) — acceptable on the emulator, phase 19 can move the page to slivers. Cold start was measured signed out (the perf drive uninstalls the app) |
 
 ## Features delivered
 
@@ -37,9 +37,12 @@ yet" marker when any of the group's records is pending. Long group lists show 10
 
 - New: unit/widget ~45 (sync binding, background port, session expiry, repository owner/uploads/waiting, remote
   error mapping, sync texts, uploads card, Edit, Groups card marker, delete-account offline, list paging) · golden
-  12 (`sync_storage_uploads`, `sync_storage_skipped` light/dark × 1.0/2.0; `sync_storage_issues` updated) ·
-  integration 2 files (`offline_airplane_test.dart` 6 stages, `perf_test.dart`).
-- TBD
+  8 new (`sync_storage_uploads`, `sync_storage_skipped` light/dark × 1.0/2.0) + 2 updated (`sync_storage_issues`) ·
+  integration/e2e 2 files (`offline_airplane_test.dart` 6 stages, `perf_test.dart` + `test_driver/perf_driver.dart`).
+- Coverage: see G2.
+- Test IDs now passing: TC-27-11, TC-27-12, TC-27-13 (device), TC-27-16..19 (unit/widget/golden), TC-27-20 measured.
+- Quarantined / skipped: none. WorkManager runs were not triggered on the device (only scheduled); the worker path is
+  covered by `background_sync_test.dart` (port round trip) and shares the foreground engine wiring.
 
 ## Gates
 
