@@ -26,6 +26,7 @@ import 'package:splitify/features/groups/presentation/group_settings_screen.dart
 import 'package:splitify/features/groups/presentation/groups_home_screen.dart';
 import 'package:splitify/features/groups/presentation/join_screen.dart';
 import 'package:splitify/features/history/presentation/history_routes.dart';
+import 'package:splitify/features/insights/presentation/insights_routes.dart';
 import 'package:splitify/features/notifications/presentation/notifications_binding.dart';
 import 'package:splitify/features/onboarding/presentation/welcome_screen.dart';
 import 'package:splitify/features/payments/presentation/payment_routes.dart';
@@ -231,6 +232,7 @@ GoRouter buildRouter({String initialLocation = Routes.welcome, AuthGate? gate}) 
     ...expenseRoutes(),
     ...historyRoutes(),
     ...paymentRoutes(),
+    ...insightsRoutes(),
     ...friendRoutes(),
     ...notificationRoutes(),
     if (kDebugMode) ...[
