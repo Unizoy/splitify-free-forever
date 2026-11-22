@@ -24,6 +24,7 @@ class SyncEngine {
     required this.remote,
     required this.clock,
     this.onSignedOut,
+    this.afterPush,
     Random? random,
     TimerFactory? timer,
     this.batchSize = 50,
@@ -36,6 +37,10 @@ class SyncEngine {
   final RemoteApi remote;
   final Clock clock;
   final Future<void> Function()? onSignedOut;
+
+  /// Runs after every successful push, before the pull (photo uploads, 04 §6). Its errors are logged
+  /// and never fail the sync.
+  final Future<void> Function()? afterPush;
   final int batchSize;
   final int pageSize;
   final Duration debounce;
@@ -138,6 +143,14 @@ class SyncEngine {
 
   Future<void> _pushThenPull() async {
     await push();
+    final after = afterPush;
+    if (after != null) {
+      try {
+        await after();
+      } on Exception catch (e) {
+        _log.warning('after push: $e');
+      }
+    }
     await pull();
   }
 

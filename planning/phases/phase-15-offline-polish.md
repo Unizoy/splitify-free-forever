@@ -26,3 +26,8 @@ TC-27-11…13 + performance numbers recorded in the report.
 > (`connectivity_plus` → `SyncTriggers.online`), app-resume trigger, Realtime `ChangeNudges.watchGroups` for the
 > user's groups, the `workmanager` periodic/one-off task, and sign-out on a second 401 (`SyncEngine.onSignedOut`).
 > Build them here if no earlier phase has. Device tests reach the dev project only with `PIN_HOST_IP` (S-214).
+
+> **Amendment (S-113/S-114, phase 10):** photo uploads (`pending_uploads`) run inside every sync (`afterPush`), so the
+> S-046 triggers and the WorkManager job also upload photos. Still open for this phase: show waiting/failed uploads
+> (`pending_uploads`, attempts ≥ 8 = skipped) on "Sync & storage", and the real airplane-mode run of the phase 10
+> receipt scenario (`integration_test/receipts_offline_upload_test.dart` switches the remotes off instead, S-119).

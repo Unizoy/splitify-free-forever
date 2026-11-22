@@ -20,6 +20,7 @@ class HeroHeader extends StatelessWidget {
     this.top,
     this.child,
     this.art,
+    this.photo,
     this.overlap = AppSpacing.sheetOverlap,
     super.key,
   });
@@ -41,6 +42,9 @@ class HeroHeader extends StatelessWidget {
   final Widget? child;
   final HeroArt? art;
 
+  /// A cover photo shown full-bleed instead of [art] (group covers, S-073), darkened for legibility.
+  final ImageProvider? photo;
+
   /// Space kept free at the bottom for the sheet that overlaps the hero.
   final double overlap;
 
@@ -61,7 +65,9 @@ class HeroHeader extends StatelessWidget {
       value: SystemUiOverlayStyle.light.copyWith(statusBarColor: AppPalette.clear),
       child: Stack(
         children: [
-          Positioned.fill(child: _HeroBackground(art: art)),
+          Positioned.fill(
+            child: _HeroBackground(art: art, photo: photo),
+          ),
           Padding(
             padding: EdgeInsets.fromLTRB(
               AppSpacing.screen,
@@ -107,9 +113,10 @@ class HeroHeader extends StatelessWidget {
 }
 
 class _HeroBackground extends StatelessWidget {
-  const _HeroBackground({required this.art});
+  const _HeroBackground({required this.art, this.photo});
 
   final HeroArt? art;
+  final ImageProvider? photo;
 
   @override
   Widget build(BuildContext context) {
@@ -126,7 +133,23 @@ class _HeroBackground extends StatelessWidget {
             ),
           ),
         ),
-        if (art != null)
+        if (photo != null) ...[
+          Image(image: photo!, fit: BoxFit.cover, gaplessPlayback: true),
+          DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  AppPalette.black.withValues(alpha: 0.45),
+                  AppPalette.black.withValues(alpha: 0.2),
+                  AppPalette.black.withValues(alpha: 0.45),
+                ],
+                stops: const [0, 0.45, 1],
+              ),
+            ),
+          ),
+        ] else if (art != null)
           ShaderMask(
             blendMode: BlendMode.dstIn,
             shaderCallback: (rect) => const LinearGradient(

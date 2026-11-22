@@ -2345,4 +2345,227 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get payersMultipleHint =>
+      'Type what each person paid. Payers don\'t have to be in the split.';
+
+  @override
+  String get payersNone => 'Type at least one amount';
+
+  @override
+  String payersDone(String total) {
+    return '$total covered';
+  }
+
+  @override
+  String payerAmountLabel(String name) {
+    return 'Amount $name paid';
+  }
+
+  @override
+  String payersTwo(String first, String second) {
+    return '$first and $second';
+  }
+
+  @override
+  String payersMany(String first, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count others',
+      one: '1 other',
+    );
+    return '$first and $_temp0';
+  }
+
+  @override
+  String payersCaption(String names, String amount) {
+    return '$names paid $amount';
+  }
+
+  @override
+  String get loanAction => 'Record a loan';
+
+  @override
+  String get loanTitle => 'Record a loan';
+
+  @override
+  String get loanEditTitle => 'Edit loan';
+
+  @override
+  String get loanSubtitle =>
+      'Money lent or borrowed, outside any bill. It isn\'t counted as spending.';
+
+  @override
+  String get loanILent => 'I lent';
+
+  @override
+  String get loanIBorrowed => 'I borrowed';
+
+  @override
+  String get loanToWhom => 'To whom?';
+
+  @override
+  String get loanFromWhom => 'From whom?';
+
+  @override
+  String loanSentenceLent(String name, String amount) {
+    return 'You lent $name $amount';
+  }
+
+  @override
+  String loanSentenceBorrowed(String name, String amount) {
+    return '$name lent you $amount';
+  }
+
+  @override
+  String loanResultLent(String name, String amount) {
+    return '$name will owe you $amount';
+  }
+
+  @override
+  String loanResultBorrowed(String name, String amount) {
+    return 'You will owe $name $amount';
+  }
+
+  @override
+  String get loanPickPerson => 'Choose a person';
+
+  @override
+  String get loanNoOthers => 'Add someone to this group first.';
+
+  @override
+  String get loanWhatFor => 'What for?';
+
+  @override
+  String get loanWhatForHint => 'Optional, e.g. Cab money';
+
+  @override
+  String get loanDefaultDescription => 'Loan';
+
+  @override
+  String get loanSave => 'Save loan';
+
+  @override
+  String get loanSaved => 'Loan saved';
+
+  @override
+  String get loanChip => 'Loan';
+
+  @override
+  String loanCaption(String lender, String borrower, String amount) {
+    return '$lender lent $borrower $amount';
+  }
+
+  @override
+  String get loanLentBy => 'Lent by';
+
+  @override
+  String get loanBorrowedBy => 'Borrowed by';
+
+  @override
+  String get loanAmountLabel => 'Loan amount';
+
+  @override
+  String get loanNotSpending => 'Loans aren\'t counted in group totals.';
+
+  @override
+  String get receiptLabel => 'Receipt';
+
+  @override
+  String get receiptAdd => 'Add receipt photo';
+
+  @override
+  String get receiptAddHint => 'One photo per expense, shrunk before it\'s uploaded.';
+
+  @override
+  String get receiptPhoto => 'Receipt photo';
+
+  @override
+  String get receiptRemoveTitle => 'Remove the receipt photo?';
+
+  @override
+  String get receiptRemoveBody =>
+      'Everyone in the group stops seeing it. Earlier versions stay in the edit history.';
+
+  @override
+  String get receiptRemoved => 'Receipt photo removed';
+
+  @override
+  String get receiptReplaced => 'Receipt photo replaced';
+
+  @override
+  String get receiptOnList => 'Has a receipt photo';
+
+  @override
+  String get photoSourceTitle => 'Add a photo';
+
+  @override
+  String get photoTake => 'Take a photo';
+
+  @override
+  String get photoChoose => 'Choose from your photos';
+
+  @override
+  String get photoChooseHint =>
+      'Opens the Android photo picker. Splitify only sees the photo you pick.';
+
+  @override
+  String get photoReplace => 'Replace';
+
+  @override
+  String get photoRemove => 'Remove';
+
+  @override
+  String get photoView => 'Open photo';
+
+  @override
+  String get photoClose => 'Close photo';
+
+  @override
+  String get photoWaiting => 'Uploads when you\'re online';
+
+  @override
+  String get photoOffline => 'Shows when you\'re online';
+
+  @override
+  String get photoUnavailable => 'Photo not available';
+
+  @override
+  String get photoPickFailed => 'Couldn\'t use that photo. Try another one.';
+
+  @override
+  String get photoZoomHint => 'Pinch or double-tap to zoom';
+
+  @override
+  String get coverLabel => 'Cover';
+
+  @override
+  String get coverGenerated => 'Generated';
+
+  @override
+  String get coverPhotoOption => 'Photo';
+
+  @override
+  String get coverChangePhoto => 'Change photo';
+
+  @override
+  String get coverPhotoHint => 'Your photo is shrunk and shared with group members only.';
+
+  @override
+  String get coverPhotoSaved => 'Cover photo saved';
+
+  @override
+  String loanNameLent(String name) {
+    return '$name lent';
+  }
+
+  @override
+  String loanNameBorrowed(String name) {
+    return '$name borrowed';
+  }
+
+  @override
+  String get loanAmountDone => 'Done';
 }

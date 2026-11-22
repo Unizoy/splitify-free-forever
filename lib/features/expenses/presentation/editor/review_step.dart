@@ -4,6 +4,7 @@ import 'package:splitify/core/money/money_formatter.dart';
 import 'package:splitify/core/money/split.dart';
 import 'package:splitify/features/expenses/application/expense_draft.dart';
 import 'package:splitify/features/expenses/application/split_draft.dart';
+import 'package:splitify/features/expenses/presentation/editor/paid_split_steps.dart';
 import 'package:splitify/features/expenses/presentation/editor/step_body.dart';
 import 'package:splitify/features/expenses/presentation/expense_copy.dart';
 import 'package:splitify/features/expenses/presentation/split_editor.dart';
@@ -11,7 +12,7 @@ import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/components/components.dart';
 import 'package:splitify/ui/theme/theme.dart';
 
-/// Step 5 "All good?": summary card, the Splitwise-style sentence "Paid by **you** and split
+/// Step 5 "All good?": summary card, the Splitwise-style sentence "Paid by **you and Asha** and split
 /// **equally between 4 people**" (tappable parts jump to their step) and who owes what.
 class ReviewStep extends StatelessWidget {
   const ReviewStep({
@@ -190,10 +191,7 @@ class _SentenceState extends State<_Sentence> {
     final l = AppLocalizations.of(context);
     final c = context.colors;
     final d = widget.draft;
-    final payer = d.payerId == null ? null : d.member(d.payerId!);
-    final payerText = payer == null
-        ? l.expSeveralPeople
-        : (payer.isMe ? l.expYouLower : payer.name);
+    final payerText = payerNames(l, d);
     final how = switch (d.split.kind) {
       SplitKind.equal => l.expHowEqual(d.split.participants.length),
       SplitKind.exact => l.expHowExact,
