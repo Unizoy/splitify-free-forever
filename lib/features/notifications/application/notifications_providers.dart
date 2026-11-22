@@ -55,7 +55,8 @@ class NotificationItem {
       kind: NotificationKind.tryParse(n.kind) ?? NotificationKind.expenses,
       title: n.title,
       body: n.body,
-      at: (n.createdAt == null ? null : DateTime.tryParse(n.createdAt!))?.toLocal() ??
+      at:
+          (n.createdAt == null ? null : DateTime.tryParse(n.createdAt!))?.toLocal() ??
           DateTime.fromMillisecondsSinceEpoch(0),
       unread: n.readAt == null,
       groupId: n.groupId,
@@ -135,13 +136,13 @@ final notificationPrefsPendingProvider = StreamProvider<bool>(
 );
 
 /// Android permission + whether push exists in this build (settings banner, pre-prompt).
-final pushStateProvider = FutureProvider.autoDispose<({bool available, PushPermission permission})>((
-  ref,
-) async {
-  final push = ref.watch(pushMessagingProvider);
-  if (!push.available) return (available: false, permission: PushPermission.denied);
-  return (available: true, permission: await push.permission());
-});
+final pushStateProvider = FutureProvider.autoDispose<({bool available, PushPermission permission})>(
+  (ref) async {
+    final push = ref.watch(pushMessagingProvider);
+    if (!push.available) return (available: false, permission: PushPermission.denied);
+    return (available: true, permission: await push.permission());
+  },
+);
 
 /// Bell actions; every write lands on the phone first, then a best-effort refresh tells the server.
 class NotificationActions {
@@ -288,4 +289,17 @@ final pushPrePromptProvider = Provider<PushPrePrompt>(
     push: ref.watch(pushMessagingProvider),
     prefs: ref.watch(sharedPreferencesProvider),
   ),
+);
+
+/// Asks the signed-in shell to show the push pre-prompt (after a group create/join; the screen that asked is
+/// usually gone by then). The value only counts requests.
+class PushPrePromptRequests extends Notifier<int> {
+  @override
+  int build() => 0;
+
+  void request() => state++;
+}
+
+final pushPrePromptRequestsProvider = NotifierProvider<PushPrePromptRequests, int>(
+  PushPrePromptRequests.new,
 );

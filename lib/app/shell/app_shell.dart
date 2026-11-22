@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:splitify/features/expenses/presentation/expense_routes.dart';
+import 'package:splitify/features/notifications/presentation/notifications_binding.dart';
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/components/capsule_nav_bar.dart';
 import 'package:splitify/ui/theme/theme.dart';
@@ -21,7 +22,7 @@ class AppShell extends StatelessWidget {
     final index = shell.currentIndex;
     return Scaffold(
       extendBody: true,
-      body: shell,
+      body: NotificationsBinding(child: shell),
       bottomNavigationBar: CapsuleNavBar(
         currentIndex: index,
         onSelected: (i) => shell.goBranch(i, initialLocation: i == index),

@@ -266,7 +266,10 @@ class _CountBadge extends StatelessWidget {
           border: Border.all(color: c.surface, width: 1.5),
         ),
         alignment: Alignment.center,
-        child: Text(text, style: context.text.caption.w(700).copyWith(color: c.onMoney, height: 1.1)),
+        child: Text(
+          text,
+          style: context.text.caption.w(700).copyWith(color: c.onMoney, height: 1.1),
+        ),
       ),
     );
   }

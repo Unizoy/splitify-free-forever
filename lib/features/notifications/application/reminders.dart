@@ -15,26 +15,26 @@ const reminderThrottle = Duration(hours: 24);
 
 /// When [ReminderPair.fromMember] last reminded [ReminderPair.toMember] in the group, from the activity log on
 /// this phone (`reminder_sent` rows), or null.
-final StreamProviderFamily<DateTime?, ReminderPair> lastReminderProvider =
-    StreamProvider.family<DateTime?, ReminderPair>((ref, p) {
-      final db = ref.watch(appDatabaseProvider);
-      return db
-          .customSelect(
-            "SELECT MAX(created_at) AS at FROM activity WHERE group_id = ? AND type = 'reminder_sent' "
-            "AND actor_member_id = ? AND json_extract(data, '\$.to_member') = ?",
-            variables: [
-              Variable<String>(p.groupId),
-              Variable<String>(p.fromMember),
-              Variable<String>(p.toMember),
-            ],
-            readsFrom: {db.activity},
-          )
-          .watchSingle()
-          .map((r) {
-            final at = r.read<String?>('at');
-            return at == null ? null : DateTime.tryParse(at)?.toUtc();
-          });
-    });
+final StreamProviderFamily<DateTime?, ReminderPair>
+lastReminderProvider = StreamProvider.family<DateTime?, ReminderPair>((ref, p) {
+  final db = ref.watch(appDatabaseProvider);
+  return db
+      .customSelect(
+        "SELECT MAX(created_at) AS at FROM activity WHERE group_id = ? AND type = 'reminder_sent' "
+        "AND actor_member_id = ? AND json_extract(data, '\$.to_member') = ?",
+        variables: [
+          Variable<String>(p.groupId),
+          Variable<String>(p.fromMember),
+          Variable<String>(p.toMember),
+        ],
+        readsFrom: {db.activity},
+      )
+      .watchSingle()
+      .map((r) {
+        final at = r.read<String?>('at');
+        return at == null ? null : DateTime.tryParse(at)?.toUtc();
+      });
+});
 
 /// Reminders sent from this phone in this run (the activity row arrives with the next sync): pair key → when
 /// the next one is allowed.
@@ -47,10 +47,16 @@ class SentReminders extends Notifier<Map<String, DateTime>> {
   void record(ReminderPair p, DateTime retryAt) => state = {...state, keyOf(p): retryAt};
 }
 
-final sentRemindersProvider = NotifierProvider<SentReminders, Map<String, DateTime>>(SentReminders.new);
+final sentRemindersProvider = NotifierProvider<SentReminders, Map<String, DateTime>>(
+  SentReminders.new,
+);
 
 /// When [p] may remind again, or null when it may now ([now] in UTC).
-DateTime? reminderRetryAt({required DateTime? lastSent, required DateTime? sentHere, required DateTime now}) {
+DateTime? reminderRetryAt({
+  required DateTime? lastSent,
+  required DateTime? sentHere,
+  required DateTime now,
+}) {
   final fromLog = lastSent?.add(reminderThrottle);
   final next = switch ((fromLog, sentHere)) {
     (final a?, final b?) => a.isAfter(b) ? a : b,

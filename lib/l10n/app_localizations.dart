@@ -146,6 +146,276 @@ abstract class AppLocalizations {
   /// **'Notifications'**
   String get notifications;
 
+  /// Subtitle of the Notifications screen.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 unread} other{{count} unread}}'**
+  String notifUnreadCount(int count);
+
+  /// Subtitle of the Notifications screen when nothing is unread.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re all caught up'**
+  String get notifAllCaughtUp;
+
+  /// No description provided for @notifMarkAllRead.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark all read'**
+  String get notifMarkAllRead;
+
+  /// No description provided for @notifEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No notifications yet'**
+  String get notifEmptyTitle;
+
+  /// No description provided for @notifEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'When someone adds an expense with you, pays you or sends a reminder, it shows up here.'**
+  String get notifEmptyBody;
+
+  /// Note above the bell list when the refresh could not reach the server.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline · showing what\'s on this phone'**
+  String get notifOffline;
+
+  /// No description provided for @notifSettingsTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Notification settings'**
+  String get notifSettingsTooltip;
+
+  /// Screen-reader label of the bell button.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{Notifications} =1{Notifications, 1 unread} other{Notifications, {count} unread}}'**
+  String notifBellLabel(int count);
+
+  /// Screen-reader word for the unread dot.
+  ///
+  /// In en, this message translates to:
+  /// **'Unread'**
+  String get notifUnread;
+
+  /// No description provided for @notifKindExpenses.
+  ///
+  /// In en, this message translates to:
+  /// **'Expenses'**
+  String get notifKindExpenses;
+
+  /// No description provided for @notifKindPayments.
+  ///
+  /// In en, this message translates to:
+  /// **'Payments'**
+  String get notifKindPayments;
+
+  /// No description provided for @notifKindReminders.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminders'**
+  String get notifKindReminders;
+
+  /// No description provided for @notifKindComments.
+  ///
+  /// In en, this message translates to:
+  /// **'Comments'**
+  String get notifKindComments;
+
+  /// No description provided for @notifKindGroups.
+  ///
+  /// In en, this message translates to:
+  /// **'Groups'**
+  String get notifKindGroups;
+
+  /// No description provided for @notifKindExpensesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Added, edited, deleted or restored'**
+  String get notifKindExpensesHint;
+
+  /// No description provided for @notifKindPaymentsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Payments recorded with you'**
+  String get notifKindPaymentsHint;
+
+  /// No description provided for @notifKindRemindersHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Someone reminds you to settle up'**
+  String get notifKindRemindersHint;
+
+  /// No description provided for @notifKindCommentsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Comments on expenses you\'re in'**
+  String get notifKindCommentsHint;
+
+  /// No description provided for @notifKindGroupsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'People joining or leaving, group settings'**
+  String get notifKindGroupsHint;
+
+  /// No description provided for @notifSettingsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose what reaches you, and where.'**
+  String get notifSettingsHint;
+
+  /// Settings section: push notifications per kind.
+  ///
+  /// In en, this message translates to:
+  /// **'On your phone'**
+  String get notifSectionPush;
+
+  /// Settings section: bell list per kind.
+  ///
+  /// In en, this message translates to:
+  /// **'In the app'**
+  String get notifSectionInApp;
+
+  /// No description provided for @notifSectionMuted.
+  ///
+  /// In en, this message translates to:
+  /// **'Muted groups'**
+  String get notifSectionMuted;
+
+  /// No description provided for @notifMutedHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Muted groups still show in the bell, just without pushes.'**
+  String get notifMutedHint;
+
+  /// No description provided for @notifMutedEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re not in any groups yet.'**
+  String get notifMutedEmpty;
+
+  /// Settings banner in builds without Firebase (D-020).
+  ///
+  /// In en, this message translates to:
+  /// **'Push notifications aren\'t set up in this version yet. Everything still shows in the bell.'**
+  String get notifPushOffBuild;
+
+  /// No description provided for @notifPushBlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications are blocked for Splitify on this phone. You\'ll still see everything in the bell.'**
+  String get notifPushBlocked;
+
+  /// No description provided for @notifPushNotAsked.
+  ///
+  /// In en, this message translates to:
+  /// **'Push notifications are off for now.'**
+  String get notifPushNotAsked;
+
+  /// No description provided for @notifAllow.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow notifications'**
+  String get notifAllow;
+
+  /// Value of the Notifications row in Account settings.
+  ///
+  /// In en, this message translates to:
+  /// **'On'**
+  String get notifRowOn;
+
+  /// Value of the Notifications row when this phone gets no pushes.
+  ///
+  /// In en, this message translates to:
+  /// **'Bell only'**
+  String get notifRowBellOnly;
+
+  /// No description provided for @notifPrePromptTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Stay in the loop'**
+  String get notifPrePromptTitle;
+
+  /// No description provided for @notifPrePromptBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Get a quiet nudge when something changes in your groups.'**
+  String get notifPrePromptBody;
+
+  /// No description provided for @notifPrePromptPoint1.
+  ///
+  /// In en, this message translates to:
+  /// **'New expenses you\'re part of'**
+  String get notifPrePromptPoint1;
+
+  /// No description provided for @notifPrePromptPoint2.
+  ///
+  /// In en, this message translates to:
+  /// **'Payments and reminders to settle up'**
+  String get notifPrePromptPoint2;
+
+  /// No description provided for @notifPrePromptPoint3.
+  ///
+  /// In en, this message translates to:
+  /// **'Comments on your expenses'**
+  String get notifPrePromptPoint3;
+
+  /// No description provided for @notifPrePromptAllow.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on notifications'**
+  String get notifPrePromptAllow;
+
+  /// No description provided for @notifPrePromptLater.
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get notifPrePromptLater;
+
+  /// Remind button on a balance row.
+  ///
+  /// In en, this message translates to:
+  /// **'Remind {name}'**
+  String remindTooltip(String name);
+
+  /// No description provided for @remindSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminder sent to {name}'**
+  String remindSent(String name);
+
+  /// No description provided for @remindThrottled.
+  ///
+  /// In en, this message translates to:
+  /// **'You reminded {name} recently. You can remind again in {hours, plural, =1{1 hour} other{{hours} hours}}.'**
+  String remindThrottled(String name, int hours);
+
+  /// Tooltip of the Remind button within the 24 h throttle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminded. Again in {hours, plural, =1{1 hour} other{{hours} hours}}'**
+  String remindedTooltip(int hours);
+
+  /// No description provided for @remindNothingOwed.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} doesn\'t owe you anything here right now.'**
+  String remindNothingOwed(String name);
+
+  /// No description provided for @remindNameOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Only people who joined the app can be reminded.'**
+  String get remindNameOnly;
+
+  /// No description provided for @remindFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t send the reminder. Try again.'**
+  String get remindFailed;
+
   /// No description provided for @settings.
   ///
   /// In en, this message translates to:

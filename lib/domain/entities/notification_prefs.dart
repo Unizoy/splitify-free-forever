@@ -59,7 +59,11 @@ class NotificationPrefs {
   bool isMuted(String groupId) => mutedGroupIds.contains(groupId);
 
   /// Copy with [kind] / [channel] switched [on] or off.
-  NotificationPrefs withKind(NotificationKind kind, NotificationChannel channel, {required bool on}) {
+  NotificationPrefs withKind(
+    NotificationKind kind,
+    NotificationChannel channel, {
+    required bool on,
+  }) {
     final next = {...off};
     if (on) {
       next.remove((kind, channel));
@@ -97,8 +101,6 @@ class NotificationPrefs {
       other.mutedGroupIds.containsAll(mutedGroupIds);
 
   @override
-  int get hashCode => Object.hash(
-    Object.hashAllUnordered(off),
-    Object.hashAllUnordered(mutedGroupIds),
-  );
+  int get hashCode =>
+      Object.hash(Object.hashAllUnordered(off), Object.hashAllUnordered(mutedGroupIds));
 }

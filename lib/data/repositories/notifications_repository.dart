@@ -32,12 +32,9 @@ class NotificationsRepository {
   bool _again = false;
 
   /// The bell list, newest first.
-  Stream<List<LocalNotification>> watchAll() =>
-      (db.select(db.notifications)..orderBy([
-            (n) => OrderingTerm.desc(n.createdAt),
-            (n) => OrderingTerm.desc(n.seq),
-          ]))
-          .watch();
+  Stream<List<LocalNotification>> watchAll() => (db.select(
+    db.notifications,
+  )..orderBy([(n) => OrderingTerm.desc(n.createdAt), (n) => OrderingTerm.desc(n.seq)])).watch();
 
   /// How many are unread (the bell badge).
   Stream<int> watchUnreadCount() {
@@ -50,16 +47,14 @@ class NotificationsRepository {
   }
 
   /// Saved settings (defaults until the server or the person says otherwise).
-  Stream<NotificationPrefs> watchPrefs() =>
-      (db.select(db.notificationSettings)..where((s) => s.key.equals(_me)))
-          .watchSingleOrNull()
-          .map(_prefsOf);
+  Stream<NotificationPrefs> watchPrefs() => (db.select(
+    db.notificationSettings,
+  )..where((s) => s.key.equals(_me))).watchSingleOrNull().map(_prefsOf);
 
   /// True while a settings change is not on the server yet.
-  Stream<bool> watchPrefsPending() =>
-      (db.select(db.notificationSettings)..where((s) => s.key.equals(_me)))
-          .watchSingleOrNull()
-          .map((r) => r?.syncState == 'pending');
+  Stream<bool> watchPrefsPending() => (db.select(
+    db.notificationSettings,
+  )..where((s) => s.key.equals(_me))).watchSingleOrNull().map((r) => r?.syncState == 'pending');
 
   static NotificationPrefs _prefsOf(LocalNotificationSettings? r) {
     if (r == null) return const NotificationPrefs();
@@ -78,10 +73,8 @@ class NotificationsRepository {
       );
 
   /// Marks everything read on this phone; [refresh] tells the server.
-  Future<void> markAllRead() =>
-      (db.update(db.notifications)..where((n) => n.readAt.isNull())).write(
-        NotificationsCompanion(readAt: Value(_now), readPending: const Value(1)),
-      );
+  Future<void> markAllRead() => (db.update(db.notifications)..where((n) => n.readAt.isNull()))
+      .write(NotificationsCompanion(readAt: Value(_now), readPending: const Value(1)));
 
   /// Saves [prefs] on this phone (pending); [refresh] sends them.
   Future<void> savePrefs(NotificationPrefs prefs) => db
@@ -118,17 +111,18 @@ class NotificationsRepository {
   }
 
   Future<void> _pushReads() async {
-    final ids = await (db.selectOnly(db.notifications)
-          ..addColumns([db.notifications.id])
-          ..where(db.notifications.readPending.equals(1)))
-        .map((r) => r.read(db.notifications.id)!)
-        .get();
+    final ids =
+        await (db.selectOnly(db.notifications)
+              ..addColumns([db.notifications.id])
+              ..where(db.notifications.readPending.equals(1)))
+            .map((r) => r.read(db.notifications.id)!)
+            .get();
     for (var i = 0; i < ids.length; i += page) {
       final chunk = ids.sublist(i, i + page > ids.length ? ids.length : i + page);
       await remote.markRead(chunk);
-      await (db.update(db.notifications)..where((n) => n.id.isIn(chunk))).write(
-        const NotificationsCompanion(readPending: Value(0)),
-      );
+      await (db.update(
+        db.notifications,
+      )..where((n) => n.id.isIn(chunk))).write(const NotificationsCompanion(readPending: Value(0)));
     }
   }
 
@@ -139,7 +133,10 @@ class NotificationsRepository {
     final row = await _prefsRow();
     if (row == null || row.syncState != 'pending') return;
     final prefs = _prefsOf(row);
-    final saved = await remote.saveSettings(kinds: prefs.kindsJson(), mutedGroupIds: prefs.mutedJson());
+    final saved = await remote.saveSettings(
+      kinds: prefs.kindsJson(),
+      mutedGroupIds: prefs.mutedJson(),
+    );
     // A change made while the call ran stays pending for the next run.
     final now = await _prefsRow();
     if (now == null || now.kinds != row.kinds || now.mutedGroupIds != row.mutedGroupIds) {
@@ -154,7 +151,9 @@ class NotificationsRepository {
     if (row?.syncState == 'pending') return;
     final saved = await remote.settings();
     if ((await _prefsRow())?.syncState == 'pending') return;
-    await _storePrefs(saved == null ? const NotificationPrefs() : NotificationPrefs.fromJson(saved));
+    await _storePrefs(
+      saved == null ? const NotificationPrefs() : NotificationPrefs.fromJson(saved),
+    );
   }
 
   Future<void> _storePrefs(NotificationPrefs p) => db
@@ -190,7 +189,9 @@ class NotificationsRepository {
     if (rows.isEmpty) return;
     await db.transaction(() async {
       final pending = {
-        for (final n in await (db.select(db.notifications)..where((n) => n.readPending.equals(1))).get())
+        for (final n in await (db.select(
+          db.notifications,
+        )..where((n) => n.readPending.equals(1))).get())
           n.id: n.readAt,
       };
       for (final r in rows) {

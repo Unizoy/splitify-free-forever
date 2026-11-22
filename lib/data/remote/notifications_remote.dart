@@ -53,7 +53,11 @@ class ReminderFailure implements Exception {
 abstract class NotificationsRemote {
   /// In-app notifications with `seq > afterSeq`, oldest first (at most [limit]); with [newest] the newest
   /// [limit] rows instead (first fetch on a phone).
-  Future<List<Map<String, Object?>>> notifications({int afterSeq = 0, int limit = 200, bool newest = false});
+  Future<List<Map<String, Object?>>> notifications({
+    int afterSeq = 0,
+    int limit = 200,
+    bool newest = false,
+  });
 
   /// The saved settings row, or null when the person never changed anything.
   Future<Map<String, Object?>?> settings();
@@ -77,7 +81,8 @@ abstract class NotificationsRemote {
 class UnconfiguredNotificationsRemote implements NotificationsRemote {
   const UnconfiguredNotificationsRemote();
 
-  static Future<T> _offline<T>() => Future.error(const NetworkException(UnconfiguredRemoteApi.code));
+  static Future<T> _offline<T>() =>
+      Future.error(const NetworkException(UnconfiguredRemoteApi.code));
 
   @override
   Future<List<Map<String, Object?>>> notifications({
@@ -115,20 +120,26 @@ typedef NotificationsRpc = Future<Object?> Function(String name, Map<String, Obj
 
 /// [NotificationsRemote] over PostgREST (RLS returns only the caller's rows).
 class SupabaseNotificationsRemote implements NotificationsRemote {
-  SupabaseNotificationsRemote({required this.query, required this.settingsQuery, required this.rpc});
+  SupabaseNotificationsRemote({
+    required this.query,
+    required this.settingsQuery,
+    required this.rpc,
+  });
 
   /// Wires the real client (thin glue, exercised on the device).
-  factory SupabaseNotificationsRemote.fromClient(sb.SupabaseClient c) => SupabaseNotificationsRemote(
-    query: (afterSeq, limit, newest) => c
-        .from('notifications')
-        .select(columns)
-        .eq('inapp', true)
-        .gt('seq', afterSeq)
-        .order('seq', ascending: !newest)
-        .limit(limit),
-    settingsQuery: () => c.from('notification_settings').select('kinds, muted_group_ids').maybeSingle(),
-    rpc: (name, params) => c.rpc<Object?>(name, params: params),
-  );
+  factory SupabaseNotificationsRemote.fromClient(sb.SupabaseClient c) =>
+      SupabaseNotificationsRemote(
+        query: (afterSeq, limit, newest) => c
+            .from('notifications')
+            .select(columns)
+            .eq('inapp', true)
+            .gt('seq', afterSeq)
+            .order('seq', ascending: !newest)
+            .limit(limit),
+        settingsQuery: () =>
+            c.from('notification_settings').select('kinds, muted_group_ids').maybeSingle(),
+        rpc: (name, params) => c.rpc<Object?>(name, params: params),
+      );
 
   static const columns =
       'id, group_id, activity_id, kind, type, title, body, data, read_at, created_at, seq';
@@ -154,8 +165,9 @@ class SupabaseNotificationsRemote implements NotificationsRemote {
   });
 
   @override
-  Future<int> markRead(List<String>? ids) =>
-      _guard(() async => ((await rpc('mark_notifications_read', {'ids': ids})) as num?)?.toInt() ?? 0);
+  Future<int> markRead(List<String>? ids) => _guard(
+    () async => ((await rpc('mark_notifications_read', {'ids': ids})) as num?)?.toInt() ?? 0,
+  );
 
   @override
   Future<Map<String, Object?>> saveSettings({
@@ -171,7 +183,8 @@ class SupabaseNotificationsRemote implements NotificationsRemote {
 
   @override
   Future<void> registerDevice(String token, {String? appVersion}) => _guard(
-    () => rpc('register_device', {'token': token, 'app_version': appVersion, 'platform': 'android'}),
+    () =>
+        rpc('register_device', {'token': token, 'app_version': appVersion, 'platform': 'android'}),
   );
 
   @override
@@ -187,7 +200,10 @@ class SupabaseNotificationsRemote implements NotificationsRemote {
         } on sb.PostgrestException catch (e) {
           // Raised codes (`private.fail`, P0001) come as the message, the detail JSON carries retry_at.
           if (e.code != 'P0001') rethrow;
-          throw ReminderFailure(ReminderFailure.fromServer(e.message), retryAt: _retryAt(e.details));
+          throw ReminderFailure(
+            ReminderFailure.fromServer(e.message),
+            retryAt: _retryAt(e.details),
+          );
         }
       });
       return ReminderSent.fromJson((r! as Map).cast<String, Object?>());

@@ -11,6 +11,7 @@ import 'package:splitify/features/account/presentation/profile_form.dart';
 import 'package:splitify/features/auth/application/auth_providers.dart';
 import 'package:splitify/features/groups/application/groups_providers.dart';
 import 'package:splitify/features/groups/presentation/group_visuals.dart';
+import 'package:splitify/features/notifications/application/notifications_providers.dart';
 import 'package:splitify/features/photos/presentation/photo_source_sheet.dart';
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/components/components.dart';
@@ -88,6 +89,8 @@ class _GroupFormScreenState extends ConsumerState<GroupFormScreen> {
               ownerName: profile?.displayName ?? '',
             );
         await _saveCover(_seed);
+        // First group: the shell may ask about push notifications (08 #19).
+        ref.read(pushPrePromptRequestsProvider.notifier).request();
         if (mounted) unawaited(router.pushReplacement('/groups/$_seed'));
       }
     } finally {

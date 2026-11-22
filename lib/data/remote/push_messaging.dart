@@ -109,7 +109,10 @@ Future<PushMessaging> initPush() async {
     _log.info('push disabled (Firebase not set up): ${e.runtimeType}');
     return const DisabledPushMessaging();
   }
-  final push = FirebasePushMessaging(fcm.FirebaseMessaging.instance, FlutterLocalNotificationsPlugin());
+  final push = FirebasePushMessaging(
+    fcm.FirebaseMessaging.instance,
+    FlutterLocalNotificationsPlugin(),
+  );
   try {
     await push.init();
   } on Object catch (e) {
@@ -129,7 +132,9 @@ class FirebasePushMessaging implements PushMessaging {
 
   Future<void> init() async {
     await _local.initialize(
-      settings: const InitializationSettings(android: AndroidInitializationSettings('ic_stat_splitify')),
+      settings: const InitializationSettings(
+        android: AndroidInitializationSettings('ic_stat_splitify'),
+      ),
       onDidReceiveNotificationResponse: (r) {
         final m = _decode(r.payload);
         if (m != null) _taps.add(m);
@@ -154,8 +159,10 @@ class FirebasePushMessaging implements PushMessaging {
   bool get available => true;
 
   static PushPermission _map(fcm.AuthorizationStatus s) => switch (s) {
-    fcm.AuthorizationStatus.authorized || fcm.AuthorizationStatus.provisional => PushPermission.granted,
-    fcm.AuthorizationStatus.denied => PushPermission.denied,
+    fcm.AuthorizationStatus.authorized ||
+    fcm.AuthorizationStatus.provisional => PushPermission.granted,
+    fcm.AuthorizationStatus.denied ||
+    fcm.AuthorizationStatus.deniedPermanently => PushPermission.denied,
     fcm.AuthorizationStatus.notDetermined => PushPermission.notAsked,
   };
 

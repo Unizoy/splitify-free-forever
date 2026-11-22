@@ -37,6 +37,183 @@ class AppLocalizationsEn extends AppLocalizations {
   String get notifications => 'Notifications';
 
   @override
+  String notifUnreadCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count unread',
+      one: '1 unread',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get notifAllCaughtUp => 'You\'re all caught up';
+
+  @override
+  String get notifMarkAllRead => 'Mark all read';
+
+  @override
+  String get notifEmptyTitle => 'No notifications yet';
+
+  @override
+  String get notifEmptyBody =>
+      'When someone adds an expense with you, pays you or sends a reminder, it shows up here.';
+
+  @override
+  String get notifOffline => 'Offline · showing what\'s on this phone';
+
+  @override
+  String get notifSettingsTooltip => 'Notification settings';
+
+  @override
+  String notifBellLabel(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Notifications, $count unread',
+      one: 'Notifications, 1 unread',
+      zero: 'Notifications',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get notifUnread => 'Unread';
+
+  @override
+  String get notifKindExpenses => 'Expenses';
+
+  @override
+  String get notifKindPayments => 'Payments';
+
+  @override
+  String get notifKindReminders => 'Reminders';
+
+  @override
+  String get notifKindComments => 'Comments';
+
+  @override
+  String get notifKindGroups => 'Groups';
+
+  @override
+  String get notifKindExpensesHint => 'Added, edited, deleted or restored';
+
+  @override
+  String get notifKindPaymentsHint => 'Payments recorded with you';
+
+  @override
+  String get notifKindRemindersHint => 'Someone reminds you to settle up';
+
+  @override
+  String get notifKindCommentsHint => 'Comments on expenses you\'re in';
+
+  @override
+  String get notifKindGroupsHint => 'People joining or leaving, group settings';
+
+  @override
+  String get notifSettingsHint => 'Choose what reaches you, and where.';
+
+  @override
+  String get notifSectionPush => 'On your phone';
+
+  @override
+  String get notifSectionInApp => 'In the app';
+
+  @override
+  String get notifSectionMuted => 'Muted groups';
+
+  @override
+  String get notifMutedHint => 'Muted groups still show in the bell, just without pushes.';
+
+  @override
+  String get notifMutedEmpty => 'You\'re not in any groups yet.';
+
+  @override
+  String get notifPushOffBuild =>
+      'Push notifications aren\'t set up in this version yet. Everything still shows in the bell.';
+
+  @override
+  String get notifPushBlocked =>
+      'Notifications are blocked for Splitify on this phone. You\'ll still see everything in the bell.';
+
+  @override
+  String get notifPushNotAsked => 'Push notifications are off for now.';
+
+  @override
+  String get notifAllow => 'Allow notifications';
+
+  @override
+  String get notifRowOn => 'On';
+
+  @override
+  String get notifRowBellOnly => 'Bell only';
+
+  @override
+  String get notifPrePromptTitle => 'Stay in the loop';
+
+  @override
+  String get notifPrePromptBody => 'Get a quiet nudge when something changes in your groups.';
+
+  @override
+  String get notifPrePromptPoint1 => 'New expenses you\'re part of';
+
+  @override
+  String get notifPrePromptPoint2 => 'Payments and reminders to settle up';
+
+  @override
+  String get notifPrePromptPoint3 => 'Comments on your expenses';
+
+  @override
+  String get notifPrePromptAllow => 'Turn on notifications';
+
+  @override
+  String get notifPrePromptLater => 'Not now';
+
+  @override
+  String remindTooltip(String name) {
+    return 'Remind $name';
+  }
+
+  @override
+  String remindSent(String name) {
+    return 'Reminder sent to $name';
+  }
+
+  @override
+  String remindThrottled(String name, int hours) {
+    String _temp0 = intl.Intl.pluralLogic(
+      hours,
+      locale: localeName,
+      other: '$hours hours',
+      one: '1 hour',
+    );
+    return 'You reminded $name recently. You can remind again in $_temp0.';
+  }
+
+  @override
+  String remindedTooltip(int hours) {
+    String _temp0 = intl.Intl.pluralLogic(
+      hours,
+      locale: localeName,
+      other: '$hours hours',
+      one: '1 hour',
+    );
+    return 'Reminded. Again in $_temp0';
+  }
+
+  @override
+  String remindNothingOwed(String name) {
+    return '$name doesn\'t owe you anything here right now.';
+  }
+
+  @override
+  String get remindNameOnly => 'Only people who joined the app can be reminded.';
+
+  @override
+  String get remindFailed => 'Couldn\'t send the reminder. Try again.';
+
+  @override
   String get settings => 'Settings';
 
   @override
