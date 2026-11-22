@@ -1418,7 +1418,7 @@
   "captureRestrictedTitle": "Switch greyed out or \"Restricted setting\"?",
   "captureRestrictedBody": "Android blocks notification access, accessibility and display over apps for apps installed from a file, until you allow them once:",
   "captureRestrictedStep1": "Tap Grant and try the switch once. Android says \"Restricted setting\".",
-  "captureRestrictedStep2": "Open App info, tap ⋮ at the top right, then \"Allow restricted settings\".",
+  "captureRestrictedStep2": "Open App info, tap the three-dot menu at the top right, then \"Allow restricted settings\".",
   "captureRestrictedStep3": "Come back here and tap Grant again.",
   "captureOpenAppInfo": "Open App info",
   "captureSectionApps": "Apps",

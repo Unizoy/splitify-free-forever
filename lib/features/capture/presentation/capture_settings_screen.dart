@@ -284,34 +284,25 @@ class _AccessRow extends StatelessWidget {
       children: [
         Padding(
           padding: const EdgeInsets.symmetric(vertical: AppSpacing.s3),
-          child: Wrap(
-            alignment: WrapAlignment.spaceBetween,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            spacing: AppSpacing.s3,
-            runSpacing: AppSpacing.s2,
+          child: Row(
             children: [
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    width: 36,
-                    height: 36,
-                    decoration: BoxDecoration(color: c.primaryContainer, shape: BoxShape.circle),
-                    child: Icon(icon, size: 18, color: c.onPrimaryContainer),
-                  ),
-                  const SizedBox(width: AppSpacing.s3),
-                  ConstrainedBox(
-                    constraints: BoxConstraints(maxWidth: MediaQuery.sizeOf(context).width * 0.55),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(title, style: context.text.title.w(500)),
-                        Text(hint, style: context.text.bodySmall.copyWith(color: c.textSecondary)),
-                      ],
-                    ),
-                  ),
-                ],
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(color: c.primaryContainer, shape: BoxShape.circle),
+                child: Icon(icon, size: 18, color: c.onPrimaryContainer),
               ),
+              const SizedBox(width: AppSpacing.s3),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(title, style: context.text.title.w(500)),
+                    Text(hint, style: context.text.bodySmall.copyWith(color: c.textSecondary)),
+                  ],
+                ),
+              ),
+              const SizedBox(width: AppSpacing.s3),
               if (granted)
                 StatusPill(
                   key: Key('capture-allowed-${access.name}'),

@@ -6791,7 +6791,7 @@ abstract class AppLocalizations {
   /// No description provided for @captureRestrictedStep2.
   ///
   /// In en, this message translates to:
-  /// **'Open App info, tap ⋮ at the top right, then \"Allow restricted settings\".'**
+  /// **'Open App info, tap the three-dot menu at the top right, then \"Allow restricted settings\".'**
   String get captureRestrictedStep2;
 
   /// No description provided for @captureRestrictedStep3.

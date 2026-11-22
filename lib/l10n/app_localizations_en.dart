@@ -4190,7 +4190,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get captureRestrictedStep2 =>
-      'Open App info, tap ⋮ at the top right, then \"Allow restricted settings\".';
+      'Open App info, tap the three-dot menu at the top right, then \"Allow restricted settings\".';
 
   @override
   String get captureRestrictedStep3 => 'Come back here and tap Grant again.';
