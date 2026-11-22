@@ -123,3 +123,14 @@ Full check (hold the lock, ~5 min): `powershell -File tool\fake_upi_app\run_upi_
 `integration_test/friends_upi_test.dart`, compares the test's `UPI-EXPECT <uri>` print with the `FAKE_UPI` logcat line
 (TC-26-02; an app cannot read another app's logcat, so the host compares), then uninstalls it and runs the
 "No UPI app found" path (`--dart-define=FAKE_UPI=absent`, TC-26-03).
+
+## 10. Full regression and background sync (phase 19)
+
+- All plain device tests under one lock hold: `powershell -File tool\e2e\run_suite.ps1 -Files groups_test,sync_offline_test,...`
+  (stops starting new files after `-MaxMinutes 28`; logs `splitify-artifacts\phase-NN\it-<name>.log`, one `RESULT` line
+  per file). Special runners: `tool\e2e\airplane.ps1`, `tool\e2e\perf.ps1`, `tool\e2e\run_lock_e2e.ps1`,
+  `tool\fake_upi_app\run_upi_e2e.ps1`, `tool\e2e\capture_e2e.ps1`, `tool\e2e\background_sync.ps1`. When a wrapper starts
+  the scripts that don't load `tool\env.ps1` themselves, run them as `powershell -Command ". tool\env.ps1; & <script>"`.
+- Real WorkManager run (S-160): `powershell -File tool\e2e\background_sync.ps1` → queues a change offline, sends the app
+  home, network back on, forces the app's jobs; pass = outbox empty + server row + logcat
+  `Worker result SUCCESS … BackgroundWorker` (`background-sync-logcat.txt`).

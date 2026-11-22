@@ -2834,6 +2834,96 @@ abstract class AppLocalizations {
   /// **'Version {version}'**
   String version(String version);
 
+  /// No description provided for @aboutTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'About'**
+  String get aboutTitle;
+
+  /// No description provided for @aboutHeroTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'split bills,\nfree forever'**
+  String get aboutHeroTitle;
+
+  /// No description provided for @aboutTagline.
+  ///
+  /// In en, this message translates to:
+  /// **'A free, open-source app for sharing costs with friends, flatmates and trips. No ads, no limits, no paywalls.'**
+  String get aboutTagline;
+
+  /// No description provided for @aboutSectionProject.
+  ///
+  /// In en, this message translates to:
+  /// **'Project'**
+  String get aboutSectionProject;
+
+  /// No description provided for @aboutSourceCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Source code'**
+  String get aboutSourceCode;
+
+  /// No description provided for @aboutSourceValue.
+  ///
+  /// In en, this message translates to:
+  /// **'GitHub'**
+  String get aboutSourceValue;
+
+  /// No description provided for @aboutPrivacy.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy policy'**
+  String get aboutPrivacy;
+
+  /// No description provided for @aboutReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Report a problem'**
+  String get aboutReport;
+
+  /// No description provided for @aboutLicencesRow.
+  ///
+  /// In en, this message translates to:
+  /// **'Open-source licences'**
+  String get aboutLicencesRow;
+
+  /// No description provided for @aboutSectionCredits.
+  ///
+  /// In en, this message translates to:
+  /// **'Credits'**
+  String get aboutSectionCredits;
+
+  /// No description provided for @aboutCreditFonts.
+  ///
+  /// In en, this message translates to:
+  /// **'Instrument Serif and Inter fonts, SIL Open Font License'**
+  String get aboutCreditFonts;
+
+  /// No description provided for @aboutCreditIcons.
+  ///
+  /// In en, this message translates to:
+  /// **'Phosphor icons, MIT licence'**
+  String get aboutCreditIcons;
+
+  /// No description provided for @aboutCreditRates.
+  ///
+  /// In en, this message translates to:
+  /// **'Exchange rates from Frankfurter (European Central Bank data)'**
+  String get aboutCreditRates;
+
+  /// No description provided for @aboutCopyright.
+  ///
+  /// In en, this message translates to:
+  /// **'MIT licence · © Unizoy'**
+  String get aboutCopyright;
+
+  /// No description provided for @aboutLinkFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t open the link. It is {url}'**
+  String aboutLinkFailed(String url);
+
   /// No description provided for @celebrationLead.
   ///
   /// In en, this message translates to:

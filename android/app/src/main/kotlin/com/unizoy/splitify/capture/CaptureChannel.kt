@@ -66,7 +66,12 @@ class CaptureChannel(private val activity: Activity) : MethodChannel.MethodCallH
                     result.success(BubbleController.showing)
                 }
                 "reset" -> {
+                    // Sign-out (phase 19, S-208): forget the captures AND switch the feature off, so a signed-out
+                    // phone reads nothing (the services check the switch before touching any text); the next
+                    // account opts in again. The components stay as they are: toggling them makes Android drop
+                    // the accessibility grant a moment later.
                     center.store.reset()
+                    center.store.setConfig(center.store.config().copy(enabled = false))
                     BubbleController.hide("signed out")
                     result.success(null)
                 }

@@ -377,6 +377,7 @@ Future<void> _pump(WidgetTester tester, Future<void> Function(WidgetTester)? act
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 300));
   await tester.pump(const Duration(milliseconds: 100));
+  await expectA11y(tester);
 }
 
 void main() {

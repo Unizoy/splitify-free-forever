@@ -380,26 +380,33 @@ class _ValueFieldState extends State<ValueField> {
           children: [
             if (widget.prefix != null) Text(widget.prefix!, style: affix),
             Expanded(
-              child: TextField(
-                controller: _controller,
-                focusNode: _focus,
-                textAlign: TextAlign.end,
-                style: style,
-                keyboardType: TextInputType.numberWithOptions(decimal: true, signed: widget.signed),
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(
-                    RegExp(widget.signed ? r'[0-9.\-]' : r'[0-9.]'),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(minHeight: AppSpacing.minTouch),
+                child: TextField(
+                  controller: _controller,
+                  focusNode: _focus,
+                  textAlign: TextAlign.end,
+                  textAlignVertical: TextAlignVertical.center,
+                  style: style,
+                  keyboardType: TextInputType.numberWithOptions(
+                    decimal: true,
+                    signed: widget.signed,
                   ),
-                  LengthLimitingTextInputFormatter(15),
-                ],
-                textInputAction: TextInputAction.next,
-                onChanged: widget.onChanged,
-                decoration: InputDecoration(
-                  isDense: true,
-                  border: InputBorder.none,
-                  contentPadding: const EdgeInsets.symmetric(vertical: AppSpacing.s3),
-                  hintText: 0.toString(),
-                  hintStyle: style.copyWith(color: c.textTertiary),
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(
+                      RegExp(widget.signed ? r'[0-9.\-]' : r'[0-9.]'),
+                    ),
+                    LengthLimitingTextInputFormatter(15),
+                  ],
+                  textInputAction: TextInputAction.next,
+                  onChanged: widget.onChanged,
+                  decoration: InputDecoration(
+                    isDense: true,
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.symmetric(vertical: AppSpacing.s3),
+                    hintText: 0.toString(),
+                    hintStyle: style.copyWith(color: c.textTertiary),
+                  ),
                 ),
               ),
             ),

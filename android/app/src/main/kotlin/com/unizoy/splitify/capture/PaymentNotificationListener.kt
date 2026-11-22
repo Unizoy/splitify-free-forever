@@ -25,6 +25,9 @@ class PaymentNotificationListener : NotificationListenerService() {
         if ((n.flags and Notification.FLAG_GROUP_SUMMARY) != 0) return
         val center = CaptureCenter.get(this)
         if (center.recipes.app(sbn.packageName, center.debug) == null) return
+        // Feature off (never turned on, or signed out): don't even look at the text (phase 19, S-208).
+        val config = center.store.config()
+        if (!config.enabled || !config.notifications) return
         val extras = n.extras ?: return
         val title = extras.getCharSequence(Notification.EXTRA_TITLE)?.toString()
         val text = lastMessage(extras)

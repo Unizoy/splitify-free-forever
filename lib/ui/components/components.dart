@@ -30,6 +30,7 @@ export 'option_tile.dart';
 export 'overlap_banner.dart';
 export 'overlap_sheet.dart';
 export 'pill_button.dart';
+export 'pill_input.dart';
 export 'quantity_stepper.dart';
 export 'segmented_pill.dart';
 export 'stacked_cards_loader.dart';

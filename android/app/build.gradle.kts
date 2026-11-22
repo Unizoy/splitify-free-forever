@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
@@ -12,6 +14,15 @@ if (firebaseConfig.exists()) {
     firebaseConfig.copyTo(file("google-services.json"), overwrite = true)
     apply(plugin = "com.google.gms.google-services")
 }
+
+// Release signing (phase 19, S-201): the first of secrets/release-key.properties and secrets/key.properties
+// (both git-ignored) with storeFile, storePassword, keyAlias, keyPassword. storeFile may be absolute or relative to
+// the properties file. Without either file, release builds are signed with the debug key so CI and contributors
+// can still build them.
+val releaseKeyFile = listOf("release-key.properties", "key.properties")
+    .map { rootProject.file("../secrets/$it") }
+    .firstOrNull { it.exists() }
+val releaseKey = Properties().apply { releaseKeyFile?.inputStream()?.use { load(it) } }
 
 android {
     namespace = "com.unizoy.splitify"
@@ -38,11 +49,32 @@ android {
         versionName = flutter.versionName
     }
 
+    signingConfigs {
+        if (releaseKeyFile != null) {
+            create("release") {
+                storeFile = releaseKeyFile.parentFile.resolve(releaseKey.getProperty("storeFile"))
+                storePassword = releaseKey.getProperty("storePassword")
+                keyAlias = releaseKey.getProperty("keyAlias")
+                keyPassword = releaseKey.getProperty("keyPassword")
+            }
+        }
+    }
+
+    // Compress the native libraries inside the APK (S-201): the APKs are downloaded from GitHub Releases, so
+    // download size matters more than the small install-time cost of extracting them.
+    packaging {
+        jniLibs {
+            useLegacyPackaging = true
+        }
+    }
+
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = signingConfigs.getByName(if (releaseKeyFile != null) "release" else "debug")
+            // R8 shrinking + resource shrinking; keep rules in proguard-rules.pro.
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
 }

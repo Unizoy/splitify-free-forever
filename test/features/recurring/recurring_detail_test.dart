@@ -16,6 +16,7 @@ import 'package:splitify/features/expenses/presentation/expense_detail_screen.da
 import 'package:splitify/features/expenses/presentation/expense_list.dart';
 import 'package:splitify/features/groups/application/groups_providers.dart' as groups;
 import 'package:splitify/ui/components/components.dart';
+import 'package:splitify/ui/theme/theme.dart';
 
 import '../../data/sync/sync_fakes.dart' show FakeRemoteApi;
 import '../../support/fakes.dart' show testDb;
@@ -131,6 +132,22 @@ Future<void> _openSheet(WidgetTester t) async {
   await reveal(t, find.byKey(const Key('expense-recurring')));
   await t.tap(find.byKey(const Key('expense-recurring')));
   await settleReal(t, 4);
+  // Under full-suite load the sheet's Drift stream can take longer than the fixed rounds (phase 19 flake fix):
+  // wait on the real clock until the template has loaded (its "ends" line has the clock icon).
+  await _waitFor(t, find.byIcon(AppIcons.clock));
+}
+
+/// Pumps until [finder] matches, waiting on the real clock between rounds (at most [timeout]).
+Future<void> _waitFor(
+  WidgetTester t,
+  Finder finder, {
+  Duration timeout = const Duration(seconds: 10),
+}) async {
+  final end = DateTime.now().add(timeout);
+  while (finder.evaluate().isEmpty && DateTime.now().isBefore(end)) {
+    await t.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
+    await t.pump(const Duration(milliseconds: 100));
+  }
 }
 
 void main() {
@@ -201,7 +218,9 @@ void main() {
     testWidgets('Edit future copies opens the template editor route', (t) async {
       await _pump(t, sampleExpense());
       await _openSheet(t);
+      await _waitFor(t, find.byKey(const Key('recurring-edit-future')));
       await tapKey(t, 'recurring-edit-future');
+      await _waitFor(t, find.text('at /recurring/t1/edit'));
       expect(find.text('at /recurring/t1/edit'), findsOneWidget);
     });
   });

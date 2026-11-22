@@ -81,7 +81,7 @@ class RecordingRemote implements NotificationsRemote {
   var refreshCalls = 0;
   Exception? registerError;
   Object? unregisterError;
-  Exception? fetchError;
+  Object? fetchError;
   Completer<void>? unregisterGate;
 
   @override
@@ -91,7 +91,7 @@ class RecordingRemote implements NotificationsRemote {
     bool newest = false,
   }) async {
     refreshCalls++;
-    if (fetchError != null) throw fetchError!;
+    if (fetchError case final e?) throw e;
     return const [];
   }
 
@@ -327,6 +327,9 @@ void main() {
       final actions = container.read(notificationActionsProvider);
       expect(await actions.refresh(), isTrue);
       remote.fetchError = const NetworkException('offline');
+      expect(await actions.refresh(), isFalse);
+      // Phase 19: the database closing under a refresh (sign-out, teardown) is not an error to report.
+      remote.fetchError = StateError('connection was closed');
       expect(await actions.refresh(), isFalse);
     });
 

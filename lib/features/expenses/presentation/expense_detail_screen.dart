@@ -386,6 +386,13 @@ class _PersonRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
+    final amount = Text(
+      trailing,
+      textAlign: TextAlign.end,
+      style: context.text.amount.copyWith(color: emphasis ? c.owedText : c.textPrimary),
+    );
+    // Large text (phase 19 polish): the amount goes under the name, so names never break inside a word.
+    final stacked = MediaQuery.textScalerOf(context).scale(1) > 1.4;
     return MergeSemantics(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -396,13 +403,22 @@ class _PersonRow extends StatelessWidget {
               children: [
                 Avatar(name: avatarName, seed: seed),
                 const SizedBox(width: AppSpacing.s3),
-                Expanded(child: Text(name, style: context.text.body.w(600))),
-                const SizedBox(width: AppSpacing.s3),
-                Text(
-                  trailing,
-                  textAlign: TextAlign.end,
-                  style: context.text.amount.copyWith(color: emphasis ? c.owedText : c.textPrimary),
-                ),
+                if (stacked)
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(name, style: context.text.body.w(600)),
+                        const SizedBox(height: AppSpacing.s1),
+                        amount,
+                      ],
+                    ),
+                  )
+                else ...[
+                  Expanded(child: Text(name, style: context.text.body.w(600))),
+                  const SizedBox(width: AppSpacing.s3),
+                  amount,
+                ],
               ],
             ),
           ),

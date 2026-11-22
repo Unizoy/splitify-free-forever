@@ -142,8 +142,10 @@ class _SearchField extends StatelessWidget {
               textInputAction: TextInputAction.search,
               style: context.text.body,
               cursorColor: c.primary,
-              decoration: InputDecoration.collapsed(
-                hintText: l.searchFieldHint,
+              decoration: pillInputDecoration(
+                context: context,
+                hint: l.searchFieldHint,
+                style: context.text.body,
                 hintStyle: context.text.body.copyWith(color: c.textTertiary),
               ),
               onChanged: onChanged,

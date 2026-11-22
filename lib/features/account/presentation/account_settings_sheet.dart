@@ -195,9 +195,13 @@ class AccountSettingsBody extends ConsumerWidget {
           },
         ),
         DashedListRow(
+          key: const Key('settings-about'),
           icon: AppIcons.licence,
           label: l.aboutLicences,
-          onTap: () => showLicensePage(context: context, applicationName: l.appTitle),
+          onTap: () {
+            Navigator.of(context).pop();
+            unawaited(context.push('/account/about'));
+          },
         ),
         DashedListRow(
           key: const Key('settings-sign-out'),

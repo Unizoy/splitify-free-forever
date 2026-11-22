@@ -16,6 +16,22 @@ Future<void> pumpFixedFrames(WidgetTester tester) async {
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 1500));
   await tester.pump(const Duration(milliseconds: 100));
+  await expectA11y(tester);
+}
+
+/// TC-B3-03 (a11y sweep, phase 19 T3): every golden screen and state, light and dark, at text 1.0 and
+/// 2.0, has 48 dp tap targets and a label on every tappable element (TalkBack). Text contrast is checked per
+/// token pair (`test/ui/theme/contrast_test.dart`): golden text is drawn as blocks, so the pixel-sampling
+/// contrast guideline cannot judge it here.
+Future<void> expectA11y(WidgetTester tester) async {
+  final handle = tester.ensureSemantics();
+  try {
+    await tester.pump();
+    await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
+    await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));
+  } finally {
+    handle.dispose();
+  }
 }
 
 /// Gives [child] the app theme for [brightness], localisations and a

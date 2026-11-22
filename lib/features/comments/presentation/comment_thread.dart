@@ -265,8 +265,10 @@ class _CommentComposerState extends ConsumerState<CommentComposer> {
                     textCapitalization: TextCapitalization.sentences,
                     style: context.text.body.copyWith(color: c.textPrimary),
                     cursorColor: c.primary,
-                    decoration: InputDecoration.collapsed(
-                      hintText: l.cmtHint,
+                    decoration: pillInputDecoration(
+                      context: context,
+                      hint: l.cmtHint,
+                      style: context.text.body,
                       hintStyle: context.text.body.copyWith(color: c.textSecondary),
                     ),
                     onChanged: (_) => setState(() {}),

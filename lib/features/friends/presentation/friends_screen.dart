@@ -140,8 +140,10 @@ class _SearchPill extends StatelessWidget {
                   onChanged: onChanged,
                   textInputAction: TextInputAction.search,
                   style: context.text.body.w(500).copyWith(color: c.textPrimary),
-                  decoration: InputDecoration.collapsed(
-                    hintText: l.friendsSearchHint,
+                  decoration: pillInputDecoration(
+                    context: context,
+                    hint: l.friendsSearchHint,
+                    style: context.text.body,
                     hintStyle: context.text.body.w(500).copyWith(color: c.textSecondary),
                   ),
                 ),

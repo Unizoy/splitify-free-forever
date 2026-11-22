@@ -1,16 +1,44 @@
 # Splitify Free Forever
 
-A free and open-source app for splitting expenses with friends, roommates and groups.
-Track shared costs, see who owes whom, and settle up. No ads, no paywalls, free forever.
+Splitify is a free and open-source app for splitting expenses with friends, roommates and groups. It is made for
+India first (rupees, UPI) and works with other currencies too. You can track shared costs, see who owes whom and
+settle up. It works offline. No ads, no limits, free forever.
 
-> **Status:** early development. The app skeleton runs; features arrive phase by phase.
+## Features
 
-## Tech stack
+- Groups, with name-only members who can later be claimed by a real account through an invite.
+- Five split types and multiple payers.
+- IOUs and loans.
+- Receipt photos.
+- Balances per currency, with an optional simplify-debts view.
+- Settle up and Pay via UPI (a payment is recorded only when you tap "Mark as paid").
+- Offline-first sync: use it with no network, changes are sent when you are back online.
+- Edit history and restore of deleted items.
+- Comments on expenses and payments.
+- Notifications and payment reminders.
+- Currencies with exchange rates saved on each expense.
+- Recurring bills.
+- Search.
+- Charts and CSV export.
+- Import from Splitwise.
+- App lock (biometric or device PIN).
+- Home-screen balance widget.
+- Optional payment bubble (off by default): after you pay with a UPI app, offers to add the payment. Parsed on the
+  phone, nothing is sent until you save. See [Privacy](docs/PRIVACY.md).
 
-- [Flutter](https://flutter.dev) (Dart)
-- Targets: Android (iOS later)
+## Screenshots
 
-## Development setup
+| | | |
+| --- | --- | --- |
+| ![Groups home with your overall balance](docs/screenshots/groups.webp) | ![A group's expense list](docs/screenshots/expenses.webp) | ![Choosing how to split an expense](docs/screenshots/split.webp) |
+| ![Who owes whom in a group](docs/screenshots/balances.webp) | ![Spending by category](docs/screenshots/insights.webp) | ![Account and wallet card](docs/screenshots/account.webp) |
+
+## Status
+
+Android first. Release APKs are published on GitHub Releases. There is no Play Store listing yet. iOS may come
+later.
+
+## Build from source
 
 Android only for now. You need the [Flutter SDK](https://docs.flutter.dev/get-started/install) (stable, 3.50.x),
 Android Studio (SDK + emulator) and JDK 17.
@@ -25,6 +53,14 @@ flutter run --dart-define-from-file=secrets/env.dev.json
 Run all checks (format, analyze, guards, tests, coverage, debug APK) with `.\tool\verify.ps1`.
 Never commit anything from `secrets/` except `*.example.json`.
 
+## Self-hosting
+
+The whole backend (database schema, security rules, Edge Functions) is in `supabase/`, so you can run your own
+copy. See [supabase/README.md](supabase/README.md).
+
+## Privacy
+
+See [docs/PRIVACY.md](docs/PRIVACY.md). In short: no ads, no trackers, no selling data.
 
 ## Contributing
 

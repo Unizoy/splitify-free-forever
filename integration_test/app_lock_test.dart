@@ -41,6 +41,18 @@ Future<void> _until(WidgetTester t, bool Function() done, String what, {int seco
   fail('Timed out: $what');
 }
 
+/// Pumps (only while the app is in front) until [finder] is gone: on a slow emulator the app resumes a moment
+/// after the system prompt closes, so one pump right after the unlock can still show the lock screen (phase 19).
+Future<void> _gone(WidgetTester t, Finder finder) async {
+  final end = DateTime.now().add(const Duration(seconds: 15));
+  while (finder.evaluate().isNotEmpty && DateTime.now().isBefore(end)) {
+    await Future<void>.delayed(const Duration(milliseconds: 250));
+    if (WidgetsBinding.instance.lifecycleState == AppLifecycleState.resumed) {
+      await t.pump(const Duration(milliseconds: 300));
+    }
+  }
+}
+
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
@@ -88,6 +100,7 @@ void main() {
       expect(container.read(appLockProvider).locked, isTrue);
       debugPrint('LOCK-PROMPT 1');
       await _until(t, () => !container.read(appLockProvider).locked, 'first unlock');
+      await _gone(t, lockScreen);
       expect(lockScreen, findsNothing);
       expect(find.byKey(const Key('content')), findsOneWidget);
       debugPrint('LOCK-UNLOCKED 1');

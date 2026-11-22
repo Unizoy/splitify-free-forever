@@ -7,7 +7,12 @@
 // A crash after the claim leaves 'sent' without a push: at most once is the right failure for a reminder app,
 // and the in-app bell row exists anyway.
 
-import { errorResponse, jsonResponse, requireMethod } from "../_shared/http.ts";
+import {
+  errorResponse,
+  jsonResponse,
+  readJsonBody,
+  requireMethod,
+} from "../_shared/http.ts";
 import type { FcmClient, FcmMessage } from "../_shared/fcm.ts";
 
 export type PushStatus = "pending" | "sent" | "skipped" | "failed";
@@ -191,12 +196,10 @@ export async function handleSendPush(
 ): Promise<Response> {
   const notAllowed = requireMethod(req, "POST");
   if (notAllowed) return notAllowed;
-  let id: unknown;
-  try {
-    id = ((await req.json()) as { notification_id?: unknown })?.notification_id;
-  } catch {
-    return errorResponse("INVALID_BODY", 400, "body must be JSON");
-  }
+  const body = await readJsonBody(req);
+  if (!body.ok) return body.response;
+  const id = (body.value as { notification_id?: unknown } | null)
+    ?.notification_id;
   if (typeof id !== "string" || !UUID_RE.test(id)) {
     return errorResponse("INVALID_BODY", 400, "notification_id must be a uuid");
   }

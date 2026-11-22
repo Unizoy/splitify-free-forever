@@ -27,7 +27,7 @@ Current phase: _none in progress_ (05 + 06 leftovers finished 2026-11-22 on `pha
 | 17 | [Charts and CSV export](phases/phase-17-charts-export.md) | 14 | 00 | done (G5 device PASS; no migration, 0020 unused; TC-22-02 moved to 18) | phase/17-charts-export | 2026-11-22 | see git log | [report](reports/phase-17.md) |
 | 18 | [Splitwise import, app lock, home widget](phases/phase-18-extras.md) | 15 | 00 | done (G5 device PASS incl. PIN app lock + home widget; migration 0021 applied; Drift v7) | phase/18-extras | 2026-11-22 | see git log | [report](reports/phase-18.md) |
 | 18b | [Payment bubble (X4)](phases/phase-18b-payment-bubble.md) | 15, 11 | none | done (G5 device PASS 23/23 + integration; migration 0023 applied + pgTAP; Drift v8; real UPI apps = owner checklist) | phase/18b-payment-bubble | 2026-11-22 | see git log | [report](reports/phase-18b.md) |
-| 19 | [Hardening and polish](phases/phase-19-hardening.md) | 13, 16, 17, 18 | 00 | todo | phase/19-hardening | | | |
+| 19 | [Hardening and polish](phases/phase-19-hardening.md) | 13, 16, 17, 18 | 00 | done (migrations 0022 + 0024 applied; G1–G6 PASS; full regression incl. every device suite; 18b hardened) | phase/19-hardening | 2026-11-22 | see git log | [report](reports/phase-19.md) |
 | 20 | [Release (signed APK, draft GitHub Release)](phases/phase-20-release.md) | 19 | checklist R (prod project) | todo | phase/20-release | | | |
 
 ## Notes
