@@ -267,5 +267,21 @@ CREATE TABLE fx_rates (
 
 CREATE INDEX fx_rates_currency_date ON fx_rates (currency, date);
 
+-- Imports done on this phone (X1, phase 18): the records each one wrote, for "Delete this import".
+-- Local only; expenses also carry the batch id in split_values (S-190). ids as JSON text.
+CREATE TABLE import_batches (
+  id TEXT NOT NULL PRIMARY KEY,
+  group_id TEXT NOT NULL,
+  source TEXT NOT NULL,
+  file_name TEXT,
+  expense_ids TEXT NOT NULL DEFAULT '[]',
+  payment_ids TEXT NOT NULL DEFAULT '[]',
+  member_ids TEXT NOT NULL DEFAULT '[]',
+  created_at TEXT NOT NULL,
+  deleted_at TEXT
+) AS LocalImportBatch;
+
+CREATE INDEX import_batches_group ON import_batches (group_id, created_at);
+
 -- Offline search (#34); filled from phase 16.
 CREATE VIRTUAL TABLE expense_search USING fts5(description, notes, member_names, amount_text);

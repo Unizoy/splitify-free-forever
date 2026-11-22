@@ -12,19 +12,27 @@ void main() {
 
   setUpAll(() => verifier = SchemaVerifier(GeneratedHelper()));
 
-  test('schema v5 matches the dumped schema', () async {
+  test('schema v6 matches the dumped schema', () async {
+    final connection = await verifier.startAt(6);
+    final db = AppDatabase(connection);
+    addTearDown(db.close);
+    await verifier.migrateAndValidate(db, 6);
+    expect(db.schemaVersion, 6);
+  });
+
+  test('v5 -> v6 adds the import batches (phase 18)', () async {
     final connection = await verifier.startAt(5);
     final db = AppDatabase(connection);
     addTearDown(db.close);
-    await verifier.migrateAndValidate(db, 5);
-    expect(db.schemaVersion, 5);
+    await verifier.migrateAndValidate(db, 6);
+    expect(await db.select(db.importBatches).get(), isEmpty);
   });
 
   test('v1 -> v5 adds the history (12), bell (13) and exchange-rate (14) caches', () async {
     final connection = await verifier.startAt(1);
     final db = AppDatabase(connection);
     addTearDown(db.close);
-    await verifier.migrateAndValidate(db, 5);
+    await verifier.migrateAndValidate(db, 6);
     expect(await db.select(db.recordVersions).get(), isEmpty);
     expect(await db.select(db.notifications).get(), isEmpty);
     expect(await db.select(db.fxRates).get(), isEmpty);
@@ -36,7 +44,7 @@ void main() {
       final connection = await verifier.startAt(2);
       final db = AppDatabase(connection);
       addTearDown(db.close);
-      await verifier.migrateAndValidate(db, 5);
+      await verifier.migrateAndValidate(db, 6);
       expect(await db.select(db.notificationSettings).get(), isEmpty);
       expect(await db.select(db.fxRates).get(), isEmpty);
     },
@@ -46,7 +54,7 @@ void main() {
     final connection = await verifier.startAt(4);
     final db = AppDatabase(connection);
     addTearDown(db.close);
-    await verifier.migrateAndValidate(db, 5);
+    await verifier.migrateAndValidate(db, 6);
     expect(await db.select(db.fxRates).get(), isEmpty);
   });
 }

@@ -172,7 +172,12 @@ class ExpenseEditorController extends AsyncNotifier<ExpenseDraft> {
   ];
 }
 
+/// Member id → minor units. Non-number entries are skipped: imported expenses keep their batch id
+/// and summary in `split_values` (phase 18, S-190).
 Map<String, int> _ints(String json) {
   final m = jsonDecode(json) as Map<String, Object?>;
-  return {for (final e in m.entries) e.key: e.value! as int};
+  return {
+    for (final e in m.entries)
+      if (e.value is int) e.key: e.value! as int,
+  };
 }

@@ -10,7 +10,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 6;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -31,6 +31,11 @@ class AppDatabase extends _$AppDatabase {
       if (from < 5) {
         await m.createTable(fxRates);
         await m.createIndex(fxRatesCurrencyDate);
+      }
+      // v6 (phase 18): imports done on this phone.
+      if (from < 6) {
+        await m.createTable(importBatches);
+        await m.createIndex(importBatchesGroup);
       }
     },
     beforeOpen: (details) async {
