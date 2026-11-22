@@ -61,12 +61,13 @@ Future<void> showRecurringSheet(BuildContext context, LocalRecurring t, {bool re
   return showAppSheet<void>(
     context,
     title: t.active ? intervalLabel(l, t.repeatInterval) : l.recurringStop,
-    builder: (sheet) => _RecurringSheet(templateId: t.id, readOnly: readOnly),
+    builder: (sheet) => RecurringSheet(templateId: t.id, readOnly: readOnly),
   );
 }
 
-class _RecurringSheet extends ConsumerWidget {
-  const _RecurringSheet({required this.templateId, required this.readOnly});
+/// Body of the repeat sheet (next copy, end date, actions); public for goldens.
+class RecurringSheet extends ConsumerWidget {
+  const RecurringSheet({required this.templateId, this.readOnly = false, super.key});
 
   final String templateId;
   final bool readOnly;

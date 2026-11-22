@@ -5504,6 +5504,12 @@ abstract class AppLocalizations {
   /// **'Ends'**
   String get repeatEndsLabel;
 
+  /// No description provided for @repeatStartsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'First date'**
+  String get repeatStartsLabel;
+
   /// No description provided for @repeatNoEnd.
   ///
   /// In en, this message translates to:
@@ -5699,7 +5705,7 @@ abstract class AppLocalizations {
   /// No description provided for @searchFieldHint.
   ///
   /// In en, this message translates to:
-  /// **'Description, note, person or amount'**
+  /// **'Description, person or amount'**
   String get searchFieldHint;
 
   /// No description provided for @searchClear.

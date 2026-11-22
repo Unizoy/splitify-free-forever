@@ -60,9 +60,24 @@ class DetailsStep extends StatelessWidget {
           DashedListRow(
             key: const Key('template-start'),
             icon: AppIcons.calendar,
-            label: l.expDateLabel,
+            label: l.repeatStartsLabel,
             value: shortDate(context, draft.date),
             showDivider: false,
+          ),
+          const SizedBox(height: AppSpacing.s2),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(AppIcons.info, size: 18, color: context.colors.textSecondary),
+              const SizedBox(width: AppSpacing.s2),
+              Expanded(
+                child: Text(
+                  l.recurringEditNote,
+                  key: const Key('template-note'),
+                  style: context.text.bodySmall.copyWith(color: context.colors.textSecondary),
+                ),
+              ),
+            ],
           ),
         ] else ...[
           SectionLabel(l.expDateLabel),

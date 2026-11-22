@@ -3349,6 +3349,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get repeatEndsLabel => 'Ends';
 
   @override
+  String get repeatStartsLabel => 'First date';
+
+  @override
   String get repeatNoEnd => 'No end date';
 
   @override
@@ -3465,7 +3468,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get searchTooltip => 'Search expenses';
 
   @override
-  String get searchFieldHint => 'Description, note, person or amount';
+  String get searchFieldHint => 'Description, person or amount';
 
   @override
   String get searchClear => 'Clear search';

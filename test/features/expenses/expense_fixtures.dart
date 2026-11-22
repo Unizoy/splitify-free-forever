@@ -15,6 +15,7 @@ import 'package:splitify/features/expenses/application/expense_editor_controller
 import 'package:splitify/features/expenses/application/expense_providers.dart';
 import 'package:splitify/features/expenses/application/split_draft.dart';
 import 'package:splitify/features/payments/application/payment_providers.dart';
+import 'package:splitify/features/recurring/application/repeat_draft.dart';
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/theme/theme.dart';
 import 'package:splitify/features/groups/application/groups_providers.dart'
@@ -44,6 +45,9 @@ ExpenseDraft sampleDraft({
   String notes = '',
   String? expenseId = 'e1',
   SplitDraft? split,
+  bool canRepeat = false,
+  RepeatDraft repeat = RepeatDraft.never,
+  String? templateId,
 }) {
   final base = SplitDraft.initial(ids, 2);
   final s =
@@ -84,6 +88,9 @@ ExpenseDraft sampleDraft({
     description: description,
     category: category,
     notes: notes,
+    canRepeat: canRepeat,
+    repeat: repeat,
+    templateId: templateId,
   );
 }
 

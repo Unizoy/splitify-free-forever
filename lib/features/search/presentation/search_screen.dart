@@ -31,7 +31,9 @@ class SearchScreen extends ConsumerStatefulWidget {
 }
 
 class _SearchScreenState extends ConsumerState<SearchScreen> {
-  final _text = TextEditingController();
+  late final _text = TextEditingController(
+    text: ref.read(searchControllerProvider(widget.groupId)).text,
+  );
   final _focus = FocusNode();
 
   ExpenseSearchController get _ctrl => ref.read(searchControllerProvider(widget.groupId).notifier);
@@ -135,7 +137,8 @@ class _SearchField extends StatelessWidget {
               key: const Key('search-field'),
               controller: controller,
               focusNode: focusNode,
-              autofocus: true,
+              // A fresh search opens the keyboard; coming back to typed text does not.
+              autofocus: controller.text.isEmpty,
               textInputAction: TextInputAction.search,
               style: context.text.body,
               cursorColor: c.primary,

@@ -120,13 +120,13 @@ Total: 121 test ids (TC-18-03 golden added in phase 09; TC-19-06..09 in phase 13
 | 14 | TC-17-04 | unit | simplify after converting to the main currency (converted nets) | pass (`converted_balances_test.dart`, `converted_balances_view_test.dart`) |
 | 14 | TC-32-09 | integ | USD expense offline → convert at cached rate → server fx columns + INR view | pass (`integration_test/currencies_test.dart` on emulator-5554 + dev, 57 s: picker, cached-rate conversion with the rates server off, server fx_rate = independent cross rate, Convert all, INR nets = oracle) |
 | 15 | TC-27-13 | integ | conflict both versions in history. | todo (core already proven by phase 06 T7, `integration_test/sync_offline_test.dart`: A's older offline edit superseded, both in `record_versions`) |
-| 16 | TC-12-01 | sql | generation idempotent (double run = one copy) | todo |
-| 16 | TC-12-02 | sql | 31st clamp for Feb/Apr | todo |
-| 16 | TC-12-03 | sql | stop/ends_on | todo |
-| 16 | TC-12-04 | widget | repeat picker | todo |
-| 16 | TC-12-05 | unit | next-date calculator parity with SQL. | todo |
-| 16 | TC-34-01 | unit | query parser (amount detection) | todo |
-| 16 | TC-34-02 | integ | search finds by each field. | todo |
+| 16 | TC-12-01 | sql | generation idempotent (double run = one copy) | pass — supabase/tests/151_recurring.test.sql (dev, 49/49) |
+| 16 | TC-12-02 | sql | 31st clamp for Feb/Apr | pass — 151_recurring + 150_recurring_vectors (dev) |
+| 16 | TC-12-03 | sql | stop/ends_on | pass — 151_recurring (dev) |
+| 16 | TC-12-04 | widget | repeat picker | pass — test/features/recurring/repeat_picker_test.dart + goldens recurring_search_golden_test |
+| 16 | TC-12-05 | unit | next-date calculator parity with SQL. | pass — test/domain/rules/recurrence_test.dart = supabase/tests/150_recurring_vectors.test.sql (52 vectors, dev), test/tool/gen_recurring_sql_test.dart |
+| 16 | TC-34-01 | unit | query parser (amount detection) | pass — test/domain/rules/search_query_test.dart |
+| 16 | TC-34-02 | integ | search finds by each field. | pass — integration_test/recurring_search_test.dart (+ test/data/repositories/search_repository_test.dart) |
 | 17 | TC-22-01 | unit | CSV writer escaping, BOM, totals | pass (domain + Drift mapping, share-sheet flow) |
 | 17 | TC-33-01 | unit | aggregation | pass (domain + ledger mapping, Group/Me, saved conversions) |
 | 17 | TC-33-02 | golden | charts. | pass (8 screens × light/dark × 1.0/2.0 + widget tests) |
