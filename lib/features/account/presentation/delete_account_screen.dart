@@ -113,6 +113,7 @@ class _DeleteAccountScreenState extends ConsumerState<DeleteAccountScreen> {
             key: const Key('delete-account'),
             label: l.deleteAccountButton,
             icon: AppIcons.trash,
+            variant: PillVariant.danger,
             loading: _busy,
             onPressed: armed ? () => unawaited(_delete()) : null,
           ),

@@ -7099,6 +7099,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'UPI ref {ref}'**
   String captureRef(String ref);
+
+  /// Shown when a splitify:// link or a route does not exist (final QA, S-250).
+  ///
+  /// In en, this message translates to:
+  /// **'This link doesn\'t open anything'**
+  String get linkNotFoundTitle;
+
+  /// No description provided for @linkNotFoundBody.
+  ///
+  /// In en, this message translates to:
+  /// **'It may be old or mistyped. Your groups are one tap away.'**
+  String get linkNotFoundBody;
+
+  /// No description provided for @linkNotFoundAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Go to groups'**
+  String get linkNotFoundAction;
+
+  /// Caption under your own net in Balances (“You … get back”).
+  ///
+  /// In en, this message translates to:
+  /// **'get back'**
+  String get balYouGetBack;
+
+  /// Caption under your own net in Balances (“You … owe”).
+  ///
+  /// In en, this message translates to:
+  /// **'owe'**
+  String get balYouOwe;
+
+  /// Sync & storage headline when photo uploads gave up (final QA).
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 photo stopped uploading} other{{count} photos stopped uploading}}'**
+  String syncStatePhotosStopped(int count);
+
+  /// No description provided for @syncStatePhotosStoppedHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap Retry under Photos below.'**
+  String get syncStatePhotosStoppedHint;
+
+  /// No description provided for @syncStatePhotosWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 photo waiting to upload} other{{count} photos waiting to upload}}'**
+  String syncStatePhotosWaiting(int count);
+
+  /// No description provided for @syncRowPhotosStopped.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 photo stopped} other{{count} photos stopped}}'**
+  String syncRowPhotosStopped(int count);
+
+  /// Button on the blocked-push banner: opens Android's notification settings for Splitify (final QA).
+  ///
+  /// In en, this message translates to:
+  /// **'Open phone settings'**
+  String get notifOpenSettings;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

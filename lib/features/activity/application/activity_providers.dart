@@ -128,6 +128,8 @@ List<ActivityItem> buildActivityItems(ActivitySources s, String? userId) {
 
   final out = <ActivityItem>[];
   for (final a in s.activity) {
+    // A deleted group's history stays out of the feed (its "deleted" line stays; restoring brings it back).
+    if (s.groups[a.groupId]?.deletedAt != null && a.type != 'group_deleted') continue;
     final d = _json(a.data);
     final type = a.type == 'expense_added' && d['recurring'] == true
         ? 'expense_added_recurring'

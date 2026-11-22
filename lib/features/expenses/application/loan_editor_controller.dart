@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:splitify/core/time/clock.dart';
 import 'package:splitify/core/money/currencies.dart';
 import 'package:splitify/core/money/scaled_input.dart';
 import 'package:splitify/data/data_providers.dart';
@@ -57,7 +58,6 @@ class LoanEditorController extends AsyncNotifier<LoanDraft> {
         .map((m) => m.id)
         .firstOrNull;
     final members = [for (final m in people) (id: m.id, name: m.displayName, isMe: m.id == meId)];
-    final now = ref.read(clockProvider).now();
 
     if (saved == null) {
       if (meId == null) throw const LoanNotPossible();
@@ -72,7 +72,7 @@ class LoanEditorController extends AsyncNotifier<LoanDraft> {
         members: members,
         selfId: meId,
         personId: picked,
-        date: DateTime(now.year, now.month, now.day),
+        date: ref.read(clockProvider).today(),
       );
     }
 

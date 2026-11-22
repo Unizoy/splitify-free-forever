@@ -130,6 +130,7 @@ class _Bubble extends ConsumerWidget {
         label: semantics,
         onTapHint: l.cmtDelete,
         excludeSemantics: true,
+        onTap: () => unawaited(_options(context, ref)),
         child: Padding(
           padding: const EdgeInsetsDirectional.only(start: AppSpacing.s12),
           child: Align(
@@ -323,6 +324,7 @@ class _SendButton extends StatelessWidget {
       enabled: enabled,
       label: label,
       excludeSemantics: true,
+      onTap: enabled ? () => unawaited(onPressed()) : null,
       child: Material(
         color: enabled ? c.primary : c.textTertiary,
         shape: const CircleBorder(),

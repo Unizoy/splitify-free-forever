@@ -349,6 +349,7 @@ class _DayCell extends StatelessWidget {
       selected: selected,
       label: shortDate(context, day),
       excludeSemantics: true,
+      onTap: onTap,
       child: InkResponse(
         onTap: onTap,
         radius: 24,

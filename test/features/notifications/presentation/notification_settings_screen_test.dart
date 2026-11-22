@@ -8,10 +8,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:splitify/data/local/app_database.dart';
 import 'package:splitify/data/remote/push_messaging.dart';
 import 'package:splitify/domain/entities/notification_prefs.dart';
+import 'package:splitify/features/capture/application/capture_providers.dart'
+    show captureBridgeProvider;
 import 'package:splitify/features/groups/application/groups_providers.dart';
 import 'package:splitify/features/notifications/presentation/notification_settings_screen.dart';
 import 'package:splitify/ui/components/components.dart';
 
+import '../../../support/capture_fakes.dart';
 import '../../../support/group_fakes.dart' as gf;
 import '../../../support/notification_fakes.dart';
 import '../../expenses/presentation/presentation_harness.dart';
@@ -41,7 +44,7 @@ class _Rig {
   final List<LocalGroup> groups;
 }
 
-Future<void> _pump(WidgetTester t, _Rig r, {double scale = 1}) async {
+Future<void> _pump(WidgetTester t, _Rig r, {double scale = 1, FakeCaptureBridge? bridge}) async {
   SharedPreferences.setMockInitialValues({});
   final prefs = await SharedPreferences.getInstance();
   await pumpNotif(
@@ -57,6 +60,7 @@ Future<void> _pump(WidgetTester t, _Rig r, {double scale = 1}) async {
         prefs: prefs,
       ),
       groupsListProvider.overrideWithValue(AsyncData(r.groups)),
+      if (bridge != null) captureBridgeProvider.overrideWithValue(bridge),
     ],
   );
 }
@@ -216,6 +220,25 @@ void main() {
         findsOneWidget,
       );
       expect(find.byKey(const Key('notif-allow')), findsNothing);
+    });
+
+    // Final QA: blocked push → push switches off-limits, a way to Android's settings.
+    testWidgets('blocked: push switches are disabled and Open phone settings opens Android', (
+      t,
+    ) async {
+      final bridge = FakeCaptureBridge();
+      final r = _Rig(push: FakePushMessaging(permissionState: PushPermission.denied));
+      await _pump(t, r, bridge: bridge);
+      final push = t.widget<ToggleRow>(_row('push', NotificationKind.expenses));
+      final inApp = t.widget<ToggleRow>(_row('inapp', NotificationKind.expenses));
+      expect(push.onChanged, isNull);
+      expect(inApp.onChanged, isNotNull);
+      await t.tap(_row('push', NotificationKind.expenses));
+      await settle(t);
+      expect(r.repo.prefs.isOn(NotificationKind.expenses, NotificationChannel.push), isTrue);
+      await t.tap(find.byKey(const Key('notif-open-settings')));
+      await settle(t);
+      expect(bridge.opened, ['postNotifications']);
     });
 
     // TC-19-07

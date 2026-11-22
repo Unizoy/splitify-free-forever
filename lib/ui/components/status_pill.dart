@@ -21,11 +21,20 @@ enum StatusPillTone {
 
 /// Small pill with an optional leading icon.
 class StatusPill extends StatelessWidget {
-  const StatusPill({required this.label, this.icon, this.tone = StatusPillTone.primary, super.key});
+  const StatusPill({
+    required this.label,
+    this.icon,
+    this.tone = StatusPillTone.primary,
+    this.iconColor,
+    super.key,
+  });
 
   final String label;
   final IconData? icon;
   final StatusPillTone tone;
+
+  /// Overrides the icon colour (the flat pill's lime would say "owed" next to "You owe"; final QA).
+  final Color? iconColor;
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +59,7 @@ class StatusPill extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           if (icon != null) ...[
-            Icon(icon, size: flat ? 20 : 16, color: iconColor),
+            Icon(icon, size: flat ? 20 : 16, color: this.iconColor ?? iconColor),
             const SizedBox(width: 6),
           ],
           Flexible(child: Text(flat ? label.toUpperCase() : label, style: style)),

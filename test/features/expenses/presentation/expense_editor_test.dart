@@ -14,6 +14,8 @@ import 'package:splitify/features/expenses/application/split_draft.dart';
 import 'package:splitify/features/expenses/presentation/editor/details_step.dart';
 import 'package:splitify/features/expenses/presentation/editor/expense_editor_screen.dart';
 import 'package:splitify/ui/components/components.dart';
+import 'package:splitify/domain/rules/recurrence.dart' show RecurrenceInterval;
+import 'package:splitify/features/recurring/application/repeat_draft.dart';
 import 'package:splitify/features/groups/application/groups_providers.dart'
     show syncOfflineProvider;
 
@@ -470,6 +472,27 @@ void main() {
       expect(find.byKey(const Key('expense-next')), findsNothing);
       expect(find.text('Save expense'), findsOneWidget);
       expect(find.text('₹1,200\u00A0· 3 people'), findsOneWidget);
+    });
+
+    // Final QA: the repeat is shown before Save.
+    testWidgets('a repeating expense says how often; a one-off has no repeat line', (t) async {
+      await pumpEditor(
+        t,
+        sampleDraft().withRepeat(const RepeatDraft(interval: RecurrenceInterval.monthly)),
+        step: EditorStep.review,
+      );
+      expect(
+        find.descendant(
+          of: find.byKey(const Key('review-repeat')),
+          matching: find.text('Every month'),
+        ),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('a one-off expense has no repeat line', (t) async {
+      await pumpEditor(t, sampleDraft(), step: EditorStep.review);
+      expect(find.byKey(const Key('review-repeat')), findsNothing);
     });
 
     // TC-13-01

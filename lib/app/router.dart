@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:splitify/app/not_found_screen.dart';
 import 'package:splitify/app/shell/app_shell.dart';
 import 'package:splitify/features/account/presentation/about_screen.dart';
 import 'package:splitify/features/account/presentation/account_screen.dart';
@@ -86,7 +87,8 @@ String? authRedirect(Uri uri, {required bool signedIn, bool debug = kDebugMode})
 }
 
 /// App links by host: invite QR / share link `splitify://join?code=…` → the join screen; payment bubble
-/// `splitify://capture?id=…[&group=…]` (phase 18b) → the capture screen. Null for everything else.
+/// `splitify://capture?id=…[&group=…]` (phase 18b) → the capture screen; other hosts → the page of that name;
+/// a bare `/` → Groups. Null for everything else.
 String? linkRedirect(Uri uri) {
   final path = uri.path;
   if (uri.host == 'capture' && path != '/capture') {
@@ -95,6 +97,16 @@ String? linkRedirect(Uri uri) {
   if (uri.host == 'join' && path != Routes.join) {
     return Uri(path: Routes.join, queryParameters: _code(uri)).toString();
   }
+  // Any other app link `splitify://<page>/<rest>` opens `/<page>/<rest>` (`group` = `groups`); a page that
+  // does not exist shows [NotFoundScreen] (final QA, S-250). `splitify://dev/…` stays for the debug sign-in.
+  if (uri.scheme == 'splitify' && uri.host.isNotEmpty && uri.host != 'dev') {
+    final page = uri.host == 'group' ? 'groups' : uri.host;
+    return Uri(
+      path: '/$page${path == '/' ? '' : path}',
+      queryParameters: uri.queryParameters.isEmpty ? null : uri.queryParameters,
+    ).toString();
+  }
+  if (uri.host.isEmpty && (path.isEmpty || path == '/')) return Routes.groups;
   return null;
 }
 
@@ -135,6 +147,7 @@ GoRouter buildRouter({String initialLocation = Routes.welcome, AuthGate? gate}) 
   refreshListenable: gate,
   redirect: (context, state) =>
       gate == null ? linkRedirect(state.uri) : authRedirect(state.uri, signedIn: gate.signedIn),
+  errorBuilder: (context, state) => const NotFoundScreen(),
   routes: [
     GoRoute(path: Routes.welcome, builder: (context, state) => const WelcomeScreen()),
     GoRoute(

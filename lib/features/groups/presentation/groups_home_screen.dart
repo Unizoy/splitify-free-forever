@@ -16,6 +16,7 @@ import 'package:splitify/features/groups/presentation/group_visuals.dart';
 import 'package:splitify/features/notifications/application/notifications_providers.dart';
 import 'package:splitify/features/payments/presentation/settle_picker.dart';
 import 'package:splitify/features/search/presentation/search_screen.dart' show SearchRoutes;
+import 'package:splitify/features/sync/presentation/sync_refresh.dart';
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/components/components.dart';
 import 'package:splitify/ui/theme/theme.dart';
@@ -107,54 +108,57 @@ class _GroupsHomeScreenState extends ConsumerState<GroupsHomeScreen> {
     }
 
     return Scaffold(
-      body: SingleChildScrollView(
-        child: OverlapColumn(
-          top: _Hero(groupCount: active.length, balances: mine),
-          bottom: OverlapSheet(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Wrap(
-                  spacing: AppSpacing.s2,
-                  runSpacing: AppSpacing.s2,
-                  alignment: WrapAlignment.spaceBetween,
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(right: AppSpacing.s2),
-                      child: SectionLabel(l.activeGroups(active.length)),
-                    ),
-                    if (groups != null && groups.isNotEmpty)
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          PillButton(
-                            key: const Key('groups-join'),
-                            label: l.joinShort,
-                            icon: AppIcons.qr,
-                            variant: PillVariant.outline,
-                            size: PillSize.medium,
-                            expand: false,
-                            onPressed: () => context.push('/join'),
-                          ),
-                          const SizedBox(width: AppSpacing.s2),
-                          PillButton(
-                            key: const Key('groups-new'),
-                            label: l.newShort,
-                            icon: AppIcons.plus,
-                            size: PillSize.medium,
-                            expand: false,
-                            onPressed: () => context.push('/groups/new'),
-                          ),
-                        ],
+      body: SyncRefresh(
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: OverlapColumn(
+            top: _Hero(groupCount: active.length, balances: mine),
+            bottom: OverlapSheet(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Wrap(
+                    spacing: AppSpacing.s2,
+                    runSpacing: AppSpacing.s2,
+                    alignment: WrapAlignment.spaceBetween,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(right: AppSpacing.s2),
+                        child: SectionLabel(l.activeGroups(active.length)),
                       ),
-                  ],
-                ),
-                if (offline) ...[const SizedBox(height: AppSpacing.s4), const _OfflineNote()],
-                const SizedBox(height: AppSpacing.s4),
-                content,
-                const SizedBox(height: AppSpacing.navReserve),
-              ],
+                      if (groups != null && groups.isNotEmpty)
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            PillButton(
+                              key: const Key('groups-join'),
+                              label: l.joinShort,
+                              icon: AppIcons.qr,
+                              variant: PillVariant.outline,
+                              size: PillSize.medium,
+                              expand: false,
+                              onPressed: () => context.push('/join'),
+                            ),
+                            const SizedBox(width: AppSpacing.s2),
+                            PillButton(
+                              key: const Key('groups-new'),
+                              label: l.newShort,
+                              icon: AppIcons.plus,
+                              size: PillSize.medium,
+                              expand: false,
+                              onPressed: () => context.push('/groups/new'),
+                            ),
+                          ],
+                        ),
+                    ],
+                  ),
+                  if (offline) ...[const SizedBox(height: AppSpacing.s4), const _OfflineNote()],
+                  const SizedBox(height: AppSpacing.s4),
+                  content,
+                  const SizedBox(height: AppSpacing.navReserve),
+                ],
+              ),
             ),
           ),
         ),
@@ -237,6 +241,7 @@ class _Hero extends ConsumerWidget {
                   label: status == BalanceStatus.settled ? l.allSettled : statusText(l, status),
                   icon: status == BalanceStatus.settled ? AppIcons.checkCircle : AppIcons.coins,
                   tone: StatusPillTone.flat,
+                  iconColor: status == BalanceStatus.settled ? null : toneOf(status).onDarkColor(c),
                 ),
               ],
             ),
@@ -268,7 +273,8 @@ class _Hero extends ConsumerWidget {
             ],
             // Payment bubble (phase 18b): "N payments to add" while some wait.
             const PaymentsToAddPill(),
-            if (groupCount > 0) ...[
+            // Nothing to settle when everything is settled (final QA).
+            if (groupCount > 0 && status != BalanceStatus.settled) ...[
               const SizedBox(height: AppSpacing.s4),
               PillButton(
                 key: const Key('groups-settle'),

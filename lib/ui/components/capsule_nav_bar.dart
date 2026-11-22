@@ -127,6 +127,7 @@ class _NavButton extends StatelessWidget {
       selected: active,
       label: item.label,
       excludeSemantics: true,
+      onTap: onTap,
       child: Tooltip(
         message: active ? '' : item.label,
         excludeFromSemantics: true,
@@ -185,6 +186,11 @@ class _AddButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
+    void tap() {
+      HapticFeedback.selectionClick();
+      onTap();
+    }
+
     return Tooltip(
       message: label,
       excludeFromSemantics: true,
@@ -192,16 +198,14 @@ class _AddButton extends StatelessWidget {
         button: true,
         label: label,
         excludeSemantics: true,
+        onTap: tap,
         child: Material(
           color: c.money,
           shape: const CircleBorder(),
           elevation: 0,
           shadowColor: AppPalette.clear,
           child: InkWell(
-            onTap: () {
-              HapticFeedback.selectionClick();
-              onTap();
-            },
+            onTap: tap,
             customBorder: const CircleBorder(),
             child: Container(
               width: AppSpacing.navAdd,

@@ -52,6 +52,7 @@ class PaymentsToAddPill extends ConsumerWidget {
         button: true,
         label: l.paymentsToAdd(n),
         excludeSemantics: true,
+        onTap: () => unawaited(showPaymentsToAdd(context)),
         child: Material(
           color: c.money,
           borderRadius: AppRadii.allPill,

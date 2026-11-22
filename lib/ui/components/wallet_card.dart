@@ -42,6 +42,7 @@ class WalletCard extends StatelessWidget {
       button: onTap != null,
       label: label,
       excludeSemantics: true,
+      onTap: onTap,
       child: GestureDetector(
         onTap: onTap,
         behavior: HitTestBehavior.opaque,

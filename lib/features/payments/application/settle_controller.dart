@@ -252,8 +252,14 @@ class SettleController extends AsyncNotifier<SettleDraft> {
     return null;
   }
 
-  static String _owedText(SettleDraft d) =>
-      d.owed > 0 ? ScaledInput.format(d.owed, Currencies.exponentOf(d.currency)) : '';
+  /// What is owed as field text, money style: "8822.50", not "8822.5" (whole amounts stay "8822"; final QA).
+  static String _owedText(SettleDraft d) {
+    if (d.owed <= 0) return '';
+    final decimals = Currencies.exponentOf(d.currency);
+    final text = ScaledInput.format(d.owed, decimals);
+    final dot = text.indexOf('.');
+    return dot < 0 ? text : text.padRight(dot + 1 + decimals, '0');
+  }
 
   void _set(SettleDraft Function(SettleDraft d) f) {
     final d = state.value;
@@ -275,8 +281,10 @@ class SettleController extends AsyncNotifier<SettleDraft> {
   void swap() => _set((d) => _people(d, d.to, d.from));
 
   /// Another currency: the amount follows what is owed in it unless it was typed.
+  /// UPI is for rupees only (rule 13): another currency drops a chosen UPI method back to cash.
   void setCurrency(String code) => _set((d) {
-    final next = d.withCurrency(code);
+    var next = d.withCurrency(code);
+    if (code != 'INR' && next.method == 'upi') next = next.copyWith(method: 'cash');
     return d.amountEdited ? next : next.copyWith(amountText: _owedText(next));
   });
 

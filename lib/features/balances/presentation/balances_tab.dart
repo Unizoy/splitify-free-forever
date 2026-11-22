@@ -152,9 +152,9 @@ class _BalancesTabState extends ConsumerState<BalancesTab> {
               title: personName(l, b, m.id),
               amountText: net == 0 ? '' : listMoney(net.abs(), currency),
               amountCaption: net > 0
-                  ? l.balGetsBack
+                  ? (m.id == b.meId ? l.balYouGetBack : l.balGetsBack)
                   : net < 0
-                  ? l.balOwes
+                  ? (m.id == b.meId ? l.balYouOwe : l.balOwes)
                   : l.balSettledUp,
               tone: toneOfNet(net),
               leading: Avatar(name: b.nameOf(m.id), seed: m.id, tint: m.tint),

@@ -162,9 +162,9 @@ class _ConvertedBalancesViewState extends ConsumerState<ConvertedBalancesView> {
                 title: personName(l, group, m.id),
                 amountText: net == 0 ? '' : listMoney(net.abs(), currency),
                 amountCaption: net > 0
-                    ? l.balGetsBack
+                    ? (m.id == group.meId ? l.balYouGetBack : l.balGetsBack)
                     : net < 0
-                    ? l.balOwes
+                    ? (m.id == group.meId ? l.balYouOwe : l.balOwes)
                     : l.balSettledUp,
                 tone: toneOfNet(net),
                 leading: Avatar(name: group.nameOf(m.id), seed: m.id, tint: m.tint),

@@ -437,4 +437,10 @@ abstract final class AppPalette {
 
   /// Transparent.
   static const clear = Color(0x00000000);
+
+  /// The four colours of Google's "G" mark (sign-in branding guidelines; never recoloured).
+  static const googleBlue = Color(0xFF4285F4);
+  static const googleRed = Color(0xFFEA4335);
+  static const googleYellow = Color(0xFFFBBC05);
+  static const googleGreen = Color(0xFF34A853);
 }

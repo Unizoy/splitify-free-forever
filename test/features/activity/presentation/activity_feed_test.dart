@@ -112,6 +112,11 @@ void main() {
       expect(s('member_added', member: activityAsha), 'You added Asha Rao');
       expect(s('member_joined'), 'You joined the group');
       expect(s('member_claimed', member: activityAsha), 'You joined as Asha Rao');
+      // Final QA: the claimed spot is me now; the sentence keeps the spot's name.
+      expect(
+        s('member_claimed', member: (name: 'Mohit', seed: 'm9', isMe: true)),
+        'You joined as Mohit',
+      );
       expect(s('member_left', member: activityAsha), 'Asha Rao left the group');
       expect(s('member_removed', member: activityAsha), 'You removed Asha Rao');
       expect(s('expense_added', description: 'Dinner'), 'You added “Dinner”');

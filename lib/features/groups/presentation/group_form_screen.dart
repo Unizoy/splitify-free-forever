@@ -7,8 +7,8 @@ import 'package:splitify/core/money/currencies.dart';
 import 'package:splitify/core/utils/uuid.dart';
 import 'package:splitify/domain/entities/prepared_image.dart';
 import 'package:splitify/domain/rules/group_rules.dart';
-import 'package:splitify/features/account/presentation/profile_form.dart';
 import 'package:splitify/features/auth/application/auth_providers.dart';
+import 'package:splitify/features/currency/presentation/currency_picker_sheet.dart';
 import 'package:splitify/features/groups/application/groups_providers.dart';
 import 'package:splitify/features/groups/presentation/group_visuals.dart';
 import 'package:splitify/features/notifications/application/notifications_providers.dart';
@@ -246,7 +246,11 @@ class _GroupFormScreenState extends ConsumerState<GroupFormScreen> {
   }
 
   Future<void> _pickCurrency(String current) async {
-    final code = await showCurrencyPicker(context, selected: current);
+    final code = await showCurrencyPicker(
+      context,
+      selected: current,
+      title: AppLocalizations.of(context).chooseCurrency,
+    );
     if (code != null && mounted) setState(() => _currency = code);
   }
 }

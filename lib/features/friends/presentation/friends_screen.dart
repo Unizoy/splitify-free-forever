@@ -9,6 +9,7 @@ import 'package:splitify/features/friends/application/friends_view.dart';
 import 'package:splitify/features/friends/presentation/add_friend_sheet.dart';
 import 'package:splitify/features/friends/presentation/friend_widgets.dart';
 import 'package:splitify/features/groups/presentation/group_visuals.dart' show SectionLabel;
+import 'package:splitify/features/sync/presentation/sync_refresh.dart';
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/components/components.dart';
 import 'package:splitify/ui/theme/theme.dart';
@@ -76,33 +77,36 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen> {
     }
 
     return Scaffold(
-      body: SingleChildScrollView(
-        child: OverlapColumn(
-          top: HeroHeader(
-            title: l.friendsHero,
-            art: (seed: 'friends-home', family: CoverFamily.couple),
-            child: _SearchPill(controller: _search, onChanged: (_) => setState(() {})),
-          ),
-          bottom: OverlapSheet(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                SectionLabel(
-                  all == null ? l.friendsSection : '${l.friendsSection}\u00A0· ${all.length}',
-                  trailing: unsynced ? const SyncMarker() : null,
-                ),
-                const SizedBox(height: AppSpacing.s4),
-                PillButton(
-                  key: const Key('friends-add-expense'),
-                  label: l.addFriendExpense,
-                  icon: AppIcons.add,
-                  variant: PillVariant.money,
-                  onPressed: () => unawaited(showAddFriendExpense(context, ref)),
-                ),
-                const SizedBox(height: AppSpacing.s4),
-                content,
-                const SizedBox(height: AppSpacing.navReserve),
-              ],
+      body: SyncRefresh(
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: OverlapColumn(
+            top: HeroHeader(
+              title: l.friendsHero,
+              art: (seed: 'friends-home', family: CoverFamily.couple),
+              child: _SearchPill(controller: _search, onChanged: (_) => setState(() {})),
+            ),
+            bottom: OverlapSheet(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  SectionLabel(
+                    all == null ? l.friendsSection : '${l.friendsSection}\u00A0· ${all.length}',
+                    trailing: unsynced ? const SyncMarker() : null,
+                  ),
+                  const SizedBox(height: AppSpacing.s4),
+                  PillButton(
+                    key: const Key('friends-add-expense'),
+                    label: l.addFriendExpense,
+                    icon: AppIcons.add,
+                    variant: PillVariant.money,
+                    onPressed: () => unawaited(showAddFriendExpense(context, ref)),
+                  ),
+                  const SizedBox(height: AppSpacing.s4),
+                  content,
+                  const SizedBox(height: AppSpacing.navReserve),
+                ],
+              ),
             ),
           ),
         ),

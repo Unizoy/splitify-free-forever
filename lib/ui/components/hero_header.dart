@@ -219,6 +219,7 @@ class HeroIconButton extends StatelessWidget {
         button: true,
         label: semanticLabel ?? tooltip,
         excludeSemantics: true,
+        onTap: onPressed,
         child: InkResponse(
           onTap: onPressed,
           radius: 24,
@@ -299,6 +300,7 @@ class HeroTabs extends StatelessWidget {
             selected: i == index,
             label: tabs[i].label,
             excludeSemantics: true,
+            onTap: () => onChanged(i),
             child: InkWell(
               onTap: () => onChanged(i),
               borderRadius: AppRadii.all24,

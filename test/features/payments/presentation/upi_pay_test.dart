@@ -176,6 +176,28 @@ void main() {
       expect(find.text('Record payment'), findsOneWidget);
     });
 
+    // Final QA (rule 13): no UPI method chip for another currency.
+    testWidgets('dollars: UPI is not offered as a method', (t) async {
+      final db = await _seed(t);
+      await _open(t, db, _settleUrl(currency: 'USD'));
+      expect(_key('method-cash'), findsOneWidget);
+      expect(_key('method-upi'), findsNothing);
+    });
+
+    // Final QA: with Cash picked the main button no longer says "Pay ₹500 via UPI".
+    testWidgets('picking Cash shows Record payment; picking UPI brings the UPI button back', (
+      t,
+    ) async {
+      final db = await _seed(t);
+      await _open(t, db, _settleUrl());
+      expect(_key('settle-upi'), findsOneWidget);
+      await _tap(t, 'method-cash', frames: 4);
+      expect(_key('settle-upi'), findsNothing);
+      expect(find.text('Record payment'), findsOneWidget);
+      await _tap(t, 'method-upi', frames: 4);
+      expect(_key('settle-upi'), findsOneWidget);
+    });
+
     // TC-26-04
     testWidgets('not for a payee who has no profile on this phone', (t) async {
       final db = await _seed(t, profile: false);

@@ -69,6 +69,7 @@ class ConversionTile extends ConsumerWidget {
           button: true,
           label: '${l.fxInCurrency(main)}, $amount, $caption',
           excludeSemantics: true,
+          onTap: open,
           child: InkWell(
             key: const Key('conversion-tile'),
             onTap: open,

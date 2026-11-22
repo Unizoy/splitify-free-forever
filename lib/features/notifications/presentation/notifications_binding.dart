@@ -38,6 +38,13 @@ class _NotificationsBindingState extends ConsumerState<NotificationsBinding> {
     super.initState();
     final actions = ref.read(notificationActionsProvider);
     unawaited(actions.refresh());
+    // A request made while the shell was not on screen (joining from an invite link replaces the whole
+    // stack, so this binding was gone): show the pre-prompt now (final QA; shown only once anyway).
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && ref.read(pushPrePromptRequestsProvider) > 0) {
+        unawaited(maybeShowPushPrePrompt(context, ref));
+      }
+    });
     final push = ref.read(pushMessagingProvider);
     if (!push.available) return;
     unawaited(ref.read(pushRegistrationProvider).register());

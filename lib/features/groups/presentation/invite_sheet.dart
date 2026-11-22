@@ -44,6 +44,27 @@ class _InviteSheetBodyState extends ConsumerState<InviteSheetBody> {
   String? _fresh;
   bool _resetting = false;
 
+  /// The copy button shows a check for a moment after copying (S-256).
+  bool _copied = false;
+  Timer? _copiedTimer;
+
+  @override
+  void dispose() {
+    _copiedTimer?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _copy(String code) async {
+    await Clipboard.setData(ClipboardData(text: code));
+    if (!mounted) return;
+    setState(() => _copied = true);
+    showGroupMessage(context, AppLocalizations.of(context).codeCopied);
+    _copiedTimer?.cancel();
+    _copiedTimer = Timer(const Duration(seconds: 2), () {
+      if (mounted) setState(() => _copied = false);
+    });
+  }
+
   Future<void> _reset() async {
     final l = AppLocalizations.of(context);
     final ok = await confirmAction(
@@ -126,12 +147,10 @@ class _InviteSheetBodyState extends ConsumerState<InviteSheetBody> {
             ),
             const SizedBox(width: AppSpacing.s1),
             IconButton(
-              tooltip: l.copyCode,
-              icon: Icon(AppIcons.copy, color: c.primary),
-              onPressed: () async {
-                await Clipboard.setData(ClipboardData(text: code));
-                if (context.mounted) showGroupMessage(context, l.codeCopied);
-              },
+              key: const Key('invite-copy'),
+              tooltip: _copied ? l.codeCopied : l.copyCode,
+              icon: Icon(_copied ? AppIcons.check : AppIcons.copy, color: c.primary),
+              onPressed: () => unawaited(_copy(code)),
             ),
           ],
         ),

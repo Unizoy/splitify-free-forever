@@ -77,12 +77,20 @@ List<ExpenseView> expenseViews(
       .where((m) => userId != null && m.userId == userId && m.deletedAt == null)
       .map((m) => m.id)
       .firstOrNull;
+  // Paid / owed rows follow the group's member order, like the editor (final QA, S-252).
+  final order = {for (var i = 0; i < members.length; i++) members[i].id: i};
+  Map<String, int> ordered(Map<String, int> m) => {
+    for (final k
+        in m.keys.toList()
+          ..sort((a, b) => (order[a] ?? order.length).compareTo(order[b] ?? order.length)))
+      k: m[k]!,
+  };
   return [
     for (final e in expenses)
       ExpenseView(
         expense: e,
-        paid: _ints(e.payers),
-        owed: _ints(e.shares),
+        paid: ordered(_ints(e.payers)),
+        owed: ordered(_ints(e.shares)),
         names: names,
         meId: meId,
         userNames: userNames,
