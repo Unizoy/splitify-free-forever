@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:splitify/features/activity/application/settings_activity.dart';
 import 'package:splitify/data/data_providers.dart';
 import 'package:splitify/data/local/app_database.dart';
 import 'package:splitify/data/repositories/activity_repository.dart';
@@ -127,7 +128,7 @@ List<ActivityItem> buildActivityItems(ActivitySources s, String? userId) {
   final out = <ActivityItem>[];
   for (final a in s.activity) {
     final d = _json(a.data);
-    final type = a.type;
+    final type = refineActivityType(a.type, d);
     var targetType = a.targetType;
     var targetId = a.targetId;
     String? description;
@@ -137,7 +138,7 @@ List<ActivityItem> buildActivityItems(ActivitySources s, String? userId) {
       description = targetType == 'expense' ? s.expenses[targetId]?.description : null;
     } else if (type.startsWith('expense_')) {
       description = d['description'] as String?;
-    } else if (type.startsWith('group_') || type == 'settings_changed') {
+    } else if (type.startsWith('group_') || type.startsWith('settings_')) {
       description = (d['name'] as String?) ?? groupName(a.groupId);
     }
     if (type.endsWith('_deleted') && !type.startsWith('comment_')) {
@@ -234,6 +235,11 @@ ActivityItem? _pendingItem(
       final String type;
       if (op == 'upsert' && !isNew && payload.containsKey('archived_at')) {
         type = payload['archived_at'] == null ? 'group_unarchived' : 'group_archived';
+      } else if (op == 'upsert' &&
+          !isNew &&
+          payload.containsKey('simplify_debts') &&
+          payload.length == 1) {
+        type = simplifyActivityType(on: payload['simplify_debts'] == true);
       } else {
         type = 'group_${verb('created', isNew: isNew).replaceFirst('edited', 'updated')}';
       }

@@ -1,5 +1,6 @@
 import 'package:splitify/core/config/env.dart';
 import 'package:splitify/data/remote/balances_remote.dart';
+import 'package:splitify/data/remote/friends_remote.dart';
 import 'package:splitify/data/remote/fx_rates_remote.dart';
 import 'package:splitify/data/remote/groups_remote.dart';
 import 'package:splitify/data/remote/history_remote.dart';
@@ -23,6 +24,7 @@ class RemoteServices {
     this.media = const UnconfiguredMediaRemote(),
     this.history = const UnconfiguredHistoryRemote(),
     this.balances = const UnconfiguredBalancesRemote(),
+    this.friends = const UnconfiguredFriendsRemote(),
     this.fxRates = const UnconfiguredFxRatesRemote(),
     this.notifications = const UnconfiguredNotificationsRemote(),
   });
@@ -44,6 +46,9 @@ class RemoteServices {
 
   /// Read-only balance RPCs (`group_balances`, `my_overview`).
   final BalancesRemote balances;
+
+  /// Online-only friend RPC (`find_or_create_direct_group`, phase 11).
+  final FriendsRemote friends;
 
   /// Read-only exchange rates (`fx_rates`, phase 14).
   final FxRatesRemote fxRates;
@@ -72,6 +77,7 @@ Future<RemoteServices> initRemote(Env env) async {
     media: SupabaseMediaRemote.fromClient(client),
     history: SupabaseHistoryRemote.fromClient(client),
     balances: SupabaseBalancesRemote.fromClient(client),
+    friends: SupabaseFriendsRemote.fromClient(client),
     fxRates: SupabaseFxRatesRemote(client),
     notifications: SupabaseNotificationsRemote.fromClient(client),
   );

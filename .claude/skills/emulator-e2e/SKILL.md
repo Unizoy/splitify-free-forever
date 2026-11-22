@@ -98,7 +98,11 @@ Enroll a fingerprint once: Settings → Security → set a PIN, add fingerprint,
 
 ## 9. Fake UPI handler (phase 11+)
 
-`tool/fake_upi_app/` (built in phase 11) is a tiny debug app registered for `upi://pay`. Install it with
-`& $adb install -r tool\fake_upi_app\build\app\outputs\flutter-apk\app-debug.apk`. It writes the last received URI
-to its logcat tag `FAKE_UPI` — assert on `pa`, `pn`, `am`, `cu=INR`, `tn`. Uninstall it to test the
-"no UPI app installed" path: `& $adb uninstall dev.splitify.fakeupi`.
+`tool/fake_upi_app/` (phase 11, S-126) is a tiny Java debug app (package `dev.splitify.fakeupi`) registered for
+`upi://pay`: it logs the link with logcat tag `FAKE_UPI`, shows it 1.5 s and returns. Build/install/remove:
+`.\tool\fake_upi_app\build.ps1 [-Install | -Uninstall]` (uses `android\gradlew.bat` when Flutter generated it, else the
+Gradle 9.5 distribution in `%USERPROFILE%\.gradle`; APK `tool\fake_upi_app\app\build\outputs\apk\debug\app-debug.apk`).
+Full check (hold the lock, ~5 min): `powershell -File tool\fake_upi_app\run_upi_e2e.ps1` → installs it, runs
+`integration_test/friends_upi_test.dart`, compares the test's `UPI-EXPECT <uri>` print with the `FAKE_UPI` logcat line
+(TC-26-02; an app cannot read another app's logcat, so the host compares), then uninstalls it and runs the
+"No UPI app found" path (`--dart-define=FAKE_UPI=absent`, TC-26-03).

@@ -22,6 +22,7 @@ import 'package:splitify/features/payments/presentation/payment_detail_screen.da
 import 'package:splitify/features/payments/presentation/payment_row.dart';
 import 'package:splitify/features/payments/presentation/settle_picker.dart';
 import 'package:splitify/features/payments/presentation/settle_up_screen.dart';
+import 'package:splitify/features/payments/presentation/settled_celebration.dart';
 import 'package:splitify/ui/components/components.dart';
 
 import '../../balances/balance_fixtures.dart';
@@ -313,6 +314,9 @@ void main() {
       final h = await _pump(t);
       await tapKey(t, 'settle-save');
       expect(h.controller!.saves, 1);
+      // A payment that settles a person plays the celebration first (T6, phase 11); it closes itself.
+      await t.pump(celebrationHold);
+      await settle(t);
       expect(find.byType(SettleUpScreen), findsNothing);
       expect(find.text('Payment recorded'), findsOneWidget);
     });
