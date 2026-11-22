@@ -92,6 +92,8 @@ Future<_Rig> _pump(
 
 Future<void> _go(WidgetTester t) async {
   await t.tap(find.byKey(const Key('go')));
+  // The sheet waits for the navigation that asked for it to finish (final QA), then slides in.
+  await settle(t);
   await settle(t);
 }
 

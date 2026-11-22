@@ -82,12 +82,12 @@
     },
     {
       "package": "com.kotak811mobilebankingapp.instantsavingsupiscanandpayrecharge",
-      "name": "Kotak",
+      "name": "Kotak 811",
       "kind": "bank"
     },
     {
       "package": "com.msf.kbank.mobile",
-      "name": "Kotak",
+      "name": "Kotak Mobile Banking",
       "kind": "bank"
     },
     {

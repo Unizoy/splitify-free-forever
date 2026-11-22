@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:splitify/core/config/app_info.dart';
 import 'package:splitify/data/data_providers.dart';
+import 'package:splitify/data/remote/push_messaging.dart' show PushPermission;
 import 'package:splitify/features/account/application/theme_mode_controller.dart';
 import 'package:splitify/features/app_lock/application/app_lock_controller.dart';
 import 'package:splitify/features/app_lock/presentation/security_routes.dart';
@@ -120,7 +121,12 @@ class AccountSettingsBody extends ConsumerWidget {
             ),
             AccordionRow(
               label: l.notifications,
-              value: ref.watch(pushMessagingProvider).available ? l.notifRowOn : l.notifRowBellOnly,
+              // "On" only when Android lets pushes through (final QA: it said On while not allowed).
+              value:
+                  ref.watch(pushMessagingProvider).available &&
+                      ref.watch(pushStateProvider).value?.permission == PushPermission.granted
+                  ? l.notifRowOn
+                  : l.notifRowBellOnly,
               onTap: () {
                 Navigator.of(context).pop();
                 unawaited(context.push('/account/notifications'));

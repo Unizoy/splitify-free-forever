@@ -1,4 +1,6 @@
 // Final QA pass #2 on the emulator (S-250..S-259): regression tests for the defects found on the device.
+import 'dart:convert';
+import 'dart:io';
 import 'dart:ui' show SemanticsAction;
 
 import 'package:flutter/material.dart';
@@ -13,6 +15,8 @@ import 'package:splitify/data/repositories/sync_repository.dart';
 import 'package:splitify/data/sync/sync_types.dart';
 import 'package:splitify/data/sync/uploads.dart' show UploadQueue;
 import 'package:splitify/features/activity/presentation/activity_feed.dart' show activityDay;
+import 'package:splitify/features/currency/application/conversion_controller.dart'
+    show rateFieldText;
 import 'package:splitify/features/expenses/application/expense_providers.dart';
 import 'package:splitify/features/payments/application/payment_providers.dart';
 import 'package:splitify/features/sync/application/sync_texts.dart';
@@ -391,6 +395,21 @@ void main() {
       final sameDay = DateUtils.isSameDay(utcNow.toLocal(), earlier.toLocal());
       expect(activityDay(ctx, earlier, utcNow), sameDay ? 'Today' : 'Yesterday');
     });
+  });
+
+  test('the rate field reads 92.8272, not 92.8272346623', () {
+    expect(rateFieldText('92.8272346623'), '92.8272');
+    expect(rateFieldText('83.12'), '83.12');
+    expect(rateFieldText('0.0053123456'), '0.005312');
+    expect(rateFieldText('not a rate'), 'not a rate');
+  });
+
+  test('payment apps in the bubble list have distinct names', () {
+    final json = jsonDecode(
+      File('android/app/src/main/assets/payment_recipes.json').readAsStringSync(),
+    ) as Map<String, Object?>;
+    final names = [for (final a in json['apps']! as List<Object?>) (a! as Map)['name'] as String];
+    expect(names.toSet().length, names.length, reason: names.join(', '));
   });
 }
 

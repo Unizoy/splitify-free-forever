@@ -10,6 +10,12 @@ import 'package:splitify/ui/theme/theme.dart';
 Future<void> maybeShowPushPrePrompt(BuildContext context, WidgetRef ref) async {
   final prompt = ref.read(pushPrePromptProvider);
   if (!await prompt.shouldShow() || !context.mounted) return;
+  // Let the navigation that asked for it finish first (create → the new group's page, join → the group): a
+  // sheet pushed while "New group" is being replaced is removed with that page, and it was already marked
+  // shown, so it never came (final QA, emulator: no pre-prompt after the first group).
+  await Future<void>.delayed(const Duration(milliseconds: 300));
+  await WidgetsBinding.instance.endOfFrame;
+  if (!context.mounted) return;
   await prompt.markShown();
   if (!context.mounted) return;
   final l = AppLocalizations.of(context);

@@ -387,7 +387,9 @@ object BubbleController {
         val caption = if (cap == null) {
             ctx.getString(R.string.capture_bubble_during_caption)
         } else {
-            "${cap.appName} · ${DateFormat.getTimeFormat(ctx).format(Date(cap.capturedAt))}"
+            // No line break inside "12:26 AM" or before the dot (final QA: "· 12:26 / AM").
+            val time = DateFormat.getTimeFormat(ctx).format(Date(cap.capturedAt)).replace(' ', '\u00A0')
+            "${cap.appName}\u00A0· $time"
         }
         val head = u.text(caption, 12f, t.textSecondary, bold = true, caps = true).apply { maxLines = 2 }
         val more = u.text("⋮", 22f, t.textPrimary, bold = true).apply {

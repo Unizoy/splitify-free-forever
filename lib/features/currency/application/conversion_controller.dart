@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:decimal/decimal.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:splitify/core/money/fx.dart';
 import 'package:splitify/core/money/money.dart' show checkAmount;
@@ -120,7 +121,15 @@ final class ConversionDraft {
 /// Rate text as it starts in the field: the canonical decimal (`89.643714233`), no trailing zeros.
 String rateFieldText(String rate) {
   try {
-    return parseRate(rate).toString();
+    final r = parseRate(rate);
+    // Readable, not "92.8272346623" (final QA): 4 decimals, or 4 significant digits below 1. The full
+    // automatic rate is still what gets saved unless the person types another one.
+    var scale = 4;
+    if (r < Decimal.one) {
+      final digits = r.toString().split('.').last;
+      scale = digits.length - digits.replaceFirst(RegExp('^0+'), '').length + 4;
+    }
+    return r.scale <= scale ? r.toString() : r.round(scale: scale).toString();
   } on MoneyError {
     return rate;
   }
