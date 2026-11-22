@@ -168,46 +168,51 @@ class CategoryHint extends StatelessWidget {
     final motion = context.motion;
     final parent = categoryOf(category);
     final label = l.category(category);
-    return Semantics(
-      key: const Key('category-hint'),
-      button: onTap != null,
-      label: auto ? l.expCategoryAutoLabel(label) : l.expCategoryHintLabel(label),
-      excludeSemantics: true,
-      onTap: onTap,
-      child: Row(
-        children: [
-          AnimatedSwitcher(
-            duration: motion.base,
-            switchInCurve: AppMotion.standard,
-            switchOutCurve: AppMotion.standard,
-            transitionBuilder: (child, animation) => FadeTransition(
-              opacity: animation,
-              child: ScaleTransition(
-                scale: Tween<double>(begin: 0.92, end: 1).animate(animation),
-                child: child,
+    // Sized to the chip and tag, at the start, so the label's bounds match what is drawn.
+    return Align(
+      alignment: AlignmentDirectional.centerStart,
+      child: Semantics(
+        key: const Key('category-hint'),
+        button: onTap != null,
+        label: auto ? l.expCategoryAutoLabel(label) : l.expCategoryHintLabel(label),
+        excludeSemantics: true,
+        onTap: onTap,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            AnimatedSwitcher(
+              duration: motion.base,
+              switchInCurve: AppMotion.standard,
+              switchOutCurve: AppMotion.standard,
+              transitionBuilder: (child, animation) => FadeTransition(
+                opacity: animation,
+                child: ScaleTransition(
+                  scale: Tween<double>(begin: 0.92, end: 1).animate(animation),
+                  child: child,
+                ),
+              ),
+              layoutBuilder: (current, previous) =>
+                  Stack(alignment: Alignment.centerLeft, children: [...previous, ?current]),
+              child: IconChip(
+                key: ValueKey(category),
+                label: label,
+                icon: parent.icon,
+                iconColor: parent.color,
+                onTap: onTap,
               ),
             ),
-            layoutBuilder: (current, previous) =>
-                Stack(alignment: Alignment.centerLeft, children: [...previous, ?current]),
-            child: IconChip(
-              key: ValueKey(category),
-              label: label,
-              icon: parent.icon,
-              iconColor: parent.color,
-              onTap: onTap,
+            const SizedBox(width: AppSpacing.s2),
+            AnimatedOpacity(
+              opacity: auto ? 1 : 0,
+              duration: motion.fast,
+              child: TagChip(
+                key: const Key('category-auto'),
+                label: l.expCategoryAuto,
+                icon: AppIcons.sparkle,
+              ),
             ),
-          ),
-          const SizedBox(width: AppSpacing.s2),
-          AnimatedOpacity(
-            opacity: auto ? 1 : 0,
-            duration: motion.fast,
-            child: TagChip(
-              key: const Key('category-auto'),
-              label: l.expCategoryAuto,
-              icon: AppIcons.sparkle,
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

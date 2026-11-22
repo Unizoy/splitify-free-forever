@@ -72,7 +72,8 @@ void main() {
       args: newArgs,
     );
     await _type(t, 'Uber to dinner');
-    await tapKey(t, 'category-hint');
+    await t.tap(_hintText('Cab & auto'));
+    await settle(t);
     expect(find.byKey(const Key('category-food')), findsOneWidget, reason: 'on the Details step');
     expect(h.draft.category, 'travel.cab_auto');
     expect(find.byKey(const Key('category-auto')), findsOneWidget, reason: 'Auto beside CATEGORY');
