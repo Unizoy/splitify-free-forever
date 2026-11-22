@@ -4,12 +4,15 @@ import 'dart:convert';
 
 import 'package:drift/drift.dart' show Value;
 
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:splitify/data/local/app_database.dart';
 import 'package:splitify/data/remote/notifications_remote.dart';
 import 'package:splitify/data/remote/push_messaging.dart';
 import 'package:splitify/data/remote/remote_api.dart';
 import 'package:splitify/data/repositories/notifications_repository.dart';
 import 'package:splitify/domain/entities/notification_prefs.dart';
+import 'package:splitify/features/notifications/application/notifications_providers.dart';
+import 'package:splitify/features/notifications/application/reminders.dart';
 
 import 'fakes.dart';
 
@@ -279,4 +282,12 @@ List<LocalNotification> sampleNotifRows() => [
     seq: 1,
     data: const {'target_type': 'member', 'group_id': 'g-goa', 'actor_name': 'Priya Nair'},
   ),
+];
+
+/// Screens that only show the bell or Remind buttons in passing (app shell, Activity tab, Balances tab): an
+/// empty in-memory bell, no reminders sent, no auto refresh — so no real database is opened in tests.
+List<Override> quietNotificationOverrides() => [
+  notificationsRepositoryProvider.overrideWithValue(FakeNotificationsRepository()),
+  notificationsAutoRefreshProvider.overrideWith((ref) {}),
+  lastReminderProvider.overrideWith((ref, p) => Stream.value(null)),
 ];
