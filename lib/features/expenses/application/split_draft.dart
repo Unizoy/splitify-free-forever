@@ -218,6 +218,17 @@ final class SplitDraft {
     return kept.withValues(next, values);
   }
 
+  /// The same split for a currency with [exponent] decimals (the typed values are kept as text and are
+  /// checked again against the new exponent).
+  SplitDraft withExponent(int exponent) => SplitDraft._(
+    kind: kind,
+    members: members,
+    included: included,
+    text: text,
+    shareUnits: shareUnits,
+    exponent: exponent,
+  );
+
   /// Ticks or unticks [member] (equal, adjust).
   SplitDraft toggle(String member) {
     final next = {...included};

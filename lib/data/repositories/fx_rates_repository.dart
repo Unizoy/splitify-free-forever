@@ -88,15 +88,16 @@ class FxRatesRepository implements RatesSource {
     if (wanted.isEmpty) return;
     final from = formatIsoDate(date.subtract(const Duration(days: lookbackDays)));
     final to = formatIsoDate(date);
-    final have = await (db.selectOnly(db.fxRates, distinct: true)
-          ..addColumns([db.fxRates.currency])
-          ..where(
-            db.fxRates.currency.isIn(wanted) &
-                db.fxRates.date.isBiggerOrEqualValue(from) &
-                db.fxRates.date.isSmallerOrEqualValue(to),
-          ))
-        .map((r) => r.read(db.fxRates.currency)!)
-        .get();
+    final have =
+        await (db.selectOnly(db.fxRates, distinct: true)
+              ..addColumns([db.fxRates.currency])
+              ..where(
+                db.fxRates.currency.isIn(wanted) &
+                    db.fxRates.date.isBiggerOrEqualValue(from) &
+                    db.fxRates.date.isSmallerOrEqualValue(to),
+              ))
+            .map((r) => r.read(db.fxRates.currency)!)
+            .get();
     if (have.toSet().containsAll(wanted)) return;
     try {
       await _store(await remote.between(wanted, from, to));
@@ -111,13 +112,11 @@ class FxRatesRepository implements RatesSource {
     final rows =
         await (db.select(db.fxRates)..where(
               (r) =>
-                  r.currency.isIn(currencies) &
-                  r.date.isSmallerOrEqualValue(formatIsoDate(date)),
+                  r.currency.isIn(currencies) & r.date.isSmallerOrEqualValue(formatIsoDate(date)),
             ))
             .get();
     return [
-      for (final r in rows)
-        EurRate(date: parseIsoDate(r.date), currency: r.currency, rate: r.rate),
+      for (final r in rows) EurRate(date: parseIsoDate(r.date), currency: r.currency, rate: r.rate),
     ];
   }
 

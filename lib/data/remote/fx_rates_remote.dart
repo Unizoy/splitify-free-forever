@@ -78,7 +78,9 @@ class SupabaseFxRatesRemote implements FxRatesRemote {
         .order('currency', ascending: true),
   );
 
-  static Future<List<RemoteFxRate>> _run(Future<List<Map<String, dynamic>>> Function() query) async {
+  static Future<List<RemoteFxRate>> _run(
+    Future<List<Map<String, dynamic>>> Function() query,
+  ) async {
     try {
       final rows = await query().timeout(const Duration(seconds: 20));
       return [for (final r in rows) parseRemoteFxRate(r)];

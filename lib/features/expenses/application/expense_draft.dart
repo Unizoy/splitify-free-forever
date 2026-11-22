@@ -1,4 +1,5 @@
 import 'package:splitify/core/money/amount_expression.dart';
+import 'package:splitify/core/money/currencies.dart';
 import 'package:splitify/core/money/money_error.dart';
 import 'package:splitify/core/money/split.dart';
 import 'package:splitify/features/expenses/application/split_draft.dart';
@@ -120,6 +121,23 @@ final class ExpenseDraft {
       'split_values': split.storedValues,
     };
   }
+
+  /// The same draft in [code] (#14 currency picker): the typed amount is checked again for its decimals.
+  ExpenseDraft withCurrency(String code) => ExpenseDraft(
+    groupId: groupId,
+    groupName: groupName,
+    expenseId: expenseId,
+    currency: code,
+    members: members,
+    split: split.withExponent(Currencies.exponentOf(code)),
+    date: date,
+    payerId: payerId,
+    payers: payers,
+    amountText: amountText,
+    description: description,
+    category: category,
+    notes: notes,
+  );
 
   ExpenseDraft copyWith({
     String? amountText,

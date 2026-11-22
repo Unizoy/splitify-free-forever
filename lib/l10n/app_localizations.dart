@@ -2066,6 +2066,252 @@ abstract class AppLocalizations {
   /// **'Currency {code}'**
   String expCurrencyLabel(String code);
 
+  /// No description provided for @curPickerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Currency'**
+  String get curPickerTitle;
+
+  /// No description provided for @curSearchLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Search currencies'**
+  String get curSearchLabel;
+
+  /// No description provided for @curSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Code or name, e.g. USD'**
+  String get curSearchHint;
+
+  /// No description provided for @curGroupSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Group currency'**
+  String get curGroupSection;
+
+  /// No description provided for @curRecentSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent'**
+  String get curRecentSection;
+
+  /// No description provided for @curAllSection.
+  ///
+  /// In en, this message translates to:
+  /// **'All currencies'**
+  String get curAllSection;
+
+  /// No description provided for @curNoMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'No currency matches “{query}”'**
+  String curNoMatch(String query);
+
+  /// No description provided for @curRowLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}, {code}'**
+  String curRowLabel(String name, String code);
+
+  /// No description provided for @curSelected.
+  ///
+  /// In en, this message translates to:
+  /// **'selected'**
+  String get curSelected;
+
+  /// No description provided for @fxConvertTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Convert to {code}'**
+  String fxConvertTo(String code);
+
+  /// No description provided for @fxInCurrency.
+  ///
+  /// In en, this message translates to:
+  /// **'In {code}'**
+  String fxInCurrency(String code);
+
+  /// No description provided for @fxRateFieldLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'1 {from} in {to}'**
+  String fxRateFieldLabel(String from, String to);
+
+  /// No description provided for @fxRateHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. 83.12'**
+  String get fxRateHint;
+
+  /// No description provided for @fxRateLine.
+  ///
+  /// In en, this message translates to:
+  /// **'1 {from} = {rate} {to}'**
+  String fxRateLine(String from, String rate, String to);
+
+  /// No description provided for @fxSourceFrankfurter.
+  ///
+  /// In en, this message translates to:
+  /// **'Frankfurter · {date}'**
+  String fxSourceFrankfurter(String date);
+
+  /// No description provided for @fxSourceFallback.
+  ///
+  /// In en, this message translates to:
+  /// **'Frankfurter · {date}, the latest before {asked}'**
+  String fxSourceFallback(String date, String asked);
+
+  /// No description provided for @fxSourceManual.
+  ///
+  /// In en, this message translates to:
+  /// **'Rate you typed · {date}'**
+  String fxSourceManual(String date);
+
+  /// No description provided for @fxNoRateUnlisted.
+  ///
+  /// In en, this message translates to:
+  /// **'{code} has no published rate. Type the rate.'**
+  String fxNoRateUnlisted(String code);
+
+  /// No description provided for @fxNoRateMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'No saved rate for {date} on this phone. Type the rate, or connect to the internet.'**
+  String fxNoRateMissing(String date);
+
+  /// No description provided for @fxReferenceNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Reference rates from central banks, not your bank\'s rate.'**
+  String get fxReferenceNote;
+
+  /// No description provided for @fxRateError.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a rate above 0 with up to 10 decimals'**
+  String get fxRateError;
+
+  /// No description provided for @fxTooLarge.
+  ///
+  /// In en, this message translates to:
+  /// **'The converted amount is too large'**
+  String get fxTooLarge;
+
+  /// No description provided for @fxUseAuto.
+  ///
+  /// In en, this message translates to:
+  /// **'Use Frankfurter rate'**
+  String get fxUseAuto;
+
+  /// No description provided for @fxSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save conversion'**
+  String get fxSave;
+
+  /// No description provided for @fxRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove conversion'**
+  String get fxRemove;
+
+  /// No description provided for @fxSavedSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Conversion saved'**
+  String get fxSavedSnack;
+
+  /// No description provided for @fxRemovedSnack.
+  ///
+  /// In en, this message translates to:
+  /// **'Conversion removed'**
+  String get fxRemovedSnack;
+
+  /// No description provided for @fxApprox.
+  ///
+  /// In en, this message translates to:
+  /// **'≈ {amount}'**
+  String fxApprox(String amount);
+
+  /// No description provided for @fxNotPossible.
+  ///
+  /// In en, this message translates to:
+  /// **'This record is already in the group\'s currency.'**
+  String get fxNotPossible;
+
+  /// No description provided for @fxViewByCurrency.
+  ///
+  /// In en, this message translates to:
+  /// **'By currency'**
+  String get fxViewByCurrency;
+
+  /// No description provided for @fxViewInMain.
+  ///
+  /// In en, this message translates to:
+  /// **'In {code}'**
+  String fxViewInMain(String code);
+
+  /// No description provided for @fxViewLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Show balances'**
+  String get fxViewLabel;
+
+  /// No description provided for @fxMissingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 record needs a rate} other{{count} records need a rate}}'**
+  String fxMissingTitle(int count);
+
+  /// No description provided for @fxMissingBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Balances in {code} use the rate saved with each record. Convert these first.'**
+  String fxMissingBody(String code);
+
+  /// No description provided for @fxConvertAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Convert all at their dates\' rates'**
+  String get fxConvertAll;
+
+  /// No description provided for @fxConvertedCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{Nothing converted} =1{1 converted} other{{count} converted}}'**
+  String fxConvertedCount(int count);
+
+  /// No description provided for @fxNeedRateCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 needs a rate you type} other{{count} need a rate you type}}'**
+  String fxNeedRateCount(int count);
+
+  /// No description provided for @fxConvertedNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Every record counted at the rate saved with it.'**
+  String get fxConvertedNote;
+
+  /// No description provided for @fxSectionInMain.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything in {code}'**
+  String fxSectionInMain(String code);
+
+  /// No description provided for @fxSimplifyInMain.
+  ///
+  /// In en, this message translates to:
+  /// **'Simplify in {code}'**
+  String fxSimplifyInMain(String code);
+
+  /// No description provided for @fxCombineError.
+  ///
+  /// In en, this message translates to:
+  /// **'These records can\'t be combined yet. Check their conversions.'**
+  String get fxCombineError;
+
   /// No description provided for @expAmountLabel.
   ///
   /// In en, this message translates to:

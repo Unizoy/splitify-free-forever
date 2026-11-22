@@ -7,6 +7,8 @@ import 'package:splitify/core/money/balances.dart' show Transfer;
 import 'package:splitify/features/balances/application/balance_views.dart';
 import 'package:splitify/features/balances/application/balances_providers.dart';
 import 'package:splitify/features/balances/presentation/balance_copy.dart';
+import 'package:splitify/features/currency/application/currency_providers.dart';
+import 'package:splitify/features/currency/presentation/converted_balances_view.dart';
 import 'package:splitify/features/groups/presentation/group_visuals.dart' show SectionLabel;
 import 'package:splitify/features/payments/presentation/payment_routes.dart';
 import 'package:splitify/l10n/app_localizations.dart';
@@ -28,6 +30,9 @@ class BalancesTab extends ConsumerStatefulWidget {
 class _BalancesTabState extends ConsumerState<BalancesTab> {
   /// Simplify is on but the person asked for the original debts.
   bool _original = false;
+
+  /// "Show balances: In INR" (#32, phase 14).
+  bool _inMain = false;
 
   @override
   Widget build(BuildContext context) {
@@ -52,13 +57,24 @@ class _BalancesTabState extends ConsumerState<BalancesTab> {
     }
     final simplified = b.simplify && !_original;
     final multi = b.currencies.length > 1;
+    final foreign = ref.watch(convertedGroupProvider(widget.groupId)).value?.hasForeign ?? false;
+    final inMain = foreign && _inMain;
     return Column(
       key: const Key('balances-tab'),
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         const SizedBox(height: AppSpacing.s4),
         _Banner(balances: b),
-        for (final c in b.currencies) ...[
+        if (foreign) ...[
+          const SizedBox(height: AppSpacing.s6),
+          BalancesViewToggle(
+            currency: b.mainCurrency,
+            inMain: inMain,
+            onChanged: (v) => setState(() => _inMain = v),
+          ),
+        ],
+        if (inMain) ConvertedBalancesView(groupId: widget.groupId),
+        for (final c in inMain ? const <String>[] : b.currencies) ...[
           const SizedBox(height: AppSpacing.s8),
           if (multi) ...[
             Semantics(

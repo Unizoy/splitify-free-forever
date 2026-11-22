@@ -5,6 +5,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:splitify/core/money/money_formatter.dart';
+import 'package:splitify/features/currency/application/conversion_actions.dart'
+    show savedFxOfPayment;
+import 'package:splitify/features/currency/presentation/conversion_tile.dart';
 import 'package:splitify/features/expenses/application/expense_draft.dart' show parseIsoDate;
 import 'package:splitify/features/expenses/application/expense_providers.dart'
     show expenseGroupProvider;
@@ -213,6 +216,13 @@ class _Body extends StatelessWidget {
           icon: AppIcons.calendar,
           label: l.expDateLabel,
           value: shortDate(context, parseIsoDate(p.date)),
+        ),
+        ConversionTile(
+          recordId: p.id,
+          groupId: p.groupId,
+          currency: p.currency.trim(),
+          saved: savedFxOfPayment(p),
+          payment: true,
         ),
         if (note.isNotEmpty)
           Padding(

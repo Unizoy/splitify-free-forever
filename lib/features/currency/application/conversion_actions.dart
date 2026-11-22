@@ -81,7 +81,11 @@ class ConversionActions {
     if (record.isPayment) {
       await _ref
           .read(paymentsRepositoryProvider)
-          .save(groupId, paymentFxColumns(amount: record.amount, rate: rate), id: record.id);
+          .save(
+            groupId,
+            paymentFxColumns(amount: record.amount, rate: rate),
+            id: record.id,
+          );
     } else {
       await _ref
           .read(expensesRepositoryProvider)

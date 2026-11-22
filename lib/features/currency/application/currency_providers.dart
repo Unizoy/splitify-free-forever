@@ -8,7 +8,8 @@ import 'package:splitify/features/balances/application/balance_views.dart';
 import 'package:splitify/features/balances/application/balances_providers.dart';
 import 'package:splitify/features/currency/application/conversion_actions.dart';
 import 'package:splitify/features/currency/domain/converted_balances.dart';
-import 'package:splitify/features/groups/application/groups_providers.dart' show currentUserIdProvider;
+import 'package:splitify/features/groups/application/groups_providers.dart'
+    show currentUserIdProvider;
 
 /// Keeps the exchange-rate cache fresh: refreshes after every successful sync (the repository skips pulls
 /// younger than 6 h), so conversions work offline later (05 §6). Watched by the signed-in shell.
@@ -46,24 +47,32 @@ class ConvertedGroupView {
 }
 
 /// The converted view of [groupId] (null while the group is not on this phone).
-final convertedGroupProvider = Provider.autoDispose.family<AsyncValue<ConvertedGroupView?>, String>((
-  ref,
-  groupId,
-) {
-  final ledger = ref.watch(groupLedgerProvider(groupId));
-  if (!ledger.hasValue) {
-    if (ledger.hasError) return AsyncError(ledger.error!, ledger.stackTrace ?? StackTrace.current);
-    return const AsyncLoading();
-  }
-  final l = ledger.value;
-  if (l == null) return const AsyncData(null);
-  final group = groupBalancesOf(l, ref.watch(currentUserIdProvider));
-  final records = fxRecordsOf(l);
-  return AsyncData(
-    ConvertedGroupView(
-      group: group,
-      converted: convertedBalances(group.mainCurrency, [for (final m in l.members) m.id], records),
-      records: {for (final r in records) r.id: r},
-    ),
-  );
-});
+final convertedGroupProvider = Provider.autoDispose.family<AsyncValue<ConvertedGroupView?>, String>(
+  (ref, groupId) {
+    final ledger = ref.watch(groupLedgerProvider(groupId));
+    if (!ledger.hasValue) {
+      if (ledger.hasError)
+        return AsyncError(ledger.error!, ledger.stackTrace ?? StackTrace.current);
+      return const AsyncLoading();
+    }
+    final l = ledger.value;
+    if (l == null) return const AsyncData(null);
+    final group = groupBalancesOf(l, ref.watch(currentUserIdProvider));
+    final records = fxRecordsOf(l);
+    return AsyncData(
+      ConvertedGroupView(
+        group: group,
+        converted: convertedBalances(group.mainCurrency, [
+          for (final m in l.members) m.id,
+        ], records),
+        records: {for (final r in records) r.id: r},
+      ),
+    );
+  },
+);
+
+/// The main currency of [groupId] (null while the group is not on this phone).
+final groupMainCurrencyProvider = StreamProvider.autoDispose.family<String?, String>(
+  (ref, groupId) =>
+      ref.watch(groupsRepositoryProvider).watchOne(groupId).map((g) => g?.mainCurrency.trim()),
+);
