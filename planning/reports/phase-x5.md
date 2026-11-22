@@ -39,7 +39,19 @@ a future Play Store listing.
 
 ## Gates
 
-See the final gate table at the end of this file.
+| Gate | Result | Evidence |
+| --- | --- | --- |
+| G1 Static | PASS | `dart format` 0 changed; `flutter analyze --no-fatal-infos` 0 errors/warnings; `dart run tool/guards.dart` OK |
+| G2 Tests | PASS | `flutter test --coverage --exclude-tags device,needs-owner,quarantine`: 3,404 passed, 1 flaky under load (`recurring_detail_test.dart` "No more copies", untouched, passes 3/3 alone); coverage overall 95.3 %, domain 98.3 %, application 95.6 %, data 91.2 %, money 100 %, sync 99.5 % (all floors met); Kotlin `gradlew :app:testFullDebugUnitTest` 13/13 |
+| G3 Backend | SKIPPED | no SQL or Edge Function change (categories are client-side; migration 0025 unused) |
+| G4 Build | PASS | `flutter build apk --debug` (default = `standard`); release arm64 + x64 of both flavours; aapt2: `standard` has no BIND_NOTIFICATION_LISTENER_SERVICE / BIND_ACCESSIBILITY_SERVICE / SYSTEM_ALERT_WINDOW / SMS, `full` has the bubble services; `tool/build_release.ps1 -Flavor both` (see below) |
+| G5 Device | PASS | emulator-5554: `integration_test/auto_category_test.dart` (letter-by-letter typing, Auto tag, Details, manual pick) with light/dark/200 % screenshots; `standard` ⇄ `full` x64 release APKs update each other in place, `dumpsys package` shows the bubble only in `full`; screenshots + dumpsys in `splitify-artifacts\phase-x5\` |
+| G6 Docs | PASS | README (flavours, build commands), decisions D-028 + S-270..S-277, test catalog TC-X5-01..07, LEARNINGS, skills (emulator-e2e, ui-review APK names) |
+
+UI review (real-font goldens + emulator): the category chip uses `IconChip` (Pressable) and `TagChip` tokens only;
+it sits under the description where the eye already is, cross-fades with a slight scale, and the "Auto" tag fades
+rather than jumping the layout. Rubric ≥ 8 on every line (hierarchy 9, spacing 9, typography 9, colour 9, motion 8,
+a11y 9: screen-reader label "Category: Takeaway, picked from the description", 48 dp chip).
 
 ## Decisions made
 
