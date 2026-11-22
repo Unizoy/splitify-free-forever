@@ -8,6 +8,8 @@ import 'package:splitify/features/expenses/presentation/editor/paid_split_steps.
 import 'package:splitify/features/expenses/presentation/editor/step_body.dart';
 import 'package:splitify/features/expenses/presentation/expense_copy.dart';
 import 'package:splitify/features/expenses/presentation/split_editor.dart';
+import 'package:splitify/features/recurring/application/recurring_providers.dart'
+    show intervalLabel;
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/components/components.dart';
 import 'package:splitify/ui/theme/theme.dart';
@@ -76,6 +78,24 @@ class ReviewStep extends StatelessWidget {
                 textAlign: TextAlign.center,
                 style: context.text.bodySmall.copyWith(color: c.textSecondary),
               ),
+              // The repeat is part of what gets saved: show it before Save (final QA).
+              if (draft.repeat.interval case final interval?) ...[
+                const SizedBox(height: AppSpacing.s2),
+                Row(
+                  key: const Key('review-repeat'),
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(AppIcons.repeat, size: 16, color: c.primary),
+                    const SizedBox(width: AppSpacing.s1),
+                    Flexible(
+                      child: Text(
+                        intervalLabel(l, interval),
+                        style: context.text.bodySmall.w(600).copyWith(color: c.primary),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ],
           ),
         ),

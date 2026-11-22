@@ -26,7 +26,7 @@ import 'package:splitify/ui/theme/theme.dart';
 
 import '../../support/a11y_guidelines.dart';
 import '../balances/balance_fixtures.dart' as bal;
-import '../expenses/expense_fixtures.dart';
+import '../expenses/expense_fixtures.dart' hide sampleGroup;
 import '../../support/group_fakes.dart';
 import '../../support/group_harness.dart';
 
@@ -411,6 +411,31 @@ void main() {
     final names = [for (final a in json['apps']! as List<Object?>) (a! as Map)['name'] as String];
     expect(names.toSet().length, names.length, reason: names.join(', '));
   });
+
+  testWidgets(
+    'S-255 the group page keeps a status-bar scrim once its rows scroll under the clock',
+    (tester) async {
+      tester.view.padding = const FakeViewPadding(top: 63);
+      addTearDown(tester.view.resetPadding);
+      await pumpGroups(
+        tester,
+        '/groups/$gid',
+        overrides: fixedGroupData(
+          groups: [sampleGroup(id: gid, name: 'Goa trip')],
+          expenses: {
+            gid: [for (var i = 0; i < 30; i++) sampleView(sampleExpense(id: 'e$i'))],
+          },
+        ),
+      );
+      expect(find.byKey(const Key('group-status-scrim')), findsNothing);
+      await tester.drag(find.byType(CustomScrollView), const Offset(0, -1500));
+      await settle(tester);
+      expect(find.byKey(const Key('group-status-scrim')), findsOneWidget);
+      await tester.drag(find.byType(CustomScrollView), const Offset(0, 3000));
+      await settle(tester);
+      expect(find.byKey(const Key('group-status-scrim')), findsNothing);
+    },
+  );
 }
 
 class _FixedClock implements Clock {

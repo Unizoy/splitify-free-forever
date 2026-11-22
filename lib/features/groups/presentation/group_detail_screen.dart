@@ -43,6 +43,21 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen> {
     _ => 0,
   };
 
+  /// The page scrolled the sheet under the status bar: the rows below the sheet header are not inside the
+  /// [OverlapColumn], so its own scrim is gone once it scrolls away (S-255) — this one stays.
+  final _heroKey = GlobalKey();
+  bool _underBar = false;
+
+  bool _onScroll(ScrollUpdateNotification n) {
+    if (n.depth != 0) return false;
+    final hero = _heroKey.currentContext?.size?.height;
+    if (hero == null) return false;
+    final under =
+        n.metrics.pixels >= hero - AppSpacing.sheetOverlap - MediaQuery.paddingOf(context).top;
+    if (under != _underBar) setState(() => _underBar = under);
+    return false;
+  }
+
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
@@ -71,65 +86,82 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen> {
     final bottomSpace = AppSpacing.s8 + MediaQuery.paddingOf(context).bottom + AppSpacing.s6;
     // Slivers (S-167, phase 19): hero + sheet header first, then the Expenses tab's rows as a lazy list, so a
     // group with thousands of records opens with one screen of rows built.
-    return Scaffold(
-      body: SyncRefresh(
-        child: CustomScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          slivers: [
-            SliverToBoxAdapter(
-              child: OverlapColumn(
-                top: _Hero(group: group, members: members, me: me, balances: balances),
-                bottom: OverlapSheet(
-                  padding: const EdgeInsets.fromLTRB(
-                    AppSpacing.screen,
-                    AppSpacing.s6 + AppSpacing.s1,
-                    AppSpacing.screen,
-                    0,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      if (archived) ...[
-                        _ArchivedBanner(groupId: group.id),
-                        const SizedBox(height: AppSpacing.s5),
-                      ],
-                      FolderTabs(
-                        index: _tab,
-                        onChanged: (i) => setState(() => _tab = i),
-                        tabs: [
-                          FolderTab(label: l.groupTabExpenses, icon: AppIcons.receipt),
-                          FolderTab(label: l.groupTabBalances, icon: AppIcons.coins),
-                          FolderTab(label: l.groupTabTotals, icon: AppIcons.chart),
-                        ],
-                      ),
-                      if (unsynced) ...[
-                        const SizedBox(height: AppSpacing.s3),
-                        const Align(
-                          alignment: AlignmentDirectional.centerStart,
-                          child: SyncMarker(),
-                        ),
-                      ],
-                      const SizedBox(height: AppSpacing.s2),
-                      if (_tab == 1) GroupBalancesTab(groupId: group.id),
-                      if (_tab == 2) GroupTotalsTab(groupId: group.id),
+    final scrolled = SyncRefresh(
+      child: CustomScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        slivers: [
+          SliverToBoxAdapter(
+            child: OverlapColumn(
+              top: KeyedSubtree(
+                key: _heroKey,
+                child: _Hero(group: group, members: members, me: me, balances: balances),
+              ),
+              bottom: OverlapSheet(
+                padding: const EdgeInsets.fromLTRB(
+                  AppSpacing.screen,
+                  AppSpacing.s6 + AppSpacing.s1,
+                  AppSpacing.screen,
+                  0,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    if (archived) ...[
+                      _ArchivedBanner(groupId: group.id),
+                      const SizedBox(height: AppSpacing.s5),
                     ],
-                  ),
+                    FolderTabs(
+                      index: _tab,
+                      onChanged: (i) => setState(() => _tab = i),
+                      tabs: [
+                        FolderTab(label: l.groupTabExpenses, icon: AppIcons.receipt),
+                        FolderTab(label: l.groupTabBalances, icon: AppIcons.coins),
+                        FolderTab(label: l.groupTabTotals, icon: AppIcons.chart),
+                      ],
+                    ),
+                    if (unsynced) ...[
+                      const SizedBox(height: AppSpacing.s3),
+                      const Align(alignment: AlignmentDirectional.centerStart, child: SyncMarker()),
+                    ],
+                    const SizedBox(height: AppSpacing.s2),
+                    if (_tab == 1) GroupBalancesTab(groupId: group.id),
+                    if (_tab == 2) GroupTotalsTab(groupId: group.id),
+                  ],
                 ),
               ),
             ),
-            if (_tab == 0) ...[
-              SliverPadding(
-                padding: sides,
-                sliver: ExpenseListSliver(groupId: group.id),
-              ),
-              SliverPadding(
-                padding: sides,
-                sliver: SliverToBoxAdapter(child: GroupActivitySection(groupId: group.id)),
-              ),
-            ],
-            SliverToBoxAdapter(child: SizedBox(height: bottomSpace)),
+          ),
+          if (_tab == 0) ...[
+            SliverPadding(
+              padding: sides,
+              sliver: ExpenseListSliver(groupId: group.id),
+            ),
+            SliverPadding(
+              padding: sides,
+              sliver: SliverToBoxAdapter(child: GroupActivitySection(groupId: group.id)),
+            ),
           ],
-        ),
+          SliverToBoxAdapter(child: SizedBox(height: bottomSpace)),
+        ],
+      ),
+    );
+    return Scaffold(
+      body: Stack(
+        children: [
+          NotificationListener<ScrollUpdateNotification>(
+            onNotification: _onScroll,
+            child: scrolled,
+          ),
+          if (_underBar)
+            Positioned(
+              key: const Key('group-status-scrim'),
+              top: 0,
+              left: 0,
+              right: 0,
+              height: MediaQuery.paddingOf(context).top,
+              child: ColoredBox(color: context.colors.bg),
+            ),
+        ],
       ),
       bottomNavigationBar: archived ? null : _ActionBar(groupId: widget.groupId),
     );
