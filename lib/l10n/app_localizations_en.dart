@@ -3685,6 +3685,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String lockMinutesShort(int count) {
+    return '$count min';
+  }
+
+  @override
   String get lockAfterSub => 'in the background. Splitify always locks when it starts.';
 
   @override

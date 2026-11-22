@@ -5978,6 +5978,12 @@ abstract class AppLocalizations {
   /// **'{count, plural, =1{1 minute} other{{count} minutes}}'**
   String lockMinutes(int count);
 
+  /// No description provided for @lockMinutesShort.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} min'**
+  String lockMinutesShort(int count);
+
   /// No description provided for @lockAfterSub.
   ///
   /// In en, this message translates to:

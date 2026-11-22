@@ -97,7 +97,11 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
         onAcceptMismatch: (v) => _c.setAcceptMismatch(value: v),
       ),
       ImportStep.running => ImportRunningStep(state: s),
-      ImportStep.done => ImportDoneStep(state: s, groupName: groupName),
+      ImportStep.done => ImportDoneStep(
+        state: s,
+        groupName: groupName,
+        onDelete: () => unawaited(_delete()),
+      ),
     };
     return PopScope(
       canPop: s.step == ImportStep.file || s.step == ImportStep.done,
@@ -192,16 +196,6 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
             label: l.impOpenGroup,
             onPressed: () => context.go('/groups/$groupId'),
           ),
-          secondary: s.deleted
-              ? null
-              : PillButton(
-                  key: const Key('import-delete'),
-                  label: l.impDeleteImport,
-                  icon: AppIcons.trash,
-                  variant: PillVariant.ghost,
-                  loading: s.deleting,
-                  onPressed: () => unawaited(_delete()),
-                ),
         );
     }
   }

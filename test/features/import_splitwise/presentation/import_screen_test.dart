@@ -4,7 +4,6 @@ import 'dart:typed_data';
 
 import 'package:drift/drift.dart' show driftRuntimeOptions;
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:splitify/data/local/app_database.dart';
 import 'package:splitify/features/import_splitwise/application/import_providers.dart';
@@ -23,11 +22,6 @@ class _FakePicker implements ImportFilePicker {
     name: fixture,
     bytes: Uint8List.fromList(File('test/fixtures/splitwise/$fixture').readAsBytesSync()),
   );
-}
-
-/// The celebration card overflows under the test font (Ahem); real fonts are covered by the goldens.
-void _drain(WidgetTester t) {
-  while (t.takeException() != null) {}
 }
 
 void main() {
@@ -81,25 +75,31 @@ void main() {
   });
 
   // TC-X1-03
-  testWidgets('people step lists the file names; skipping a person leaves them out of the preview', (t) async {
-    await open(t, 'group_inr_usd.csv');
-    await tapKey(t, 'import-pick');
-    for (final n in ['Aarav', 'Priya', 'Rohan', 'Meera']) {
-      expect(find.byKey(Key('import-person-$n')), findsOneWidget);
-    }
-    // "Priya" is suggested as the member of the same name.
-    expect(
-      find.descendant(of: find.byKey(const Key('import-person-Priya')), matching: find.text('Priya')),
-      findsWidgets,
-    );
-    await tapKey(t, 'import-person-Rohan');
-    await tapKey(t, 'import-choice-skip');
-    expect(find.byKey(const Key('import-mapping-problem')), findsNothing);
-    await tapKey(t, 'import-continue');
-    // Rows that moved Rohan's balance are left out, so the file's own totals can't be checked.
-    expect(find.byKey(const Key('import-totals-none')), findsOneWidget);
-    expect(find.byKey(const Key('import-run')), findsOneWidget);
-  });
+  testWidgets(
+    'people step lists the file names; skipping a person leaves them out of the preview',
+    (t) async {
+      await open(t, 'group_inr_usd.csv');
+      await tapKey(t, 'import-pick');
+      for (final n in ['Aarav', 'Priya', 'Rohan', 'Meera']) {
+        expect(find.byKey(Key('import-person-$n')), findsOneWidget);
+      }
+      // "Priya" is suggested as the member of the same name.
+      expect(
+        find.descendant(
+          of: find.byKey(const Key('import-person-Priya')),
+          matching: find.text('Priya'),
+        ),
+        findsWidgets,
+      );
+      await tapKey(t, 'import-person-Rohan');
+      await tapKey(t, 'import-choice-skip');
+      expect(find.byKey(const Key('import-mapping-problem')), findsNothing);
+      await tapKey(t, 'import-continue');
+      // Rows that moved Rohan's balance are left out, so the file's own totals can't be checked.
+      expect(find.byKey(const Key('import-totals-none')), findsOneWidget);
+      expect(find.byKey(const Key('import-run')), findsOneWidget);
+    },
+  );
 
   // TC-X1-03
   testWidgets('a file whose totals do not match needs "import anyway"', (t) async {
@@ -114,7 +114,6 @@ void main() {
     await tapKey(t, 'import-run');
     await settle(t, db: true, frames: 30);
     expect(find.byKey(const Key('import-done')), findsOneWidget);
-    _drain(t);
   });
 
   // TC-X1-03
@@ -129,7 +128,6 @@ void main() {
     await settle(t, db: true, frames: 40);
     expect(find.byKey(const Key('import-done')), findsOneWidget);
     expect(find.byKey(const Key('import-open-group')), findsOneWidget);
-    _drain(t);
 
     final expenses = await t.runAsync(() => db.select(db.expenses).get()) ?? [];
     expect(expenses, isNotEmpty);

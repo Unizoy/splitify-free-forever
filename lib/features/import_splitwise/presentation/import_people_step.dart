@@ -197,6 +197,37 @@ class _PersonRow extends StatelessWidget {
       NewMember() => (l.impChoiceNew, c.chip, c.textPrimary),
       SkipPerson() => (l.impChoiceSkip, c.surfaceMuted, c.textSecondary),
     };
+    final pill = Container(
+      constraints: const BoxConstraints(minHeight: 36),
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s3, vertical: AppSpacing.s2),
+      decoration: BoxDecoration(color: fill, borderRadius: AppRadii.allPill),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Flexible(
+            child: Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: context.text.bodySmall.w(600).copyWith(color: ink),
+            ),
+          ),
+          const SizedBox(width: AppSpacing.s1),
+          Icon(AppIcons.chevronDown, size: 16, color: ink),
+        ],
+      ),
+    );
+    // Large text: the choice goes under the name instead of squeezing both (AmountRow does the same).
+    final large = MediaQuery.textScalerOf(context).scale(1) > 1.4;
+    final who = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(name, style: context.text.title.w(500)),
+        const SizedBox(height: 2),
+        Text(caption, style: context.text.bodySmall.copyWith(color: c.textSecondary)),
+        if (large) ...[const SizedBox(height: AppSpacing.s2), pill],
+      ],
+    );
     return Semantics(
       button: true,
       child: InkWell(
@@ -208,48 +239,15 @@ class _PersonRow extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(vertical: AppSpacing.s4),
               child: Row(
+                crossAxisAlignment: large ? CrossAxisAlignment.start : CrossAxisAlignment.center,
                 children: [
                   Avatar(name: name, seed: 'import-$name'),
                   const SizedBox(width: AppSpacing.s3),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(name, style: context.text.title.w(500)),
-                        const SizedBox(height: 2),
-                        Text(
-                          caption,
-                          style: context.text.bodySmall.copyWith(color: c.textSecondary),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: AppSpacing.s3),
-                  Flexible(
-                    child: Container(
-                      constraints: const BoxConstraints(minHeight: 36),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: AppSpacing.s3,
-                        vertical: AppSpacing.s2,
-                      ),
-                      decoration: BoxDecoration(color: fill, borderRadius: AppRadii.allPill),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Flexible(
-                            child: Text(
-                              label,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: context.text.bodySmall.w(600).copyWith(color: ink),
-                            ),
-                          ),
-                          const SizedBox(width: AppSpacing.s1),
-                          Icon(AppIcons.chevronDown, size: 16, color: ink),
-                        ],
-                      ),
-                    ),
-                  ),
+                  Expanded(child: who),
+                  if (!large) ...[
+                    const SizedBox(width: AppSpacing.s3),
+                    ConstrainedBox(constraints: const BoxConstraints(maxWidth: 160), child: pill),
+                  ],
                 ],
               ),
             ),

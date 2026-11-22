@@ -107,35 +107,38 @@ class WidgetPreview extends StatelessWidget {
           boxShadow: AppShadows.card(c, dark: context.isDark),
         ),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Row(
+            Wrap(
+              alignment: WrapAlignment.spaceBetween,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              spacing: AppSpacing.s2,
+              runSpacing: AppSpacing.s2,
               children: [
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 10,
+                      height: 10,
+                      decoration: BoxDecoration(color: c.primary, shape: BoxShape.circle),
+                    ),
+                    const SizedBox(width: AppSpacing.s2),
+                    Text(
+                      text(WidgetKeys.brand),
+                      style: context.text.bodySmall.w(600).copyWith(color: c.textSecondary),
+                    ),
+                  ],
+                ),
                 Container(
-                  width: 10,
-                  height: 10,
-                  decoration: BoxDecoration(color: c.primary, shape: BoxShape.circle),
-                ),
-                const SizedBox(width: AppSpacing.s2),
-                Expanded(
-                  child: Text(
-                    text(WidgetKeys.brand),
-                    style: context.text.bodySmall.w(600).copyWith(color: c.textSecondary),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: AppSpacing.s1),
+                  decoration: BoxDecoration(
+                    color: c.primaryContainer,
+                    borderRadius: AppRadii.allPill,
                   ),
-                ),
-                Flexible(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: AppSpacing.s1),
-                    decoration: BoxDecoration(
-                      color: c.primaryContainer,
-                      borderRadius: AppRadii.allPill,
-                    ),
-                    child: Text(
-                      text(WidgetKeys.status),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: context.text.labelCaps.copyWith(color: tone),
-                    ),
+                  child: Text(
+                    text(WidgetKeys.status),
+                    style: context.text.labelCaps.copyWith(color: tone),
                   ),
                 ),
               ],

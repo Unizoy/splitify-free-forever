@@ -188,8 +188,8 @@ class _TotalsCheck extends StatelessWidget {
             Text(
               l.impMismatchRow(
                 m.member,
-                MoneyFormatter.list.format(m.fileTotal, m.currency),
-                MoneyFormatter.list.format(m.rowsTotal, m.currency),
+                _noBreak(MoneyFormatter.list.format(m.fileTotal, m.currency)),
+                _noBreak(MoneyFormatter.list.format(m.rowsTotal, m.currency)),
               ),
               style: context.text.bodySmall,
             ),
@@ -199,3 +199,7 @@ class _TotalsCheck extends StatelessWidget {
     );
   }
 }
+
+/// Keeps a minus sign on the same line as its amount (word joiner after it).
+String _noBreak(String amount) =>
+    amount.replaceAll('\u2212', '\u2212\u2060').replaceAll('-', '-\u2060');

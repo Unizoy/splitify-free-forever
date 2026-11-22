@@ -85,7 +85,11 @@ class SecurityScreen extends ConsumerWidget {
               onChanged: (t) => unawaited(ref.read(appLockProvider.notifier).setTimeout(t)),
               items: [
                 for (final t in LockTimeout.values)
-                  SegmentedPillItem(value: t, label: l.lockMinutes(t.minutes)),
+                  SegmentedPillItem(
+                    value: t,
+                    label: l.lockMinutesShort(t.minutes),
+                    semanticLabel: l.lockMinutes(t.minutes),
+                  ),
               ],
             ),
             const SizedBox(height: AppSpacing.s3),

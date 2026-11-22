@@ -44,15 +44,22 @@ class ImportRunningStep extends StatelessWidget {
 /// Result: celebration, what came in, "Not synced yet" until the server has it, then the deleted
 /// state after "Delete this import".
 class ImportDoneStep extends ConsumerWidget {
-  const ImportDoneStep({required this.state, required this.groupName, super.key});
+  const ImportDoneStep({
+    required this.state,
+    required this.groupName,
+    required this.onDelete,
+    super.key,
+  });
 
   final ImportState state;
   final String groupName;
 
+  /// "Delete this import" (asks first).
+  final VoidCallback onDelete;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context);
-    final c = context.colors;
     final r = state.result!;
     final unsynced = ref.watch(groupUnsyncedProvider(r.groupId)).value ?? false;
     return ListView(
@@ -71,32 +78,30 @@ class ImportDoneStep extends ConsumerWidget {
             message: l.impDeletedBody,
           )
         else ...[
-          ClipRRect(
-            borderRadius: AppRadii.all24,
-            child: SizedBox(
-              height: 320,
-              child: Celebration(
-                key: const Key('import-done'),
-                lead: l.impDoneLead,
-                highlight: l.impDoneHighlight,
-                seed: r.batchId,
-              ),
-            ),
-          ),
-          const SizedBox(height: AppSpacing.s6),
-          Text(
-            l.impDoneBody(
+          Celebration(
+            key: const Key('import-done'),
+            lead: l.impDoneLead,
+            highlight: l.impDoneHighlight,
+            message: l.impDoneBody(
               l.impCountExpenses(r.expenses),
               l.impCountPayments(r.payments),
               groupName,
             ),
-            textAlign: TextAlign.center,
-            style: context.text.body.copyWith(color: c.textSecondary),
+            seed: r.batchId,
           ),
           if (unsynced) ...[
-            const SizedBox(height: AppSpacing.s3),
+            const SizedBox(height: AppSpacing.s4),
             const Center(child: SyncMarker(key: Key('import-sync-marker'))),
           ],
+          const SizedBox(height: AppSpacing.s6),
+          PillButton(
+            key: const Key('import-delete'),
+            label: l.impDeleteImport,
+            icon: AppIcons.trash,
+            variant: PillVariant.ghost,
+            loading: state.deleting,
+            onPressed: onDelete,
+          ),
         ],
       ],
     );

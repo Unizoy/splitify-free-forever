@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:alchemist/alchemist.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:splitify/data/local/app_database.dart' show LocalImportBatch;
@@ -102,13 +101,6 @@ Map<String, Object> _widgetData() => buildWidgetData(
   lastSync: DateTime(2026, 11, 22, 10, 30),
   hideAmounts: true,
 );
-
-/// The result step's celebration card overflows its 320 px box (lib/features/import_splitwise/presentation/
-/// import_done_step.dart:56, celebration.dart:83); the golden records it (stripes) until that is fixed.
-Future<void> _pumpAllowingOverflow(WidgetTester tester) async {
-  await pumpFixedFrames(tester);
-  while (tester.takeException() != null) {}
-}
 
 typedef _Case = (String, Widget Function(), List<Override> Function(), double);
 
@@ -218,7 +210,7 @@ void main() {
         goldenTest(
           'phase 18 $name ${mode.name} $suffix',
           fileName: 'phase18_${name}_${mode.name}_$suffix',
-          pumpBeforeTest: name == 'import_done' ? _pumpAllowingOverflow : pumpFixedFrames,
+          pumpBeforeTest: pumpFixedFrames,
           builder: () => expenseApp(
             screen(),
             overrides: overrides(),
