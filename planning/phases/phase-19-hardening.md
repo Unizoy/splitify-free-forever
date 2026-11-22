@@ -27,3 +27,8 @@
 
 All gates green on release build; catalog has no `todo`/`fail` (only `pass`, `manual-opt`, or `needs-owner` with
 open BLK).
+
+> **Amendment (S-172, phase 16):** `0019_recurring.sql` redefined `public.apply_mutations` (routes
+> `entity = 'recurring'` to `private.sync_apply_recurring`) and `public.pull_changes` (adds the
+> `recurring_templates` rows). A migration that redefines either function must start from the 0019 body and keep
+> those lines; `private.sync_apply_one` was not changed. Templates are a synced entity (`SyncEntity.recurring`).

@@ -32,3 +32,8 @@ member: net of the row>, Notes, Added by, Deleted`, payments as rows with Catego
 footer row per currency, amounts as plain decimals. Category holds the English sub-category label ("Dining out"),
 Split type `loan` for IOUs. The X1 importer should accept this layout (skip footer and `Deleted = yes` rows) as well
 as Splitwise's.
+
+> **Amendment (S-172, phase 16):** `0019_recurring.sql` redefined `public.apply_mutations` (routes
+> `entity = 'recurring'` to `private.sync_apply_recurring`) and `public.pull_changes` (adds the
+> `recurring_templates` rows). A migration that redefines either function must start from the 0019 body and keep
+> those lines; `private.sync_apply_one` was not changed. Templates are a synced entity (`SyncEntity.recurring`).
