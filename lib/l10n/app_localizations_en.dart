@@ -874,6 +874,173 @@ class AppLocalizationsEn extends AppLocalizations {
   String get totCharts => 'See charts';
 
   @override
+  String get totExportCsv => 'Export CSV';
+
+  @override
+  String get insTitle => 'Insights';
+
+  @override
+  String insSpendingIn(String currency) {
+    return 'Spending in $currency';
+  }
+
+  @override
+  String get insModeGroup => 'Group';
+
+  @override
+  String get insModeMe => 'Me';
+
+  @override
+  String get insModeLabel => 'Show spending of';
+
+  @override
+  String get insAllGroups => 'All groups and friends';
+
+  @override
+  String get insAllGroupsCaption => 'Your share everywhere';
+
+  @override
+  String get insPickGroup => 'Choose a group';
+
+  @override
+  String get insPickerCaptionGroup => 'Group';
+
+  @override
+  String get insPickerCaptionMe => 'Your share in';
+
+  @override
+  String get insPickerHint => 'Change group';
+
+  @override
+  String get insArchived => 'Archived';
+
+  @override
+  String get insByCategory => 'By category';
+
+  @override
+  String get insAllTime => 'All time';
+
+  @override
+  String get insByMonth => 'By month';
+
+  @override
+  String get insLast12Months => 'Last 12 months';
+
+  @override
+  String get insTotalSpent => 'Total spent';
+
+  @override
+  String get insYourShare => 'Your share';
+
+  @override
+  String insPercent(int percent) {
+    return '$percent%';
+  }
+
+  @override
+  String get insPercentSmall => '<1%';
+
+  @override
+  String insCategoryChip(String name, String percent) {
+    return '$name · $percent';
+  }
+
+  @override
+  String insCategoryOfTotal(String percent) {
+    return '$percent of the total';
+  }
+
+  @override
+  String insDonutLabel(String parts) {
+    return 'Spending by category: $parts';
+  }
+
+  @override
+  String insDonutPart(String name, String amount, String percent) {
+    return '$name $amount, $percent';
+  }
+
+  @override
+  String insMonthBar(String month, String amount) {
+    return '$month: $amount';
+  }
+
+  @override
+  String insYearTotal(String amount) {
+    return '12-month total $amount';
+  }
+
+  @override
+  String get insMonthHint => 'Tap a bar to see that month.';
+
+  @override
+  String get insOneMonthHint =>
+      'Only one month so far. More bars fill in as you add expenses in other months.';
+
+  @override
+  String get insNoRecentMonths => 'Nothing spent in the last 12 months.';
+
+  @override
+  String insUnconverted(int count, String currency) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$count expenses in other currencies are left out. Convert them to $currency on their pages to count them.',
+      one:
+          '1 expense in another currency is left out. Convert it to $currency on its page to count it.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get insEmptyTitle => 'Nothing spent yet';
+
+  @override
+  String insEmptyGroupBody(String group) {
+    return 'Expenses in $group show up here by category and month.';
+  }
+
+  @override
+  String get insEmptyMeBody => 'Your share of expenses shows up here by category and month.';
+
+  @override
+  String get insNoGroupsTitle => 'No groups yet';
+
+  @override
+  String get insNoGroupsBody =>
+      'Create or join a group and add expenses to see where the money goes.';
+
+  @override
+  String get insConvertTitle => 'Convert to see charts';
+
+  @override
+  String insConvertBody(int count, String currency) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$count expenses are in other currencies. Convert them to $currency on their pages to see them here.',
+      one: '1 expense is in another currency. Convert it to $currency on its page to see it here.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get insLoadError => 'Charts could not be loaded';
+
+  @override
+  String exportSubject(String group) {
+    return '$group expenses (Splitify)';
+  }
+
+  @override
+  String get exportEmpty => 'Nothing to export yet. Add an expense first.';
+
+  @override
+  String get exportFailed => 'Couldn\'t export. Try again.';
+
+  @override
   String get settleEditTitle => 'Edit payment';
 
   @override

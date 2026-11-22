@@ -19,6 +19,7 @@ import 'package:splitify/domain/rules/default_split.dart';
 import 'package:splitify/features/expenses/presentation/expense_copy.dart';
 import 'package:splitify/features/expenses/presentation/expense_routes.dart';
 import 'package:splitify/features/history/presentation/history_routes.dart';
+import 'package:splitify/features/export/presentation/export_action.dart';
 
 /// Group settings (`/groups/:id/settings`, 614): edit, invite, members (add name-only with a colour, rename,
 /// unlink a wrong claim, remove / leave when settled), archive and delete (creator). Phase 11/17 add default
@@ -111,6 +112,13 @@ class GroupSettingsScreen extends ConsumerWidget {
               icon: AppIcons.restore,
               label: l.delTitle,
               onTap: () => context.push(HistoryRoutes.deleted(groupId)),
+            ),
+            // #22: every expense and payment as a CSV file, through the share sheet (phase 17).
+            DashedListRow(
+              key: const Key('settings-export'),
+              icon: AppIcons.share,
+              label: l.totExportCsv,
+              onTap: () => unawaited(exportGroupCsv(context, ref, groupId)),
             ),
             DashedListRow(
               key: const Key('settings-archive'),
