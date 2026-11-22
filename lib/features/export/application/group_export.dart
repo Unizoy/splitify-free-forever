@@ -85,17 +85,18 @@ String exportFileName(String groupName, DateTime today) {
 /// Hands a CSV file to the system share sheet (save to Files/Drive, mail, chat); tests override.
 typedef CsvSharer = Future<void> Function(Uint8List bytes, String fileName, String subject);
 
-final csvSharerProvider = Provider<CsvSharer>(
-  (ref) => (bytes, fileName, subject) async {
-    await SharePlus.instance.share(
-      ShareParams(
-        files: [XFile.fromData(bytes, mimeType: 'text/csv', name: fileName)],
-        fileNameOverrides: [fileName],
-        subject: subject,
-      ),
-    );
-  },
-);
+/// The real sharer: the file goes to share_plus as `text/csv` (a temporary file on Android).
+Future<void> shareCsvFile(Uint8List bytes, String fileName, String subject) async {
+  await SharePlus.instance.share(
+    ShareParams(
+      files: [XFile.fromData(bytes, mimeType: 'text/csv', name: fileName)],
+      fileNameOverrides: [fileName],
+      subject: subject,
+    ),
+  );
+}
+
+final csvSharerProvider = Provider<CsvSharer>((ref) => shareCsvFile);
 
 /// What an export did.
 enum ExportOutcome {
