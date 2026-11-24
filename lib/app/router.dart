@@ -1,10 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart' show MaterialPage;
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:splitify/app/app_route.dart';
 import 'package:splitify/app/not_found_screen.dart';
 import 'package:splitify/app/shell/app_shell.dart';
 import 'package:splitify/features/account/presentation/about_screen.dart';
@@ -110,16 +110,6 @@ String? authRedirect(
   return null;
 }
 
-/// Welcome and sign-in are Flutter [MaterialPage]s, so the theme's shared-axis move runs between them
-/// (S-284). go_router 18 looks for material_ui's `MaterialApp`, does not find the app's and falls back to
-/// `NoTransitionPage` for plain `builder:` routes.
-Page<void> _materialPage(GoRouterState state, Widget child) => MaterialPage<void>(
-  key: state.pageKey,
-  name: state.name ?? state.path,
-  restorationId: state.pageKey.value,
-  child: child,
-);
-
 /// App links by host: invite QR / share link `splitify://join?code=…` → the join screen; payment bubble
 /// `splitify://capture?id=…[&group=…]` (phase 18b) → the capture screen; other hosts → the page of that name;
 /// a bare `/` → Groups. Null for everything else.
@@ -190,26 +180,23 @@ GoRouter buildRouter({
       : authRedirect(state.uri, signedIn: gate.signedIn, pendingJoin: pendingJoin),
   errorBuilder: (context, state) => const NotFoundScreen(),
   routes: [
-    GoRoute(
-      path: Routes.welcome,
-      pageBuilder: (context, state) => _materialPage(state, const WelcomeScreen()),
-    ),
-    GoRoute(
+    AppRoute(path: Routes.welcome, builder: (context, state) => const WelcomeScreen()),
+    AppRoute(
       path: Routes.signIn,
-      pageBuilder: (context, state) => _materialPage(state, const SignInScreen()),
+      builder: (context, state) => const SignInScreen(),
       routes: [
-        GoRoute(
+        AppRoute(
           path: 'code',
           builder: (context, state) => CodeScreen(email: state.uri.queryParameters['email']),
         ),
-        GoRoute(path: 'profile', builder: (context, state) => const ProfileConfirmScreen()),
+        AppRoute(path: 'profile', builder: (context, state) => const ProfileConfirmScreen()),
       ],
     ),
-    GoRoute(
+    AppRoute(
       path: Routes.join,
       builder: (context, state) => JoinScreen(code: state.uri.queryParameters['code']),
       routes: [
-        GoRoute(
+        AppRoute(
           path: ':code',
           builder: (context, state) => JoinScreen(code: state.pathParameters['code']),
         ),
@@ -217,22 +204,23 @@ GoRouter buildRouter({
     ),
     // Tabs keep their state (like indexedStack) and fade through on a switch (S-263).
     StatefulShellRoute(
-      builder: (context, state, shell) => AppShell(shell: shell),
+      // A page too, so it shifts back under a page pushed over the tabs (S-288).
+      pageBuilder: (context, state, shell) => appPage(state, AppShell(shell: shell)),
       navigatorContainerBuilder: (context, shell, children) =>
           FadeThroughStack(index: shell.currentIndex, children: children),
       branches: [
         StatefulShellBranch(
           routes: [
-            GoRoute(
+            AppRoute(
               path: Routes.groups,
               builder: (context, state) => const GroupsHomeScreen(),
               routes: [
-                GoRoute(
+                AppRoute(
                   path: 'new',
                   parentNavigatorKey: _rootKey,
                   builder: (context, state) => const GroupFormScreen(),
                 ),
-                GoRoute(
+                AppRoute(
                   path: ':id',
                   parentNavigatorKey: _rootKey,
                   builder: (context, state) => GroupDetailScreen(
@@ -240,13 +228,13 @@ GoRouter buildRouter({
                     initialTab: state.uri.queryParameters['tab'],
                   ),
                   routes: [
-                    GoRoute(
+                    AppRoute(
                       path: 'edit',
                       parentNavigatorKey: _rootKey,
                       builder: (context, state) =>
                           GroupFormScreen(groupId: state.pathParameters['id']),
                     ),
-                    GoRoute(
+                    AppRoute(
                       path: 'settings',
                       parentNavigatorKey: _rootKey,
                       builder: (context, state) =>
@@ -260,46 +248,46 @@ GoRouter buildRouter({
         ),
         StatefulShellBranch(
           routes: [
-            GoRoute(path: Routes.friends, builder: (context, state) => const FriendsScreen()),
+            AppRoute(path: Routes.friends, builder: (context, state) => const FriendsScreen()),
           ],
         ),
         StatefulShellBranch(
           routes: [
-            GoRoute(path: Routes.activity, builder: (context, state) => const ActivityScreen()),
+            AppRoute(path: Routes.activity, builder: (context, state) => const ActivityScreen()),
           ],
         ),
         StatefulShellBranch(
           routes: [
-            GoRoute(
+            AppRoute(
               path: Routes.account,
               builder: (context, state) => const AccountScreen(),
               routes: [
-                GoRoute(
+                AppRoute(
                   path: 'appearance',
                   parentNavigatorKey: _rootKey,
                   builder: (context, state) => const AppearanceScreen(),
                 ),
-                GoRoute(
+                AppRoute(
                   path: 'profile',
                   parentNavigatorKey: _rootKey,
                   builder: (context, state) => const ProfileEditScreen(),
                 ),
-                GoRoute(
+                AppRoute(
                   path: 'delete',
                   parentNavigatorKey: _rootKey,
                   builder: (context, state) => const DeleteAccountScreen(),
                 ),
-                GoRoute(
+                AppRoute(
                   path: 'sync',
                   parentNavigatorKey: _rootKey,
                   builder: (context, state) => const SyncStorageScreen(),
                 ),
-                GoRoute(
+                AppRoute(
                   path: 'about',
                   parentNavigatorKey: _rootKey,
                   builder: (context, state) => const AboutScreen(),
                 ),
-                GoRoute(
+                AppRoute(
                   path: 'deleted-groups',
                   parentNavigatorKey: _rootKey,
                   builder: (context, state) => const DeletedGroupsScreen(),
@@ -321,8 +309,8 @@ GoRouter buildRouter({
     ...importRoutes(),
     ...securityRoutes(),
     if (kDebugMode) ...[
-      GoRoute(path: Routes.gallery, builder: (context, state) => const GalleryScreen()),
-      GoRoute(
+      AppRoute(path: Routes.gallery, builder: (context, state) => const GalleryScreen()),
+      AppRoute(
         path: Routes.devLogin,
         builder: (context, state) => DevLoginScreen(user: state.uri.queryParameters['user']),
       ),

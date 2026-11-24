@@ -62,7 +62,13 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen> {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     final groupAsync = ref.watch(groupProvider(widget.groupId));
-    final group = groupAsync.value;
+    // Until the page's own read answers, the Groups list's copy draws it, so the card's cover hero flies
+    // on the first frame of the push (S-288).
+    final group =
+        groupAsync.value ??
+        (groupAsync.isLoading
+            ? ref.watch(groupsListProvider).value?.where((g) => g.id == widget.groupId).firstOrNull
+            : null);
     if (group == null || group.deletedAt != null) {
       return Scaffold(
         appBar: AppBar(

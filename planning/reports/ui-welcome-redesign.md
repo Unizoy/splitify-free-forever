@@ -65,8 +65,12 @@ Screenshots: `C:\Users\mohit\OneDrive\Desktop\theCode\splitify-artifacts\screens
 S-280 background/theme · S-281 preview + motion · S-282 type and chrome · S-283 join before sign-in ·
 S-284 page transitions (go_router/material_ui finding) · S-285 layout · S-286 splash · S-287 device capture.
 
-## Follow-ups for the owner/coordinator
+## S-288 (coordinator): page transitions app-wide
 
-- go_router 18 checks for `material_ui`'s `MaterialApp`; the app uses Flutter's, so every GoRoute built with
-  `builder:` has no page transition (S-262's shared axis never runs for them). Fix app-wide with `pageBuilder` +
-  `MaterialPage` (or by moving the app to `material_ui`), then re-time tests that expect instant navigation.
+go_router 18 checks for `material_ui`'s `MaterialApp`, so every plain `builder:` GoRoute was a `NoTransitionPage`
+(S-262's shared axis and the S-263 hero flights never ran). Now every route is an `AppRoute` (Flutter
+`MaterialPage`), the tab shell is a page, the group page and expense detail draw on their first frame so the
+cover/icon heroes fly, and the page colour sits behind all routes. Full suite 3,433 passed (no timing fixes or
+golden changes needed); emulator (lock 13:04–13:10): pushing into a group, an expense, group settings and back
+all animate; the owner's app is the branch build (pinned, release x64), still signed in with its data. Owner's
+previous APK kept at `splitify-artifacts\apk\owner-installed-backup-2026-11-24.apk`.

@@ -1,4 +1,5 @@
 import 'package:go_router/go_router.dart';
+import 'package:splitify/app/app_route.dart';
 import 'package:splitify/features/friends/presentation/friend_page.dart';
 
 /// Friend routes (07 §1): `/friends/:key`, key `u:<user id>` or `m:<member id>` (S-121). Top-level so the
@@ -9,7 +10,7 @@ abstract final class FriendRoutes {
 
 /// Spread into the app router.
 List<RouteBase> friendRoutes() => [
-  GoRoute(
+  AppRoute(
     path: '/friends/:key',
     builder: (context, state) =>
         FriendPage(friendKey: Uri.decodeComponent(state.pathParameters['key']!)),

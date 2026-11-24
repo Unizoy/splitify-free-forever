@@ -30,15 +30,19 @@ import 'package:splitify/ui/theme/theme.dart';
 /// history (phase 12) and the comment thread with its composer pinned at the bottom. Edit and delete (soft,
 /// with undo) on top.
 class ExpenseDetailScreen extends ConsumerWidget {
-  const ExpenseDetailScreen({required this.expenseId, super.key});
+  const ExpenseDetailScreen({required this.expenseId, this.initial, super.key});
 
   final String expenseId;
+
+  /// The list row's view, shown until the page's own read answers, so the icon hero flies on the first
+  /// frame of the push (S-288).
+  final ExpenseView? initial;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context);
     final view = ref.watch(expenseViewProvider(expenseId));
-    final v = view.value;
+    final v = view.value ?? (view.isLoading ? initial : null);
     if (v == null) {
       return Scaffold(
         appBar: AppBar(

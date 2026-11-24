@@ -42,7 +42,12 @@ class App extends ConsumerWidget {
         value: (context.isDark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark).copyWith(
           statusBarColor: AppPalette.clear,
         ),
-        child: AppLockGate(child: child ?? const SizedBox.shrink()),
+        // The page colour behind every route: the shared-axis move shifts pages 24 dp, and the edge it
+        // uncovers shows the page colour instead of the black window (S-288).
+        child: ColoredBox(
+          color: context.colors.bg,
+          child: AppLockGate(child: child ?? const SizedBox.shrink()),
+        ),
       ),
     );
   }

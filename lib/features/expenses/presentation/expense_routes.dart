@@ -3,7 +3,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:splitify/app/app_route.dart';
 import 'package:splitify/data/data_providers.dart';
+import 'package:splitify/features/expenses/application/expense_providers.dart' show ExpenseView;
 import 'package:splitify/features/expenses/presentation/default_split_screen.dart';
 import 'package:splitify/features/expenses/presentation/editor/expense_editor_screen.dart';
 import 'package:splitify/features/expenses/presentation/expense_detail_screen.dart';
@@ -35,39 +37,42 @@ abstract final class ExpenseRoutes {
 
 /// Top-level routes (they cover the tab shell); spread into the app router.
 List<RouteBase> expenseRoutes() => [
-  GoRoute(
+  AppRoute(
     path: '/expense/new',
     builder: (context, state) => ExpenseEditorScreen(
       groupId: state.uri.queryParameters['group'],
       captureId: state.uri.queryParameters['capture'],
     ),
   ),
-  GoRoute(
+  AppRoute(
     path: '/expense/:id',
-    builder: (context, state) => ExpenseDetailScreen(expenseId: state.pathParameters['id']!),
+    builder: (context, state) => ExpenseDetailScreen(
+      expenseId: state.pathParameters['id']!,
+      initial: state.extra is ExpenseView ? state.extra! as ExpenseView : null,
+    ),
     routes: [
-      GoRoute(
+      AppRoute(
         path: 'edit',
         builder: (context, state) => ExpenseEditorScreen(expenseId: state.pathParameters['id']),
       ),
     ],
   ),
-  GoRoute(
+  AppRoute(
     path: '/groups/:id/default-split',
     builder: (context, state) => DefaultSplitScreen(groupId: state.pathParameters['id']!),
   ),
-  GoRoute(
+  AppRoute(
     path: '/loan/new',
     builder: (context, state) => LoanScreen(
       groupId: state.uri.queryParameters['group'],
       withMember: state.uri.queryParameters['with'],
     ),
   ),
-  GoRoute(
+  AppRoute(
     path: '/loan/:id/edit',
     builder: (context, state) => LoanScreen(expenseId: state.pathParameters['id']),
   ),
-  GoRoute(
+  AppRoute(
     path: '/recurring/:id/edit',
     builder: (context, state) => ExpenseEditorScreen(templateId: state.pathParameters['id']),
   ),

@@ -1,4 +1,5 @@
 import 'package:go_router/go_router.dart';
+import 'package:splitify/app/app_route.dart';
 import 'package:splitify/features/insights/application/insights_providers.dart';
 import 'package:splitify/features/insights/presentation/insights_screen.dart';
 
@@ -14,7 +15,7 @@ abstract final class InsightsRoutes {
 
 /// Top-level routes (they cover the tab shell); spread into the app router.
 List<RouteBase> insightsRoutes() => [
-  GoRoute(
+  AppRoute(
     path: '/insights',
     builder: (context, state) {
       final q = state.uri.queryParameters;
