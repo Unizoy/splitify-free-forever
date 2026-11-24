@@ -632,6 +632,7 @@ class _Cover extends StatelessWidget {
       statusLabel: status,
       amountText: amount,
       tone: tone,
+      footer: false,
     ),
   );
 }
@@ -720,8 +721,8 @@ class _FanLayout extends MultiChildLayoutDelegate {
   /// Room above the covers for their tilted corners.
   static const _top = 14.0;
 
-  /// How far the covers reach under the glass card.
-  static const _tuck = 58.0;
+  /// How far the covers reach under the glass card (their footer-less bottom: art only).
+  static const _tuck = 40.0;
 
   /// Cover width / height (the grid uses 0.62; a little wider reads better tilted).
   static const _aspect = 0.68;

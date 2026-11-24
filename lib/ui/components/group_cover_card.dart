@@ -23,6 +23,7 @@ class GroupCoverCard extends StatelessWidget {
     this.unsynced = false,
     this.onTap,
     this.heroTag,
+    this.footer = true,
     super.key,
   });
 
@@ -61,6 +62,10 @@ class GroupCoverCard extends StatelessWidget {
 
   /// Flies into the group page's hero ([AppHeroTags.group]); null for no flight.
   final Object? heroTag;
+
+  /// The divider and balance row; off for decorative previews (the welcome's fanned covers, S-281), which
+  /// keep that space as plain art so nothing half-hidden peeks out above what covers them.
+  final bool footer;
 
   @override
   Widget build(BuildContext context) {
@@ -125,26 +130,29 @@ class GroupCoverCard extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                           style: context.text.cardTitle.copyWith(color: c.onHero),
                         ),
-                        const SizedBox(height: AppSpacing.s3),
-                        Divider(height: 1, thickness: 1, color: c.onHero.withValues(alpha: 0.22)),
-                        const SizedBox(height: AppSpacing.s3),
-                        _Footer(
-                          label: Text(
-                            statusLabel.toUpperCase(),
-                            maxLines: 2,
-                            style: context.text.labelCaps.copyWith(
-                              color: c.onHero.withValues(alpha: 0.7),
-                              letterSpacing: 1.2,
-                              fontSize: 11,
+                        if (!footer) const SizedBox(height: AppSpacing.s12),
+                        if (footer) ...[
+                          const SizedBox(height: AppSpacing.s3),
+                          Divider(height: 1, thickness: 1, color: c.onHero.withValues(alpha: 0.22)),
+                          const SizedBox(height: AppSpacing.s3),
+                          _Footer(
+                            label: Text(
+                              statusLabel.toUpperCase(),
+                              maxLines: 2,
+                              style: context.text.labelCaps.copyWith(
+                                color: c.onHero.withValues(alpha: 0.7),
+                                letterSpacing: 1.2,
+                                fontSize: 11,
+                              ),
                             ),
+                            amount: amountText == null
+                                ? null
+                                : Text(
+                                    amountText!,
+                                    style: context.text.amount.w(700).copyWith(color: amountColor),
+                                  ),
                           ),
-                          amount: amountText == null
-                              ? null
-                              : Text(
-                                  amountText!,
-                                  style: context.text.amount.w(700).copyWith(color: amountColor),
-                                ),
-                        ),
+                        ],
                       ],
                     ),
                   ),
