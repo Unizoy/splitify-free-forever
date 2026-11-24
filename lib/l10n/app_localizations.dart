@@ -566,10 +566,10 @@ abstract class AppLocalizations {
   /// **'Free forever · no ads'**
   String get welcomeBadge;
 
-  /// Label inside the dashed circle button, two lines.
+  /// Welcome's main button (white pill with an arrow), opens sign-in.
   ///
   /// In en, this message translates to:
-  /// **'Get\nstarted'**
+  /// **'Get started'**
   String get getStarted;
 
   /// No description provided for @welcomeFooter.
@@ -577,6 +577,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Open source · made in India'**
   String get welcomeFooter;
+
+  /// Short app name beside the mark on the welcome screen (shown in letter-spaced capitals).
+  ///
+  /// In en, this message translates to:
+  /// **'Splitify'**
+  String get welcomeBrand;
+
+  /// Two short sentences under the welcome headline, one per line.
+  ///
+  /// In en, this message translates to:
+  /// **'Split bills with friends, settle up with UPI.\nWorks offline, free forever.'**
+  String get welcomeSubline;
+
+  /// No description provided for @welcomeFeatureUpi.
+  ///
+  /// In en, this message translates to:
+  /// **'UPI settle-up'**
+  String get welcomeFeatureUpi;
+
+  /// No description provided for @welcomeFeatureOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Works offline'**
+  String get welcomeFeatureOffline;
+
+  /// No description provided for @welcomeFeatureNoAds.
+  ///
+  /// In en, this message translates to:
+  /// **'No ads ever'**
+  String get welcomeFeatureNoAds;
+
+  /// Before the 'Join a group' link at the bottom of the welcome screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Have an invite?'**
+  String get welcomeInvitePrompt;
+
+  /// Sample group name on the welcome screen's product preview (a trip).
+  ///
+  /// In en, this message translates to:
+  /// **'Goa Trip'**
+  String get welcomeSampleTrip;
+
+  /// Sample group name on the welcome screen's product preview (a shared flat).
+  ///
+  /// In en, this message translates to:
+  /// **'Flat 4B'**
+  String get welcomeSampleHome;
+
+  /// Sample friend on the welcome screen's product preview.
+  ///
+  /// In en, this message translates to:
+  /// **'Asha'**
+  String get welcomeSampleAsha;
+
+  /// Sample friend on the welcome screen's product preview.
+  ///
+  /// In en, this message translates to:
+  /// **'Rahul'**
+  String get welcomeSampleRahul;
 
   /// Groups home hero headline (serif, lowercase).
   ///
@@ -4609,6 +4669,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Use Google or a one-time code sent by email. The same email always opens the same account.'**
   String get signInSubtitle;
+
+  /// Sign-in subtitle when the user came from an invite (Have an invite? / invite link).
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in with Google or an email code, then we open your invite.'**
+  String get signInToJoin;
 
   /// No description provided for @continueWithGoogle.
   ///

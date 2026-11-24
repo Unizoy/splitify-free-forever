@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:splitify/data/repositories/profile_repository.dart';
 import 'package:splitify/features/account/presentation/profile_form.dart';
 import 'package:splitify/features/auth/application/auth_providers.dart';
+import 'package:splitify/features/auth/application/pending_join.dart';
 import 'package:splitify/features/auth/presentation/auth_page.dart';
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/components/components.dart';
@@ -36,14 +37,16 @@ class _ProfileConfirmScreenState extends ConsumerState<ProfileConfirmScreen> {
       return;
     }
     final profile = ref.read(profileProvider).value;
+    // An invite opened before sign-in (S-283) opens now instead of Groups.
+    String next() => ref.read(pendingJoinProvider).take() ?? '/groups';
     if (profile == null) {
-      context.go('/groups');
+      context.go(next());
       return;
     }
     setState(() => _saving = true);
     try {
       await ref.read(profileProvider.notifier).save(draft.apply(profile));
-      if (mounted) context.go('/groups');
+      if (mounted) context.go(next());
     } on ProfileFailure {
       if (!mounted) return;
       setState(() => _saving = false);

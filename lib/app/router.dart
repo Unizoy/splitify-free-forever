@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart' show MaterialPage;
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -12,6 +13,7 @@ import 'package:splitify/features/account/presentation/appearance_screen.dart';
 import 'package:splitify/features/account/presentation/delete_account_screen.dart';
 import 'package:splitify/features/account/presentation/profile_edit_screen.dart';
 import 'package:splitify/features/auth/application/auth_providers.dart';
+import 'package:splitify/features/auth/application/pending_join.dart';
 import 'package:splitify/features/auth/presentation/code_screen.dart';
 import 'package:splitify/features/auth/presentation/dev_login_screen.dart';
 import 'package:splitify/features/auth/presentation/profile_confirm_screen.dart';
@@ -68,10 +70,15 @@ abstract final class Routes {
 }
 
 /// Where the router sends [uri] for the given auth state (T3), or null to stay.
-/// Signed out: only welcome, sign-in and debug pages. Signed in: the sign-in
-/// pages lead on (code → profile confirm, others → groups). The debug deep
-/// link `splitify://dev/login?user=e2e-a` opens the developer sign-in (T4).
-String? authRedirect(Uri uri, {required bool signedIn, bool debug = kDebugMode}) {
+/// Signed out: only welcome, sign-in and debug pages; with a [pendingJoin], `/join` goes to sign-in and is
+/// kept for later (S-283). Signed in: the sign-in pages lead on (code → profile confirm, others → groups,
+/// or the profile step when a join is kept: it opens the join). The debug deep link `splitify://dev/login?user=e2e-a` opens the developer sign-in (T4).
+String? authRedirect(
+  Uri uri, {
+  required bool signedIn,
+  bool debug = kDebugMode,
+  PendingJoin? pendingJoin,
+}) {
   final path = uri.path;
   final link = linkRedirect(uri);
   if (link != null) return link;
@@ -83,11 +90,35 @@ String? authRedirect(Uri uri, {required bool signedIn, bool debug = kDebugMode})
   }
   final public =
       path == Routes.welcome || path.startsWith(Routes.signIn) || path.startsWith('/debug/');
-  if (!signedIn) return public ? null : Routes.welcome;
+  if (!signedIn) {
+    if (public) return null;
+    if (pendingJoin != null && (path == Routes.join || path.startsWith('${Routes.join}/'))) {
+      final segments = uri.pathSegments;
+      pendingJoin.remember(
+        uri.queryParameters['code'] ?? (segments.length > 1 ? segments[1] : null),
+      );
+      return Routes.signIn;
+    }
+    return Routes.welcome;
+  }
   if (path == Routes.signInCode) return Routes.signInProfile;
-  if (path == Routes.welcome || path == Routes.signIn) return Routes.groups;
+  if (path == Routes.welcome || path == Routes.signIn) {
+    // A kept invite opens after the profile step, which takes it (the email-code screen sits on top of
+    // sign-in, so this runs for both sign-in kinds; S-283).
+    return (pendingJoin?.waiting ?? false) ? Routes.signInProfile : Routes.groups;
+  }
   return null;
 }
+
+/// Welcome and sign-in are Flutter [MaterialPage]s, so the theme's shared-axis move runs between them
+/// (S-284). go_router 18 looks for material_ui's `MaterialApp`, does not find the app's and falls back to
+/// `NoTransitionPage` for plain `builder:` routes.
+Page<void> _materialPage(GoRouterState state, Widget child) => MaterialPage<void>(
+  key: state.pageKey,
+  name: state.name ?? state.path,
+  restorationId: state.pageKey.value,
+  child: child,
+);
 
 /// App links by host: invite QR / share link `splitify://join?code=…` → the join screen; payment bubble
 /// `splitify://capture?id=…[&group=…]` (phase 18b) → the capture screen; other hosts → the page of that name;
@@ -144,23 +175,28 @@ final _rootKey = GlobalKey<NavigatorState>(debugLabel: 'root');
 
 /// Builds the app router. [initialLocation] is for tests; without a [gate]
 /// there are no auth redirects (screenshots, widget tests). [capture] = false leaves out the payment
-/// bubble's routes (builds without it, D-028).
+/// bubble's routes (builds without it, D-028). [pendingJoin] keeps an invite through sign-in (S-283).
 GoRouter buildRouter({
   String initialLocation = Routes.welcome,
   AuthGate? gate,
   bool capture = true,
+  PendingJoin? pendingJoin,
 }) => GoRouter(
   navigatorKey: _rootKey,
   initialLocation: initialLocation,
   refreshListenable: gate,
-  redirect: (context, state) =>
-      gate == null ? linkRedirect(state.uri) : authRedirect(state.uri, signedIn: gate.signedIn),
+  redirect: (context, state) => gate == null
+      ? linkRedirect(state.uri)
+      : authRedirect(state.uri, signedIn: gate.signedIn, pendingJoin: pendingJoin),
   errorBuilder: (context, state) => const NotFoundScreen(),
   routes: [
-    GoRoute(path: Routes.welcome, builder: (context, state) => const WelcomeScreen()),
+    GoRoute(
+      path: Routes.welcome,
+      pageBuilder: (context, state) => _materialPage(state, const WelcomeScreen()),
+    ),
     GoRoute(
       path: Routes.signIn,
-      builder: (context, state) => const SignInScreen(),
+      pageBuilder: (context, state) => _materialPage(state, const SignInScreen()),
       routes: [
         GoRoute(
           path: 'code',
@@ -301,7 +337,11 @@ final routerProvider = Provider<GoRouter>((ref) {
     signedIn: auth.currentUser != null,
     changes: auth.authStateChanges().map((u) => u != null),
   );
-  final router = buildRouter(gate: gate, capture: ref.read(captureBridgeProvider).supported);
+  final router = buildRouter(
+    gate: gate,
+    capture: ref.read(captureBridgeProvider).supported,
+    pendingJoin: ref.read(pendingJoinProvider),
+  );
   ref.onDispose(() {
     router.dispose();
     gate.dispose();

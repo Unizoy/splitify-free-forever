@@ -32,6 +32,8 @@ class AppMotion {
   static const _entrance = Duration(milliseconds: 220);
   static const _stagger = Duration(milliseconds: 30);
   static const _shimmer = Duration(milliseconds: 1200);
+  static const _intro = Duration(milliseconds: 350);
+  static const _float = Duration(seconds: 4);
 
   /// How far a pressed control shrinks (Pressable, PillButton, cards, chips).
   static const double pressScale = 0.97;
@@ -82,6 +84,12 @@ class AppMotion {
 
   /// One sweep of the loading skeleton's shimmer (loops; static when reduced).
   Duration get shimmer => _shimmer;
+
+  /// A showpiece's staggered entrance, every part included (the welcome preview's cards, S-281).
+  Duration get intro => reduced ? Duration.zero : _intro;
+
+  /// One loop of an idle float (±3–4 dp; the welcome preview, S-281). Callers never start it when reduced.
+  Duration get float => _float;
 
   /// Curve for presses and toggles.
   Curve get fastCurve => Curves.easeOut;

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:splitify/features/auth/application/auth_providers.dart';
+import 'package:splitify/features/auth/application/pending_join.dart';
 import 'package:splitify/features/auth/application/sign_in_controller.dart';
 import 'package:splitify/features/auth/presentation/auth_page.dart';
 import 'package:splitify/l10n/app_localizations.dart';
@@ -67,8 +68,10 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
     final failure = state.failure;
     return AuthPage(
       title: l.signInTitle,
-      subtitle: l.signInSubtitle,
-      onBack: () => context.go('/welcome'),
+      // Opened from an invite (S-283): say the group opens right after.
+      subtitle: ref.read(pendingJoinProvider).waiting ? l.signInToJoin : l.signInSubtitle,
+      // Welcome pushes sign-in (S-284): back runs the shared-axis pop; a deep link has nothing below.
+      onBack: () => context.canPop() ? context.pop() : context.go('/welcome'),
       children: [
         PillButton(
           key: const Key('sign-in-google'),
