@@ -278,7 +278,12 @@ class _FeatureChip extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 14, color: c.onHero),
+          // Grows with the text a little, so large labels do not carry a tiny icon.
+          Icon(
+            icon,
+            size: MediaQuery.textScalerOf(context).scale(14).clamp(14.0, 20.0),
+            color: c.onHero,
+          ),
           const SizedBox(width: 6),
           Flexible(
             child: Text(label, style: context.text.caption.w(600).copyWith(color: c.onHero)),

@@ -8,7 +8,7 @@ Navigation: `go_router` with a `StatefulShellRoute` for the 4 tabs; deep links `
 
 | Route | Screen | Atlys reference |
 | --- | --- | --- |
-| `/welcome` | Onboarding (hero + DashedCircleButton "Get started") | 455, 438 |
+| `/welcome` | Onboarding (D-029): Groups hero background, product preview (group covers fanned behind the glass "Overall" card), serif "split it. / settle it.", feature chips, white "Get started →" pill, "Have an invite? Join a group" (sign-in first, then join) | 455, 438 |
 | `/sign-in`, `/sign-in/code` | Google / email, 6-digit code | 532 (centred question + options), 602 (underline field) |
 | `/groups` (tab) | Groups home | 438 |
 | `/friends` (tab) | Friends | 438 list style + 646 rows |

@@ -4,7 +4,7 @@
     <style name="LaunchTheme" parent="Theme.AppCompat.NoActionBar">
         <item name="android:forceDarkAllowed">false</item>
         <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
-        <item name="android:windowSplashScreenBackground">#050507</item>
+        <item name="android:windowSplashScreenBackground">#6E70B0</item>
         <item name="android:windowSplashScreenAnimatedIcon">@drawable/android12splash</item>
     </style>
     <!-- Theme applied to the Android Window as soon as the process has started.
