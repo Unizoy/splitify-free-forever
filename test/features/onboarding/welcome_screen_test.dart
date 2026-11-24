@@ -112,6 +112,11 @@ void main() {
       expect(find.byType(DashedCircleButton), findsNothing);
       expect(find.byType(GlassCard), findsOneWidget);
       expect(find.byType(GroupCoverCard), findsNWidgets(2));
+      // The preview covers leave out their footer: nothing half-hidden peeks out above the glass card.
+      expect(
+        find.descendant(of: find.byType(GroupCoverCard), matching: find.byType(Divider)),
+        findsNothing,
+      );
       expect(find.text('GOA TRIP'), findsOneWidget);
       expect(find.text('FLAT 4B'), findsOneWidget);
       expect(find.text('₹2,450'), findsOneWidget);
