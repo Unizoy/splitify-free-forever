@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:splitify/app/app_route.dart';
 import 'package:splitify/core/time/clock.dart';
 import 'package:splitify/data/data_providers.dart' show clockProvider;
 import 'package:splitify/data/local/app_database.dart';
@@ -552,7 +553,7 @@ abstract final class SearchRoutes {
 
 /// Top-level search route (covers the tab shell).
 List<RouteBase> searchRoutes() => [
-  GoRoute(
+  AppRoute(
     path: '/search',
     builder: (context, state) => SearchScreen(groupId: state.uri.queryParameters['group']),
   ),

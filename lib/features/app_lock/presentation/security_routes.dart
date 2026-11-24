@@ -1,4 +1,5 @@
 import 'package:go_router/go_router.dart';
+import 'package:splitify/app/app_route.dart';
 import 'package:splitify/features/app_lock/presentation/security_screen.dart';
 import 'package:splitify/features/widget/presentation/widget_settings_screen.dart';
 
@@ -9,6 +10,6 @@ abstract final class SecurityRoutes {
 }
 
 List<RouteBase> securityRoutes() => [
-  GoRoute(path: SecurityRoutes.security, builder: (context, state) => const SecurityScreen()),
-  GoRoute(path: SecurityRoutes.widget, builder: (context, state) => const WidgetSettingsScreen()),
+  AppRoute(path: SecurityRoutes.security, builder: (context, state) => const SecurityScreen()),
+  AppRoute(path: SecurityRoutes.widget, builder: (context, state) => const WidgetSettingsScreen()),
 ];

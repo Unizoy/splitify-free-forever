@@ -1,4 +1,5 @@
 import 'package:go_router/go_router.dart';
+import 'package:splitify/app/app_route.dart';
 import 'package:splitify/features/activity/presentation/group_activity_screen.dart';
 import 'package:splitify/features/payments/presentation/payment_detail_screen.dart';
 import 'package:splitify/features/payments/presentation/settle_up_screen.dart';
@@ -18,7 +19,7 @@ abstract final class PaymentRoutes {
 
 /// Top-level routes (they cover the tab shell); spread into the app router.
 List<RouteBase> paymentRoutes() => [
-  GoRoute(
+  AppRoute(
     path: '/settle',
     builder: (context, state) {
       final q = state.uri.queryParameters;
@@ -30,17 +31,17 @@ List<RouteBase> paymentRoutes() => [
       );
     },
   ),
-  GoRoute(
+  AppRoute(
     path: '/payment/:id',
     builder: (context, state) => PaymentDetailScreen(paymentId: state.pathParameters['id']!),
     routes: [
-      GoRoute(
+      AppRoute(
         path: 'edit',
         builder: (context, state) => SettleUpScreen(paymentId: state.pathParameters['id']),
       ),
     ],
   ),
-  GoRoute(
+  AppRoute(
     path: '/groups/:id/activity',
     builder: (context, state) => GroupActivityScreen(groupId: state.pathParameters['id']!),
   ),

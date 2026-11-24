@@ -1,4 +1,5 @@
 import 'package:go_router/go_router.dart';
+import 'package:splitify/app/app_route.dart';
 import 'package:splitify/features/history/domain/version_diff.dart';
 import 'package:splitify/features/history/presentation/deleted_items_screen.dart';
 import 'package:splitify/features/history/presentation/history_screen.dart';
@@ -13,17 +14,17 @@ abstract final class HistoryRoutes {
 
 /// Top-level routes (they cover the tab shell); spread into the app router.
 List<RouteBase> historyRoutes() => [
-  GoRoute(
+  AppRoute(
     path: '/expense/:id/history',
     builder: (context, state) =>
         HistoryScreen(target: (kind: HistoryRecordKind.expense, id: state.pathParameters['id']!)),
   ),
-  GoRoute(
+  AppRoute(
     path: '/payment/:id/history',
     builder: (context, state) =>
         HistoryScreen(target: (kind: HistoryRecordKind.payment, id: state.pathParameters['id']!)),
   ),
-  GoRoute(
+  AppRoute(
     path: '/groups/:id/deleted',
     builder: (context, state) => DeletedItemsScreen(groupId: state.pathParameters['id']!),
   ),

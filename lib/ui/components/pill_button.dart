@@ -38,6 +38,7 @@ class PillButton extends StatefulWidget {
     this.size = PillSize.large,
     this.icon,
     this.leading,
+    this.trailingIcon,
     this.loading = false,
     this.expand = true,
     super.key,
@@ -53,6 +54,9 @@ class PillButton extends StatefulWidget {
 
   /// Drawn before the label instead of [icon] (the Google "G", which keeps its own colours).
   final Widget? leading;
+
+  /// Drawn after the label (the welcome's "Get started →", S-282).
+  final IconData? trailingIcon;
 
   /// Shows the 3-dot pulse instead of the label and ignores taps.
   final bool loading;
@@ -141,6 +145,10 @@ class _PillButtonState extends State<PillButton> with SingleTickerProviderStateM
               Flexible(
                 child: Text(widget.label, style: style, textAlign: TextAlign.center),
               ),
+              if (widget.trailingIcon != null) ...[
+                const SizedBox(width: AppSpacing.s2),
+                Icon(widget.trailingIcon, size: 20, color: fg),
+              ],
             ],
           );
 

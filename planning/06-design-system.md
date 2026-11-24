@@ -157,7 +157,7 @@ and Mark as paid, `heavyImpact` never.
 | `WalletCard` | Showpiece on Account and Groups top: dark leather-texture sleeve (gradient + subtle noise painter, stitched dashed edge) holding a metal/gold card that peeks out; card shows overall balance per currency; tap = balances breakdown (542 "INFINITY" wallet). |
 | `MetalCard` | Brushed silver gradient with sheen sweep animation; "Your stats" (expenses this month, groups) (542 vault card). |
 | `DotMatrixCard` | Navy gradient with a dotted globe/rupee pattern painted from dots; stats grid of big numbers + labels; entry to charts (542 trips card). |
-| `DashedCircleButton` | 120 dp dashed circle, slow rotation, two-line label ("Get / started") (455). Onboarding. |
+| `DashedCircleButton` | 120 dp dashed circle, slow rotation, two-line label ("Get / started") (455). Gallery only since D-029 (the welcome uses a white `PillButton`). |
 | `Celebration` | Settle-up success: cards fan out, big check draws, lime highlight word in serif ("all *settled*"), haptic. |
 | `SyncMarker` | Small cloud-off icon + "Not synced yet" caption in `unsynced`; tooltip/semantics explain. |
 
@@ -179,7 +179,7 @@ cover. Users may upload a photo instead (compressed, stored in Storage).
 - App icon: rounded-square indigo→lavender gradient with a white circle split into two offset halves (the
   "split" mark); adaptive icon (foreground/background) + monochrome themed icon; generated with
   `flutter_launcher_icons` from `assets/brand/icon.svg` (written in phase 02).
-- Splash: plain `bg` with the mark (Android 12+ splash API via `flutter_native_splash`).
+- Splash: the mark on the welcome's top colour `heroTop` (light value, also in dark mode; S-286) (Android 12+ splash API via `flutter_native_splash`).
 
 ## 9. Implementation rules
 

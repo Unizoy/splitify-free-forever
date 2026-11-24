@@ -303,10 +303,41 @@ class AppLocalizationsEn extends AppLocalizations {
   String get welcomeBadge => 'Free forever · no ads';
 
   @override
-  String get getStarted => 'Get\nstarted';
+  String get getStarted => 'Get started';
 
   @override
   String get welcomeFooter => 'Open source · made in India';
+
+  @override
+  String get welcomeBrand => 'Splitify';
+
+  @override
+  String get welcomeSubline =>
+      'Split bills with friends, settle up with UPI.\nWorks offline, free forever.';
+
+  @override
+  String get welcomeFeatureUpi => 'UPI settle-up';
+
+  @override
+  String get welcomeFeatureOffline => 'Works offline';
+
+  @override
+  String get welcomeFeatureNoAds => 'No ads ever';
+
+  @override
+  String get welcomeInvitePrompt => 'Have an invite?';
+
+  @override
+  String get welcomeSampleTrip => 'Goa Trip';
+
+  @override
+  String get welcomeSampleHome => 'Flat 4B';
+
+  @override
+  String get welcomeSampleAsha => 'Asha';
+
+  @override
+  String get welcomeSampleRahul => 'Rahul';
 
   @override
   String get groupsHero => 'split it.\nsettle it.';
@@ -2793,6 +2824,9 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get signInSubtitle =>
       'Use Google or a one-time code sent by email. The same email always opens the same account.';
+
+  @override
+  String get signInToJoin => 'Sign in with Google or an email code, then we open your invite.';
 
   @override
   String get continueWithGoogle => 'Continue with Google';

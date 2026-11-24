@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:splitify/app/app_route.dart';
 import 'package:splitify/core/money/money_formatter.dart';
 import 'package:splitify/data/device/capture_bridge.dart';
 import 'package:splitify/domain/entities/payment_capture.dart';
@@ -34,14 +35,17 @@ abstract final class CaptureRoutes {
 }
 
 List<RouteBase> captureRoutes() => [
-  GoRoute(
+  AppRoute(
     path: '/capture',
     builder: (context, state) => CaptureScreen(
       captureId: state.uri.queryParameters['id'] ?? '',
       groupId: state.uri.queryParameters['group'],
     ),
   ),
-  GoRoute(path: CaptureRoutes.settings, builder: (context, state) => const CaptureSettingsScreen()),
+  AppRoute(
+    path: CaptureRoutes.settings,
+    builder: (context, state) => const CaptureSettingsScreen(),
+  ),
 ];
 
 /// Where the capture can go: recent groups and friends first.

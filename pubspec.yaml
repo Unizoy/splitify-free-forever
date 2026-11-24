@@ -1,7 +1,7 @@
 name: splitify
 description: "Splitify Free Forever - free, open-source expense splitting for India."
 publish_to: 'none'
-version: 0.1.0+1
+version: 0.1.1+2
 
 environment:
   sdk: ^3.14.0

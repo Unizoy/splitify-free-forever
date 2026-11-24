@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:splitify/app/app_route.dart';
 import 'package:splitify/app/not_found_screen.dart';
 import 'package:splitify/app/shell/app_shell.dart';
 import 'package:splitify/features/account/presentation/about_screen.dart';
@@ -12,6 +13,7 @@ import 'package:splitify/features/account/presentation/appearance_screen.dart';
 import 'package:splitify/features/account/presentation/delete_account_screen.dart';
 import 'package:splitify/features/account/presentation/profile_edit_screen.dart';
 import 'package:splitify/features/auth/application/auth_providers.dart';
+import 'package:splitify/features/auth/application/pending_join.dart';
 import 'package:splitify/features/auth/presentation/code_screen.dart';
 import 'package:splitify/features/auth/presentation/dev_login_screen.dart';
 import 'package:splitify/features/auth/presentation/profile_confirm_screen.dart';
@@ -68,10 +70,15 @@ abstract final class Routes {
 }
 
 /// Where the router sends [uri] for the given auth state (T3), or null to stay.
-/// Signed out: only welcome, sign-in and debug pages. Signed in: the sign-in
-/// pages lead on (code → profile confirm, others → groups). The debug deep
-/// link `splitify://dev/login?user=e2e-a` opens the developer sign-in (T4).
-String? authRedirect(Uri uri, {required bool signedIn, bool debug = kDebugMode}) {
+/// Signed out: only welcome, sign-in and debug pages; with a [pendingJoin], `/join` goes to sign-in and is
+/// kept for later (S-283). Signed in: the sign-in pages lead on (code → profile confirm, others → groups,
+/// or the profile step when a join is kept: it opens the join). The debug deep link `splitify://dev/login?user=e2e-a` opens the developer sign-in (T4).
+String? authRedirect(
+  Uri uri, {
+  required bool signedIn,
+  bool debug = kDebugMode,
+  PendingJoin? pendingJoin,
+}) {
   final path = uri.path;
   final link = linkRedirect(uri);
   if (link != null) return link;
@@ -83,9 +90,23 @@ String? authRedirect(Uri uri, {required bool signedIn, bool debug = kDebugMode})
   }
   final public =
       path == Routes.welcome || path.startsWith(Routes.signIn) || path.startsWith('/debug/');
-  if (!signedIn) return public ? null : Routes.welcome;
+  if (!signedIn) {
+    if (public) return null;
+    if (pendingJoin != null && (path == Routes.join || path.startsWith('${Routes.join}/'))) {
+      final segments = uri.pathSegments;
+      pendingJoin.remember(
+        uri.queryParameters['code'] ?? (segments.length > 1 ? segments[1] : null),
+      );
+      return Routes.signIn;
+    }
+    return Routes.welcome;
+  }
   if (path == Routes.signInCode) return Routes.signInProfile;
-  if (path == Routes.welcome || path == Routes.signIn) return Routes.groups;
+  if (path == Routes.welcome || path == Routes.signIn) {
+    // A kept invite opens after the profile step, which takes it (the email-code screen sits on top of
+    // sign-in, so this runs for both sign-in kinds; S-283).
+    return (pendingJoin?.waiting ?? false) ? Routes.signInProfile : Routes.groups;
+  }
   return null;
 }
 
@@ -144,36 +165,38 @@ final _rootKey = GlobalKey<NavigatorState>(debugLabel: 'root');
 
 /// Builds the app router. [initialLocation] is for tests; without a [gate]
 /// there are no auth redirects (screenshots, widget tests). [capture] = false leaves out the payment
-/// bubble's routes (builds without it, D-028).
+/// bubble's routes (builds without it, D-028). [pendingJoin] keeps an invite through sign-in (S-283).
 GoRouter buildRouter({
   String initialLocation = Routes.welcome,
   AuthGate? gate,
   bool capture = true,
+  PendingJoin? pendingJoin,
 }) => GoRouter(
   navigatorKey: _rootKey,
   initialLocation: initialLocation,
   refreshListenable: gate,
-  redirect: (context, state) =>
-      gate == null ? linkRedirect(state.uri) : authRedirect(state.uri, signedIn: gate.signedIn),
+  redirect: (context, state) => gate == null
+      ? linkRedirect(state.uri)
+      : authRedirect(state.uri, signedIn: gate.signedIn, pendingJoin: pendingJoin),
   errorBuilder: (context, state) => const NotFoundScreen(),
   routes: [
-    GoRoute(path: Routes.welcome, builder: (context, state) => const WelcomeScreen()),
-    GoRoute(
+    AppRoute(path: Routes.welcome, builder: (context, state) => const WelcomeScreen()),
+    AppRoute(
       path: Routes.signIn,
       builder: (context, state) => const SignInScreen(),
       routes: [
-        GoRoute(
+        AppRoute(
           path: 'code',
           builder: (context, state) => CodeScreen(email: state.uri.queryParameters['email']),
         ),
-        GoRoute(path: 'profile', builder: (context, state) => const ProfileConfirmScreen()),
+        AppRoute(path: 'profile', builder: (context, state) => const ProfileConfirmScreen()),
       ],
     ),
-    GoRoute(
+    AppRoute(
       path: Routes.join,
       builder: (context, state) => JoinScreen(code: state.uri.queryParameters['code']),
       routes: [
-        GoRoute(
+        AppRoute(
           path: ':code',
           builder: (context, state) => JoinScreen(code: state.pathParameters['code']),
         ),
@@ -181,22 +204,23 @@ GoRouter buildRouter({
     ),
     // Tabs keep their state (like indexedStack) and fade through on a switch (S-263).
     StatefulShellRoute(
-      builder: (context, state, shell) => AppShell(shell: shell),
+      // A page too, so it shifts back under a page pushed over the tabs (S-288).
+      pageBuilder: (context, state, shell) => appPage(state, AppShell(shell: shell)),
       navigatorContainerBuilder: (context, shell, children) =>
           FadeThroughStack(index: shell.currentIndex, children: children),
       branches: [
         StatefulShellBranch(
           routes: [
-            GoRoute(
+            AppRoute(
               path: Routes.groups,
               builder: (context, state) => const GroupsHomeScreen(),
               routes: [
-                GoRoute(
+                AppRoute(
                   path: 'new',
                   parentNavigatorKey: _rootKey,
                   builder: (context, state) => const GroupFormScreen(),
                 ),
-                GoRoute(
+                AppRoute(
                   path: ':id',
                   parentNavigatorKey: _rootKey,
                   builder: (context, state) => GroupDetailScreen(
@@ -204,13 +228,13 @@ GoRouter buildRouter({
                     initialTab: state.uri.queryParameters['tab'],
                   ),
                   routes: [
-                    GoRoute(
+                    AppRoute(
                       path: 'edit',
                       parentNavigatorKey: _rootKey,
                       builder: (context, state) =>
                           GroupFormScreen(groupId: state.pathParameters['id']),
                     ),
-                    GoRoute(
+                    AppRoute(
                       path: 'settings',
                       parentNavigatorKey: _rootKey,
                       builder: (context, state) =>
@@ -224,46 +248,46 @@ GoRouter buildRouter({
         ),
         StatefulShellBranch(
           routes: [
-            GoRoute(path: Routes.friends, builder: (context, state) => const FriendsScreen()),
+            AppRoute(path: Routes.friends, builder: (context, state) => const FriendsScreen()),
           ],
         ),
         StatefulShellBranch(
           routes: [
-            GoRoute(path: Routes.activity, builder: (context, state) => const ActivityScreen()),
+            AppRoute(path: Routes.activity, builder: (context, state) => const ActivityScreen()),
           ],
         ),
         StatefulShellBranch(
           routes: [
-            GoRoute(
+            AppRoute(
               path: Routes.account,
               builder: (context, state) => const AccountScreen(),
               routes: [
-                GoRoute(
+                AppRoute(
                   path: 'appearance',
                   parentNavigatorKey: _rootKey,
                   builder: (context, state) => const AppearanceScreen(),
                 ),
-                GoRoute(
+                AppRoute(
                   path: 'profile',
                   parentNavigatorKey: _rootKey,
                   builder: (context, state) => const ProfileEditScreen(),
                 ),
-                GoRoute(
+                AppRoute(
                   path: 'delete',
                   parentNavigatorKey: _rootKey,
                   builder: (context, state) => const DeleteAccountScreen(),
                 ),
-                GoRoute(
+                AppRoute(
                   path: 'sync',
                   parentNavigatorKey: _rootKey,
                   builder: (context, state) => const SyncStorageScreen(),
                 ),
-                GoRoute(
+                AppRoute(
                   path: 'about',
                   parentNavigatorKey: _rootKey,
                   builder: (context, state) => const AboutScreen(),
                 ),
-                GoRoute(
+                AppRoute(
                   path: 'deleted-groups',
                   parentNavigatorKey: _rootKey,
                   builder: (context, state) => const DeletedGroupsScreen(),
@@ -285,8 +309,8 @@ GoRouter buildRouter({
     ...importRoutes(),
     ...securityRoutes(),
     if (kDebugMode) ...[
-      GoRoute(path: Routes.gallery, builder: (context, state) => const GalleryScreen()),
-      GoRoute(
+      AppRoute(path: Routes.gallery, builder: (context, state) => const GalleryScreen()),
+      AppRoute(
         path: Routes.devLogin,
         builder: (context, state) => DevLoginScreen(user: state.uri.queryParameters['user']),
       ),
@@ -301,7 +325,11 @@ final routerProvider = Provider<GoRouter>((ref) {
     signedIn: auth.currentUser != null,
     changes: auth.authStateChanges().map((u) => u != null),
   );
-  final router = buildRouter(gate: gate, capture: ref.read(captureBridgeProvider).supported);
+  final router = buildRouter(
+    gate: gate,
+    capture: ref.read(captureBridgeProvider).supported,
+    pendingJoin: ref.read(pendingJoinProvider),
+  );
   ref.onDispose(() {
     router.dispose();
     gate.dispose();

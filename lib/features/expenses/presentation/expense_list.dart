@@ -260,7 +260,8 @@ class ExpenseRow extends StatelessWidget {
             ? TintedIcon(icon: AppIcons.loanFill, color: context.colors.primary, size: 44)
             : TintedIcon.category(categoryOf(e.category), size: 44),
       ),
-      onTap: () => unawaited(context.push(ExpenseRoutes.detail(e.id))),
+      // The row's view goes along, so the detail page draws (and its icon hero flies) on the first frame.
+      onTap: () => unawaited(context.push(ExpenseRoutes.detail(e.id), extra: view)),
     );
   }
 }

@@ -76,11 +76,11 @@ class HeroHeader extends StatelessWidget {
         child: GlassBackdropHost(
           snapshot: photo == null,
           background: heroTag == null
-              ? _HeroBackground(art: art, photo: photo)
+              ? HeroBackground(art: art, photo: photo)
               : Hero(
                   tag: heroTag!,
                   flightShuttleBuilder: coverHeroShuttle,
-                  child: _HeroBackground(art: art, photo: photo),
+                  child: HeroBackground(art: art, photo: photo),
                 ),
           child: Padding(
             padding: EdgeInsets.fromLTRB(
@@ -126,8 +126,11 @@ class HeroHeader extends StatelessWidget {
   }
 }
 
-class _HeroBackground extends StatelessWidget {
-  const _HeroBackground({required this.art, this.photo});
+/// A hero's background on its own: the lavender→dusk gradient (black→navy in dark mode), the optional
+/// generated [art] fading in below (grain included) or a darkened [photo], and a dark base toward the
+/// bottom. [HeroHeader] uses it; the welcome screen fills the whole page with it (S-280).
+class HeroBackground extends StatelessWidget {
+  const HeroBackground({this.art, this.photo, super.key});
 
   final HeroArt? art;
   final ImageProvider? photo;

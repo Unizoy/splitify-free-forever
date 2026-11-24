@@ -5,7 +5,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:splitify/app/app.dart';
 import 'package:splitify/app/bootstrap.dart';
 import 'package:splitify/core/config/preferences.dart';
-import 'package:splitify/ui/components/dashed_circle_button.dart';
 
 void main() {
   // TC-B3-03 / T3: the app opens on the welcome screen; signed out, "Get started" opens
@@ -25,14 +24,15 @@ void main() {
     );
     await tester.pump(const Duration(milliseconds: 500));
 
-    expect(find.byType(DashedCircleButton), findsOneWidget);
+    final getStarted = find.byKey(const Key('welcome-get-started'));
+    expect(getStarted, findsOneWidget);
     expect(find.text('Groups'), findsNothing);
 
-    await tester.tap(find.byType(DashedCircleButton));
+    await tester.tap(getStarted);
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 600));
 
-    expect(find.byType(DashedCircleButton), findsNothing);
+    expect(getStarted, findsNothing, reason: 'sign-in covers the welcome');
     expect(find.text('How would you like to sign in?'), findsOneWidget);
     expect(find.text('Groups'), findsNothing);
   });

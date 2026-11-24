@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:splitify/app/app_route.dart';
 import 'package:splitify/data/data_providers.dart';
 import 'package:splitify/data/remote/push_messaging.dart';
 import 'package:splitify/features/notifications/application/notifications_providers.dart';
@@ -12,8 +13,8 @@ import 'package:splitify/features/notifications/presentation/push_pre_prompt.dar
 
 /// Notification routes (07 §1): the bell list and its settings page; spread into the app router.
 List<RouteBase> notificationRoutes() => [
-  GoRoute(path: '/notifications', builder: (context, state) => const NotificationsScreen()),
-  GoRoute(
+  AppRoute(path: '/notifications', builder: (context, state) => const NotificationsScreen()),
+  AppRoute(
     path: '/account/notifications',
     builder: (context, state) => const NotificationSettingsScreen(),
   ),
