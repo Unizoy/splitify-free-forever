@@ -38,13 +38,3 @@ String? suggestedCategoryNow(Ref ref, String description) {
   if (suggester == null) return null;
   return suggester.suggest(description, learned: ref.read(categoryMemoryProvider).entries);
 }
-
-/// Like [suggestedCategoryNow], waiting for the keyword list first (prefills: payment bubble, imports).
-Future<String?> suggestedCategory(Ref ref, String description) async {
-  try {
-    await ref.read(categorySuggesterProvider.future);
-  } on Object {
-    return null;
-  }
-  return suggestedCategoryNow(ref, description);
-}

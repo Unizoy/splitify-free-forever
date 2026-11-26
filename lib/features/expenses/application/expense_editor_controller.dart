@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:flutter/widgets.dart' show Locale;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:splitify/core/time/clock.dart';
 import 'package:splitify/core/money/currencies.dart';
@@ -10,7 +9,6 @@ import 'package:splitify/data/data_providers.dart';
 import 'package:splitify/data/local/app_database.dart';
 import 'package:splitify/data/media_providers.dart';
 import 'package:splitify/data/repositories/expense_reads.dart';
-import 'package:splitify/domain/entities/payment_capture.dart' show CaptureSource;
 import 'package:splitify/domain/entities/prepared_image.dart';
 import 'package:splitify/domain/rules/category_suggester.dart';
 import 'package:splitify/domain/rules/default_split.dart';
@@ -19,8 +17,6 @@ import 'package:splitify/features/auth/application/auth_providers.dart' show aut
 import 'package:splitify/features/currency/application/conversion_actions.dart'
     show savedFxOfExpense;
 import 'package:splitify/features/currency/domain/conversion.dart' show expenseFxAfterEdit;
-import 'package:splitify/features/capture/application/capture_providers.dart'
-    show captureRepositoryProvider;
 import 'package:splitify/features/expenses/application/category_providers.dart';
 import 'package:splitify/features/expenses/application/expense_draft.dart';
 import 'package:splitify/features/expenses/application/receipt_draft.dart';
@@ -28,7 +24,6 @@ import 'package:splitify/features/expenses/application/split_draft.dart';
 import 'package:splitify/features/recurring/application/recurring_providers.dart'
     show RecurringView, localDate;
 import 'package:splitify/features/recurring/application/repeat_draft.dart';
-import 'package:splitify/l10n/app_localizations.dart';
 
 /// Which expense the editor opens: a new one in [groupId], or the saved [expenseId].
 typedef ExpenseEditorArgs = ({String? groupId, String? expenseId});
@@ -60,28 +55,15 @@ final templateEditorProvider = AsyncNotifierProvider.autoDispose
       retry: _noRetry,
     );
 
-/// A new expense in a group, prefilled from a captured payment (payment bubble, phase 18b, S-227).
-final captureEditorProvider = AsyncNotifierProvider.autoDispose
-    .family<ExpenseEditorController, ExpenseDraft, ({String groupId, String captureId})>(
-      (args) => ExpenseEditorController((
-        groupId: args.groupId,
-        expenseId: null,
-      ), captureId: args.captureId),
-      retry: _noRetry,
-    );
-
 /// Add/edit expense (#5–9, #13, #35): loads the group's people and the saved expense (or the group's
 /// default split), keeps the draft, and saves through the expenses repository → outbox.
 class ExpenseEditorController extends AsyncNotifier<ExpenseDraft> {
-  ExpenseEditorController(this.args, {this.templateId, this.captureId});
+  ExpenseEditorController(this.args, {this.templateId});
 
   final ExpenseEditorArgs args;
 
   /// Edits this template's future copies instead of one expense.
   final String? templateId;
-
-  /// Starts a new expense from this captured payment.
-  final String? captureId;
 
   @override
   Future<ExpenseDraft> build() async {
@@ -123,7 +105,7 @@ class ExpenseEditorController extends AsyncNotifier<ExpenseDraft> {
         categoryOrigin: CategoryOrigin.initial,
         canRepeat: true,
       );
-      return captureId == null ? draft : _fromCapture(draft, captureId!);
+      return draft;
     }
 
     final shares = _ints(saved.shares);
@@ -219,41 +201,6 @@ class ExpenseEditorController extends AsyncNotifier<ExpenseDraft> {
     );
   }
 
-  /// Prefill from a captured payment (S-227): INR amount, payee/note as description, the payment's date,
-  /// payer = me (the default), "Paid via <app> · UPI ref <ref>" as notes.
-  Future<ExpenseDraft> _fromCapture(ExpenseDraft draft, String id) async {
-    final c = await ref.read(captureRepositoryProvider).get(id);
-    if (c == null) throw const ExpenseNotFound();
-    final l = lookupAppLocalizations(const Locale('en'));
-    final local = c.capturedAt.toLocal();
-    final inr = (draft.currency == c.currency ? draft : draft.withCurrency(c.currency))
-        // The payee or note picks the category, like typing it would (D-028): "Swiggy" → Takeaway.
-        .withSuggestedCategory(await suggestedCategory(ref, '${c.note ?? ''} ${c.payee ?? ''}'));
-    return ExpenseDraft(
-      groupId: inr.groupId,
-      groupName: inr.groupName,
-      currency: inr.currency,
-      members: inr.members,
-      split: inr.split,
-      date: DateTime(local.year, local.month, local.day),
-      payerId: inr.payerId,
-      payers: inr.payers,
-      amountText: ScaledInput.format(c.amount, Currencies.exponentOf(c.currency)),
-      description: c.note ?? c.payee ?? c.appName,
-      category: inr.category,
-      categoryOrigin: inr.categoryOrigin,
-      baseCategory: inr.baseCategory,
-      notes: switch ((c.source, c.ref)) {
-        (CaptureSource.sms, null) => l.captureNotesSmsNoRef,
-        (CaptureSource.sms, final ref?) => l.captureNotesSms(ref),
-        (_, null) => l.captureNotesNoRef(c.appName),
-        (_, final ref?) => l.captureNotes(c.appName, ref),
-      },
-      canRepeat: inr.canRepeat,
-      captureId: c.id,
-    );
-  }
-
   /// Applies [change] to the loaded draft.
   void edit(ExpenseDraft Function(ExpenseDraft d) change) {
     final d = state.value;
@@ -302,9 +249,6 @@ class ExpenseEditorController extends AsyncNotifier<ExpenseDraft> {
       if (receipt.removed) row['receipt_path'] = null;
       await ref.read(expensesRepositoryProvider).save(d.groupId, row, id: id);
     }
-    // Added from "Payments to add": the capture is done (S-224).
-    if (d.captureId != null && !d.isEdit)
-      await ref.read(captureRepositoryProvider).remove(d.captureId!);
     // "Repeat" (#12): a template next to the expense, also through the outbox.
     final rule = d.canRepeat ? d.repeat.ruleFrom(d.date) : null;
     if (rule != null) {

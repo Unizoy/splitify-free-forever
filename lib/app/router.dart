@@ -38,9 +38,6 @@ import 'package:splitify/features/onboarding/presentation/welcome_screen.dart';
 import 'package:splitify/features/payments/presentation/payment_routes.dart';
 import 'package:splitify/features/sync/presentation/sync_storage_screen.dart';
 import 'package:splitify/features/search/presentation/search_screen.dart' show searchRoutes;
-import 'package:splitify/features/capture/application/capture_providers.dart'
-    show captureBridgeProvider;
-import 'package:splitify/features/capture/presentation/capture_routes.dart' show captureRoutes;
 import 'package:splitify/ui/components/fade_through_stack.dart';
 
 /// Route paths (planning/07-screens-and-flows.md §1).
@@ -110,14 +107,10 @@ String? authRedirect(
   return null;
 }
 
-/// App links by host: invite QR / share link `splitify://join?code=…` → the join screen; payment bubble
-/// `splitify://capture?id=…[&group=…]` (phase 18b) → the capture screen; other hosts → the page of that name;
-/// a bare `/` → Groups. Null for everything else.
+/// App links by host: invite QR / share link `splitify://join?code=…` → the join screen; other hosts → the
+/// page of that name; a bare `/` → Groups. Null for everything else.
 String? linkRedirect(Uri uri) {
   final path = uri.path;
-  if (uri.host == 'capture' && path != '/capture') {
-    return Uri(path: '/capture', queryParameters: uri.queryParameters).toString();
-  }
   if (uri.host == 'join' && path != Routes.join) {
     return Uri(path: Routes.join, queryParameters: _code(uri)).toString();
   }
@@ -164,12 +157,10 @@ class AuthGate extends ChangeNotifier {
 final _rootKey = GlobalKey<NavigatorState>(debugLabel: 'root');
 
 /// Builds the app router. [initialLocation] is for tests; without a [gate]
-/// there are no auth redirects (screenshots, widget tests). [capture] = false leaves out the payment
-/// bubble's routes (builds without it, D-028). [pendingJoin] keeps an invite through sign-in (S-283).
+/// there are no auth redirects (screenshots, widget tests). [pendingJoin] keeps an invite through sign-in (S-283).
 GoRouter buildRouter({
   String initialLocation = Routes.welcome,
   AuthGate? gate,
-  bool capture = true,
   PendingJoin? pendingJoin,
 }) => GoRouter(
   navigatorKey: _rootKey,
@@ -305,7 +296,6 @@ GoRouter buildRouter({
     ...friendRoutes(),
     ...searchRoutes(),
     ...notificationRoutes(),
-    if (capture) ...captureRoutes(),
     ...importRoutes(),
     ...securityRoutes(),
     if (kDebugMode) ...[
@@ -325,11 +315,7 @@ final routerProvider = Provider<GoRouter>((ref) {
     signedIn: auth.currentUser != null,
     changes: auth.authStateChanges().map((u) => u != null),
   );
-  final router = buildRouter(
-    gate: gate,
-    capture: ref.read(captureBridgeProvider).supported,
-    pendingJoin: ref.read(pendingJoinProvider),
-  );
+  final router = buildRouter(gate: gate, pendingJoin: ref.read(pendingJoinProvider));
   ref.onDispose(() {
     router.dispose();
     gate.dispose();

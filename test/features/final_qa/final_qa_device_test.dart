@@ -1,7 +1,5 @@
 // Final QA pass #2 on the emulator (S-250..S-259): regression tests for the defects found on the device.
 import 'dart:async';
-import 'dart:convert';
-import 'dart:io';
 import 'dart:ui' show SemanticsAction;
 
 import 'package:flutter/material.dart';
@@ -58,6 +56,7 @@ void main() {
         '/groups/abc?tab=balances',
       );
       expect(linkRedirect(Uri.parse('splitify://join?code=ABCDEFGH')), '/join?code=ABCDEFGH');
+      // The payment bubble is not in this build (D-030): its old link is just an unknown page.
       expect(linkRedirect(Uri.parse('splitify://capture?id=c1')), '/capture?id=c1');
       expect(linkRedirect(Uri.parse('/')), Routes.groups);
       expect(linkRedirect(Uri.parse('/groups')), isNull);
@@ -77,6 +76,16 @@ void main() {
       await tester.tap(find.byKey(const Key('not-found-home')));
       await settle(tester);
       expect(h.location, '/groups');
+    });
+
+    testWidgets('an old payment-bubble link shows the friendly page (D-030)', (tester) async {
+      final h = await pumpGroups(tester, '/groups', overrides: fixedGroupData());
+      h.open(linkRedirect(Uri.parse('splitify://capture?id=c1&group=g1'))!);
+      await settle(tester);
+      expect(find.byType(NotFoundScreen), findsOneWidget);
+      h.open('/account/payment-bubble');
+      await settle(tester);
+      expect(find.byType(NotFoundScreen), findsOneWidget);
     });
   });
 
@@ -409,14 +418,6 @@ void main() {
     expect(rateFieldText('83.12'), '83.12');
     expect(rateFieldText('0.0053123456'), '0.005312');
     expect(rateFieldText('not a rate'), 'not a rate');
-  });
-
-  test('payment apps in the bubble list have distinct names', () {
-    final json = jsonDecode(
-      File('android/app/src/full/assets/payment_recipes.json').readAsStringSync(),
-    ) as Map<String, Object?>;
-    final names = [for (final a in json['apps']! as List<Object?>) (a! as Map)['name'] as String];
-    expect(names.toSet().length, names.length, reason: names.join(', '));
   });
 
   testWidgets(

@@ -4,8 +4,4 @@
          to allow setting breakpoints, to provide hot reload, etc.
     -->
     <uses-permission android:name="android.permission.INTERNET"/>
-    <!-- Payment bubble tests (phase 18b): the fake UPI app is allow-listed in debug builds only. -->
-    <queries>
-        <package android:name="dev.splitify.fakeupi"/>
-    </queries>
 </manifest>

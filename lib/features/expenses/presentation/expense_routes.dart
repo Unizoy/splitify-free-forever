@@ -39,10 +39,7 @@ abstract final class ExpenseRoutes {
 List<RouteBase> expenseRoutes() => [
   AppRoute(
     path: '/expense/new',
-    builder: (context, state) => ExpenseEditorScreen(
-      groupId: state.uri.queryParameters['group'],
-      captureId: state.uri.queryParameters['capture'],
-    ),
+    builder: (context, state) => ExpenseEditorScreen(groupId: state.uri.queryParameters['group']),
   ),
   AppRoute(
     path: '/expense/:id',
