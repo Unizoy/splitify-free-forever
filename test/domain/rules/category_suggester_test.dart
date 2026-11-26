@@ -197,7 +197,7 @@ const _vectors = <(String, String?)>[
   ('सब्जी', 'groceries.groceries'),
   ('किराया', 'rent.rent'),
   ('पेट्रोल', 'travel.fuel'),
-  // UPI IDs and payee names from the payment bubble.
+  // UPI IDs and payee names as UPI apps show them.
   ('swiggy@icici', 'food.takeaway'),
   ('zomato.payu@axis', 'food.takeaway'),
   ('uber.india@hdfcbank', 'travel.cab_auto'),

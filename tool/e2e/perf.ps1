@@ -38,7 +38,7 @@ try {
     $ip = (Resolve-DnsName ([Uri]$e.SUPABASE_URL).Host -Type A | Where-Object IPAddress | Select-Object -First 1).IPAddress
     flutter build apk --release --target-platform android-x64 --dart-define-from-file=secrets/env.dev.json `
       "--dart-define=PIN_HOST_IP=$ip" 2>&1 | Out-File -Encoding utf8 (Join-Path $out 'perf-release-build.log')
-    & $adb install -r build\app\outputs\flutter-apk\app-standard-release.apk | Out-Null
+    & $adb install -r build\app\outputs\flutter-apk\app-release.apk | Out-Null
     $times = @()
     for ($i = 0; $i -lt 6; $i++) {
       & $adb shell am force-stop $app

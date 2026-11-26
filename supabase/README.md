@@ -19,8 +19,9 @@ users (backups, no pausing). Note the project ref, the project URL and the publi
 
 ### 2. Apply the migrations
 
-Apply `0001` to `0022` in number order. Some numbers are skipped on purpose (`0011`, `0012`, `0018`, `0020`).
-`0023` (payment capture) arrives with that feature. Use either:
+Apply `0001` to `0024` in number order. Some numbers are skipped on purpose (`0011`, `0012`, `0018`, `0020`).
+`0023` (payment capture) belongs to the payment bubble, which this version of the app does not have (D-030); it is
+harmless, so apply it anyway to keep the order. Use either:
 
 - **SQL editor**: open each file in `migrations/`, paste, run, one file at a time, in number order; or
 - **CLI**: `supabase link --project-ref <ref>` then `supabase db push`.

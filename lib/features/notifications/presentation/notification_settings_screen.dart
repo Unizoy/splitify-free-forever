@@ -5,8 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:splitify/data/local/app_database.dart';
 import 'package:splitify/data/remote/push_messaging.dart';
 import 'package:splitify/domain/entities/notification_prefs.dart';
-import 'package:splitify/features/capture/application/capture_providers.dart'
-    show captureBridgeProvider;
 import 'package:splitify/features/groups/application/groups_providers.dart';
 import 'package:splitify/features/groups/presentation/group_visuals.dart'
     show PageTitle, SectionLabel;
@@ -172,7 +170,8 @@ class _PushBanner extends ConsumerWidget {
               icon: AppIcons.settings,
               size: PillSize.medium,
               expand: false,
-              onPressed: () => unawaited(ref.read(captureBridgeProvider).open('postNotifications')),
+              onPressed: () =>
+                  unawaited(ref.read(systemSettingsProvider).openNotificationSettings()),
             ),
           ],
           if (available && permission == PushPermission.notAsked) ...[

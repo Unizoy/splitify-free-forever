@@ -14,12 +14,11 @@ Artefacts (screenshots, logs) go to `C:\Users\mohit\OneDrive\Desktop\theCode\spl
 
 ```powershell
 flutter build apk --debug --dart-define-from-file=secrets/env.dev.json
-& $adb install -r build\app\outputs\flutter-apk\app-standard-debug.apk
+& $adb install -r build\app\outputs\flutter-apk\app-debug.apk
 & $adb shell am start -n com.unizoy.splitify/.MainActivity
 ```
-Flavours (D-028): no `--flavor` = `standard` (no payment bubble); payment-bubble checks need `--flavor full`
-(APK `app-full-<mode>.apk`, `integration_test/capture_bubble_test.dart` via `tool/e2e/capture_e2e.ps1`). Both use
-the same app id, so installing one replaces the other.
+One build, no flavours (D-030): APKs are `app-<mode>.apk` / `app-<abi>-release.apk`. The payment bubble and its
+device test live on branch `feature/payment-bubble`, not on main.
 Fresh state when a test needs it: `& $adb shell pm clear com.unizoy.splitify` (only the app's data — never wipe
 the emulator).
 
@@ -132,7 +131,7 @@ Full check (hold the lock, ~5 min): `powershell -File tool\fake_upi_app\run_upi_
 - All plain device tests under one lock hold: `powershell -File tool\e2e\run_suite.ps1 -Files groups_test,sync_offline_test,...`
   (stops starting new files after `-MaxMinutes 28`; logs `splitify-artifacts\phase-NN\it-<name>.log`, one `RESULT` line
   per file). Special runners: `tool\e2e\airplane.ps1`, `tool\e2e\perf.ps1`, `tool\e2e\run_lock_e2e.ps1`,
-  `tool\fake_upi_app\run_upi_e2e.ps1`, `tool\e2e\capture_e2e.ps1`, `tool\e2e\background_sync.ps1`. When a wrapper starts
+  `tool\fake_upi_app\run_upi_e2e.ps1`, `tool\e2e\background_sync.ps1`. When a wrapper starts
   the scripts that don't load `tool\env.ps1` themselves, run them as `powershell -Command ". tool\env.ps1; & <script>"`.
 - Real WorkManager run (S-160): `powershell -File tool\e2e\background_sync.ps1` → queues a change offline, sends the app
   home, network back on, forces the app's jobs; pass = outbox empty + server row + logcat

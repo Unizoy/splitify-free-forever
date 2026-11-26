@@ -4,6 +4,7 @@ import 'package:local_auth/local_auth.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:splitify/core/platform/device_auth.dart';
 import 'package:splitify/core/platform/secure_window.dart';
+import 'package:splitify/core/platform/system_settings.dart';
 
 class _MockAuth extends Mock implements LocalAuthentication {}
 
@@ -79,6 +80,31 @@ void main() {
       await const ChannelSecureWindow().setSecure(on: true);
       messenger.setMockMethodCallHandler(channel, null);
       await const ChannelSecureWindow().setRecentsHidden(hidden: true);
+    });
+  });
+
+  group('ChannelSystemSettings', () {
+    const channel = MethodChannel('splitify/settings');
+    final messenger = TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
+    tearDown(() => messenger.setMockMethodCallHandler(channel, null));
+
+    test('asks Android to open the notification settings', () async {
+      final calls = <String>[];
+      messenger.setMockMethodCallHandler(channel, (call) async {
+        calls.add(call.method);
+        return true;
+      });
+      expect(await const ChannelSystemSettings().openNotificationSettings(), isTrue);
+      expect(calls, ['openNotificationSettings']);
+    });
+
+    test('a platform error or a missing channel answers false', () async {
+      messenger.setMockMethodCallHandler(channel, (call) async {
+        throw PlatformException(code: 'no-activity');
+      });
+      expect(await const ChannelSystemSettings().openNotificationSettings(), isFalse);
+      messenger.setMockMethodCallHandler(channel, null);
+      expect(await const ChannelSystemSettings().openNotificationSettings(), isFalse);
     });
   });
 }

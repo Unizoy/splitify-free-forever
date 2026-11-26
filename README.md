@@ -29,9 +29,6 @@ settle up. It works offline. No ads, no limits, free forever.
 - App lock with your fingerprint or screen lock.
 - Home screen widget with your overall balance.
 - Light and dark themes.
-- Optional payment bubble (off by default, `full` build only, see below): after you pay with a UPI app, a bubble
-  offers to add the payment to Splitify. Payment alerts are read on the phone, and nothing is sent until you tap
-  Add. See [Privacy](docs/PRIVACY.md).
 
 ## Screenshots
 
@@ -45,13 +42,8 @@ settle up. It works offline. No ads, no limits, free forever.
 Android first. Release APKs are published on GitHub Releases. There is no Play Store listing yet. iOS may come
 later.
 
-There are two Android builds (flavours) with the same app id, so only one can be installed at a time. Installing
-the other one updates the app in place and keeps your data.
-
-| Build | What it has | Use it for |
-| --- | --- | --- |
-| `standard` | Everything except the payment bubble. It asks for no accessibility, notification-access or "display over other apps" permission. | The APK on GitHub Releases. Google Play Protect's fraud protection in India blocks sideloaded apps that ask for those permissions. |
-| `full` | Everything, including the payment bubble. | Installing with `adb` (developers) and a future Play Store listing. |
+The app asks for no accessibility, notification-access, "display over other apps" or SMS permission, so Google
+Play Protect's fraud protection in India lets the APK install.
 
 ## Build from source
 
@@ -62,16 +54,13 @@ Android Studio (SDK + emulator) and JDK 17.
 . .\tool\env.ps1                                   # Windows: fixes PATH, sets JAVA_HOME
 copy secrets\env.example.json secrets\env.dev.json # then fill in your own values (git-ignored)
 flutter pub get
-flutter run --dart-define-from-file=secrets/env.dev.json                # the standard build (default)
-flutter run --flavor full --dart-define-from-file=secrets/env.dev.json  # with the payment bubble
+flutter run --dart-define-from-file=secrets/env.dev.json
 ```
 
-Plain `flutter run`, `flutter build` and `flutter test` use `standard` (`default-flavor` in `pubspec.yaml`); add
-`--flavor full` for the payment bubble (its device test needs it too). Release APKs:
-`powershell -File tool\build_release.ps1 [-Flavor standard|full|both]` builds an arm64 and a universal APK per
-flavour into `build\release-apks\` (`splitify-<flavour>-arm64-v8a.apk`, `splitify-<flavour>-universal.apk`) and
-checks that the `standard` APKs declare none of the bubble's permissions or services. By hand:
-`flutter build apk --release --flavor standard` (or `full`).
+Release APKs: `powershell -File tool\build_release.ps1` builds one APK per ABI and a universal phone APK into
+`build\release-apks\` (`splitify-arm64-v8a.apk`, `splitify-armeabi-v7a.apk`, `splitify-x86_64.apk`,
+`splitify-universal.apk`) and checks that none of them declares a notification-listener, accessibility, overlay or
+SMS permission. By hand: `flutter build apk --release --dart-define-from-file=secrets/env.dev.json`.
 
 Run all checks (format, analyze, guards, tests, coverage, debug APK) with `.\tool\verify.ps1`.
 Never commit anything from `secrets/` except `*.example.json`.
