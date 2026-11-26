@@ -19,20 +19,20 @@ Sessions detect R by the owner-inputs key + `mcp__supabase-prod__list_tables` wo
 
 ## Tasks (session)
 
-- [ ] T1 Apply all migrations to prod via `supabase-prod` MCP (guard allows it only in phase 20), verify list, run
+- [x] T1 Apply all migrations to prod via `supabase-prod` MCP (guard allows it only in phase 20), verify list, run
       the SQL test suite against prod inside rollbacks (read-only effect), advisors clean.
-- [ ] T2 Deploy all Edge Functions to prod; set `private.settings` project URL; check cron jobs; trigger
+- [x] T2 Deploy all Edge Functions to prod; set `private.settings` project URL; check cron jobs; trigger
       `fetch-rates` once.
-- [ ] T3 `secrets/env.prod.json` (prod URL + publishable key, `DEV_LOGIN=false`).
-- [ ] T4 Version `1.0.0+1`; CHANGELOG; build signed release APKs (`--split-per-abi` + universal) with
+- [x] T3 `secrets/env.prod.json` (prod URL + publishable key, `DEV_LOGIN=false`).
+- [x] T4 Version `1.0.0+1`; CHANGELOG; build signed release APKs (`--split-per-abi` + universal) with
       `--dart-define-from-file=secrets/env.prod.json`; SHA-256 checksums file.
-- [ ] T5 Smoke test the release APK on the emulator against prod: sign in by email code is manual-opt, so test with
+- [x] T5 Smoke test the release APK on the emulator against prod: sign in by email code is manual-opt, so test with
       Google if the emulator has an account, else verify welcome → sign-in screen renders, app lock, offline
       start; record what ran.
-- [ ] T6 `docs/PRIVACY.md` linked in README; note about Android developer verification (register package
+- [x] T6 `docs/PRIVACY.md` linked in README; note about Android developer verification (register package
       `com.unizoy.splitify` + signing key SHA-256 before Google's India rollout, research 06 §3) in the report as an
       owner action.
-- [ ] T7 `gh release create v1.0.0 --draft --target phase/20-release --title "Splitify Free Forever 1.0.0"
+- [x] T7 `gh release create v1.0.0 --draft --target phase/20-release --title "Splitify Free Forever 1.0.0"
       --notes-file CHANGELOG.md <apks> <sha256 file>` (guard allows only `--draft`).
 
 ## Done when
