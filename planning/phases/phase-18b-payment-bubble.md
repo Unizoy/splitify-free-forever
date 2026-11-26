@@ -1,5 +1,9 @@
 # Phase 18b — Payment bubble: catch UPI payments and add them to Splitify (X4)
 
+> **D-030 (2026-11-26):** the payment bubble is not on `main` any more. The owner will release it later from branch
+> `feature/payment-bubble`, which keeps the full code, tests and scripts described here. Server migration 0023 stays
+> on main (harmless: the app never sends `source = 'capture'`). See S-290..S-295.
+
 - Added by the owner on 2026-11-22 (D-025). Runs before phase 19, which also hardens this feature.
 - Depends on: 15 (outbox, sync triggers), 11 (UPI rules) · Owner setup: none · Branch: `phase/18b-payment-bubble`
 - Migration: `0023_payment_capture.sql` only if the server needs a change (e.g. `source = 'capture'`). Decisions:

@@ -26,12 +26,18 @@ Current phase: _none in progress_ (05 + 06 leftovers finished 2026-11-22 on `pha
 | 16 | [Recurring bills and search](phases/phase-16-recurring-search.md) | 15 | 00 | done (G5 device PASS; migration 0019 applied + generate-recurring cron; pgTAP on dev) | phase/16-recurring-search | 2026-11-22 | see git log | [report](reports/phase-16.md) |
 | 17 | [Charts and CSV export](phases/phase-17-charts-export.md) | 14 | 00 | done (G5 device PASS; no migration, 0020 unused; TC-22-02 moved to 18) | phase/17-charts-export | 2026-11-22 | see git log | [report](reports/phase-17.md) |
 | 18 | [Splitwise import, app lock, home widget](phases/phase-18-extras.md) | 15 | 00 | done (G5 device PASS incl. PIN app lock + home widget; migration 0021 applied; Drift v7) | phase/18-extras | 2026-11-22 | see git log | [report](reports/phase-18.md) |
-| 18b | [Payment bubble (X4)](phases/phase-18b-payment-bubble.md) | 15, 11 | none | done (G5 device PASS 23/23 + integration; migration 0023 applied + pgTAP; Drift v8; real UPI apps = owner checklist) | phase/18b-payment-bubble | 2026-11-22 | see git log | [report](reports/phase-18b.md) |
+| 18b | [Payment bubble (X4)](phases/phase-18b-payment-bubble.md) | 15, 11 | none | done (G5 device PASS 23/23 + integration; migration 0023 applied + pgTAP; Drift v8; real UPI apps = owner checklist); **removed from main 2026-11-26 (D-030)**, code on `feature/payment-bubble` | phase/18b-payment-bubble | 2026-11-22 | see git log | [report](reports/phase-18b.md) |
 | 19 | [Hardening and polish](phases/phase-19-hardening.md) | 13, 16, 17, 18 | 00 | done (migrations 0022 + 0024 applied; G1–G6 PASS; full regression incl. every device suite; 18b hardened) | phase/19-hardening | 2026-11-22 | see git log | [report](reports/phase-19.md) |
-| X5 | Auto-category + Android flavours (D-028) | 19 | none | done (no migration, 0025 unused; G1/G2/G4 PASS; emulator editor + flavour check; aapt2 standard has no bubble permissions) | phase/x5-autocategory-flavors | 2026-11-23 | see git log | [report](reports/phase-x5.md) |
+| X5 | Auto-category + Android flavours (D-028) | 19 | none | done (no migration, 0025 unused; G1/G2/G4 PASS; emulator editor + flavour check; aapt2 standard has no bubble permissions); flavours removed 2026-11-26 (D-030): one build, auto-category kept | phase/x5-autocategory-flavors | 2026-11-23 | see git log | [report](reports/phase-x5.md) |
 | 20 | [Release (signed APK, draft GitHub Release)](phases/phase-20-release.md) | 19 | checklist R (prod project) | todo | phase/20-release | | | |
 
 ## Notes
 
 - Phases 01â€“03 need no cloud access, so they can run while the owner is still doing phase 00.
 - Each phase file lists its tasks as checkboxes; ticked boxes are the live state of an in-progress phase.
+- 2026-11-26, D-030 (`chore/remove-payment-bubble`): main ships one build without the payment bubble (phase 18b) and
+  without the X5 flavours; Drift v9 drops the bubble's local table; version 0.2.0+3. The bubble is kept on branch
+  `feature/payment-bubble` for a later release; server migration 0023 stays. Decisions S-290..S-295.
+  Gates: format 0 changed, analyze 0 errors/warnings, guards OK, `flutter test` 3,261 passed (coverage 95.7 %, all
+  floors met), debug APK built, `tool/build_release.ps1` 4 APKs (arm64 17.8 MB, universal 32.1 MB) with aapt2: no
+  notification-listener / accessibility / overlay / SMS permission. No device run (not needed).

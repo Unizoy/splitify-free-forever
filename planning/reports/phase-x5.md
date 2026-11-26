@@ -1,5 +1,9 @@
 # Phase X5 report — Auto-category and two Android flavours (D-028)
 
+> **D-030 (2026-11-26):** the payment bubble left `main` (it lives on branch `feature/payment-bubble`), so the two
+> flavours are gone too: one build, the same as `standard` here. `tool/build_release.ps1` has no `-Flavor` any more
+> and checks every APK. Auto-category stays as built here; only its capture prefill went with the bubble (S-294).
+
 - Date: 2026-11-23 · Branch: `phase/x5-autocategory-flavors` · Base: `origin/main` (incl. PR #26 motion polish)
 - Status: done
 
