@@ -11,7 +11,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 8;
+  int get schemaVersion => 9;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -47,11 +47,11 @@ class AppDatabase extends _$AppDatabase {
         await m.createTable(importBatches);
         await m.createIndex(importBatchesGroup);
       }
-      // v8 (phase 18b): local-only payments to add (payment bubble).
-      if (from < 8) {
-        await m.createTable(paymentCaptures);
-        await m.createIndex(paymentCapturesTime);
-      }
+      // v8 (phase 18b) added the local-only `payment_captures` table of the payment bubble; v9 drops it again,
+      // so a phone below v8 has nothing to create.
+      // v9 (D-030, S-293): the payment bubble is off main; its table (and its index) goes. Nothing in it was ever
+      // synced.
+      if (from < 9) await m.deleteTable('payment_captures');
     },
     beforeOpen: (details) async {
       await customStatement('PRAGMA foreign_keys = ON');
