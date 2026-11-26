@@ -89,7 +89,7 @@ class ExpenseEditorController extends AsyncNotifier<ExpenseDraft> {
     if (saved == null) {
       final currency = group.mainCurrency;
       final preset = DefaultSplit.decode(group.defaultSplit)?.resolve(activeIds);
-      final draft = ExpenseDraft(
+      return ExpenseDraft(
         groupId: groupId,
         groupName: group.name,
         currency: currency,
@@ -105,7 +105,6 @@ class ExpenseEditorController extends AsyncNotifier<ExpenseDraft> {
         categoryOrigin: CategoryOrigin.initial,
         canRepeat: true,
       );
-      return draft;
     }
 
     final shares = _ints(saved.shares);
