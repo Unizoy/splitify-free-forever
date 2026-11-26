@@ -29,7 +29,7 @@ Current phase: _none in progress_ (05 + 06 leftovers finished 2026-11-22 on `pha
 | 18b | [Payment bubble (X4)](phases/phase-18b-payment-bubble.md) | 15, 11 | none | done (G5 device PASS 23/23 + integration; migration 0023 applied + pgTAP; Drift v8; real UPI apps = owner checklist) | phase/18b-payment-bubble | 2026-11-22 | see git log | [report](reports/phase-18b.md) |
 | 19 | [Hardening and polish](phases/phase-19-hardening.md) | 13, 16, 17, 18 | 00 | done (migrations 0022 + 0024 applied; G1–G6 PASS; full regression incl. every device suite; 18b hardened) | phase/19-hardening | 2026-11-22 | see git log | [report](reports/phase-19.md) |
 | X5 | Auto-category + Android flavours (D-028) | 19 | none | done (no migration, 0025 unused; G1/G2/G4 PASS; emulator editor + flavour check; aapt2 standard has no bubble permissions) | phase/x5-autocategory-flavors | 2026-11-23 | see git log | [report](reports/phase-x5.md) |
-| 20 | [Release (signed APK, draft GitHub Release)](phases/phase-20-release.md) | 19 | checklist R (prod project) | todo | phase/20-release | | | |
+| 20 | [Release (signed APK, draft GitHub Release)](phases/phase-20-release.md) | 19 | checklist R (prod project) | in-progress | phase/20-release | | | |
 
 ## Notes
 
