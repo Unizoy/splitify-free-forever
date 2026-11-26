@@ -68,9 +68,6 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   generate: true
-  # Android build flavours (D-028): plain `flutter run/build/test` use `standard` (no payment bubble);
-  # `--flavor full` adds it. See android/app/build.gradle.kts.
-  default-flavor: standard
   assets:
     - assets/fonts/LICENSES/
     # Description keywords → category (auto-category, D-028).
