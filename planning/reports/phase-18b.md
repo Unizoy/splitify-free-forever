@@ -1,5 +1,9 @@
 # Phase 18b report — Payment bubble (X4)
 
+> **D-030 (2026-11-26):** the payment bubble is not on `main` any more. The owner will release it later from branch
+> `feature/payment-bubble`, which keeps the full code, tests and scripts described here. Server migration 0023 stays
+> on main (harmless: the app never sends `source = 'capture'`). See S-290..S-295.
+
 - Date: 2026-11-22 · Branch: `phase/18b-payment-bubble` · Base: `origin/main` (phase 18 merged in during the phase)
 - Commits: `052e0fc..HEAD` · Status: see PROGRESS.md
 

@@ -5,16 +5,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:splitify/core/platform/system_settings.dart';
 import 'package:splitify/data/local/app_database.dart';
 import 'package:splitify/data/remote/push_messaging.dart';
 import 'package:splitify/domain/entities/notification_prefs.dart';
-import 'package:splitify/features/capture/application/capture_providers.dart'
-    show captureBridgeProvider;
 import 'package:splitify/features/groups/application/groups_providers.dart';
+import 'package:splitify/features/notifications/application/notifications_providers.dart'
+    show systemSettingsProvider;
 import 'package:splitify/features/notifications/presentation/notification_settings_screen.dart';
 import 'package:splitify/ui/components/components.dart';
 
-import '../../../support/capture_fakes.dart';
 import '../../../support/group_fakes.dart' as gf;
 import '../../../support/notification_fakes.dart';
 import '../../expenses/presentation/presentation_harness.dart';
@@ -27,6 +27,17 @@ List<LocalGroup> _groups() => [
   gf.sampleGroup(id: 'g-gone', name: 'Deleted group', deletedAt: '2026-10-02T00:00:00Z'),
   gf.sampleGroup(id: 'g-dm', name: 'Asha and me', type: 'direct'),
 ];
+
+/// Records which Android settings screens were asked for.
+class _FakeSystemSettings implements SystemSettings {
+  final opened = <String>[];
+
+  @override
+  Future<bool> openNotificationSettings() async {
+    opened.add('notifications');
+    return true;
+  }
+}
 
 class _Rig {
   _Rig({
@@ -44,7 +55,12 @@ class _Rig {
   final List<LocalGroup> groups;
 }
 
-Future<void> _pump(WidgetTester t, _Rig r, {double scale = 1, FakeCaptureBridge? bridge}) async {
+Future<void> _pump(
+  WidgetTester t,
+  _Rig r, {
+  double scale = 1,
+  _FakeSystemSettings? settings,
+}) async {
   SharedPreferences.setMockInitialValues({});
   final prefs = await SharedPreferences.getInstance();
   await pumpNotif(
@@ -60,7 +76,7 @@ Future<void> _pump(WidgetTester t, _Rig r, {double scale = 1, FakeCaptureBridge?
         prefs: prefs,
       ),
       groupsListProvider.overrideWithValue(AsyncData(r.groups)),
-      if (bridge != null) captureBridgeProvider.overrideWithValue(bridge),
+      if (settings != null) systemSettingsProvider.overrideWithValue(settings),
     ],
   );
 }
@@ -226,9 +242,9 @@ void main() {
     testWidgets('blocked: push switches are disabled and Open phone settings opens Android', (
       t,
     ) async {
-      final bridge = FakeCaptureBridge();
+      final settings = _FakeSystemSettings();
       final r = _Rig(push: FakePushMessaging(permissionState: PushPermission.denied));
-      await _pump(t, r, bridge: bridge);
+      await _pump(t, r, settings: settings);
       final push = t.widget<ToggleRow>(_row('push', NotificationKind.expenses));
       final inApp = t.widget<ToggleRow>(_row('inapp', NotificationKind.expenses));
       expect(push.onChanged, isNull);
@@ -238,7 +254,7 @@ void main() {
       expect(r.repo.prefs.isOn(NotificationKind.expenses, NotificationChannel.push), isTrue);
       await t.tap(find.byKey(const Key('notif-open-settings')));
       await settle(t);
-      expect(bridge.opened, ['postNotifications']);
+      expect(settings.opened, ['notifications']);
     });
 
     // TC-19-07

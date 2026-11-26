@@ -6,6 +6,7 @@ import 'package:logging/logging.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:splitify/core/config/app_info.dart';
 import 'package:splitify/core/config/preferences.dart';
+import 'package:splitify/core/platform/system_settings.dart';
 import 'package:splitify/data/data_providers.dart';
 import 'package:splitify/data/local/app_database.dart';
 import 'package:splitify/data/remote/notifications_remote.dart';
@@ -24,6 +25,9 @@ final notificationsRemoteProvider = Provider<NotificationsRemote>(
 
 /// The phone's push channel. Bootstrap overrides it with `initPush()`'s answer; disabled by default (D-020).
 final pushMessagingProvider = Provider<PushMessaging>((ref) => const DisabledPushMessaging());
+
+/// Android's settings screens: the blocked-push banner's "Open phone settings".
+final systemSettingsProvider = Provider<SystemSettings>((ref) => const ChannelSystemSettings());
 
 final notificationsRepositoryProvider = Provider<NotificationsRepository>(
   (ref) => NotificationsRepository(

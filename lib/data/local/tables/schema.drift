@@ -310,23 +310,6 @@ CREATE TABLE import_batches (
 
 CREATE INDEX import_batches_group ON import_batches (group_id, created_at);
 
--- Payments to add (phase 18b, X4, S-224): payments the bubble caught, LOCAL ONLY (never synced, no outbox).
--- Parsed fields only, never the alert's text; amount in paise, INR. Rows go when added, dismissed or after 7 days.
-CREATE TABLE payment_captures (
-  id TEXT NOT NULL PRIMARY KEY,
-  amount INT NOT NULL,
-  currency TEXT NOT NULL DEFAULT 'INR',
-  payee TEXT,
-  note TEXT,
-  ref TEXT,
-  app_package TEXT NOT NULL,
-  app_name TEXT NOT NULL,
-  source TEXT NOT NULL,
-  captured_at TEXT NOT NULL
-) AS LocalPaymentCapture;
-
-CREATE INDEX payment_captures_time ON payment_captures (captured_at);
-
 -- Offline search (#34, phase 16, S-175): one row per live expense, rebuilt with every expense write or pull and
 -- when member names change (lib/data/local/daos/search_index_dao.dart).
 CREATE VIRTUAL TABLE expense_search USING fts5(

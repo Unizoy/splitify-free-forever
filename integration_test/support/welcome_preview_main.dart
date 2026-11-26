@@ -18,7 +18,7 @@ Future<void> main() async {
   runApp(
     ProviderScope(
       child: MaterialApp.router(
-        routerConfig: buildRouter(capture: false),
+        routerConfig: buildRouter(),
         localizationsDelegates: const [
           AppLocalizations.delegate,
           GlobalMaterialLocalizations.delegate,

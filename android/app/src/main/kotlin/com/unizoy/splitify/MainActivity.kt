@@ -1,9 +1,11 @@
 package com.unizoy.splitify
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.view.WindowManager
-import com.unizoy.splitify.capture.CaptureChannel
 import io.flutter.embedding.android.FlutterFragmentActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
@@ -58,7 +60,28 @@ class MainActivity : FlutterFragmentActivity() {
                     else -> result.notImplemented()
                 }
             }
-        // Payment bubble (phase 18b): captures, permissions and settings for the Flutter side.
-        CaptureChannel(this).attach(flutterEngine.dartExecutor.binaryMessenger)
+        // Android's own settings screens (lib/core/platform/system_settings.dart): the blocked-push banner opens
+        // Splitify's notification settings (app info on Android 7, which has no such screen).
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "splitify/settings")
+            .setMethodCallHandler { call, result ->
+                when (call.method) {
+                    "openNotificationSettings" -> result.success(openNotificationSettings())
+                    else -> result.notImplemented()
+                }
+            }
+    }
+
+    private fun openNotificationSettings(): Boolean {
+        val intent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).putExtra(Settings.EXTRA_APP_PACKAGE, packageName)
+        } else {
+            Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:$packageName"))
+        }
+        return try {
+            startActivity(intent)
+            true
+        } catch (_: RuntimeException) {
+            false
+        }
     }
 }

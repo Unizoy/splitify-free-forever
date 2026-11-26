@@ -1,6 +1,6 @@
 # Privacy policy
 
-Last updated: 22 November 2026
+Last updated: 26 November 2026
 
 Splitify Free Forever is a free, open-source expense-splitting app. This page says what data the app and its
 backend handle, why, and what you can do about it. It is written to be short and plain.
@@ -35,7 +35,6 @@ contact apply to their copy.
 | Local database: a copy of your groups, and an outbox of changes not yet sent | Your phone | To work offline | Wiped when you sign out |
 | App lock setting | Your phone | To lock the app with biometrics or the device PIN | Until you change it or clear app data |
 | Home-screen widget data: a balance summary | Your phone, in the app's private storage | To draw the widget | Until you hide it, sign out or clear app data |
-| Payment bubble captures (only if you turn it on): amount, payee, UPI reference, app, time | Your phone only | To offer "Add to Splitify" after a payment | 7 days, or until you add or dismiss it; wiped on sign-out |
 | One-time email codes | Sent through the project's SMTP provider | To sign you in by email | Not kept by the app; the mail provider keeps its own delivery logs |
 | Hosting and API logs | Supabase | To run and secure the service | Set by Supabase |
 
@@ -80,22 +79,12 @@ depend on it. To have it removed, ask your groups to delete it, or open an issue
 - **Frankfurter**: exchange rates. Only the server calls it, so it never sees your device or data.
 - **Email (SMTP) provider**: delivers one-time sign-in codes to your address.
 
-## Payment bubble (optional, off by default)
+## Payment bubble (not in this version)
 
-The payment bubble is an optional Android feature. It is off until you turn it on in Account, Payment bubble.
-
-- It reads payment alerts to offer "Add to Splitify". You choose the sources: payment notifications, and an
-  optional advanced screen capture.
-- It works on your device only. Nothing is sent to a server until you tap Add and save the expense.
-- It reads only apps on a fixed allow-list of payment, bank and SMS apps, and you can switch apps off one by one.
-  Apps that do much more than payments (WhatsApp, the Amazon shopping app) start switched off.
-- It keeps only the parsed fields (amount, payee, UPI reference, app, time) in the phone's local database. It
-  does not store the raw notification text or screen text.
-- It never reads PIN or password fields, and never reads the UPI PIN pad.
-- Captures are removed after 7 days, or as soon as you add or dismiss them.
-- Signing out switches it off and forgets every waiting capture and the group names used for its shortcuts.
-- To turn it off, switch off Payment bubble in Account. You can also revoke notification access, "display over
-  other apps" and accessibility access in Android settings.
+Earlier test builds (0.1.x) had an optional payment bubble. This version does not have it: the app does not read
+notifications, screen content or SMS, and asks for no notification-access, accessibility or "display over other
+apps" permission. Payments the bubble had kept on the phone are deleted when the app updates. If the feature comes
+back in a later release, this policy will describe it first.
 
 ## Security
 
