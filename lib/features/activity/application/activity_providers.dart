@@ -152,7 +152,9 @@ List<ActivityItem> buildActivityItems(ActivitySources s, String? userId) {
     } else if (type.startsWith('group_') || type.startsWith('settings_')) {
       description = (d['name'] as String?) ?? groupName(a.groupId);
     }
-    if (type.endsWith('_deleted') && !type.startsWith('comment_')) {
+    // A deleted expense or payment opens its own page, which shows "Deleted" and Restore (D-034 A4/B2,
+    // Splitwise's restore on the item); a deleted group opens the group.
+    if (type == 'group_deleted') {
       targetType = 'group';
       targetId = a.groupId;
     } else if (targetType != 'expense' && targetType != 'payment') {
@@ -244,8 +246,8 @@ ActivityItem? _pendingItem(
         description: e?.description ?? payload['description'] as String?,
         amount: e?.total ?? _int(payload['total']),
         currency: e?.currency.trim() ?? (payload['currency'] as String?),
-        targetType: op == 'delete' ? 'group' : 'expense',
-        targetId: op == 'delete' ? o.groupId : o.recordId,
+        targetType: 'expense',
+        targetId: o.recordId,
         pending: true,
       );
     case 'payment':
@@ -262,8 +264,8 @@ ActivityItem? _pendingItem(
         to: person(p?.toMember ?? payload['to_member'] as String?),
         amount: p?.amount ?? _int(payload['amount']),
         currency: p?.currency.trim() ?? (payload['currency'] as String?),
-        targetType: op == 'delete' ? 'group' : 'payment',
-        targetId: op == 'delete' ? o.groupId : o.recordId,
+        targetType: 'payment',
+        targetId: o.recordId,
         pending: true,
       );
     case 'group':

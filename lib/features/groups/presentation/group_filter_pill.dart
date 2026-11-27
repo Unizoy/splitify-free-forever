@@ -35,17 +35,48 @@ class GroupFilterPill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
+    final c = context.colors;
+    final on = value != GroupFilter.all;
+    // Small: only the icon while everything shows, icon + "I owe" (tinted) while a filter is on.
     return Semantics(
       label: l.groupFilterButton(groupFilterLabel(l, value)),
       button: true,
       excludeSemantics: true,
       onTap: () => unawaited(_open(context)),
-      child: IconChip(
+      child: Pressable(
         key: const Key('groups-filter'),
-        label: groupFilterLabel(l, value),
-        icon: AppIcons.filter,
-        selected: value != GroupFilter.all,
         onTap: () => unawaited(_open(context)),
+        borderRadius: AppRadii.allPill,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(
+            minHeight: AppSpacing.minTouch,
+            minWidth: AppSpacing.minTouch,
+          ),
+          child: Center(
+            widthFactor: 1,
+            child: Container(
+              constraints: const BoxConstraints(minHeight: 32, minWidth: 32),
+              padding: EdgeInsets.symmetric(horizontal: on ? AppSpacing.s3 : AppSpacing.s2),
+              decoration: BoxDecoration(
+                color: on ? c.infoContainer : c.surfaceMuted,
+                borderRadius: AppRadii.allPill,
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(AppIcons.filter, size: 16, color: on ? c.primary : c.textSecondary),
+                  if (on) ...[
+                    const SizedBox(width: AppSpacing.s1),
+                    Text(
+                      groupFilterLabel(l, value),
+                      style: context.text.bodySmall.w(600).copyWith(color: c.primary),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }

@@ -84,12 +84,20 @@ void main() {
       expect((i.member, i.from, i.to), (null, null, null));
     });
 
-    test('deleted rows (not comments) open the group', () {
-      for (final t in ['expense_deleted', 'payment_deleted', 'group_deleted']) {
-        final i = _one(seedActivity('a', t, targetType: 'expense', targetId: 'e1'));
-        expect((i.targetType, i.targetId), ('group', 'g1'), reason: t);
-      }
-    });
+    test(
+      'a deleted expense or payment opens its page (Deleted + Restore); a deleted group the group',
+      () {
+        expect(
+          (_one(seedActivity('a', 'expense_deleted', targetType: 'expense', targetId: 'e1')))
+              .targetId,
+          'e1',
+        );
+        final p = _one(seedActivity('a', 'payment_deleted', targetType: 'payment', targetId: 'p1'));
+        expect((p.targetType, p.targetId), ('payment', 'p1'));
+        final g = _one(seedActivity('a', 'group_deleted', targetType: 'group', targetId: 'g1'));
+        expect((g.targetType, g.targetId), ('group', 'g1'));
+      },
+    );
 
     test('payment rows name payer and receiver and open the payment', () {
       final i = _one(
@@ -307,7 +315,7 @@ void main() {
     test('delete and restore of an expense', () {
       final del = _pending(seedOutbox(4, 'expense', 'delete', 'e1'), expenses: [e1]);
       expect(del.type, 'expense_deleted');
-      expect((del.targetType, del.targetId), ('group', 'g1'));
+      expect((del.targetType, del.targetId), ('expense', 'e1'));
       final res = _pending(seedOutbox(5, 'expense', 'restore', 'e1'), expenses: [e1]);
       expect(res.type, 'expense_restored');
       expect((res.targetType, res.targetId), ('expense', 'e1'));
@@ -327,7 +335,7 @@ void main() {
       );
       final del = _pending(seedOutbox(3, 'payment', 'delete', 'p1'), payments: [p1]);
       expect(del.type, 'payment_deleted');
-      expect((del.targetType, del.targetId), ('group', 'g1'));
+      expect((del.targetType, del.targetId), ('payment', 'p1'));
       expect(
         _pending(seedOutbox(4, 'payment', 'restore', 'p1'), payments: [p1]).type,
         'payment_restored',

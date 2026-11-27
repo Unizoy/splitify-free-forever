@@ -140,8 +140,18 @@ class _GroupNotesScreenState extends ConsumerState<GroupNotesScreen> {
                     child: _EditedLine(group: group),
                   ),
                   Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
+                    child: Container(
+                      margin: const EdgeInsets.fromLTRB(
+                        AppSpacing.screen,
+                        AppSpacing.s3,
+                        AppSpacing.screen,
+                        AppSpacing.s3,
+                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s4),
+                      decoration: BoxDecoration(
+                        color: c.surfaceMuted,
+                        borderRadius: AppRadii.all16,
+                      ),
                       child: TextField(
                         key: const Key('board-text'),
                         controller: _text,
