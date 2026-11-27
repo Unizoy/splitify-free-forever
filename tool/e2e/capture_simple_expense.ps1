@@ -22,7 +22,7 @@ function Save-Shot([string]$name) {
 }
 
 $p = Start-Process -FilePath 'flutter.bat' -NoNewWindow -PassThru -RedirectStandardOutput $log `
-  -ArgumentList @('test', 'integration_test/simple_expense_test.dart', '-d', 'emulator-5554',
+  -ArgumentList @('test', 'integration_test/simple_expense_test.dart', '-d', 'emulator-5554', '--no-uninstall',
   '--dart-define-from-file=secrets/env.dev.json', "--dart-define=UI_HOLD=$Hold", "--dart-define=PIN_HOST_IP=$ip")
 $null = $p.Handle
 $done = @{}

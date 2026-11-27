@@ -1,4 +1,4 @@
-// TC-25-02 (settle-up form), plus the payment detail screen, payment rows in the Expenses tab and
+// TC-25-02 (Record a payment, one screen since D-033), plus the payment detail screen, payment rows in the Expenses tab and
 // the two Settle up pickers (group sheet, Groups home sheet) of phase 09.
 import 'dart:async';
 
@@ -11,11 +11,13 @@ import 'package:splitify/core/money/balances.dart';
 import 'package:splitify/data/local/app_database.dart' show LocalPayment;
 import 'package:splitify/features/balances/application/balance_views.dart';
 import 'package:splitify/features/balances/application/balances_providers.dart';
-import 'package:splitify/features/balances/presentation/balances_tab.dart' show TransferRow;
 import 'package:splitify/features/comments/application/comments_providers.dart';
 import 'package:splitify/features/currency/application/currency_providers.dart';
 import 'package:splitify/features/expenses/application/expense_providers.dart';
+import 'package:splitify/features/expenses/presentation/editor/editor_fields.dart' show ToolChip;
 import 'package:splitify/features/expenses/presentation/expense_list.dart';
+import 'package:splitify/features/groups/application/groups_providers.dart'
+    show syncOfflineProvider;
 import 'package:splitify/features/payments/application/payment_providers.dart';
 import 'package:splitify/features/payments/application/settle_controller.dart';
 import 'package:splitify/features/payments/presentation/payment_detail_screen.dart';
@@ -74,6 +76,7 @@ Future<_Handle> _pump(
   SettleDraft? draft,
   SettleArgs args = settleArgs,
   double scale = 1,
+  bool offline = false,
 }) async {
   usePhone(t);
   if (scale != 1) {
@@ -82,56 +85,95 @@ Future<_Handle> _pump(
   }
   await t.pumpWidget(const SizedBox());
   final handle = _Handle();
+  final screen = _screen(args);
   await t.pumpWidget(
-    _app(PushHost(_screen(args)), [
-      settleProvider(args).overrideWith(() {
-        final c = FixedSettleController(args, draft ?? sampleSettleDraft());
-        handle.controller = c;
-        return c;
-      }),
-    ]),
+    _app(
+      PushHost(
+        offline
+            ? ProviderScope(
+                overrides: [syncOfflineProvider.overrideWith((ref) => Stream.value(true))],
+                child: screen,
+              )
+            : screen,
+      ),
+      [
+        settleProvider(args).overrideWith(() {
+          final c = FixedSettleController(args, draft ?? sampleSettleDraft());
+          handle.controller = c;
+          return c;
+        }),
+      ],
+    ),
   );
   await tapKey(t, 'open');
   return handle;
 }
 
-String _fieldText(WidgetTester t) =>
-    t.widget<TextField>(find.byKey(const Key('settle-amount'))).controller!.text;
+Finder _amount() => fieldIn('settle-amount');
 
-ArcGauge _gauge(WidgetTester t) => t.widget<ArcGauge>(find.byKey(const Key('settle-gauge')));
+String _fieldText(WidgetTester t) => t.widget<TextField>(_amount()).controller!.text;
 
-bool _canSave(WidgetTester t) => buttonEnabled(t, 'settle-save');
-
-Future<void> _type(WidgetTester t, String key, String text) async {
-  await t.enterText(find.byKey(Key(key)), text);
+Future<void> _type(WidgetTester t, String text) async {
+  await t.enterText(_amount(), text);
   await t.pump();
 }
 
 String _sentence(WidgetTester t) => t.widget<Text>(find.byKey(const Key('settle-sentence'))).data!;
 
+String _pillTitle(WidgetTester t) => textOf(
+  find.descendant(
+    of: find.byKey(const Key('settle-summary')),
+    matching: find.byKey(const Key('form-pill-title')),
+  ),
+)!;
+
+String? _pillSub(WidgetTester t) {
+  final f = find.descendant(
+    of: find.byKey(const Key('settle-summary')),
+    matching: find.byKey(const Key('form-pill-subtitle')),
+  );
+  return f.evaluate().isEmpty ? null : textOf(f);
+}
+
+ToolChip _chip(WidgetTester t, String key) => t.widget<ToolChip>(find.byKey(Key(key)));
+
+Map<String, Object?> _keyboard(WidgetTester t) =>
+    (t.testTextInput.setClientArgs!['inputType']! as Map).cast<String, Object?>();
+
 void main() {
-  group('SettleUpScreen form', () {
+  group('Record a payment (one screen, D-033)', () {
     // TC-25-02
     testWidgets('prefills who pays whom and exactly what is owed', (t) async {
       final h = await _pump(t);
-      expect(find.text('Settle up'), findsOneWidget);
-      expect(find.text('Goa trip'), findsWidgets);
+      expect(find.text('Record a payment'), findsOneWidget);
+      expect(find.text('Goa trip'), findsOneWidget);
       expect(_sentence(t), 'You paid Rahul Mehta');
       expect(find.text('You'), findsOneWidget);
       expect(find.text('Rahul Mehta'), findsOneWidget);
       expect(_fieldText(t), '300');
-      expect(find.text('₹'), findsOneWidget);
       expect(find.text('INR'), findsOneWidget);
       expect(h.draft.method, 'cash');
-      expect(_canSave(t), isTrue);
-      expect(find.text('Record payment'), findsOneWidget);
+      expect(h.draft.canSave, isTrue);
+      expect(find.text('Record cash payment'), findsOneWidget);
+      // Prefilled: no keyboard until the amount is tapped.
+      expect(t.testTextInput.isVisible, isFalse);
     });
 
     // TC-25-02
-    testWidgets('paying the whole debt fills the gauge and hides "Pay all"', (t) async {
+    testWidgets('the amount uses the number keyboard; no custom pad, one keyboard', (t) async {
       await _pump(t);
-      expect(_gauge(t).valueText, '100%');
-      expect(_gauge(t).caption, 'settles all of ₹300');
+      await t.tap(_amount());
+      await t.pump();
+      expect(_keyboard(t)['name'], 'TextInputType.number');
+      expect(_keyboard(t)['decimal'], isTrue);
+      expect(find.byKey(const Key('key-d1')), findsNothing);
+    });
+
+    // TC-25-02
+    testWidgets('paying the whole debt: the pill says it settles all, no "Pay all"', (t) async {
+      await _pump(t);
+      expect(_pillTitle(t), 'Settles all of ₹300');
+      expect(_pillSub(t), isNull);
       expect(find.byKey(const Key('settle-use-owed')), findsNothing);
     });
 
@@ -145,23 +187,23 @@ void main() {
       // Nothing is owed that way round: the field and the form agree on an empty amount.
       expect(h.draft.amountText, '');
       expect(_fieldText(t), '');
-      expect(find.byKey(const Key('settle-gauge-none')), findsOneWidget);
-      expect(_canSave(t), isFalse);
+      expect(_pillTitle(t), 'Nothing owed right now');
+      expect(h.draft.canSave, isFalse);
 
       await tapKey(t, 'settle-swap');
       expect(_sentence(t), 'You paid Rahul Mehta');
       expect(_fieldText(t), '300');
-      expect(_canSave(t), isTrue);
+      expect(h.draft.canSave, isTrue);
     });
 
     // TC-25-02
     testWidgets('a typed amount is kept when the people change', (t) async {
       final h = await _pump(t);
-      await _type(t, 'settle-amount', '120');
+      await _type(t, '120');
       await tapKey(t, 'settle-swap');
       expect(h.draft.amountText, '120');
       expect(_fieldText(t), '120');
-      expect(_canSave(t), isTrue);
+      expect(h.draft.canSave, isTrue);
     });
 
     // TC-25-02
@@ -203,7 +245,7 @@ void main() {
     });
 
     // TC-25-02
-    testWidgets('someone nobody owes: a note says so, and the amount can still be typed', (
+    testWidgets('someone nobody owes: the pill says so, and the amount can still be typed', (
       t,
     ) async {
       final h = await _pump(t);
@@ -211,118 +253,186 @@ void main() {
       await t.tap(find.byKey(const Key('pick-person-m4')));
       await settle(t);
       expect(_sentence(t), 'You paid Priya Nair');
-      expect(find.text('Nothing is owed here right now. You can still record it.'), findsOneWidget);
-      expect(find.byKey(const Key('settle-gauge')), findsNothing);
-      expect(_canSave(t), isFalse);
-      await _type(t, 'settle-amount', '50');
-      expect(_canSave(t), isTrue);
+      expect(_pillTitle(t), 'Nothing owed right now');
+      expect(_pillSub(t), 'You can still record a payment.');
+      expect(h.draft.canSave, isFalse);
+      await _type(t, '50');
+      expect(h.draft.canSave, isTrue);
       expect(h.draft.amount, 5000);
     });
 
     // TC-25-02
-    testWidgets('a smaller amount shows the share it settles and offers "Pay all"', (t) async {
+    testWidgets('nothing owed and nothing typed: the amount gets the focus', (t) async {
+      await _pump(
+        t,
+        draft: sampleSettleDraft(to: 'm4', amountText: ''),
+      );
+      expect(t.widget<TextField>(_amount()).focusNode!.hasFocus, isTrue);
+      expect(_keyboard(t)['name'], 'TextInputType.number');
+    });
+
+    // TC-25-02
+    testWidgets('a partial payment says what is left and offers "Pay all"', (t) async {
       await _pump(t);
-      await _type(t, 'settle-amount', '150');
-      expect(_gauge(t).valueText, '50%');
-      expect(_gauge(t).caption, 'of ₹300 owed');
+      await _type(t, '150');
+      expect(_pillTitle(t), 'Part of the ₹300 owed');
+      expect(_pillSub(t), '₹150 left after this');
       expect(find.text('Pay all ₹300'), findsOneWidget);
 
       await tapKey(t, 'settle-use-owed');
       expect(_fieldText(t), '300');
-      expect(_gauge(t).valueText, '100%');
+      expect(_pillTitle(t), 'Settles all of ₹300');
       expect(find.byKey(const Key('settle-use-owed')), findsNothing);
     });
 
-    // TC-25-02
-    testWidgets('more than is owed is allowed, shown as 100%+', (t) async {
-      await _pump(t);
-      await _type(t, 'settle-amount', '500');
-      expect(_gauge(t).valueText, '100%+');
-      expect(_gauge(t).caption, 'more than the ₹300 owed');
-      expect(_canSave(t), isTrue);
-      expect(find.text('Pay all ₹300'), findsOneWidget);
-    });
-
-    // TC-25-02
-    testWidgets('an invalid amount shows its error and disables Record payment', (t) async {
-      await _pump(t);
-      await _type(t, 'settle-amount', '0');
-      expect(find.text('Enter an amount above zero'), findsOneWidget);
-      expect(_canSave(t), isFalse);
-
-      await _type(t, 'settle-amount', '1.234');
-      expect(find.text('INR allows 2 decimals'), findsOneWidget);
-      expect(_canSave(t), isFalse);
-
-      await _type(t, 'settle-amount', '');
-      expect(find.text('Enter an amount above zero'), findsNothing);
-      expect(_canSave(t), isFalse);
-
-      await _type(t, 'settle-amount', '120.50');
-      expect(find.textContaining('allows'), findsNothing);
-      expect(_canSave(t), isTrue);
-    });
-
-    // TC-25-02
-    testWidgets('method chips: cash by default, tap to change', (t) async {
+    // TC-25-02 (overpay: allowed, never silent)
+    testWidgets('more than is owed is allowed and the pill says by how much', (t) async {
       final h = await _pump(t);
+      await _type(t, '500');
+      expect(_pillTitle(t), 'More than the ₹300 owed');
+      expect(_pillSub(t), '₹200 more than owed');
+      expect(h.draft.canSave, isTrue);
+      expect(find.text('Pay all ₹300'), findsOneWidget);
+      await tapKey(t, 'settle-save');
+      expect(h.controller!.saves, 1);
+    });
+
+    // TC-25-02
+    testWidgets('an invalid amount shows its error inline and Save never records it', (t) async {
+      final h = await _pump(t);
+      await _type(t, '0');
+      expect(find.text('Enter an amount above zero'), findsOneWidget);
+      await tapKey(t, 'settle-save');
+      expect(h.controller!.saves, 0);
+      expect(find.byType(SettleUpScreen), findsOneWidget);
+
+      // A third decimal is refused by the field: the text stays as it was.
+      await _type(t, '120.5');
+      await _type(t, '120.505');
+      expect(_fieldText(t), '120.5');
+
+      await _type(t, '');
+      expect(find.text('Enter an amount above zero'), findsNothing);
+      await tapKey(t, 'settle-save');
+      // Save points at the problem: "Enter an amount", the amount focused, nothing recorded.
+      expect(find.text('Enter an amount'), findsOneWidget);
+      expect(t.widget<TextField>(_amount()).focusNode!.hasFocus, isTrue);
+      expect(h.controller!.saves, 0);
+
+      await _type(t, '120.50');
+      expect(find.text('Enter an amount'), findsNothing);
+      await tapKey(t, 'settle-save');
+      expect(h.controller!.saves, 1);
+    });
+
+    // TC-25-02
+    testWidgets('the method chip: cash by default, the sheet changes it and the button', (t) async {
+      final h = await _pump(t);
+      expect(_chip(t, 'settle-method').active, isFalse);
+      await tapKey(t, 'settle-method');
+      expect(find.text('How was it paid?'), findsOneWidget);
       for (final m in ['Cash', 'UPI', 'Bank', 'Other']) {
-        expect(find.text(m), findsOneWidget);
+        expect(
+          find.descendant(of: find.byKey(const Key('settle-methods')), matching: find.text(m)),
+          findsOneWidget,
+        );
       }
-      expect(t.widget<IconChip>(find.byKey(const Key('method-cash'))).selected, isTrue);
-      await tapKey(t, 'method-upi');
-      expect(h.draft.method, 'upi');
-      expect(t.widget<IconChip>(find.byKey(const Key('method-upi'))).selected, isTrue);
-      expect(t.widget<IconChip>(find.byKey(const Key('method-cash'))).selected, isFalse);
       await tapKey(t, 'method-bank');
+      expect(h.draft.method, 'bank');
+      expect(find.text('Record bank payment'), findsOneWidget);
+      expect(_chip(t, 'settle-method').active, isTrue);
+      await tapKey(t, 'settle-method');
+      await tapKey(t, 'method-upi');
+      expect(find.text('Record UPI payment'), findsOneWidget);
+      await tapKey(t, 'settle-method');
       await tapKey(t, 'method-other');
       expect(h.draft.method, 'other');
+      expect(find.text('Record payment'), findsOneWidget);
     });
 
     // TC-25-02
-    testWidgets('date chips: today by default, yesterday, and a picked day', (t) async {
+    testWidgets('the date chip: today by default, the sheet picks yesterday', (t) async {
       final h = await _pump(t);
-      expect(t.widget<IconChip>(find.byKey(const Key('date-today'))).selected, isTrue);
+      expect(
+        find.descendant(of: find.byKey(const Key('settle-date')), matching: find.text('Today')),
+        findsOneWidget,
+      );
+      await tapKey(t, 'settle-date');
+      expect(find.text('Pick a date'), findsWidgets);
       await tapKey(t, 'date-yesterday');
       expect(h.draft.date, DateTime(2026, 11, 20));
-      expect(t.widget<IconChip>(find.byKey(const Key('date-yesterday'))).selected, isTrue);
-      await tapKey(t, 'date-today');
-      expect(h.draft.date, DateTime(2026, 11, 21));
-      await tapKey(t, 'date-pick');
-      expect(find.text('Pick a date'), findsWidgets);
+      expect(
+        find.descendant(of: find.byKey(const Key('settle-date')), matching: find.text('Yesterday')),
+        findsOneWidget,
+      );
+      expect(_chip(t, 'settle-date').active, isTrue);
     });
 
     // TC-25-02
-    testWidgets('the note is saved with the draft; one that is too long blocks saving', (t) async {
+    testWidgets('the note chip opens its sheet; one that is too long blocks saving', (t) async {
       final h = await _pump(t);
-      await _type(t, 'settle-note', 'Thanks for the cab');
+      await tapKey(t, 'settle-note-chip');
+      await t.enterText(fieldIn('settle-note'), 'Thanks for the cab');
+      await t.pump();
       expect(h.draft.note, 'Thanks for the cab');
-      expect(find.text('Use up to 200 characters'), findsNothing);
-      expect(_canSave(t), isTrue);
+      await tapKey(t, 'text-sheet-done');
+      expect(_chip(t, 'settle-note-chip').active, isTrue);
 
-      await _type(t, 'settle-note', 'x' * 201);
+      await tapKey(t, 'settle-note-chip');
+      await t.enterText(fieldIn('settle-note'), 'x' * 201);
+      await t.pump();
       expect(find.text('Use up to 200 characters'), findsOneWidget);
-      expect(_canSave(t), isFalse);
-
-      await _type(t, 'settle-note', 'x' * 200);
+      await tapKey(t, 'text-sheet-done');
+      await tapKey(t, 'settle-save');
+      // Save reopens the note sheet with its error; nothing is recorded.
+      expect(find.text('Use up to 200 characters'), findsOneWidget);
+      expect(h.controller!.saves, 0);
+      await t.enterText(fieldIn('settle-note'), 'x' * 200);
+      await t.pump();
       expect(find.text('Use up to 200 characters'), findsNothing);
-      expect(_canSave(t), isTrue);
+      await tapKey(t, 'text-sheet-done');
+      await tapKey(t, 'settle-save');
+      expect(h.controller!.saves, 1);
     });
 
     // TC-25-02
-    testWidgets('Record payment saves, closes the screen and says so', (t) async {
+    testWidgets('Record cash payment saves, closes the form, says so and celebrates briefly', (
+      t,
+    ) async {
       final h = await _pump(t);
       await tapKey(t, 'settle-save');
       expect(h.controller!.saves, 1);
-      // A payment that settles a person plays the celebration first (T6, phase 11); it closes itself.
+      // The form is gone at once; the celebration plays over the page below (T6) and closes itself.
+      expect(find.byType(SettleUpScreen), findsNothing);
+      expect(find.text('Payment recorded'), findsOneWidget);
+      expect(find.byKey(const Key('settled-celebration')), findsOneWidget);
       await t.pump(celebrationHold);
       await settle(t);
+      expect(find.byKey(const Key('settled-celebration')), findsNothing);
+    });
+
+    // TC-25-02
+    testWidgets('a tap skips the celebration', (t) async {
+      await _pump(t);
+      await tapKey(t, 'settle-save');
+      expect(find.byKey(const Key('settled-celebration')), findsOneWidget);
+      await t.tap(find.byKey(const Key('settled-celebration')));
+      await settle(t);
+      expect(find.byKey(const Key('settled-celebration')), findsNothing);
+    });
+
+    // TC-25-02
+    testWidgets('a partial payment closes without a celebration', (t) async {
+      await _pump(t);
+      await _type(t, '100');
+      await tapKey(t, 'settle-save');
       expect(find.byType(SettleUpScreen), findsNothing);
+      expect(find.byKey(const Key('settled-celebration')), findsNothing);
       expect(find.text('Payment recorded'), findsOneWidget);
     });
 
     // TC-25-02
-    testWidgets('the back button closes without saving', (t) async {
+    testWidgets('back with nothing changed closes at once, without saving', (t) async {
       final h = await _pump(t);
       await t.tap(find.byTooltip('Back'));
       await settle(t);
@@ -331,7 +441,31 @@ void main() {
     });
 
     // TC-25-02
-    testWidgets('editing a saved payment: its own title, button and snackbar', (t) async {
+    testWidgets('back after a change asks first: Cancel keeps the amount, Discard closes', (
+      t,
+    ) async {
+      final h = await _pump(t);
+      await _type(t, '120');
+      await t.tap(find.byTooltip('Back'));
+      await settle(t);
+      expect(find.text('Discard this payment?'), findsOneWidget);
+      expect(find.text('The amount and note you typed will be lost.'), findsOneWidget);
+      await tapText(t, 'Cancel');
+      expect(find.byType(SettleUpScreen), findsOneWidget);
+      expect(_fieldText(t), '120');
+
+      await t.binding.handlePopRoute();
+      await settle(t);
+      expect(find.text('Discard this payment?'), findsOneWidget);
+      await tapKey(t, 'confirm-action');
+      expect(find.byType(SettleUpScreen), findsNothing);
+      expect(h.controller!.saves, 0);
+    });
+
+    // TC-25-02
+    testWidgets('editing a saved payment: its own title, button, snackbar and discard copy', (
+      t,
+    ) async {
       final h = await _pump(
         t,
         args: _editArgs,
@@ -346,31 +480,45 @@ void main() {
       );
       expect(find.text('Edit payment'), findsOneWidget);
       expect(find.text('Save payment'), findsOneWidget);
+      expect(find.byKey(const Key('settle-upi')), findsNothing);
       expect(_fieldText(t), '500');
-      expect(
-        t
-            .widget<TextField>(
-              find.descendant(
-                of: find.byKey(const Key('settle-note')),
-                matching: find.byType(TextField),
-              ),
-            )
-            .controller!
-            .text,
-        'Thanks for the cab',
-      );
-      expect(t.widget<IconChip>(find.byKey(const Key('method-upi'))).selected, isTrue);
+      expect(_chip(t, 'settle-note-chip').active, isTrue);
+      expect(_chip(t, 'settle-method').label, 'UPI');
+      await tapKey(t, 'settle-note-chip');
+      expect(t.widget<TextField>(fieldIn('settle-note')).controller!.text, 'Thanks for the cab');
+      await tapKey(t, 'text-sheet-done');
+
+      await _type(t, '450');
+      await t.tap(find.byTooltip('Back'));
+      await settle(t);
+      expect(find.text('Discard your changes?'), findsOneWidget);
+      expect(find.text('The payment stays as it was last saved.'), findsOneWidget);
+      await tapText(t, 'Cancel');
+
+      expect(h.draft.amount, 45000);
       await tapKey(t, 'settle-save');
       expect(h.controller!.saves, 1);
       expect(find.text('Payment saved'), findsOneWidget);
+      expect(find.byKey(const Key('settled-celebration')), findsNothing);
+    });
+
+    // TC-25-02
+    testWidgets('offline: the group chip says it is saved on this phone for now', (t) async {
+      await _pump(t, offline: true);
+      expect(find.byKey(const Key('money-offline')), findsOneWidget);
+      expect(find.text('Not synced yet'), findsOneWidget);
     });
 
     // TC-25-02
     testWidgets('large text: the form scrolls and nothing overflows', (t) async {
-      await _pump(t, scale: 2);
-      await _type(t, 'settle-amount', '150');
+      final h = await _pump(t, scale: 2);
+      await _type(t, '150');
       expect(t.takeException(), isNull);
+      await tapKey(t, 'settle-method');
+      expect(t.takeException(), isNull);
+      await tapKey(t, 'method-cash');
       await tapKey(t, 'settle-save');
+      expect(h.controller!.saves, 1);
       expect(find.text('Payment recorded'), findsOneWidget);
     });
 
@@ -448,9 +596,11 @@ void main() {
       await pumpDetail(t, AsyncData(paymentView()));
       expect(find.text('Asha Rao paid you'), findsOneWidget);
       expect(t.widget<Text>(find.byKey(const Key('payment-detail-amount'))).data, '₹500.00');
-      expect(find.text('Payment'), findsOneWidget);
-      expect(find.text('Method'), findsOneWidget);
+      // Compact (D-033): no "Payment" pill, no "Details" heading, one "UPI · date" line.
+      expect(find.text('Payment'), findsNothing);
+      expect(find.text('DETAILS'), findsNothing);
       expect(find.text('UPI'), findsOneWidget);
+      expect(find.byKey(const Key('payment-added')), findsOneWidget);
       expect(find.text('20\u00A0Nov\u00A02026'), findsOneWidget);
       expect(find.text('Thanks for the cab'), findsOneWidget);
       expect(find.byType(SyncMarker), findsNothing);
@@ -647,36 +797,69 @@ void main() {
       hasRecords: true,
     );
 
+    double top(WidgetTester t, String key) => t.getTopLeft(find.byKey(Key(key))).dy;
+
     // TC-25-02
-    testWidgets('group sheet lists my transfers first and opens Settle up prefilled', (t) async {
+    testWidgets('group sheet: my balances first, each row opens Record a payment prefilled', (
+      t,
+    ) async {
       await pumpPicker(
         t,
         (c) => unawaited(showSettlePicker(c, gid)),
         overrides: [groupBalancesProvider(gid).overrideWithValue(AsyncData(withOthersFirst()))],
       );
       expect(find.byKey(const Key('settle-picker')), findsOneWidget);
-      expect(find.text('SUGGESTED'), findsOneWidget);
+      expect(find.text('Pick a balance to settle.'), findsOneWidget);
+      expect(find.text('owes you ₹1,200'), findsOneWidget);
+      expect(find.text('owes Priya Nair ₹50'), findsOneWidget);
       expect(find.text('Record a different payment'), findsOneWidget);
-      expect(
-        t.getTopLeft(find.byKey(const Key('settle-m2-m1'))).dy,
-        lessThan(t.getTopLeft(find.byKey(const Key('settle-m3-m4'))).dy),
-      );
+      expect(top(t, 'settle-pick-INR-m2-m1'), lessThan(top(t, 'settle-pick-INR-m3-m4')));
+      // One currency: no currency headings.
+      expect(find.text('INR BALANCES'), findsNothing);
 
-      await t.tap(find.byKey(const Key('settle-m2-m1')));
+      await t.tap(find.byKey(const Key('settle-pick-INR-m2-m1')));
       await settle(t);
       expect(find.byKey(const Key('settle-picker')), findsNothing);
       expect(find.text('at /settle?group=g-goa&from=m2&to=m1&currency=INR'), findsOneWidget);
     });
 
     // TC-25-02
-    testWidgets('group sheet when everyone is settled still offers a different payment', (t) async {
+    testWidgets('group sheet: biggest first within mine, a heading per currency', (t) async {
+      await pumpPicker(
+        t,
+        (c) => unawaited(showSettlePicker(c, gid)),
+        overrides: [groupBalancesProvider(gid).overrideWithValue(AsyncData(goaMixed()))],
+      );
+      expect(find.text('INR BALANCES'), findsOneWidget);
+      expect(find.text('USD BALANCES'), findsOneWidget);
+      expect(find.text('you owe ₹300'), findsOneWidget);
+      expect(find.text(r'you owe $20'), findsOneWidget);
+      // Asha owes me ₹1,200 before I owe Rahul ₹300; dollars after rupees.
+      expect(top(t, 'settle-pick-INR-m2-m1'), lessThan(top(t, 'settle-pick-INR-m1-m3')));
+      expect(top(t, 'settle-pick-INR-m1-m3'), lessThan(top(t, 'settle-pick-USD-m1-m3')));
+    });
+
+    // TC-25-02 (Splitwise: one balance, no list)
+    testWidgets('exactly one balance in the group opens Record a payment at once', (t) async {
+      await pumpPicker(
+        t,
+        (c) => unawaited(showSettlePicker(c, gid)),
+        overrides: [groupBalancesProvider(gid).overrideWithValue(AsyncData(goaOwe()))],
+      );
+      expect(find.byKey(const Key('settle-picker')), findsNothing);
+      expect(find.text('at /settle?group=g-goa&from=m1&to=m3&currency=INR'), findsOneWidget);
+    });
+
+    // TC-25-02
+    testWidgets('group sheet when everyone is settled still offers to record a payment', (t) async {
       await pumpPicker(
         t,
         (c) => unawaited(showSettlePicker(c, gid)),
         overrides: [groupBalancesProvider(gid).overrideWithValue(AsyncData(goaSettled()))],
       );
       expect(find.text('Everyone in this group is settled up.'), findsOneWidget);
-      expect(find.byType(TransferRow), findsNothing);
+      expect(find.byType(SettleBalanceRow), findsNothing);
+      expect(find.text('Record a payment'), findsOneWidget);
       await tapKey(t, 'settle-other');
       expect(find.text('at /settle?group=g-goa'), findsOneWidget);
     });
@@ -692,23 +875,23 @@ void main() {
     });
 
     // TC-25-02
-    testWidgets('Groups home sheet groups my transfers by group name', (t) async {
+    testWidgets('Groups home sheet groups my balances by group name', (t) async {
       await pumpPicker(t, (c) => unawaited(showSettleEverywhere(c, [goaOwed(), flatOwed()])));
       expect(find.byKey(const Key('settle-everywhere')), findsOneWidget);
       expect(find.text('Settle up with'), findsOneWidget);
       expect(find.text('GOA TRIP'), findsOneWidget);
       expect(find.text('FLAT 4B'), findsOneWidget);
-      expect(find.byType(TransferRow), findsNWidgets(3));
-      await t.tap(find.byKey(const Key('settle-f2-f1')));
+      expect(find.byType(SettleBalanceRow), findsNWidgets(3));
+      await t.tap(find.byKey(const Key('settle-pick-INR-f2-f1')));
       await settle(t);
       expect(find.text('at /settle?group=g-flat&from=f2&to=f1&currency=INR'), findsOneWidget);
     });
 
     // TC-25-02
-    testWidgets('Groups home sheet skips transfers that do not involve me', (t) async {
+    testWidgets('Groups home with exactly one balance of mine opens it at once', (t) async {
       await pumpPicker(t, (c) => unawaited(showSettleEverywhere(c, [withOthersFirst()])));
-      expect(find.byType(TransferRow), findsOneWidget);
-      expect(find.byKey(const Key('settle-m3-m4')), findsNothing);
+      expect(find.byKey(const Key('settle-everywhere')), findsNothing);
+      expect(find.text('at /settle?group=g-goa&from=m2&to=m1&currency=INR'), findsOneWidget);
     });
 
     // TC-25-02
@@ -776,23 +959,23 @@ void main() {
       // nothing is owed in USD, the amount was not typed: the field empties
       expect(h.draft.amountText, '');
       expect(_fieldText(t), '');
-      expect(_canSave(t), isFalse);
+      expect(h.draft.canSave, isFalse);
 
       await pick(t, 'INR');
       expect(h.draft.currency, 'INR');
       expect(_fieldText(t), '300');
-      expect(_canSave(t), isTrue);
+      expect(h.draft.canSave, isTrue);
     });
 
     // TC-14-04
     testWidgets('a typed amount stays when the currency changes', (t) async {
       final h = await pumpWithPicker(t);
-      await _type(t, 'settle-amount', '42');
+      await _type(t, '42');
       await pick(t, 'USD');
       expect(h.draft.currency, 'USD');
       expect(h.draft.amount, 4200);
       expect(_fieldText(t), '42');
-      expect(_canSave(t), isTrue);
+      expect(h.draft.canSave, isTrue);
     });
 
     // TC-14-04

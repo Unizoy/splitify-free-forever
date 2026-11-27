@@ -215,8 +215,10 @@ void main() {
       final sheet = _key('settle-everywhere');
       expect(find.descendant(of: sheet, matching: find.text('GOA TRIP')), findsOneWidget);
       expect(find.descendant(of: sheet, matching: find.text('FLAT 4B')), findsOneWidget);
-      expect(find.text('Dev Shah owes you'), findsOneWidget);
-      await t.tap(_key('settle-f2-f1'));
+      // D-033 rows: the other person and "owes you ₹…".
+      expect(find.descendant(of: sheet, matching: find.text('Dev Shah')), findsOneWidget);
+      expect(find.text('owes you ₹500'), findsOneWidget);
+      await t.tap(_key('settle-pick-INR-f2-f1'));
       await settle(t);
       expect(h.location, '/settle?group=g-flat&from=f2&to=f1&currency=INR');
       expect(find.text('Settle up with'), findsNothing);
@@ -290,8 +292,8 @@ void main() {
       final h = await open(t, goaOwed());
       await _tap(t, 'group-settle');
       expect(_key('settle-picker'), findsOneWidget);
-      expect(find.text('Asha Rao owes you'), findsOneWidget);
-      await t.tap(_key('settle-m2-m1'));
+      expect(find.text('owes you ₹1,200'), findsOneWidget);
+      await t.tap(_key('settle-pick-INR-m2-m1'));
       await settle(t);
       expect(h.location, '/settle?group=g-goa&from=m2&to=m1&currency=INR');
     });

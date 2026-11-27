@@ -19,7 +19,7 @@ import 'package:splitify/ui/theme/theme.dart';
 import 'package:splitify/core/money/split.dart';
 import 'package:splitify/domain/rules/default_split.dart';
 import 'package:splitify/features/expenses/presentation/expense_copy.dart';
-import 'package:splitify/features/expenses/presentation/expense_routes.dart';
+import 'package:splitify/features/expenses/presentation/default_split_sheet.dart';
 import 'package:splitify/features/history/presentation/history_routes.dart';
 import 'package:splitify/features/export/presentation/export_action.dart';
 import 'package:splitify/features/import_splitwise/presentation/import_routes.dart';
@@ -102,7 +102,7 @@ class GroupSettingsScreen extends ConsumerWidget {
               label: l.expDefaultSplitTitle,
               value: l.splitKind(DefaultSplit.decode(group.defaultSplit)?.kind ?? SplitKind.equal),
               showDivider: false,
-              onTap: () => context.push(ExpenseRoutes.defaultSplit(groupId)),
+              onTap: () => unawaited(showDefaultSplitSheet(context, groupId)),
             ),
             // #17: simplify debts (phase 11); friend (direct) groups have only two people.
             if (!direct) SimplifySettingRow(group: group),

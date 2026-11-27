@@ -22,7 +22,7 @@ Navigation: `go_router` with a `StatefulShellRoute` for the 4 tabs; deep links `
 | `/expense/new?group=` , `/expense/:id/edit` | Add/edit expense stepper | 532, 534 |
 | `/expense/:id` | Expense detail + comments | 712 layout, 636 composer |
 | `/expense/:id/history`, `/payment/:id/history` | Edit history | 646 rows |
-| `/settle?group=&member=` | Settle up (record / Pay via UPI) | 712 sticky bar, 646 gauge |
+| `/settle?group=&from=&to=&currency=` | Record a payment (one screen, Pay via UPI, D-033) | 712 sticky bar |
 | `/friends/:userId` | Friend page | 542 header |
 | `/notifications` | Bell list | 646 |
 | `/search` | Search | 438 search pill |
@@ -80,11 +80,32 @@ App bar: back (asks "Discard this expense?" in an app sheet once anything was ty
    points at the first one (description → amount → sheet → notes → repeat). Success: Celebration-lite check, then
    back to the group.
 
-### Settle up (`/settle`) — 712 + 646
-Header "Settle up" serif; person row (avatar → arrow → avatar); amount (editable, prefilled); `ArcGauge` showing
-how much of the total owed this payment settles; method chips (Cash · UPI · Bank · Other); date; note.
-Sticky bar: if INR + VPA: amber "Pay ₹500 via UPI" and text button "Record cash payment"; else amber
-"Record payment". After UPI return → sheet "Did it go through?" → Mark as paid → Celebration ("all *settled*").
+### Settle up → Record a payment (`/settle`) — one screen like Splitwise (D-033)
+**Settle up** (group page, Groups home): one balance → Record a payment opens at once, prefilled; several → a sheet
+"Pick a balance to settle": per currency (main first), my balances first, biggest first; each row = the other
+person's avatar, name, "you owe ₹400" / "owes you ₹400" (a pair without me: "owes Rahul ₹400"), chevron; then
+"Record a different payment". Nothing owed → "Everyone in this group is settled up." + "Record a payment".
+**Record a payment** (same layout language as add expense): app bar "Record a payment" / "Edit payment"; "In
+[group]" chip (+ "Not synced yet" offline); payer avatar → arrow (swaps) → receiver avatar (tap = pick someone),
+"You paid Asha"; currency chip + big amount on the phone's number keyboard, prefilled with what is owed; a pill
+"Settles all of ₹400" / "Part of the ₹400 owed · ₹250 left after this" / "More than the ₹400 owed · ₹100 more than
+owed" / "Nothing owed right now" (+ "Pay all ₹400" chip); toolbar chips Date · Note · Method (sheets) and the
+action above the keyboard: INR + I pay + payee has a UPI ID → amber "Pay ₹400 via UPI" + quiet "Record cash
+payment" (label follows the method); otherwise amber "Record cash payment". Inline errors, discard question
+after a change. After UPI return → sheet "Did it go through?" (copy UPI ID / amount / QR) → Mark as paid. The form
+closes; a short Celebration ("all *settled*", 1.4 s, tap skips) plays when we are square in every currency.
+
+### Record a loan (`/loan/new`, `/loan/:id/edit`) — one screen (D-033)
+"In [group]"; loan icon + "What for?" (optional); currency chip + amount (number keyboard, focused on a new loan);
+pill "You lent Asha · Asha will owe you ₹500" → sheet "Who lent whom?" (I lent / I borrowed, people; picking
+closes); toolbar Date · Notes; amber "Save loan" above the keyboard; inline errors; discard question.
+
+### Payment detail (`/payment/:id`) — compact (D-033)
+Cover hero with back / edit / delete: small avatars → "You paid Asha" → serif amount. Body: one "Cash · 21 Nov 2026"
+row, conversion, note, History, "Added by …", comments with the composer pinned.
+
+### Default split — a sheet from group settings (D-033)
+Equal / % / shares picker, member rows, live footer, Save (closes the sheet, "Default split saved").
 
 ### Account (`/account`) — 542 + 614/623
 Top right gear opens the **Account settings** sheet. Centre: large initials/photo avatar (96 dp) flanked by
@@ -104,7 +125,7 @@ only after a change.
 
 ### Group settings (`/groups/:id/settings`) — Splitwise-like list (D-033)
 Group row (cover, name, "Trip · INR"; tap = edit screen) → MEMBERS: "Add people to group" (name sheet), "Invite
-via link or QR" (invite sheet), member rows (sheet: rename / unlink / remove or leave) → SETTINGS: default split,
+via link or QR" (invite sheet), member rows (sheet: rename / unlink / remove or leave) → SETTINGS: default split (sheet),
 simplify debts → DATA: export CSV, import from Splitwise, deleted items → archive, leave, delete (each confirmed).
 Invite sheet: QR, code + copy, link + "Copy link", Share invite, Reset code.
 
@@ -140,6 +161,7 @@ keyboard); preview: cover, group name, member count; claim step: `AvatarCarousel
    pre-prompt → Groups (empty) → Create group.
 2. **Add expense:** group → Add expense → description + amount → (defaults) → Save → row appears with SyncMarker → marker clears
    after sync.
-3. **Settle up:** group Balances row "You owe Asha ₹500" → Settle → Pay via UPI → chooser → return → Mark as paid.
+3. **Settle up:** group → Settle up → pick "Asha · you owe ₹500" (skipped when it is the only balance) → Record a
+   payment prefilled → Pay via UPI → chooser → return → Mark as paid (or "Record cash payment").
 4. **Join:** Groups → Join → paste/scan/enter → preview → claim "Rahul" → group opens.
 5. **Offline:** airplane mode → add/edit/delete → markers → back online → markers clear, other member sees changes.
