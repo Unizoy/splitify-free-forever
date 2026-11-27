@@ -37,7 +37,11 @@ abstract final class ExpenseRoutes {
 List<RouteBase> expenseRoutes() => [
   AppRoute(
     path: '/expense/new',
-    builder: (context, state) => ExpenseEditorScreen(groupId: state.uri.queryParameters['group']),
+    builder: (context, state) => ExpenseEditorScreen(
+      groupId: state.uri.queryParameters['group'],
+      // Share to Splitify (D-034 A7): `splitify://expense/new?share=<token>`.
+      shareToken: state.uri.queryParameters['share'],
+    ),
   ),
   AppRoute(
     path: '/expense/:id',

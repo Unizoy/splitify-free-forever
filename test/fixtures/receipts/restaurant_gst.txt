@@ -1,0 +1,19 @@
+HOTEL SARAVANA BHAVAN
+No. 12, Anna Salai, Chennai - 600002
+Ph: 044-2345 6789
+GSTIN: 33AABCS1234C1Z9
+TAX INVOICE
+Bill No: 4521  Table: 7  Covers: 4
+Date: 21/11/2026  Time: 13:45
+Item  Qty  Rate  Amount
+Masala Dosa  2  90.00  180.00
+Ghee Roast  1  140.00  140.00
+Mini Meals  2  220.00  440.00
+Filter Coffee  4  35.00  140.00
+Sub Total  900.00
+Service Charge @ 5%  45.00
+CGST @ 2.5%  23.63
+SGST @ 2.5%  23.63
+Round Off  -0.26
+Grand Total  Rs. 992.00
+Thank you! Visit again

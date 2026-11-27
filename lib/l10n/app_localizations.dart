@@ -7586,6 +7586,402 @@ abstract class AppLocalizations {
   /// **'Last 12 months: paid {paid} · share {share}'**
   String trendMemberTotal(String paid, String share);
 
+  /// D-034 A1: two-person answer in the Paid by sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'You paid, split equally'**
+  String get entryAnswerYouPaidEqual;
+
+  /// No description provided for @entryAnswerYouOwedFull.
+  ///
+  /// In en, this message translates to:
+  /// **'You are owed the full amount'**
+  String get entryAnswerYouOwedFull;
+
+  /// No description provided for @entryAnswerTheyPaidEqual.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} paid, split equally'**
+  String entryAnswerTheyPaidEqual(String name);
+
+  /// No description provided for @entryAnswerTheyOwedFull.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is owed the full amount'**
+  String entryAnswerTheyOwedFull(String name);
+
+  /// No description provided for @entryAnswerOwesYou.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} owes you {amount}'**
+  String entryAnswerOwesYou(String name, String amount);
+
+  /// No description provided for @entryAnswerYouOwe.
+  ///
+  /// In en, this message translates to:
+  /// **'You owe {name} {amount}'**
+  String entryAnswerYouOwe(String name, String amount);
+
+  /// No description provided for @entryAnswerOwesYouHalf.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} owes you half'**
+  String entryAnswerOwesYouHalf(String name);
+
+  /// No description provided for @entryAnswerOwesYouAll.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} owes you all of it'**
+  String entryAnswerOwesYouAll(String name);
+
+  /// No description provided for @entryAnswerYouOweHalf.
+  ///
+  /// In en, this message translates to:
+  /// **'You owe {name} half'**
+  String entryAnswerYouOweHalf(String name);
+
+  /// No description provided for @entryAnswerYouOweAll.
+  ///
+  /// In en, this message translates to:
+  /// **'You owe {name} all of it'**
+  String entryAnswerYouOweAll(String name);
+
+  /// No description provided for @entryMoreOptions.
+  ///
+  /// In en, this message translates to:
+  /// **'More options'**
+  String get entryMoreOptions;
+
+  /// No description provided for @entryMoreOptionsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Several payers, exact amounts, %, shares or items'**
+  String get entryMoreOptionsHint;
+
+  /// No description provided for @entryPillTheyOweFull.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} owes the full amount'**
+  String entryPillTheyOweFull(String name);
+
+  /// No description provided for @entryPillYouOweFull.
+  ///
+  /// In en, this message translates to:
+  /// **'you owe the full amount'**
+  String get entryPillYouOweFull;
+
+  /// D-034 A2: the Items split (lines with prices, each shared by the people who had it).
+  ///
+  /// In en, this message translates to:
+  /// **'By items'**
+  String get entrySplitItems;
+
+  /// No description provided for @entrySplitItemsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'each line goes to the people who had it'**
+  String get entrySplitItemsHint;
+
+  /// No description provided for @entryPillSplitItems.
+  ///
+  /// In en, this message translates to:
+  /// **'split by items'**
+  String get entryPillSplitItems;
+
+  /// No description provided for @entryItemHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Item'**
+  String get entryItemHint;
+
+  /// No description provided for @entryItemNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Name of item {number}'**
+  String entryItemNameLabel(int number);
+
+  /// No description provided for @entryItemAmountLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Price of item {number}'**
+  String entryItemAmountLabel(int number);
+
+  /// No description provided for @entryItemPersonLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} had item {number}'**
+  String entryItemPersonLabel(String name, int number);
+
+  /// No description provided for @entryItemRemove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove item {number}'**
+  String entryItemRemove(int number);
+
+  /// No description provided for @entryItemAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add item'**
+  String get entryItemAdd;
+
+  /// No description provided for @entryItemsExtras.
+  ///
+  /// In en, this message translates to:
+  /// **'Tax, service, tip, discount'**
+  String get entryItemsExtras;
+
+  /// No description provided for @entryItemsExtrasHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Shared in proportion to what each person had.'**
+  String get entryItemsExtrasHint;
+
+  /// No description provided for @entryExtraTax.
+  ///
+  /// In en, this message translates to:
+  /// **'Tax (GST)'**
+  String get entryExtraTax;
+
+  /// No description provided for @entryExtraService.
+  ///
+  /// In en, this message translates to:
+  /// **'Service charge'**
+  String get entryExtraService;
+
+  /// No description provided for @entryExtraTip.
+  ///
+  /// In en, this message translates to:
+  /// **'Tip'**
+  String get entryExtraTip;
+
+  /// No description provided for @entryExtraDiscount.
+  ///
+  /// In en, this message translates to:
+  /// **'Discount'**
+  String get entryExtraDiscount;
+
+  /// No description provided for @entryItemsEach.
+  ///
+  /// In en, this message translates to:
+  /// **'Each person'**
+  String get entryItemsEach;
+
+  /// No description provided for @entryItemsUseTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Use items total · {amount}'**
+  String entryItemsUseTotal(String amount);
+
+  /// No description provided for @entryItemsNoPeople.
+  ///
+  /// In en, this message translates to:
+  /// **'Every item needs at least one person'**
+  String get entryItemsNoPeople;
+
+  /// No description provided for @entryItemsNone.
+  ///
+  /// In en, this message translates to:
+  /// **'Add an item with a price'**
+  String get entryItemsNone;
+
+  /// No description provided for @entryItemsTooMany.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many items to save. Join a few lines.'**
+  String get entryItemsTooMany;
+
+  /// No description provided for @entryItemsDiscountTooBig.
+  ///
+  /// In en, this message translates to:
+  /// **'The discount is bigger than the items'**
+  String get entryItemsDiscountTooBig;
+
+  /// D-034 A3: reads the amount, date and items from a receipt photo on the phone.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan receipt'**
+  String get entryScanReceipt;
+
+  /// No description provided for @entryScanReceiptHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Fills in the amount, date and items. Works offline.'**
+  String get entryScanReceiptHint;
+
+  /// No description provided for @entryScanReading.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading the receipt…'**
+  String get entryScanReading;
+
+  /// No description provided for @entryScanTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'From your receipt'**
+  String get entryScanTitle;
+
+  /// No description provided for @entryScanAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get entryScanAmount;
+
+  /// No description provided for @entryScanDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get entryScanDate;
+
+  /// No description provided for @entryScanDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Description'**
+  String get entryScanDescription;
+
+  /// No description provided for @entryScanItemsFound.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 item found} other{{count} items found}}'**
+  String entryScanItemsFound(int count);
+
+  /// No description provided for @entryScanReplaces.
+  ///
+  /// In en, this message translates to:
+  /// **'Replaces {value}'**
+  String entryScanReplaces(String value);
+
+  /// No description provided for @entryScanUse.
+  ///
+  /// In en, this message translates to:
+  /// **'Use these'**
+  String get entryScanUse;
+
+  /// No description provided for @entryScanItemize.
+  ///
+  /// In en, this message translates to:
+  /// **'Split by items'**
+  String get entryScanItemize;
+
+  /// No description provided for @entryScanItemizeNeedsGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose who it\'s with first to split by items.'**
+  String get entryScanItemizeNeedsGroup;
+
+  /// No description provided for @entryScanNothingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t read this receipt'**
+  String get entryScanNothingTitle;
+
+  /// No description provided for @entryScanNothingBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The photo is attached. Try a sharper photo in good light, or type the amount.'**
+  String get entryScanNothingBody;
+
+  /// No description provided for @entryScanKeepPhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep the photo'**
+  String get entryScanKeepPhoto;
+
+  /// No description provided for @entryScanRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Try another photo'**
+  String get entryScanRetry;
+
+  /// No description provided for @entryScanFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t read that photo. Try another one.'**
+  String get entryScanFailed;
+
+  /// No description provided for @entryScanPhotoNote.
+  ///
+  /// In en, this message translates to:
+  /// **'The photo is attached as the receipt and uploads when you\'re online.'**
+  String get entryScanPhotoNote;
+
+  /// No description provided for @entryScanTickLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Use {field}: {value}'**
+  String entryScanTickLabel(String field, String value);
+
+  /// D-034 A4: pill on a deleted expense opened from Activity.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleted'**
+  String get entryDeletedPill;
+
+  /// No description provided for @entryDeletedNote.
+  ///
+  /// In en, this message translates to:
+  /// **'This expense was deleted. It doesn\'t count in balances until it is restored.'**
+  String get entryDeletedNote;
+
+  /// No description provided for @entryRestore.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore'**
+  String get entryRestore;
+
+  /// No description provided for @entryRestoreExpense.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore expense'**
+  String get entryRestoreExpense;
+
+  /// No description provided for @entryRestored.
+  ///
+  /// In en, this message translates to:
+  /// **'Expense restored'**
+  String get entryRestored;
+
+  /// D-034 A6: the last three months of this category in this group.
+  ///
+  /// In en, this message translates to:
+  /// **'{category} in {group}'**
+  String entryTrendTitle(String category, String group);
+
+  /// No description provided for @entryTrendSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 3 months'**
+  String get entryTrendSubtitle;
+
+  /// No description provided for @entryTrendOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open insights'**
+  String get entryTrendOpen;
+
+  /// No description provided for @entryTrendMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'{month}: {amount}'**
+  String entryTrendMonth(String month, String amount);
+
+  /// No description provided for @entryShareNothing.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing to add from what was shared.'**
+  String get entryShareNothing;
+
+  /// No description provided for @entryItemsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Items'**
+  String get entryItemsLabel;
+
+  /// No description provided for @entryItemsComesTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Items come to {amount}'**
+  String entryItemsComesTo(String amount);
+
   /// D-034 B1: first row of a friend's Settle up sheet (one payment across groups).
   ///
   /// In en, this message translates to:

@@ -225,3 +225,60 @@ class _PhotoRow extends ConsumerWidget {
     );
   }
 }
+
+/// "Scan receipt" (D-034 A3) at the top of the receipt sheet: reads the amount, date and items from a
+/// photo on this phone; the photo is attached too.
+class ScanReceiptTile extends StatelessWidget {
+  const ScanReceiptTile({required this.onTap, super.key});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final c = context.colors;
+    return Semantics(
+      button: true,
+      label: '${l.entryScanReceipt}, ${l.entryScanReceiptHint}',
+      excludeSemantics: true,
+      onTap: onTap,
+      child: Pressable(
+        key: const Key('receipt-scan'),
+        onTap: onTap,
+        borderRadius: AppRadii.all24,
+        child: Container(
+          padding: const EdgeInsets.all(AppSpacing.s4),
+          decoration: BoxDecoration(color: c.primaryContainer, borderRadius: AppRadii.all24),
+          child: Row(
+            children: [
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(color: c.primaryFill, shape: BoxShape.circle),
+                child: Icon(AppIcons.scan, size: 24, color: c.onPrimaryFill),
+              ),
+              const SizedBox(width: AppSpacing.s4),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      l.entryScanReceipt,
+                      style: context.text.body.w(700).copyWith(color: c.onPrimaryContainer),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      l.entryScanReceiptHint,
+                      style: context.text.bodySmall.copyWith(color: c.onPrimaryContainer),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(AppIcons.chevronRight, size: 18, color: c.onPrimaryContainer),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}

@@ -11,3 +11,10 @@
 # Keep line numbers for readable native stack traces; hide the original file names.
 -keepattributes SourceFile,LineNumberTable
 -renamesourcefileattribute SourceFile
+
+# Receipt scanning (D-034, S-370) bundles only the Latin text model; the plugin also references the Chinese,
+# Devanagari, Japanese and Korean recognisers (compileOnly), which this app does not ship.
+-dontwarn com.google.mlkit.vision.text.chinese.**
+-dontwarn com.google.mlkit.vision.text.devanagari.**
+-dontwarn com.google.mlkit.vision.text.japanese.**
+-dontwarn com.google.mlkit.vision.text.korean.**

@@ -58,13 +58,16 @@ Future<EditorHandle> pumpEditor(
   ExpenseEditorArgs args = editArgs,
   List<Override> overrides = const [],
   FixedEditorController Function(ExpenseEditorArgs args, ExpenseDraft draft)? make,
+  Widget Function(ExpenseEditorArgs args)? build,
 }) async {
   usePhone(tester);
   await tester.pumpWidget(const SizedBox());
   final handle = EditorHandle();
-  final editor = args.expenseId == null
-      ? ExpenseEditorScreen(groupId: args.groupId)
-      : ExpenseEditorScreen(expenseId: args.expenseId);
+  final editor =
+      build?.call(args) ??
+      (args.expenseId == null
+          ? ExpenseEditorScreen(groupId: args.groupId)
+          : ExpenseEditorScreen(expenseId: args.expenseId));
   // [overrides] apply to the editor route only (the app scope already has the base overrides).
   final screen = overrides.isEmpty ? editor : ProviderScope(overrides: overrides, child: editor);
   await tester.pumpWidget(

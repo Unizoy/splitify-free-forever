@@ -10,18 +10,27 @@ import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/components/components.dart';
 import 'package:splitify/ui/theme/theme.dart';
 
-/// Split-type row `= · 1.23 · % · 1:2 · ±` (Splitwise order, #5–9) with the chosen kind's help line.
+/// Split-type row `= · 1.23 · % · 1:2 · ±` (Splitwise order, #5–9) with the chosen kind's help line, and
+/// the "By items" chip (D-034 A2) when [onItems] is given.
 class SplitKindPicker extends StatelessWidget {
   const SplitKindPicker({
     required this.value,
     required this.onChanged,
     this.kinds = SplitKind.values,
+    this.items = false,
+    this.onItems,
     super.key,
   });
 
   final SplitKind value;
   final ValueChanged<SplitKind> onChanged;
   final List<SplitKind> kinds;
+
+  /// The Items split is on (it is saved as exact amounts, so `1.23` stays lit with the chip).
+  final bool items;
+
+  /// Turns the Items split on; null hides the chip (the group default split has no items).
+  final VoidCallback? onItems;
 
   static String symbol(SplitKind k) => switch (k) {
     SplitKind.equal => '=',
@@ -51,16 +60,28 @@ class SplitKindPicker extends StatelessWidget {
             ],
           ),
         ),
+        if (onItems != null) ...[
+          const SizedBox(height: AppSpacing.s2),
+          Center(
+            child: IconChip(
+              key: const Key('split-items'),
+              label: l.entrySplitItems,
+              icon: AppIcons.receipt,
+              selected: items,
+              onTap: onItems,
+            ),
+          ),
+        ],
         const SizedBox(height: AppSpacing.s3),
         Text.rich(
           TextSpan(
             children: [
               TextSpan(
-                text: l.splitKind(value),
+                text: items ? l.entrySplitItems : l.splitKind(value),
                 style: context.text.bodySmall.w(700).copyWith(color: c.textPrimary),
               ),
               const TextSpan(text: '  ·  '),
-              TextSpan(text: l.splitHint(value)),
+              TextSpan(text: items ? l.entrySplitItemsHint : l.splitHint(value)),
             ],
           ),
           textAlign: TextAlign.center,

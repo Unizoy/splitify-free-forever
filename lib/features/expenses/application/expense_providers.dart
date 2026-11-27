@@ -48,6 +48,9 @@ final class ExpenseView {
 
   bool get unsynced => expense.syncState != SyncState.synced;
 
+  /// Soft-deleted (D-034 A4): the detail page shows it read-only with Restore.
+  bool get deleted => expense.deletedAt != null;
+
   /// A loan (`kind = 'iou'`, #11): one lender, one borrower, not spending.
   bool get isLoan => expense.kind == 'iou';
 
@@ -123,7 +126,8 @@ final groupExpenseViewsProvider = Provider.autoDispose
       return AsyncData(expenseViews(e.requireValue, m.requireValue, uid));
     });
 
-/// One expense (detail screen); data(null) when it is not on this phone or deleted.
+/// One expense (detail screen), a deleted one too (D-034 A4: opened from Activity it offers Restore);
+/// data(null) when it is not on this phone.
 final expenseViewProvider = Provider.autoDispose.family<AsyncValue<ExpenseView?>, String>((
   ref,
   id,
@@ -131,7 +135,7 @@ final expenseViewProvider = Provider.autoDispose.family<AsyncValue<ExpenseView?>
   final e = ref.watch(_expenseProvider(id));
   if (!e.hasValue) return e.hasError ? AsyncError(e.error!, e.stackTrace!) : const AsyncLoading();
   final expense = e.value;
-  if (expense == null || expense.deletedAt != null) return const AsyncData(null);
+  if (expense == null) return const AsyncData(null);
   final uid = ref.watch(currentUserIdProvider);
   return ref
       .watch(_groupMembersProvider(expense.groupId))
