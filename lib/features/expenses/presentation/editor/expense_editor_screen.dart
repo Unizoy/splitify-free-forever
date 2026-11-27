@@ -139,7 +139,7 @@ class _ExpenseEditorScreenState extends ConsumerState<ExpenseEditorScreen> {
     if (_suggest != null) _flushSuggestion();
     FocusManager.instance.primaryFocus?.unfocus();
     final picked = await showWithPicker(context, selected: d.hasGroup ? d.groupId : null);
-    if (picked != null && mounted) await _moveTo(picked);
+    if (picked != null && picked != d.groupId && mounted) await _moveTo(picked);
   }
 
   Future<void> _moveTo(String groupId) =>

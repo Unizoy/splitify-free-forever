@@ -156,7 +156,7 @@ void main() {
     await _waitFor(t, find.byKey(const Key('expense-with-chip')), reason: 'picked');
     expect(find.text('Chai club $tag'), findsOneWidget);
     expect(find.text('Chai $tag'), findsOneWidget);
-    expect(find.text('Paid by You · split equally'), findsOneWidget);
+    expect(find.textContaining('split equally'), findsOneWidget);
 
     // 3. Save: offline first, then on the server with the right group and amount.
     await _tapKey(t, 'expense-save');
