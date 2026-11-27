@@ -1,8 +1,11 @@
+import 'dart:convert';
+
 import 'package:splitify/core/money/allocation.dart';
 import 'package:splitify/core/money/money_error.dart';
 import 'package:splitify/core/money/scaled_input.dart';
 import 'package:splitify/core/money/split.dart';
 import 'package:splitify/domain/rules/default_split.dart';
+import 'package:splitify/features/expenses/application/itemize_draft.dart';
 
 /// Result of checking the split editor against a total (05 §4).
 sealed class SplitCheck {
@@ -24,6 +27,9 @@ final class SplitInvalid extends SplitCheck {
 
   static const invalidInput = 'INVALID_INPUT';
 
+  /// The Items split holds more than the server keeps in `split_values` (S-372).
+  static const itemsTooLarge = 'ITEMS_TOO_LARGE';
+
   final String code;
   final int amount;
 }
@@ -39,6 +45,7 @@ final class SplitDraft {
     required this.text,
     required this.shareUnits,
     required this.exponent,
+    this.items,
   });
 
   /// Equal between all [members], or [preset] (a group default split that still fits, #35).
@@ -91,6 +98,13 @@ final class SplitDraft {
   /// Currency exponent for exact and adjust values.
   final int exponent;
 
+  /// The Items split (D-034 A2): lines with prices and people. Saved as an exact split whose shares the
+  /// lines decide; null for the other kinds.
+  final ItemizeDraft? items;
+
+  /// The Items split is chosen.
+  bool get isItems => items != null;
+
   /// Same people, [kind] with raw engine [values] (basis points, thousandths or minor units).
   SplitDraft withValues(SplitKind kind, Map<String, int> values) {
     return SplitDraft._(
@@ -114,7 +128,7 @@ final class SplitDraft {
   }
 
   /// Equal and adjust show tick boxes; the other kinds a value per person.
-  bool get usesInclusion => kind == SplitKind.equal || kind == SplitKind.adjust;
+  bool get usesInclusion => !isItems && (kind == SplitKind.equal || kind == SplitKind.adjust);
 
   /// People who take part: chosen ones (equal, adjust) or everyone (exact, percent, shares).
   List<String> get participants => usesInclusion
@@ -127,6 +141,15 @@ final class SplitDraft {
   /// People with something to pay in the current editor values (drives "keep chosen members").
   List<String> get chosen {
     if (usesInclusion) return participants;
+    final lines = items?.lines;
+    if (lines != null) {
+      final on = {for (final l in lines) ...l.members};
+      final picked = [
+        for (final m in members)
+          if (on.contains(m)) m,
+      ];
+      return picked.isEmpty ? members : picked;
+    }
     final v = values ?? const <String, int>{};
     final picked = [
       for (final m in members)
@@ -137,6 +160,16 @@ final class SplitDraft {
 
   /// Parsed raw values for the engine, or null when some typed text is not a number.
   Map<String, int>? get values {
+    final itemized = items;
+    if (itemized != null) {
+      try {
+        return itemized.shares(members);
+      } on FormatException {
+        return null;
+      } on MoneyError {
+        return null;
+      }
+    }
     switch (kind) {
       case SplitKind.equal:
         return const {};
@@ -154,15 +187,30 @@ final class SplitDraft {
     }
   }
 
-  /// Sum of the parsed values (live footer), 0 when some text is invalid.
-  int get valueSum => (values ?? const {}).values.fold(0, (a, b) => a + b);
+  /// Sum of the parsed values (live footer), 0 when some text is invalid. Items: what the lines and
+  /// extras come to.
+  int get valueSum {
+    final itemized = items;
+    if (itemized != null) return itemized.total ?? 0;
+    return (values ?? const {}).values.fold(0, (a, b) => a + b);
+  }
 
   /// Raw values stored as `split_values` (null for equal; participants only).
   Map<String, int>? get storedValues => kind == SplitKind.equal ? null : values;
 
+  /// The `split_values` column: [storedValues], plus the lines under `itemized` for the Items split (S-372).
+  Map<String, Object?>? get storedSplitValues {
+    final itemized = items;
+    final v = storedValues;
+    if (itemized == null) return v;
+    return {...?v, itemizedKey: itemized.toJson(members)};
+  }
+
   /// Shares for [total] minor units, or why not.
   SplitCheck check(int? total) {
     if (total == null) return const SplitInvalid('AMOUNT_NOT_POSITIVE');
+    final itemized = items;
+    if (itemized != null) return _checkItems(itemized, total);
     final v = values;
     if (v == null) return const SplitInvalid(SplitInvalid.invalidInput);
     try {
@@ -175,6 +223,24 @@ final class SplitDraft {
         _ => SplitInvalid(e.code),
       };
     }
+  }
+
+  /// Items: the lines' shares when they come to [total]; else what is left (+) or over (−), or why not.
+  SplitCheck _checkItems(ItemizeDraft itemized, int total) {
+    final Map<String, int> shares;
+    try {
+      shares = itemized.shares(members);
+    } on FormatException {
+      return const SplitInvalid(SplitInvalid.invalidInput);
+    } on MoneyError catch (e) {
+      return SplitInvalid(e.code);
+    }
+    final sum = shares.values.fold(0, (a, b) => a + b);
+    if (sum != total) return SplitInvalid('SUM_MISMATCH', total - sum);
+    if (jsonEncode(itemized.toJson(members)).length > maxItemizedJson) {
+      return const SplitInvalid(SplitInvalid.itemsTooLarge);
+    }
+    return SplitReady(shares);
   }
 
   /// For an adjust split of [total] whose result is `NEGATIVE_SHARE`: the first participant (fixed
@@ -195,7 +261,7 @@ final class SplitDraft {
   /// Switches to [next], keeping the chosen people; values reset sensibly (05 §4, #5–9): exact gets the
   /// equal amounts of [total], percent equal percentages, shares one each, adjust no adjustments.
   SplitDraft switchTo(SplitKind next, {int? total}) {
-    if (next == kind) return this;
+    if (next == kind && !isItems) return this;
     final people = chosen;
     final kept = SplitDraft._(
       kind: kind,
@@ -218,6 +284,31 @@ final class SplitDraft {
     return kept.withValues(next, values);
   }
 
+  /// Switches to Items (D-034 A2): one empty line shared by the chosen people. Kept when already there.
+  SplitDraft switchToItems() {
+    if (isItems) return this;
+    return SplitDraft._(
+      kind: SplitKind.exact,
+      members: members,
+      included: Set.unmodifiable(members),
+      text: const {},
+      shareUnits: const {},
+      exponent: exponent,
+      items: ItemizeDraft.start(chosen, exponent),
+    );
+  }
+
+  /// The Items split with [next] lines (an edit in the Items editor, or lines from a scanned receipt).
+  SplitDraft withItems(ItemizeDraft next) => SplitDraft._(
+    kind: SplitKind.exact,
+    members: members,
+    included: Set.unmodifiable(members),
+    text: const {},
+    shareUnits: const {},
+    exponent: exponent,
+    items: next,
+  );
+
   /// The same split for a currency with [exponent] decimals (the typed values are kept as text and are
   /// checked again against the new exponent).
   SplitDraft withExponent(int exponent) => SplitDraft._(
@@ -227,6 +318,7 @@ final class SplitDraft {
     text: text,
     shareUnits: shareUnits,
     exponent: exponent,
+    items: items?.withExponent(exponent),
   );
 
   /// Ticks or unticks [member] (equal, adjust).
@@ -255,5 +347,6 @@ final class SplitDraft {
     text: text ?? this.text,
     shareUnits: shareUnits ?? this.shareUnits,
     exponent: exponent,
+    items: items,
   );
 }
