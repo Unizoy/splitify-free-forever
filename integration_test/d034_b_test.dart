@@ -230,7 +230,7 @@ void main() {
       expect(find.text('${codeF.substring(0, 4)}-${codeF.substring(4)}'), findsOneWidget);
       await _capture(t, 'add-by-code');
       await _tap(t, _key('friend-code-add'));
-      await _waitFor(t, _top('friend-settle'), seconds: 40);
+      await _waitFor(t, _key('friend-settle'), seconds: 40);
       final friendKey = 'u:${f.id}';
       expect(t.widget<FriendPage>(find.byType(FriendPage).last).friendKey, friendKey);
       // One direct group with both accounts linked; F sees it too.
@@ -322,7 +322,7 @@ void main() {
       // Offline from here: the batch is written on the phone only.
       remote.offline = true;
       router.go(FriendRoutes.page(friendKey));
-      await _waitFor(t, _top('friend-status-owed'));
+      await _waitFor(t, _key('friend-status-owed'));
       await _tap(t, _top('friend-settle'));
       await _waitFor(t, _key('settle-all-INR'));
       expect(find.text('owes you ₹455 · 2 groups'), findsOneWidget);
@@ -380,7 +380,7 @@ void main() {
 
       // The friend page: everything settled → the history collapses.
       router.go(FriendRoutes.page(friendKey));
-      await _waitFor(t, _top('friend-show-settled'));
+      await _waitFor(t, _key('friend-show-settled'));
       await _capture(t, 'friend-settled');
 
       // ---- 3. Restore from the payment page.
@@ -415,7 +415,7 @@ void main() {
       ]);
       await sync();
       router.go(FriendRoutes.page(friendKey));
-      await _waitFor(t, _top('friend-status-owe'));
+      await _waitFor(t, _key('friend-status-owe'));
       await _tap(t, _top('friend-settle'));
       await _waitFor(t, _key('settle-all-INR'));
       await _tap(t, _key('settle-all-INR'));
@@ -463,7 +463,7 @@ void main() {
 
       // ---- 5. Share a reminder for Ravi (name-only, owes A ₹7): the in-app sheet with the text.
       router.go(FriendRoutes.page('m:$ravi'));
-      await _waitFor(t, _top('friend-remind'));
+      await _waitFor(t, _key('friend-remind'));
       await _tap(t, _top('friend-remind'));
       await _waitFor(t, _key('remind-share-sheet'));
       expect(
