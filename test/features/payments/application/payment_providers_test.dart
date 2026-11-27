@@ -113,10 +113,11 @@ void main() {
       expect(v.first.nameOf(asha), 'Asha');
     });
 
-    test('paymentViewProvider: the payment, null when deleted or missing', () async {
+    test('paymentViewProvider: the payment, a deleted one marked deleted (D-034 B2), null when missing', () async {
       final one = (await data(paymentViewProvider('p1')))!;
-      expect((one.payment.amount, one.iReceived, one.meId), (500, true, me));
-      expect(await data(paymentViewProvider('p3')), isNull);
+      expect((one.payment.amount, one.iReceived, one.meId, one.deleted), (500, true, me, false));
+      final gone = (await data(paymentViewProvider('p3')))!;
+      expect(gone.deleted, isTrue);
       expect(await data(paymentViewProvider('nope')), isNull);
     });
 
@@ -127,7 +128,10 @@ void main() {
       var row = await (env.db.select(env.db.payments)..where((x) => x.id.equals('p1'))).getSingle();
       expect(row.deletedAt, isNotNull);
       expect(row.syncState, SyncState.pending);
-      expect(await data(paymentViewProvider('p1'), where: (v) => v == null), isNull);
+      expect(
+        (await data(paymentViewProvider('p1'), where: (v) => v?.deleted ?? false))!.deleted,
+        isTrue,
+      );
       await actions.restore(row);
       row = await (env.db.select(env.db.payments)..where((x) => x.id.equals('p1'))).getSingle();
       expect(row.deletedAt, isNull);
@@ -136,7 +140,8 @@ void main() {
           if (o.entity == 'payment') (o.op, o.recordId, o.groupId),
       ];
       expect(box, [('delete', 'p1', env.groupId), ('restore', 'p1', env.groupId)]);
-      expect((await data(paymentViewProvider('p1'), where: (v) => v != null))!.payment.amount, 500);
+      final back = (await data(paymentViewProvider('p1'), where: (v) => !(v?.deleted ?? true)))!;
+      expect((back.payment.amount, back.deleted), (500, false));
     });
   });
 }

@@ -8,6 +8,8 @@ import 'package:splitify/features/balances/application/balance_views.dart';
 import 'package:splitify/features/balances/application/balances_providers.dart';
 import 'package:splitify/features/balances/presentation/balance_copy.dart';
 import 'package:splitify/features/groups/presentation/group_visuals.dart' show SectionLabel;
+import 'package:splitify/features/payments/application/settle_all_controller.dart'
+    show SettleAllOption;
 import 'package:splitify/features/payments/application/settle_controller.dart';
 import 'package:splitify/features/payments/presentation/payment_routes.dart';
 import 'package:splitify/l10n/app_localizations.dart';
@@ -192,16 +194,95 @@ class SettleBalanceRow extends StatelessWidget {
         ? (t.from, l.settlePickOwesYou(amount), c.owedText)
         : (t.from, l.settlePickOwes(personName(l, b, t.to, start: false), amount), c.textSecondary);
     final name = personName(l, b, who);
+    return SettlePickRow(
+      pressKey: Key('settle-pick-$currency-${t.from}-${t.to}'),
+      avatar: Avatar(name: b.nameOf(who), seed: who, tint: b.member(who)?.tint),
+      title: name,
+      line: line,
+      color: color,
+      onTap: onTap,
+      showDivider: showDivider,
+    );
+  }
+}
+
+/// "Everything with Asha · owes you ₹455 · 2 groups" (D-034 B1): the first rows of a friend's Settle up
+/// sheet, one per currency where we have balances in several groups. Opens the batch form.
+class SettleAllRow extends StatelessWidget {
+  const SettleAllRow({
+    required this.friendName,
+    required this.seed,
+    required this.option,
+    required this.onTap,
+    this.tint,
+    this.showDivider = false,
+    super.key,
+  });
+
+  final String friendName;
+  final String seed;
+  final int? tint;
+  final SettleAllOption option;
+  final VoidCallback onTap;
+  final bool showDivider;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final c = context.colors;
+    final o = option;
+    final amount = listMoney(o.net.abs(), o.currency);
+    final (line, color) = o.net > 0
+        ? (l.settle2EverythingOwesYou(amount, o.groups), c.owedText)
+        : (l.settle2EverythingYouOwe(amount, o.groups), c.oweText);
+    return SettlePickRow(
+      pressKey: Key('settle-all-${o.currency}'),
+      avatar: Avatar(name: friendName, seed: seed, tint: tint),
+      title: l.settle2Everything(friendName),
+      line: line,
+      color: color,
+      onTap: onTap,
+      showDivider: showDivider,
+    );
+  }
+}
+
+/// The row shape of the settle pickers: avatar, a bold title, a coloured amount line, a chevron; the whole row
+/// is one button.
+class SettlePickRow extends StatelessWidget {
+  const SettlePickRow({
+    required this.avatar,
+    required this.title,
+    required this.line,
+    required this.color,
+    required this.onTap,
+    this.showDivider = true,
+    this.pressKey,
+    super.key,
+  });
+
+  /// On the pressable row itself (tests tap it).
+  final Key? pressKey;
+  final Widget avatar;
+  final String title;
+  final String line;
+  final Color color;
+  final VoidCallback onTap;
+  final bool showDivider;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         Semantics(
           button: true,
-          label: '$name, $line',
+          label: '$title, $line',
           excludeSemantics: true,
           onTap: onTap,
           child: Pressable(
-            key: Key('settle-pick-$currency-${t.from}-${t.to}'),
+            key: pressKey,
             onTap: onTap,
             scale: AppMotion.rowPressScale,
             child: ConstrainedBox(
@@ -210,13 +291,13 @@ class SettleBalanceRow extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(vertical: AppSpacing.s3),
                 child: Row(
                   children: [
-                    Avatar(name: b.nameOf(who), seed: who, tint: b.member(who)?.tint),
+                    avatar,
                     const SizedBox(width: AppSpacing.s3),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(name, style: context.text.body.w(600)),
+                          Text(title, style: context.text.body.w(600)),
                           const SizedBox(height: 2),
                           Text(
                             line,

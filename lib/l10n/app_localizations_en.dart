@@ -4998,6 +4998,239 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String settle2Everything(String name) {
+    return 'Everything with $name';
+  }
+
+  @override
+  String settle2EverythingOwesYou(String amount, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count groups',
+      one: '1 group',
+    );
+    return 'owes you $amount · $_temp0';
+  }
+
+  @override
+  String settle2EverythingYouOwe(String amount, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count groups',
+      one: '1 group',
+    );
+    return 'you owe $amount · $_temp0';
+  }
+
+  @override
+  String get settle2OneGroup => 'Or settle one group';
+
+  @override
+  String get settle2WithLabel => 'With';
+
+  @override
+  String settle2Across(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count groups',
+      one: '1 group',
+    );
+    return 'Across $_temp0';
+  }
+
+  @override
+  String get settle2AcrossHint => 'Shows how the payment is split between the groups';
+
+  @override
+  String get settle2BreakdownOrder =>
+      'Balances that go the other way are cleared first. The rest pays the biggest balance first.';
+
+  @override
+  String settle2ThisPayment(String amount) {
+    return 'This payment: $amount';
+  }
+
+  @override
+  String get settle2NotInPayment => 'Not in this payment';
+
+  @override
+  String get settle2OverHint => 'One payment can\'t be more than what\'s owed in these groups.';
+
+  @override
+  String settle2Recorded(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count payments recorded',
+      one: 'Payment recorded',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get settle2UpiNote => 'Splitify: settle up';
+
+  @override
+  String get settle2NotFoundBody =>
+      'There is nothing to settle with this friend in this currency right now.';
+
+  @override
+  String get settle2Deleted => 'Deleted';
+
+  @override
+  String get settle2DeletedBody =>
+      'This payment was deleted. Restore it to count it in the balances again.';
+
+  @override
+  String get settle2Restore => 'Restore payment';
+
+  @override
+  String get settle2Restored => 'Payment restored';
+
+  @override
+  String get settle2RestoreArchived => 'This group is archived, so the payment can\'t be restored.';
+
+  @override
+  String settle2ShowSettled(int count) {
+    return 'Show settled items ($count)';
+  }
+
+  @override
+  String get settle2HideSettled => 'Hide settled items';
+
+  @override
+  String get remindShareTitle => 'Share a reminder';
+
+  @override
+  String get remindShareBody =>
+      'Send it with any app on your phone. Splitify doesn\'t send anything itself.';
+
+  @override
+  String get remindShareAction => 'Share reminder';
+
+  @override
+  String get remindShareInstead => 'Share instead';
+
+  @override
+  String remindShareTooltip(String name) {
+    return 'Share a reminder with $name';
+  }
+
+  @override
+  String remindShareText(String name, String amount, String group) {
+    return 'Hi $name, a reminder about $amount for “$group”.';
+  }
+
+  @override
+  String remindShareTextDirect(String name, String amount) {
+    return 'Hi $name, a reminder about the $amount you owe me.';
+  }
+
+  @override
+  String remindShareUpi(String vpa, String link) {
+    return 'You can pay me by UPI at $vpa: $link';
+  }
+
+  @override
+  String get friendCodeShowMine => 'Show my code';
+
+  @override
+  String get friendCodeShowMineHint => 'Friends scan it to add you';
+
+  @override
+  String get friendCodeScan => 'Scan a friend\'s code';
+
+  @override
+  String get friendCodeScanHint => 'Or paste their code or link';
+
+  @override
+  String get friendCodeMyTitle => 'My friend code';
+
+  @override
+  String get friendCodeMyBody =>
+      'Anyone who scans this or opens the link is added as your friend. Share it only with people you know.';
+
+  @override
+  String friendCodeQrLabel(String code) {
+    return 'QR code for friend code $code';
+  }
+
+  @override
+  String get friendCodeLabel => 'Your code';
+
+  @override
+  String get friendCodeShare => 'Share my code';
+
+  @override
+  String friendCodeShareText(String code, String link) {
+    return 'Add me as a friend on Splitify Free Forever: code $code ($link)';
+  }
+
+  @override
+  String get friendCodeResetTitle => 'Reset your friend code?';
+
+  @override
+  String get friendCodeResetBody =>
+      'The old code, QR and link stop working at once. Friends you already have stay.';
+
+  @override
+  String get friendCodeResetDone => 'New friend code ready';
+
+  @override
+  String get friendCodeNeedsInternet =>
+      'Your friend code needs internet the first time. After that it shows offline.';
+
+  @override
+  String get friendCodeAddTitle => 'Add a friend by code';
+
+  @override
+  String get friendCodeAddBody =>
+      'Scan the QR on your friend\'s phone, or paste their code or link.';
+
+  @override
+  String get friendCodeField => 'Friend code';
+
+  @override
+  String get friendCodeInvalid => 'That code doesn\'t match anyone. Check it and try again.';
+
+  @override
+  String get friendCodeOwn => 'That\'s your own code. Ask your friend for theirs.';
+
+  @override
+  String get friendCodeOffline => 'Adding a friend by code needs internet.';
+
+  @override
+  String get friendCodeFailed => 'Couldn\'t add the friend. Try again.';
+
+  @override
+  String get friendCodePasteEmpty => 'There is no friend code to paste';
+
+  @override
+  String get friendCodeQrInvalid => 'That QR is not a Splitify friend code';
+
+  @override
+  String get friendCodeScanTitle => 'Scan friend code';
+
+  @override
+  String get friendCodeScanHint2 => 'Point the camera at the QR on your friend\'s phone.';
+
+  @override
+  String friendCodeAdded(String name) {
+    return '$name is now your friend';
+  }
+
+  @override
+  String friendCodeAlready(String name) {
+    return 'You and $name are already friends';
+  }
+
+  @override
+  String get friendCodeRateLimited => 'Too many wrong codes. Try again in an hour.';
+
+  @override
   String groupLinesMore(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,

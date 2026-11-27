@@ -203,3 +203,20 @@ List<FriendItem> friendItems(Friend friend) {
   });
   return items;
 }
+
+/// How many of [items] (newest first, [friendItems]) are settled history (D-034 B5): when we are settled in
+/// every currency, everything up to the last full settle-up — the newest point where what each item adds up to
+/// is zero in every currency — hides behind "Show settled items". 0 while a balance is open.
+int settledHistoryCount(Friend friend, List<FriendItem> items) {
+  if (friend.status != BalanceStatus.settled || items.isEmpty) return 0;
+  final totals = <String, int>{};
+  var lastZero = -1;
+  for (var i = items.length - 1; i >= 0; i--) {
+    final item = items[i];
+    totals[item.currency] = (totals[item.currency] ?? 0) + item.amount;
+    if (totals.values.every((v) => v == 0)) lastZero = items.length - 1 - i;
+  }
+  // Settled as the groups show it but the records do not add up to zero (simplify debts moved who owes whom):
+  // all of it is history.
+  return lastZero < 0 ? items.length : lastZero + 1;
+}

@@ -34,6 +34,9 @@ final class PaymentView {
   bool get iPaid => meId != null && payment.fromMember == meId;
   bool get iReceived => meId != null && payment.toMember == meId;
   bool get unsynced => payment.syncState != SyncState.synced;
+
+  /// Soft-deleted (rule 9): the detail page shows it read-only with Restore (D-034 B2).
+  bool get deleted => payment.deletedAt != null;
 }
 
 List<PaymentView> paymentViews(
@@ -84,7 +87,8 @@ final groupPaymentViewsProvider = Provider.autoDispose
       );
     });
 
-/// One payment (detail screen); data(null) when it is not on this phone or deleted.
+/// One payment (detail screen), deleted ones too (opened from Activity they show Restore, D-034 B2); data(null)
+/// when it is not on this phone.
 final paymentViewProvider = Provider.autoDispose.family<AsyncValue<PaymentView?>, String>((
   ref,
   id,
@@ -92,7 +96,7 @@ final paymentViewProvider = Provider.autoDispose.family<AsyncValue<PaymentView?>
   final p = ref.watch(_paymentProvider(id));
   if (!p.hasValue) return p.hasError ? AsyncError(p.error!, p.stackTrace!) : const AsyncLoading();
   final payment = p.value;
-  if (payment == null || payment.deletedAt != null) return const AsyncData(null);
+  if (payment == null) return const AsyncData(null);
   final uid = ref.watch(currentUserIdProvider);
   return ref
       .watch(_allMembersProvider(payment.groupId))

@@ -3,9 +3,13 @@ import 'dart:async';
 import 'package:drift/drift.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show StreamProviderFamily;
+import 'package:splitify/core/money/money_formatter.dart';
+import 'package:splitify/core/upi/upi_link.dart';
 import 'package:splitify/data/data_providers.dart';
 import 'package:splitify/data/remote/notifications_remote.dart';
+import 'package:splitify/features/balances/application/balance_views.dart' show GroupBalances;
 import 'package:splitify/features/notifications/application/notifications_providers.dart';
+import 'package:splitify/l10n/app_localizations.dart';
 
 /// One reminder pair: [fromMember] (me) reminds [toMember] in [groupId].
 typedef ReminderPair = ({String groupId, String fromMember, String toMember});
@@ -94,3 +98,48 @@ class ReminderActions {
 }
 
 final reminderActionsProvider = Provider<ReminderActions>(ReminderActions.new);
+
+/// What [them] owes [me] in group [b] per currency, as its Balances tab shows it (only currencies with
+/// something owed, main currency first).
+Map<String, int> owedToMe(GroupBalances b, {required String me, required String them}) => {
+  for (final c in b.currencies)
+    if (b.owed(them, me, c) case final owed when owed > 0) c: owed,
+};
+
+/// The text of a shared reminder (D-034 B3, for people without the app — or instead of a push): "Hi Asha, a
+/// reminder about ₹200 for “Goa trip”." (our friend group: "… about the ₹200 you owe me."). When rupees are
+/// owed and I have a valid UPI ID, the rule 13 link for the rupee part follows on the next line
+/// (`upi://pay?pa=…&pn=<me>&am=…&cu=INR&tn=Splitify: <group>`, the note cut to 50 characters by
+/// [UpiLinkBuilder]). The app sends nothing itself and logs no activity: the person shares it.
+String reminderShareText(
+  AppLocalizations l, {
+  required String name,
+  required Map<String, int> owed,
+  required String groupName,
+  required bool direct,
+  String? myVpa,
+  String myName = '',
+}) {
+  final amount = [
+    for (final e in owed.entries)
+      if (e.value > 0) MoneyFormatter.list.format(e.value, e.key),
+  ].join(' + ');
+  final first = direct
+      ? l.remindShareTextDirect(name, amount)
+      : l.remindShareText(name, amount, groupName);
+  final rupees = owed[UpiLinkBuilder.currency] ?? 0;
+  final vpa = myVpa == null ? null : UpiLinkBuilder.normalizeVpa(myVpa);
+  if (rupees <= 0 || vpa == null) return first;
+  try {
+    final link = const UpiLinkBuilder().build(
+      vpa: vpa,
+      name: myName,
+      amountMinor: rupees,
+      currencyCode: UpiLinkBuilder.currency,
+      note: l.upiNote(groupName),
+    );
+    return '$first\n${l.remindShareUpi(link.vpa, link.uri)}';
+  } on UpiLinkError {
+    return first;
+  }
+}

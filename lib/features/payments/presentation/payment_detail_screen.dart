@@ -28,7 +28,8 @@ import 'package:splitify/ui/theme/theme.dart';
 /// Payment detail (`/payment/:id`, #25), compact like Splitwise's (D-033): the group's cover hero with both
 /// people, "You paid Asha" and the serif amount; one "Cash · 21 Nov 2026" line, the note, history and
 /// "Added by …"; edit and delete (soft, with undo) on top, like the expense detail; then the comment thread
-/// with its composer pinned at the bottom (phase 12).
+/// with its composer pinned at the bottom (phase 12). A deleted payment (opened from Activity) is read-only: a
+/// "Deleted" pill in the hero and Restore instead of edit and delete (D-034 B2).
 class PaymentDetailScreen extends ConsumerWidget {
   const PaymentDetailScreen({required this.paymentId, super.key});
 
@@ -63,17 +64,22 @@ class PaymentDetailScreen extends ConsumerWidget {
       );
     }
     final group = ref.watch(expenseGroupProvider(v.payment.groupId)).value;
+    final archived = group?.archivedAt != null;
     return Scaffold(
       body: SingleChildScrollView(
         child: OverlapColumn(
           top: _Hero(view: v, seed: group?.id, type: group?.type),
-          bottom: OverlapSheet(child: _Body(view: v)),
+          bottom: OverlapSheet(
+            child: _Body(
+              view: v,
+              restore: v.deleted ? _RestoreCard(view: v, archived: archived) : null,
+            ),
+          ),
         ),
       ),
-      bottomNavigationBar: CommentComposer(
-        target: _commentTarget(v),
-        readOnly: group?.archivedAt != null,
-      ),
+      bottomNavigationBar: v.deleted
+          ? null
+          : CommentComposer(target: _commentTarget(v), readOnly: archived),
     );
   }
 }
@@ -128,18 +134,20 @@ class _Hero extends ConsumerWidget {
         onPressed: () => Navigator.of(context).maybePop(),
       ),
       actions: [
-        HeroIconButton(
-          key: const Key('payment-edit'),
-          icon: AppIcons.edit,
-          tooltip: l.payEdit,
-          onPressed: () => unawaited(context.push(PaymentRoutes.edit(p.id))),
-        ),
-        HeroIconButton(
-          key: const Key('payment-delete'),
-          icon: AppIcons.trash,
-          tooltip: l.payDelete,
-          onPressed: () => unawaited(_delete(context, ref)),
-        ),
+        if (!view.deleted) ...[
+          HeroIconButton(
+            key: const Key('payment-edit'),
+            icon: AppIcons.edit,
+            tooltip: l.payEdit,
+            onPressed: () => unawaited(context.push(PaymentRoutes.edit(p.id))),
+          ),
+          HeroIconButton(
+            key: const Key('payment-delete'),
+            icon: AppIcons.trash,
+            tooltip: l.payDelete,
+            onPressed: () => unawaited(_delete(context, ref)),
+          ),
+        ],
       ],
       titleWidget: Column(
         children: [
@@ -176,6 +184,15 @@ class _Hero extends ConsumerWidget {
               style: context.text.amountHero.copyWith(color: c.onHero),
             ),
           ),
+          if (view.deleted) ...[
+            const SizedBox(height: AppSpacing.s3),
+            StatusPill(
+              key: const Key('payment-deleted-pill'),
+              label: l.settle2Deleted,
+              icon: AppIcons.trash,
+              tone: StatusPillTone.glass,
+            ),
+          ],
         ],
       ),
     );
@@ -183,9 +200,12 @@ class _Hero extends ConsumerWidget {
 }
 
 class _Body extends StatelessWidget {
-  const _Body({required this.view});
+  const _Body({required this.view, this.restore});
 
   final PaymentView view;
+
+  /// The Restore card of a deleted payment (it replaces the comment thread).
+  final Widget? restore;
 
   @override
   Widget build(BuildContext context) {
@@ -201,6 +221,7 @@ class _Body extends StatelessWidget {
           const Center(child: SyncMarker()),
           const SizedBox(height: AppSpacing.s4),
         ],
+        if (restore case final r?) ...[r, const SizedBox(height: AppSpacing.s4)],
         // One line for how and when (Splitwise-compact, D-033): "Cash · 21 Nov 2026".
         DashedListRow(
           key: const Key('payment-method-date'),
@@ -208,13 +229,15 @@ class _Body extends StatelessWidget {
           label: methodLabel(l, p.method),
           value: shortDate(context, parseIsoDate(p.date)),
         ),
-        ConversionTile(
-          recordId: p.id,
-          groupId: p.groupId,
-          currency: p.currency.trim(),
-          saved: savedFxOfPayment(p),
-          payment: true,
-        ),
+        // A deleted payment is read-only: no conversion to start from it.
+        if (!view.deleted)
+          ConversionTile(
+            recordId: p.id,
+            groupId: p.groupId,
+            currency: p.currency.trim(),
+            saved: savedFxOfPayment(p),
+            payment: true,
+          ),
         if (note.isNotEmpty)
           Padding(
             padding: const EdgeInsets.symmetric(vertical: AppSpacing.s4),
@@ -248,10 +271,12 @@ class _Body extends StatelessWidget {
             style: context.text.caption.copyWith(color: c.textSecondary),
           ),
         ],
-        const SizedBox(height: AppSpacing.s6),
-        SectionLabel(l.expComments),
-        const SizedBox(height: AppSpacing.s3),
-        CommentThread(target: _commentTarget(view)),
+        if (restore == null) ...[
+          const SizedBox(height: AppSpacing.s6),
+          SectionLabel(l.expComments),
+          const SizedBox(height: AppSpacing.s3),
+          CommentThread(target: _commentTarget(view)),
+        ],
       ],
     );
   }
@@ -264,5 +289,73 @@ class _Body extends StatelessWidget {
     final who = by == null ? l.you : view.userNames[by];
     final date = shortDate(context, at);
     return who == null ? l.expAddedOn(date) : l.expAddedBy(who, date);
+  }
+}
+
+/// "This payment was deleted" with Restore (the existing soft-delete restore → outbox → `payment_restored`).
+/// An archived group is read-only on the server, so it only explains.
+class _RestoreCard extends ConsumerStatefulWidget {
+  const _RestoreCard({required this.view, required this.archived});
+
+  final PaymentView view;
+  final bool archived;
+
+  @override
+  ConsumerState<_RestoreCard> createState() => _RestoreCardState();
+}
+
+class _RestoreCardState extends ConsumerState<_RestoreCard> {
+  bool _busy = false;
+
+  Future<void> _restore() async {
+    final l = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    setState(() => _busy = true);
+    await ref.read(paymentActionsProvider).restore(widget.view.payment);
+    unawaited(HapticFeedback.mediumImpact());
+    if (mounted) setState(() => _busy = false);
+    messenger
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(l.settle2Restored)));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final c = context.colors;
+    return Container(
+      key: const Key('payment-deleted'),
+      padding: const EdgeInsets.all(AppSpacing.s4),
+      decoration: BoxDecoration(color: c.surfaceMuted, borderRadius: AppRadii.all24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(AppIcons.trash, size: 22, color: c.textSecondary),
+              const SizedBox(width: AppSpacing.s3),
+              Expanded(
+                child: Text(
+                  widget.archived ? l.settle2RestoreArchived : l.settle2DeletedBody,
+                  style: context.text.body,
+                ),
+              ),
+            ],
+          ),
+          if (!widget.archived) ...[
+            const SizedBox(height: AppSpacing.s4),
+            PillButton(
+              key: const Key('payment-restore'),
+              label: l.settle2Restore,
+              icon: AppIcons.restore,
+              variant: PillVariant.outline,
+              loading: _busy,
+              onPressed: () => unawaited(_restore()),
+            ),
+          ],
+        ],
+      ),
+    );
   }
 }

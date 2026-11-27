@@ -50,11 +50,13 @@ Finder get _check => find.descendant(of: _btn, matching: find.byIcon(AppIcons.ch
 
 void main() {
   group('RemindButton', () {
-    // TC-23-02
-    testWidgets('is hidden for a name-only member', (t) async {
+    // TC-23-02, D-034 B3: a name-only member gets "Share a reminder" (no push, no bell).
+    testWidgets('a name-only member gets the share button', (t) async {
       await _pump(t, _Rig(), _button(linked: false));
-      expect(_btn, findsNothing);
-      expect(find.byType(RemindButton), findsOneWidget);
+      expect(_btn, findsOneWidget);
+      expect(find.descendant(of: _btn, matching: find.byIcon(AppIcons.share)), findsOneWidget);
+      expect(_bell, findsNothing);
+      expect(find.bySemanticsLabel('Share a reminder with Asha'), findsOneWidget);
     });
 
     // TC-23-02
@@ -234,11 +236,13 @@ void main() {
       );
     });
 
-    // TC-23-02
-    testWidgets('a name-only debtor has no Remind button', (t) async {
+    // TC-23-02, D-034 B3: a name-only debtor gets the share button instead of the push bell.
+    testWidgets('a name-only debtor gets the share-a-reminder button', (t) async {
       await row(t, const Transfer('m3', 'm1', 30000));
       expect(find.text('Rahul Mehta owes you'), findsOneWidget);
-      expect(find.byKey(const Key('remind-m3')), findsNothing);
+      final share = find.byKey(const Key('remind-m3'));
+      expect(share, findsOneWidget);
+      expect(find.descendant(of: share, matching: find.byIcon(AppIcons.share)), findsOneWidget);
       expect(find.byKey(const Key('settle-m3-m1')), findsOneWidget);
     });
 

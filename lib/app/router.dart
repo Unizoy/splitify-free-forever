@@ -115,6 +115,11 @@ String? linkRedirect(Uri uri) {
   if (uri.host == 'join' && path != Routes.join) {
     return Uri(path: Routes.join, queryParameters: _code(uri)).toString();
   }
+  // Personal friend code QR / link `splitify://friend?code=…` → add a friend by code (D-034 B4).
+  if (uri.host == 'friend' && path != FriendRoutes.addByCode) {
+    final code = _code(uri)?['code'];
+    return code == null ? FriendRoutes.addByCode : FriendRoutes.addCode(code);
+  }
   // Any other app link `splitify://<page>/<rest>` opens `/<page>/<rest>` (`group` = `groups`); a page that
   // does not exist shows [NotFoundScreen] (final QA, S-250). `splitify://dev/…` stays for the debug sign-in.
   if (uri.scheme == 'splitify' && uri.host.isNotEmpty && uri.host != 'dev') {
