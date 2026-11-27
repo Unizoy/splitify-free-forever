@@ -5,11 +5,12 @@ import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/components/components.dart';
 import 'package:splitify/ui/theme/theme.dart';
 
-/// How long the settled celebration stays before it closes itself.
-const celebrationHold = Duration(milliseconds: 2400);
+/// How long the settled celebration stays before it closes itself (quick since D-033: it plays over the
+/// page the payment form returned to).
+const celebrationHold = Duration(milliseconds: 1400);
 
-/// T6 (§6 Celebration): "all *settled*" over a scrim when a payment brings what one person owes another
-/// to zero. Closes itself after [celebrationHold] or on a tap.
+/// T6 (§6 Celebration): "all *settled*" over a scrim when a payment settles me and another person in
+/// every currency. Closes itself after [celebrationHold]; a tap or Back skips it.
 Future<void> showSettledCelebration(BuildContext context, {required String name}) {
   final l = AppLocalizations.of(context);
   return showGeneralDialog<void>(

@@ -20,16 +20,12 @@ import 'package:splitify/features/balances/application/balances_providers.dart';
 import 'package:splitify/features/balances/application/totals_providers.dart';
 import 'package:splitify/features/balances/presentation/balances_tab.dart';
 import 'package:splitify/features/balances/presentation/totals_tab.dart';
-import 'package:splitify/features/comments/application/comments_providers.dart';
 import 'package:splitify/features/expenses/application/expense_providers.dart';
 import 'package:splitify/features/expenses/presentation/expense_list.dart';
 import 'package:splitify/features/groups/application/groups_providers.dart';
 import 'package:splitify/features/notifications/application/notifications_providers.dart';
 import 'package:splitify/features/notifications/application/reminders.dart';
 import 'package:splitify/features/payments/application/payment_providers.dart';
-import 'package:splitify/features/payments/application/settle_controller.dart';
-import 'package:splitify/features/payments/presentation/payment_detail_screen.dart';
-import 'package:splitify/features/payments/presentation/settle_up_screen.dart';
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/theme/theme.dart';
 
@@ -93,13 +89,6 @@ List<Override> _balances(GroupBalances b) => [
   lastReminderProvider.overrideWith((ref, p) => Stream.value(null)),
 ];
 
-SettleUpScreen _settleScreen() =>
-    const SettleUpScreen(groupId: gid, from: 'm1', to: 'm3', currency: 'INR');
-
-List<Override> _settle(SettleDraft d) => [
-  settleProvider(settleArgs).overrideWith(() => FixedSettleController(settleArgs, d)),
-];
-
 List<_Case> _cases() => [
   _case('tab_owed', () => const _TabHost(BalancesTab(groupId: gid)), () => _balances(goaOwed())),
   _case(
@@ -124,29 +113,6 @@ List<_Case> _cases() => [
     () => const _TabHost(TotalsTab(groupId: gid)),
     () => [groupTotalsProvider(gid).overrideWithValue(AsyncData(sampleTotals()))],
     height: 1000,
-  ),
-  _case(
-    'settle_up_partial',
-    _settleScreen,
-    () => _settle(sampleSettleDraft(amountText: '150', note: 'Thanks for the cab')),
-    height: 1350,
-  ),
-  _case(
-    'settle_up_nothing_owed',
-    _settleScreen,
-    () => _settle(sampleSettleDraft(to: 'm4', amountText: '')),
-    height: 1350,
-  ),
-  _case(
-    'payment_detail',
-    () => const PaymentDetailScreen(paymentId: 'p1'),
-    () => [
-      paymentViewProvider('p1').overrideWithValue(AsyncData(paymentView())),
-      expenseGroupProvider(gid).overrideWith((ref) => Stream.value(sampleGroup())),
-      // Phase 12: the comment thread (empty here; its states are in history_comments_golden_test).
-      commentThreadProvider((groupId: gid, targetType: 'payment', targetId: 'p1'))
-          .overrideWithValue(const AsyncData([])),
-    ],
   ),
   _case(
     'activity_screen',

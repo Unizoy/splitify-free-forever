@@ -153,6 +153,35 @@ void main() {
       final d = await open(args());
       expect([for (final m in d.members) m.id], [me, asha]);
     });
+
+    // D-033 bug: the Balances tab still lists what someone who left owes; its Settle opened a form whose
+    // payer was not among the form's people, and the screen threw (`firstWhere`, no element).
+    test('a person who left but still owes can be settled from their balance row', () async {
+      await dinner();
+      await env.db.customStatement("UPDATE group_members SET status = 'left' WHERE id = '$ravi'");
+      final d = await open(args(from: ravi, to: me, currency: 'INR'));
+      expect((d.from, d.to), (ravi, me));
+      expect(d.members.map((m) => m.id), containsAll([ravi, me]));
+      expect(d.owed, 10000);
+      expect(d.amountText, '100');
+      expect(d.canSave, isTrue);
+    });
+
+    test('people that are not in the group fall back to a suggested pair', () async {
+      await dinner();
+      final d = await open(args(from: 'ghost', to: me));
+      final ids = d.members.map((m) => m.id);
+      expect(ids, contains(d.from));
+      expect(ids, contains(d.to));
+      expect(d.from, isNot(d.to));
+      expect((d.from, d.to), (asha, me));
+    });
+
+    test('the same person on both sides falls back to a suggested pair', () async {
+      await dinner();
+      final d = await open(args(from: me, to: me));
+      expect(d.from, isNot(d.to));
+    });
   });
 
   group('changing the form', () {
@@ -415,6 +444,43 @@ void main() {
       expect(
         [for (final x in s) (x.currency, x.transfer.from, x.transfer.to, x.transfer.amount)],
         [('INR', 'a', 'me', 200), ('INR', 'b', 'a', 100), ('USD', 'b', 'a', 50)],
+      );
+    });
+
+    // D-033: Splitwise's "pick a balance": per currency, mine first, each biggest first.
+    test('per currency, mine first, biggest first; equal amounts keep the tab order', () {
+      final b = groupBalancesOf(
+        GroupLedger(
+          group: seedGroup(),
+          members: [
+            seedMember('me', userId: 'u1'),
+            seedMember('a', position: 1),
+            seedMember('b', position: 2),
+            seedMember('c', position: 3),
+            seedMember('d', position: 4),
+          ],
+          expenses: [
+            // a owes me 100, b owes me 300, c owes d 500 (not mine), d owes me 100.
+            seedExpense('e1', total: 100, payers: {'me': 100}, shares: {'a': 100}),
+            seedExpense('e2', total: 300, payers: {'me': 300}, shares: {'b': 300}),
+            seedExpense('e3', total: 500, payers: {'d': 500}, shares: {'c': 500}),
+            seedExpense('e4', total: 100, payers: {'me': 100}, shares: {'d': 100}),
+            seedExpense('e5', currency: 'USD', total: 70, payers: {'a': 70}, shares: {'me': 70}),
+          ],
+          payments: const [],
+        ),
+        'u1',
+      );
+      final s = settleSuggestions(b);
+      expect(
+        [for (final x in s) (x.currency, x.transfer.from, x.transfer.to, x.transfer.amount)],
+        [
+          ('INR', 'b', 'me', 300),
+          ('INR', 'a', 'me', 100),
+          ('INR', 'd', 'me', 100),
+          ('INR', 'c', 'd', 500),
+          ('USD', 'me', 'a', 70),
+        ],
       );
     });
 

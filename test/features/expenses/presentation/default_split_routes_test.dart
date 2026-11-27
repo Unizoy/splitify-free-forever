@@ -1,4 +1,5 @@
-// TC-35-02 (default split screen) and the expense routes / "+" entry point.
+// TC-35-02 (default split sheet, D-033: a sheet from group settings, no page) and the expense routes /
+// "+" entry point.
 import 'package:flutter/material.dart';
 import 'package:drift/drift.dart' show Value;
 import 'package:flutter_riverpod/flutter_riverpod.dart' show AsyncData;
@@ -13,7 +14,7 @@ import 'package:splitify/features/expenses/application/default_split_controller.
 import 'package:splitify/features/expenses/application/expense_editor_controller.dart';
 import 'package:splitify/features/expenses/application/expense_providers.dart';
 import 'package:splitify/features/expenses/application/split_draft.dart';
-import 'package:splitify/features/expenses/presentation/default_split_screen.dart';
+import 'package:splitify/features/expenses/presentation/default_split_sheet.dart';
 import 'package:splitify/features/expenses/presentation/editor/expense_editor_screen.dart';
 import 'package:splitify/features/expenses/presentation/expense_detail_screen.dart';
 import 'package:splitify/features/expenses/presentation/expense_routes.dart';
@@ -67,7 +68,7 @@ DefaultSplitState _state({SplitKind kind = SplitKind.percent, Map<String, int>? 
 }
 
 void main() {
-  group('DefaultSplitScreen', () {
+  group('Default split sheet', () {
     late FixedDefaultSplitController controller;
 
     Future<void> pumpScreen(
@@ -79,7 +80,17 @@ void main() {
       await t.pumpWidget(const SizedBox());
       await t.pumpWidget(
         expenseApp(
-          const PushHost(DefaultSplitScreen(groupId: gid)),
+          Scaffold(
+            body: Builder(
+              builder: (context) => Center(
+                child: TextButton(
+                  key: const Key('open'),
+                  onPressed: () => showDefaultSplitSheet(context, gid),
+                  child: const Text('open'),
+                ),
+              ),
+            ),
+          ),
           overrides: [
             defaultSplitProvider(gid).overrideWith(() {
               controller = (make ?? FixedDefaultSplitController.new)(gid, state);
@@ -94,6 +105,7 @@ void main() {
     // TC-35-02
     testWidgets('shows the saved split; Save waits until the percentages reach 100 %', (t) async {
       await pumpScreen(t, _state());
+      expect(find.byKey(const Key('default-split-sheet')), findsOneWidget);
       expect(find.text('Default split'), findsOneWidget);
       expect(find.textContaining('start with this split'), findsOneWidget);
       expect(t.widget<TextField>(fieldIn('percent-m1')).controller!.text, '40');
@@ -113,12 +125,12 @@ void main() {
       await tapKey(t, 'default-split-save');
       expect(controller.saves, 1);
       await settle(t);
-      expect(find.byType(DefaultSplitScreen), findsNothing);
+      expect(find.byType(DefaultSplitSheet), findsNothing);
       expect(find.text('Default split saved'), findsOneWidget);
     });
 
     // TC-35-02
-    testWidgets('a save that fails keeps the screen open', (t) async {
+    testWidgets('a save that fails keeps the sheet open', (t) async {
       await pumpScreen(
         t,
         _state(values: {'m1': 4000, 'm2': 4000, 'm3': 1000, 'm4': 1000}),
@@ -126,7 +138,7 @@ void main() {
       );
       await tapKey(t, 'default-split-save');
       expect(controller.saves, 1);
-      expect(find.byType(DefaultSplitScreen), findsOneWidget);
+      expect(find.byType(DefaultSplitSheet), findsOneWidget);
       expect(find.text('Default split saved'), findsNothing);
     });
 
@@ -174,14 +186,29 @@ void main() {
     });
 
     // TC-35-02
-    testWidgets('loading, missing group and the back arrow', (t) async {
-      final handle = t.ensureSemantics();
+    testWidgets('a missing group says so; Back closes the sheet and keeps the saved split', (
+      t,
+    ) async {
       await pumpScreen(t, _state(), make: _MissingDefault.new);
       expect(find.text("Couldn't load expenses"), findsOneWidget);
-      await t.tap(find.byTooltip('Back'));
+      await t.binding.handlePopRoute();
       await settle(t);
-      expect(find.byType(DefaultSplitScreen), findsNothing);
-      handle.dispose();
+      expect(find.byType(DefaultSplitSheet), findsNothing);
+    });
+
+    // TC-35-02
+    testWidgets('percentages use the number keyboard inside the sheet; nothing overflows', (
+      t,
+    ) async {
+      await pumpScreen(t, _state());
+      await t.tap(fieldIn('percent-m4'));
+      t.view.viewInsets = const FakeViewPadding(bottom: 300);
+      addTearDown(t.view.resetViewInsets);
+      await settle(t);
+      expect(t.takeException(), isNull);
+      await t.enterText(fieldIn('percent-m4'), '10');
+      await settle(t);
+      expect(buttonEnabled(t, 'default-split-save'), isTrue);
     });
   });
 
@@ -190,7 +217,6 @@ void main() {
       expect(ExpenseRoutes.add('g1'), '/expense/new?group=g1');
       expect(ExpenseRoutes.detail('e1'), '/expense/e1');
       expect(ExpenseRoutes.edit('e1'), '/expense/e1/edit');
-      expect(ExpenseRoutes.defaultSplit('g1'), '/groups/g1/default-split');
     });
 
     List<Override> screens() => [
@@ -235,12 +261,6 @@ void main() {
       expect(find.byType(ExpenseEditorScreen), findsOneWidget);
       expect(find.text('Edit expense'), findsWidgets);
       expect(router.state.uri.path, '/expense/e1/edit');
-    });
-
-    // TC-35-02
-    testWidgets('/groups/:id/default-split opens the default split screen', (t) async {
-      await open(t, ExpenseRoutes.defaultSplit(gid));
-      expect(find.byType(DefaultSplitScreen), findsOneWidget);
     });
 
     // TC-13-01

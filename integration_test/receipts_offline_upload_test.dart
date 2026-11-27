@@ -28,7 +28,6 @@ import 'package:splitify/data/remote/supabase_remote_api.dart';
 import 'package:splitify/data/sync/sync_types.dart';
 import 'package:splitify/domain/entities/prepared_image.dart';
 import 'package:splitify/features/auth/application/auth_providers.dart';
-import 'package:splitify/features/expenses/presentation/amount_keypad.dart';
 import 'package:splitify/features/expenses/presentation/expense_routes.dart';
 import 'package:splitify/features/groups/application/groups_providers.dart';
 import 'package:splitify/features/photos/application/photo_compression.dart';
@@ -102,12 +101,6 @@ Future<void> _tap(WidgetTester t, Finder f) async {
   await t.pump();
   await t.tap(f);
   await _pumpFor(t, const Duration(milliseconds: 400));
-}
-
-Future<void> _keys(WidgetTester t, String amount) async {
-  for (final ch in amount.split('')) {
-    await _tap(t, find.byKey(Key('key-${ch == '.' ? 'dot' : 'd$ch'}')));
-  }
 }
 
 void main() {
@@ -240,16 +233,19 @@ void main() {
       router.go(ExpenseRoutes.addLoan(gid));
       await pumpUntil(
         t,
-        () => find.byKey(const Key('loan-direction')).evaluate().isNotEmpty,
+        () => find.byKey(const Key('loan-amount')).evaluate().isNotEmpty,
         reason: 'loan screen',
       );
-      if (find.byType(AmountKeypad).evaluate().isEmpty) {
-        debugPrint('loan keypad closed (viewInsets ${t.view.viewInsets}); opening it');
-        await _tap(t, find.byKey(const Key('loan-amount-tap')));
-      }
-      await _keys(t, '500');
+      // One screen (D-033): the amount on the phone's number keyboard, who lent whom in its sheet.
+      await t.enterText(
+        find.descendant(of: find.byKey(const Key('loan-amount')), matching: find.byType(TextField)),
+        '500',
+      );
+      FocusManager.instance.primaryFocus?.unfocus();
+      await _tap(t, find.byKey(const Key('loan-who')));
       await _tap(t, find.byKey(Key('loan-person-$asha')));
-      expect(find.text('You lent Asha ₹500'), findsOneWidget);
+      expect(find.text('You lent Asha'), findsOneWidget);
+      expect(find.text('Asha will owe you ₹500'), findsOneWidget);
       await _tap(t, find.byKey(const Key('loan-save')));
       await _pumpFor(t, const Duration(seconds: 2));
 

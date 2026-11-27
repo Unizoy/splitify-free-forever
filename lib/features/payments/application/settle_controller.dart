@@ -44,6 +44,7 @@ class SettleDraft {
     required this.to,
     required this.currency,
     required this.date,
+    this.groupType = 'other',
     this.meId,
     this.amountText = '',
     this.amountEdited = false,
@@ -54,6 +55,9 @@ class SettleDraft {
 
   final String groupId;
   final String groupName;
+
+  /// `trip`, `home`, `couple`, `direct` or `other` (the group chip's icon).
+  final String groupType;
 
   /// People who can pay or be paid (active members, plus the saved payment's people).
   final List<LocalMember> members;
@@ -111,6 +115,7 @@ class SettleDraft {
   SettleDraft withCurrency(String code) => SettleDraft(
     groupId: groupId,
     groupName: groupName,
+    groupType: groupType,
     members: members,
     balances: balances,
     meId: meId,
@@ -136,6 +141,7 @@ class SettleDraft {
   }) => SettleDraft(
     groupId: groupId,
     groupName: groupName,
+    groupType: groupType,
     members: members,
     balances: balances,
     meId: meId,
@@ -185,11 +191,20 @@ class SettleController extends AsyncNotifier<SettleDraft> {
           );
     final balances = groupBalancesOf(others, ref.read(currentUserIdProvider));
     final me = balances.meId;
+    // Asked-for people must be in the group; the same person twice is no pair (D-033 bug: a link
+    // with someone unknown, or the same id twice, opened a form the screen could not show).
+    final known = {for (final m in ledger.members) m.id};
+    final pair = saved == null && args.from != args.to;
+    final askedFrom = pair && known.contains(args.from) ? args.from : null;
+    final askedTo = pair && known.contains(args.to) ? args.to : null;
+    // Someone who left still shows on the Balances tab while they owe: their row can be settled.
     final members = [
       for (final m in ledger.members)
         if ((m.deletedAt == null && m.status == 'active') ||
             m.id == saved?.fromMember ||
-            m.id == saved?.toMember)
+            m.id == saved?.toMember ||
+            m.id == askedFrom ||
+            m.id == askedTo)
           m,
     ];
     if (members.length < 2) throw const SettleNotFound();
@@ -198,6 +213,7 @@ class SettleController extends AsyncNotifier<SettleDraft> {
       return SettleDraft(
         groupId: ledger.group.id,
         groupName: ledger.group.name,
+        groupType: ledger.group.type,
         members: members,
         balances: balances,
         meId: me,
@@ -213,8 +229,8 @@ class SettleController extends AsyncNotifier<SettleDraft> {
       );
     }
     var currency = args.currency ?? balances.mainCurrency;
-    var from = args.from;
-    var to = args.to;
+    var from = askedFrom;
+    var to = askedTo;
     if (from == null || to == null) {
       final t = _suggest(balances, me, from ?? to);
       if (t != null) {
@@ -229,6 +245,7 @@ class SettleController extends AsyncNotifier<SettleDraft> {
     final draft = SettleDraft(
       groupId: ledger.group.id,
       groupName: ledger.group.name,
+      groupType: ledger.group.type,
       members: members,
       balances: balances,
       meId: me,
@@ -323,14 +340,26 @@ class SettleController extends AsyncNotifier<SettleDraft> {
   }
 }
 
-/// Settle-up suggestions for a group: the transfers its Balances tab shows, mine first.
+/// Settle-up choices for a group (D-033, Splitwise's "pick a balance"): what its Balances tab shows, per
+/// currency (the group's main currency first); in each currency my balances first, then the others',
+/// each biggest first (equal amounts keep the tab order).
 List<({String currency, Transfer transfer})> settleSuggestions(GroupBalances b) {
   final me = b.meId;
-  final all = [
+  bool mine(Transfer t) => me != null && (t.from == me || t.to == me);
+  return [
     for (final c in b.currencies)
-      for (final t in b.shown(c)) (currency: c, transfer: t),
+      for (final t in _biggestFirst([
+        ...b.shown(c).where(mine),
+      ]).followedBy(_biggestFirst([...b.shown(c).where((t) => !mine(t))])))
+        (currency: c, transfer: t),
   ];
-  bool mine(({String currency, Transfer transfer}) x) =>
-      me != null && (x.transfer.from == me || x.transfer.to == me);
-  return [...all.where(mine), ...all.where((x) => !mine(x))];
+}
+
+List<Transfer> _biggestFirst(List<Transfer> list) {
+  final indexed = [for (var i = 0; i < list.length; i++) (i, list[i])];
+  indexed.sort((x, y) {
+    final byAmount = y.$2.amount.compareTo(x.$2.amount);
+    return byAmount != 0 ? byAmount : x.$1.compareTo(y.$1);
+  });
+  return [for (final x in indexed) x.$2];
 }

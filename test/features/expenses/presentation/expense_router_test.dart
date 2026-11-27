@@ -7,7 +7,6 @@ import 'package:splitify/core/money/split.dart';
 import 'package:splitify/features/expenses/application/default_split_controller.dart';
 import 'package:splitify/features/expenses/application/expense_editor_controller.dart';
 import 'package:splitify/features/expenses/application/split_draft.dart';
-import 'package:splitify/features/expenses/presentation/default_split_screen.dart';
 import 'package:splitify/features/expenses/presentation/editor/expense_editor_screen.dart';
 import 'package:splitify/features/expenses/presentation/expense_routes.dart';
 import 'package:splitify/l10n/app_localizations.dart';
@@ -56,11 +55,6 @@ void main() {
       await t.pump(const Duration(milliseconds: 100));
     }
   }
-
-  testWidgets('/groups/:id/default-split opens the default split editor', (t) async {
-    await pumpAt(t, ExpenseRoutes.defaultSplit(gid));
-    expect(find.byType(DefaultSplitScreen), findsOneWidget);
-  });
 
   testWidgets('/expense/new?group= opens the stepper for that group', (t) async {
     await pumpAt(t, ExpenseRoutes.add(gid));

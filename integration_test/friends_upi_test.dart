@@ -242,21 +242,22 @@ void main() {
     await _waitFor(t, bRow);
     await _capture(t, 'friends-tab');
 
-    // 2. Friend page → Add expense: the direct group is made on the server and the stepper opens.
+    // 2. Friend page → Add expense: the direct group is made on the server and the editor opens.
     await _tap(t, bRow);
     await _waitFor(t, find.byKey(const Key('friend-status-owe')));
     await _tap(t, find.byKey(const Key('friend-add-expense')));
-    // The stepper opens in our new direct group (made by the server, then pulled).
+    // The one-screen editor (D-032) opens in our new direct group (made by the server, then pulled).
     final opened = DateTime.now().add(const Duration(seconds: 45));
     String? directOrNull;
     while (DateTime.now().isBefore(opened)) {
       await t.pump(const Duration(milliseconds: 200));
       directOrNull = await container.read(friendsRepositoryProvider).findDirectGroup(uidA, b.id);
-      if (directOrNull != null && find.text('Paid by').evaluate().isNotEmpty) break;
+      if (directOrNull != null && find.byKey(const Key('expense-amount')).evaluate().isNotEmpty)
+        break;
     }
-    if (directOrNull == null || find.text('Paid by').evaluate().isEmpty) {
+    if (directOrNull == null || find.byKey(const Key('expense-amount')).evaluate().isEmpty) {
       final texts = [for (final w in t.widgetList<Text>(find.byType(Text))) ?w.data];
-      fail('the add-expense stepper did not open in a direct group; on screen: $texts');
+      fail('the add-expense editor did not open in a direct group; on screen: $texts');
     }
     final directId = directOrNull;
     final direct = await (db.select(db.groups)..where((g) => g.id.equals(directId))).getSingle();

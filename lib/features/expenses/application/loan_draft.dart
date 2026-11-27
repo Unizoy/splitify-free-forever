@@ -11,6 +11,7 @@ final class LoanDraft {
     required this.groupId,
     required this.groupName,
     required this.currency,
+    this.groupType = 'other',
     required this.members,
     required this.selfId,
     required this.date,
@@ -20,10 +21,14 @@ final class LoanDraft {
     this.personId,
     this.amountText = '',
     this.note = '',
+    this.notes = '',
   });
 
   final String groupId;
   final String groupName;
+
+  /// `trip`, `home`, `couple`, `direct` or `other` (the group chip's icon).
+  final String groupType;
   final String currency;
 
   /// Everyone who can take part, in fixed order.
@@ -44,6 +49,9 @@ final class LoanDraft {
 
   /// "What for?" (optional; the description falls back to "Loan").
   final String note;
+
+  /// Longer notes (the toolbar's Notes chip, D-033; optional).
+  final String notes;
   final DateTime date;
 
   bool get isEdit => expenseId != null;
@@ -70,12 +78,15 @@ final class LoanDraft {
 
   bool get noteTooLong => note.trim().length > maxDescription;
 
+  bool get notesTooLong => notes.trim().length > maxNotes;
+
   bool get canSave =>
       total != null &&
       personId != null &&
       personId != selfId &&
       member(personId) != null &&
-      !noteTooLong;
+      !noteTooLong &&
+      !notesTooLong;
 
   /// Snake_case server columns (IOU: one payer, one share, payer not in the shares). Throws
   /// [StateError] when not [canSave].
@@ -83,10 +94,11 @@ final class LoanDraft {
     if (!canSave) throw StateError('loan draft is not valid');
     final t = total!;
     final n = note.trim();
+    final more = notes.trim();
     return {
       'kind': 'iou',
       'description': n.isEmpty ? defaultDescription : n,
-      'notes': null,
+      'notes': more.isEmpty ? null : more,
       'category': 'other.general',
       'date': isoDate(date),
       'currency': currency,
@@ -101,13 +113,16 @@ final class LoanDraft {
   LoanDraft copyWith({
     LoanDirection? direction,
     String? personId,
+    String? currency,
     String? amountText,
     String? note,
+    String? notes,
     DateTime? date,
   }) => LoanDraft(
     groupId: groupId,
     groupName: groupName,
-    currency: currency,
+    groupType: groupType,
+    currency: currency ?? this.currency,
     members: members,
     selfId: selfId,
     selfIsMe: selfIsMe,
@@ -116,6 +131,7 @@ final class LoanDraft {
     personId: personId ?? this.personId,
     amountText: amountText ?? this.amountText,
     note: note ?? this.note,
+    notes: notes ?? this.notes,
     date: date ?? this.date,
   );
 }
