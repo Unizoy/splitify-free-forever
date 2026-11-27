@@ -48,7 +48,7 @@ Future<AppDatabase> _seeded(
     () => db.into(db.groups).insert(sampleGroup(id: 'g1', type: type, createdBy: createdBy)),
     () => db
         .into(db.groupMembers)
-        .insert(sampleMember(id: 'm1', userId: 'u1', name: 'Asha', role: 'owner')),
+        .insert(sampleMember(id: 'm1', groupId: 'g1', userId: 'u1', name: 'Asha', role: 'owner')),
     for (final m in extra) () => db.into(db.groupMembers).insert(m),
   ]);
   return db;
@@ -184,12 +184,20 @@ void main() {
     testWidgets('D-033 edit lists the members and adds new people on save', (tester) async {
       final db = await _seeded(
         tester,
-        extra: [sampleMember(id: 'm2', name: 'Ravi', position: 1)],
+        extra: [sampleMember(id: 'm2', groupId: 'g1', name: 'Ravi', position: 1)],
       );
       final h = await pumpGroups(tester, '/groups', db: db);
       h.open('/groups/g1/edit');
       await settle(tester, db: true);
       expect(find.text('Edit group'), findsOneWidget);
+      // The form is a lazy list: scroll the member rows into view first.
+      await tester.scrollUntilVisible(
+        _key('group-member-m2'),
+        200,
+        scrollable: find
+            .descendant(of: _key('group-form'), matching: find.byType(Scrollable))
+            .first,
+      );
       expect(_key('group-member-m1'), findsOneWidget);
       expect(_key('group-member-m2'), findsOneWidget);
       await _type(tester, 'group-add-person', 'Neha');
@@ -252,7 +260,15 @@ void main() {
     ) async {
       final db = await _seeded(tester);
       await pumpGroups(tester, '/groups/g1/settings', db: db);
-      double y(String key) => tester.getTopLeft(_key(key)).dy;
+      // The settings page is a lazy list: walk down it and note where each row sits in the whole list.
+      // Resolved once: the header that finds it scrolls away (and is disposed) on the way down.
+      final listElement = find
+          .ancestor(of: _key('settings-edit-group'), matching: find.byType(Scrollable))
+          .evaluate()
+          .first;
+      final list = find.byElementPredicate((e) => e == listElement);
+      final position = tester.state<ScrollableState>(list).position;
+      double at(String key) => tester.getTopLeft(_key(key)).dy + position.pixels;
       final order = [
         'settings-edit-group',
         'settings-add-member',
@@ -267,17 +283,13 @@ void main() {
         'settings-leave',
         'settings-delete',
       ];
-      // Tall surface so every row is built.
-      tester.view.physicalSize = const Size(1200, 6000);
-      tester.view.devicePixelRatio = 1.5;
-      addTearDown(tester.view.reset);
-      await settle(tester, db: true);
-      for (var i = 1; i < order.length; i++) {
-        expect(
-          y(order[i]),
-          greaterThan(y(order[i - 1])),
-          reason: '${order[i]} after ${order[i - 1]}',
-        );
+      var last = double.negativeInfinity;
+      for (final key in order) {
+        await tester.scrollUntilVisible(_key(key), 150, scrollable: list);
+        await settle(tester, db: true);
+        final y = at(key);
+        expect(y, greaterThan(last), reason: '$key comes after the row before it');
+        last = y;
       }
     });
 
