@@ -12,7 +12,6 @@ import 'package:drift/drift.dart' show Value;
 import 'package:splitify/data/local/app_database.dart';
 import 'package:splitify/domain/entities/prepared_image.dart';
 import 'package:splitify/domain/rules/receipt_text_parser.dart';
-import 'package:splitify/features/expenses/application/category_trend.dart';
 import 'package:splitify/features/expenses/application/expense_draft.dart';
 import 'package:splitify/features/expenses/application/expense_providers.dart';
 import 'package:splitify/features/expenses/application/itemize_draft.dart';
@@ -332,7 +331,6 @@ void main() {
             expenseViewProvider('e1').overrideWithValue(AsyncData(sampleView(deleted))),
             expenseGroupProvider(gid).overrideWith((ref) => Stream.value(sampleGroup())),
             noRepeat('e1'),
-            categoryTrendProvider.overrideWith((ref, q) => null),
             expenseActionsProvider.overrideWith((ref) => actions = _FakeActions(ref)),
           ],
         ),
@@ -357,7 +355,6 @@ void main() {
             expenseViewProvider('e1').overrideWithValue(AsyncData(sampleView(sampleExpense()))),
             expenseGroupProvider(gid).overrideWith((ref) => Stream.value(sampleGroup())),
             noRepeat('e1'),
-            categoryTrendProvider.overrideWith((ref, q) => null),
           ],
         ),
       );

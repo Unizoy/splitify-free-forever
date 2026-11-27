@@ -82,7 +82,10 @@ class ExpenseDetailScreen extends ConsumerWidget {
           ),
         ),
       ),
-      bottomNavigationBar: CommentComposer(target: _commentTarget(v), readOnly: readOnly),
+      // A deleted expense takes no new comments (its thread stays readable); an archived group says why.
+      bottomNavigationBar: v.deleted
+          ? null
+          : CommentComposer(target: _commentTarget(v), readOnly: readOnly),
     );
   }
 }
@@ -252,6 +255,7 @@ class _Body extends StatelessWidget {
     String money(int v) => MoneyFormatter.detail.format(v, e.currency);
     String name(String id) => id == view.meId ? l.you : view.nameOf(id);
     final kind = splitKindOf(e.splitKind);
+    final items = _itemsOf(e);
     final added = _addedLine(context, l);
     final edited = _editedLine(context, l);
     final payers = view.paid.entries.where((p) => p.value != 0).toList();
@@ -276,7 +280,11 @@ class _Body extends StatelessWidget {
             divider: i < payers.length - 1,
           ),
         const SizedBox(height: AppSpacing.s6),
-        SectionLabel(view.isLoan ? l.loanBorrowedBy : l.expSplitLabel(l.splitKind(kind))),
+        SectionLabel(
+          view.isLoan
+              ? l.loanBorrowedBy
+              : l.expSplitLabel(items != null ? l.entrySplitItems : l.splitKind(kind)),
+        ),
         for (var i = 0; i < owed.length; i++)
           _PersonRow(
             name: name(owed[i].key),
@@ -285,7 +293,7 @@ class _Body extends StatelessWidget {
             trailing: owed[i].value == 0 ? l.expOwesNothing : l.expOwes(money(owed[i].value)),
             divider: i < owed.length - 1,
           ),
-        if (_itemsOf(e) case final items?) ...[
+        if (items != null) ...[
           const SizedBox(height: AppSpacing.s6),
           SectionLabel(l.entryItemsLabel),
           for (final (i, item) in items.items.indexed)
