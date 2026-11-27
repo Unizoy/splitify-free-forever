@@ -6,8 +6,10 @@ import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:splitify/data/repositories/profile_repository.dart';
+import 'package:splitify/domain/entities/prepared_image.dart';
 import 'package:splitify/features/account/presentation/profile_form.dart';
 import 'package:splitify/features/auth/application/auth_providers.dart';
+import 'package:splitify/features/photos/application/photo_providers.dart';
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/components/components.dart';
 import 'package:splitify/ui/theme/theme.dart';
@@ -29,8 +31,9 @@ Future<Uint8List?> pickAvatarPhoto() async {
 /// Photo picker used by the profile screen (tests override it).
 final photoPickerProvider = Provider<PhotoPicker>((ref) => pickAvatarPhoto);
 
-/// Profile edit (`/account/profile`, B2): photo, name, UPI ID (+ scan) and
-/// default currency. Saving needs internet (allowed online-only exception).
+/// Profile edit (`/account/profile`, B2), one simple screen (D-033): the photo (tap it to change; the
+/// saved one shows), name, UPI ID with a scan button in the field, default currency, and Save above the
+/// keyboard. Saving needs internet (allowed online-only exception); typed values stay on any error.
 class ProfileEditScreen extends ConsumerStatefulWidget {
   const ProfileEditScreen({super.key});
 
@@ -67,6 +70,7 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
       messenger.showSnackBar(SnackBar(content: Text(l.needsInternet)));
       return;
     }
+    FocusManager.instance.primaryFocus?.unfocus();
     setState(() => _saving = true);
     try {
       await ref.read(profileProvider.notifier).save(draft.apply(profile), photo: _photo);
@@ -91,11 +95,22 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    final c = context.colors;
     final profile = ref.watch(profileProvider).value;
     final draft = (_draft ??= ProfileDraft(null))..fillOnce(profile);
     final name = draft.name.text.trim();
     final photo = _photo;
+    // The saved photo (D-033 bug: only a photo picked in this visit used to show).
+    final path = profile?.avatarPath;
+    final saved = path == null
+        ? null
+        : ref
+              .watch(storedPhotoProvider((bucket: MediaBuckets.avatars, path: path, thumb: false)))
+              .value;
+    final ImageProvider? image = photo != null
+        ? MemoryImage(photo)
+        : saved == null
+        ? null
+        : ResizeImage(FileImage(saved), width: 512);
     return Scaffold(
       appBar: AppBar(
         leading: AppIconButton(
@@ -103,56 +118,99 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
           icon: const Icon(AppIcons.back),
           onPressed: () => Navigator.of(context).maybePop(),
         ),
+        title: Text(l.profileTitle),
       ),
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(
-          AppSpacing.screen,
-          AppSpacing.s2,
-          AppSpacing.screen,
-          AppSpacing.s8,
-        ),
+      body: Column(
         children: [
-          Semantics(
-            header: true,
-            child: MediaQuery.withClampedTextScaling(
-              maxScaleFactor: AppText.maxSerifScale,
-              child: Text(l.profileTitle, style: context.text.sheetTitle),
+          Expanded(
+            child: ListView(
+              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.screen,
+                AppSpacing.s3,
+                AppSpacing.screen,
+                AppSpacing.s8,
+              ),
+              children: [
+                Center(
+                  child: PhotoAvatarButton(
+                    key: const Key('profile-photo'),
+                    name: name.isEmpty ? l.you : name,
+                    seed: profile?.id ?? 'me',
+                    image: image,
+                    tooltip: l.profilePhotoTooltip,
+                    onTap: () => unawaited(_pickPhoto()),
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.s6),
+                ProfileFields(draft: draft, onSubmitted: () => unawaited(_save())),
+              ],
             ),
           ),
-          const SizedBox(height: AppSpacing.s2),
-          Text(l.profileConfirmSubtitle, style: context.text.body.copyWith(color: c.textSecondary)),
-          const SizedBox(height: AppSpacing.s8),
-          Center(
-            child: Avatar(
-              name: name.isEmpty ? l.you : name,
-              seed: profile?.id ?? 'me',
-              size: AvatarSize.s96,
-              ring: true,
-              image: photo == null ? null : MemoryImage(photo),
+          // In the body (not bottomNavigationBar): the Scaffold lifts it above the keyboard (D-032).
+          StickyActionBar(
+            primary: PillButton(
+              key: const Key('profile-save'),
+              label: l.saveLabel,
+              loading: _saving,
+              onPressed: () => unawaited(_save()),
             ),
-          ),
-          const SizedBox(height: AppSpacing.s3),
-          Center(
-            child: PillButton(
-              key: const Key('profile-photo'),
-              label: l.changePhoto,
-              icon: AppIcons.user,
-              variant: PillVariant.ghost,
-              size: PillSize.medium,
-              expand: false,
-              onPressed: () => unawaited(_pickPhoto()),
-            ),
-          ),
-          const SizedBox(height: AppSpacing.s6),
-          ProfileFields(draft: draft),
-          const SizedBox(height: AppSpacing.s10),
-          PillButton(
-            key: const Key('profile-save'),
-            label: l.saveLabel,
-            loading: _saving,
-            onPressed: () => unawaited(_save()),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// A large avatar with a small camera badge; tapping it picks a new photo.
+class PhotoAvatarButton extends StatelessWidget {
+  const PhotoAvatarButton({
+    required this.name,
+    required this.seed,
+    required this.tooltip,
+    required this.onTap,
+    this.image,
+    super.key,
+  });
+
+  final String name;
+  final String seed;
+  final String tooltip;
+  final VoidCallback onTap;
+  final ImageProvider? image;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    return Semantics(
+      button: true,
+      label: tooltip,
+      excludeSemantics: true,
+      onTap: onTap,
+      child: Pressable(
+        onTap: onTap,
+        circle: true,
+        scale: 0.95,
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            Avatar(name: name, seed: seed, size: AvatarSize.s96, ring: true, image: image),
+            PositionedDirectional(
+              end: -2,
+              bottom: -2,
+              child: Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: c.ink,
+                  shape: BoxShape.circle,
+                  border: Border.all(color: c.bg, width: 3),
+                ),
+                child: Icon(AppIcons.camera, size: 16, color: c.onInk),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

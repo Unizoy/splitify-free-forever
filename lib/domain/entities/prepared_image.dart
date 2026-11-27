@@ -16,6 +16,9 @@ abstract final class MediaBuckets {
   static const receipts = 'receipts';
   static const groupCovers = 'group-covers';
 
+  /// Profile photos, `<user_id>/<uuid>.jpg` (0007).
+  static const avatars = 'avatars';
+
   /// `<group_id>/<expense_id>/<uuid>.jpg`.
   static String receiptPath(String groupId, String expenseId, String fileId) =>
       '$groupId/$expenseId/$fileId.jpg';

@@ -436,6 +436,45 @@ class AppLocalizationsEn extends AppLocalizations {
   String get createGroupButton => 'Create group';
 
   @override
+  String get groupFormCover => 'Group cover';
+
+  @override
+  String get groupFormCoverChoose => 'Choose a photo';
+
+  @override
+  String get groupFormPeopleLabel => 'Add people';
+
+  @override
+  String get groupFormPeopleHint => 'Type a name, then Add';
+
+  @override
+  String get groupFormAddPerson => 'Add';
+
+  @override
+  String get groupFormPeopleNote =>
+      'They don\'t need the app. They can join later with the invite link and claim their spot.';
+
+  @override
+  String groupFormRemovePerson(String name) {
+    return 'Remove $name';
+  }
+
+  @override
+  String get groupFormInvite => 'Invite with a link or QR';
+
+  @override
+  String get groupFormInviteNew => 'Saves the group, then shows its link';
+
+  @override
+  String get groupFormDiscardTitle => 'Discard this group?';
+
+  @override
+  String get groupFormDiscardBody => 'The name and people you typed will be lost.';
+
+  @override
+  String get groupFormDiscardEditBody => 'The group stays as it was last saved.';
+
+  @override
   String get groupSaved => 'Group saved';
 
   @override
@@ -497,6 +536,23 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get groupSettingsTitle => 'Group settings';
+
+  @override
+  String get settingsAddPeople => 'Add people to group';
+
+  @override
+  String get settingsInviteLink => 'Invite via link or QR';
+
+  @override
+  String get settingsSectionSettings => 'Settings';
+
+  @override
+  String get settingsSectionData => 'Data';
+
+  @override
+  String settingsGroupCaption(String type, String currency) {
+    return '$type · $currency';
+  }
 
   @override
   String get membersSection => 'Members';
@@ -654,6 +710,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get copyCode => 'Copy code';
 
   @override
+  String get inviteLinkLabel => 'Invite link';
+
+  @override
+  String get copyLink => 'Copy link';
+
+  @override
+  String get linkCopied => 'Link copied';
+
+  @override
   String get codeCopied => 'Code copied';
 
   @override
@@ -681,7 +746,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'This group is not on the server yet. Connect to the internet to get its invite code.';
 
   @override
-  String get joinSubtitle => 'Type the invite code or scan the QR a friend shows you.';
+  String get joinSubtitle => 'Paste or type the invite code, or scan the QR a friend shows you.';
 
   @override
   String get enterCode => 'Enter code';
@@ -737,6 +802,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get joinOtherCode => 'Use another code';
+
+  @override
+  String get joinPaste => 'Paste';
+
+  @override
+  String get joinPasteEmpty => 'There is no invite code to paste';
 
   @override
   String get joinScanTitle => 'Scan invite QR';
@@ -860,6 +931,25 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get addFriendNewHint => 'They don\'t need the app. Invite them later to claim their spot.';
+
+  @override
+  String get addFriend => 'Add friend';
+
+  @override
+  String get addFriendTitle => 'Add a friend';
+
+  @override
+  String get addFriendInvite => 'Add and invite with a link';
+
+  @override
+  String addFriendAdded(String name) {
+    return '$name added';
+  }
+
+  @override
+  String friendRemindPick(String name) {
+    return 'Remind $name';
+  }
 
   @override
   String get addFriendNoFriends => 'No friends yet. Add someone new below.';
@@ -2896,6 +2986,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get scanUpiQr => 'Scan my UPI QR';
 
   @override
+  String get profileAddUpi => 'Add a UPI ID (optional)';
+
+  @override
+  String get profilePhotoTooltip => 'Change your photo';
+
+  @override
   String get continueLabel => 'Continue';
 
   @override
@@ -3724,6 +3820,26 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get impChooseFile => 'Choose CSV file';
+
+  @override
+  String get impIntoGroup => 'Import into';
+
+  @override
+  String impFileRows(int count, String currencies) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count rows',
+      one: '1 row',
+    );
+    return '$_temp0 · $currencies';
+  }
+
+  @override
+  String get impChangeFile => 'Change';
+
+  @override
+  String get impPreviewButton => 'Preview import';
 
   @override
   String get impChooseAnother => 'Choose another file';

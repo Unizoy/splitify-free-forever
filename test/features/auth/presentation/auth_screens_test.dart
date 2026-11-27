@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -15,8 +16,10 @@ import 'package:splitify/data/repositories/auth_repository.dart';
 import 'package:splitify/data/repositories/profile_repository.dart';
 import 'package:splitify/features/account/presentation/profile_edit_screen.dart';
 import 'package:splitify/features/auth/application/auth_providers.dart';
+import 'package:splitify/features/photos/application/photo_providers.dart';
+import 'package:splitify/domain/entities/prepared_image.dart';
 import 'package:splitify/l10n/app_localizations.dart';
-import 'package:splitify/ui/components/components.dart' show DotsPulse;
+import 'package:splitify/ui/components/components.dart' show Avatar, DotsPulse;
 import 'package:splitify/ui/theme/theme.dart';
 
 import '../../../support/fakes.dart';
@@ -40,13 +43,23 @@ Future<_Harness> _pump(
   bool google = false,
   bool gate = false,
   Uint8List? photo,
+  Uint8List? profilePhoto,
   int codeLength = 6,
 }) async {
   FlutterSecureStorage.setMockInitialValues({});
   SharedPreferences.setMockInitialValues({});
   final prefs = await SharedPreferences.getInstance();
   final auth = FakeAuthRepository(user: user);
-  final remote = FakeProfileRemote(sampleProfile);
+  const avatarPath = 'u1/avatar.jpg';
+  final remote = FakeProfileRemote(
+    profilePhoto == null ? sampleProfile : sampleProfile.copyWith(avatarPath: avatarPath),
+  );
+  File? avatarFile;
+  if (profilePhoto != null) {
+    final dir = Directory.systemTemp.createTempSync('avatar');
+    addTearDown(() => dir.deleteSync(recursive: true));
+    avatarFile = File('${dir.path}/avatar.jpg')..writeAsBytesSync(profilePhoto);
+  }
   final db = testDb();
   addTearDown(db.close);
   tester.view.physicalSize = const Size(412 * 3, 915 * 3);
@@ -71,6 +84,9 @@ Future<_Harness> _pump(
         emailCodeLengthProvider.overrideWithValue(codeLength),
         e2ePasswordProvider.overrideWithValue('pw'),
         photoPickerProvider.overrideWithValue(() async => photo),
+        if (avatarFile != null)
+          storedPhotoProvider((bucket: MediaBuckets.avatars, path: avatarPath, thumb: false))
+              .overrideWith((ref) async => avatarFile!),
         ...emptyGroupsOverrides(),
       ],
       child: MaterialApp.router(
@@ -253,6 +269,19 @@ void main() {
     expect(h.remote.profile?.displayName, 'Asha R');
     expect(h.remote.profile?.defaultCurrency, 'USD');
     expect(h.remote.uploads, hasLength(1));
+  });
+
+  // D-033 bug (reproduced before the fix): the saved profile photo never showed on the profile screen
+  // (only a photo picked in this visit did), so after saving it looked as if the photo was lost.
+  testWidgets('D-033 profile edit shows the saved photo', (tester) async {
+    await _pump(
+      tester,
+      Routes.profile,
+      user: const AuthUser(id: 'u1'),
+      profilePhoto: base64Decode(_png1x1),
+    );
+    await _settle(tester);
+    expect(tester.widget<Avatar>(find.byType(Avatar).first).image, isNotNull);
   });
 
   testWidgets('profile edit offline shows "Needs internet"', (tester) async {

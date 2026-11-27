@@ -39,4 +39,33 @@ abstract final class InviteCode {
     final candidate = normalize(fromLink ?? text);
     return _valid.hasMatch(candidate) ? candidate : null;
   }
+
+  static final _inText = RegExp(
+    r'(?<![0-9A-Za-z])([0-9A-Za-z]{4})(-?)([0-9A-Za-z]{4})(?![0-9A-Za-z])',
+  );
+
+  /// A code inside pasted text (D-033): the link, a bare code, or the shared invite message
+  /// ("… Free Forever: code ABCD-EFGH"). A dashed `ABCD-EFGH` wins over other 8-letter words, else the
+  /// last one; null when nothing in the text is a code.
+  static String? find(String text) {
+    final direct = parse(text);
+    if (direct != null) return direct;
+    final link = RegExp(r'code=([0-9A-Za-z-]+)').firstMatch(text);
+    if (link != null) {
+      final code = parse(link.group(1)!);
+      if (code != null) return code;
+    }
+    String? dashed;
+    String? plain;
+    for (final m in _inText.allMatches(text)) {
+      final code = normalize('${m.group(1)}${m.group(3)}');
+      if (!_valid.hasMatch(code)) continue;
+      if (m.group(2)!.isNotEmpty) {
+        dashed = code;
+      } else {
+        plain = code;
+      }
+    }
+    return dashed ?? plain;
+  }
 }

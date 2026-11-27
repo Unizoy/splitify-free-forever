@@ -824,6 +824,78 @@ abstract class AppLocalizations {
   /// **'Create group'**
   String get createGroupButton;
 
+  /// No description provided for @groupFormCover.
+  ///
+  /// In en, this message translates to:
+  /// **'Group cover'**
+  String get groupFormCover;
+
+  /// No description provided for @groupFormCoverChoose.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a photo'**
+  String get groupFormCoverChoose;
+
+  /// No description provided for @groupFormPeopleLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Add people'**
+  String get groupFormPeopleLabel;
+
+  /// No description provided for @groupFormPeopleHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Type a name, then Add'**
+  String get groupFormPeopleHint;
+
+  /// No description provided for @groupFormAddPerson.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get groupFormAddPerson;
+
+  /// No description provided for @groupFormPeopleNote.
+  ///
+  /// In en, this message translates to:
+  /// **'They don\'t need the app. They can join later with the invite link and claim their spot.'**
+  String get groupFormPeopleNote;
+
+  /// No description provided for @groupFormRemovePerson.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove {name}'**
+  String groupFormRemovePerson(String name);
+
+  /// No description provided for @groupFormInvite.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite with a link or QR'**
+  String get groupFormInvite;
+
+  /// No description provided for @groupFormInviteNew.
+  ///
+  /// In en, this message translates to:
+  /// **'Saves the group, then shows its link'**
+  String get groupFormInviteNew;
+
+  /// No description provided for @groupFormDiscardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard this group?'**
+  String get groupFormDiscardTitle;
+
+  /// No description provided for @groupFormDiscardBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The name and people you typed will be lost.'**
+  String get groupFormDiscardBody;
+
+  /// No description provided for @groupFormDiscardEditBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The group stays as it was last saved.'**
+  String get groupFormDiscardEditBody;
+
   /// No description provided for @groupSaved.
   ///
   /// In en, this message translates to:
@@ -931,6 +1003,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Group settings'**
   String get groupSettingsTitle;
+
+  /// No description provided for @settingsAddPeople.
+  ///
+  /// In en, this message translates to:
+  /// **'Add people to group'**
+  String get settingsAddPeople;
+
+  /// No description provided for @settingsInviteLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite via link or QR'**
+  String get settingsInviteLink;
+
+  /// No description provided for @settingsSectionSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get settingsSectionSettings;
+
+  /// No description provided for @settingsSectionData.
+  ///
+  /// In en, this message translates to:
+  /// **'Data'**
+  String get settingsSectionData;
+
+  /// No description provided for @settingsGroupCaption.
+  ///
+  /// In en, this message translates to:
+  /// **'{type} · {currency}'**
+  String settingsGroupCaption(String type, String currency);
 
   /// No description provided for @membersSection.
   ///
@@ -1196,6 +1298,24 @@ abstract class AppLocalizations {
   /// **'Copy code'**
   String get copyCode;
 
+  /// No description provided for @inviteLinkLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite link'**
+  String get inviteLinkLabel;
+
+  /// No description provided for @copyLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy link'**
+  String get copyLink;
+
+  /// No description provided for @linkCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Link copied'**
+  String get linkCopied;
+
   /// No description provided for @codeCopied.
   ///
   /// In en, this message translates to:
@@ -1247,7 +1367,7 @@ abstract class AppLocalizations {
   /// No description provided for @joinSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Type the invite code or scan the QR a friend shows you.'**
+  /// **'Paste or type the invite code, or scan the QR a friend shows you.'**
   String get joinSubtitle;
 
   /// No description provided for @enterCode.
@@ -1351,6 +1471,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Use another code'**
   String get joinOtherCode;
+
+  /// No description provided for @joinPaste.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste'**
+  String get joinPaste;
+
+  /// No description provided for @joinPasteEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'There is no invite code to paste'**
+  String get joinPasteEmpty;
 
   /// No description provided for @joinScanTitle.
   ///
@@ -1549,6 +1681,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'They don\'t need the app. Invite them later to claim their spot.'**
   String get addFriendNewHint;
+
+  /// No description provided for @addFriend.
+  ///
+  /// In en, this message translates to:
+  /// **'Add friend'**
+  String get addFriend;
+
+  /// No description provided for @addFriendTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a friend'**
+  String get addFriendTitle;
+
+  /// No description provided for @addFriendInvite.
+  ///
+  /// In en, this message translates to:
+  /// **'Add and invite with a link'**
+  String get addFriendInvite;
+
+  /// No description provided for @addFriendAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} added'**
+  String addFriendAdded(String name);
+
+  /// No description provided for @friendRemindPick.
+  ///
+  /// In en, this message translates to:
+  /// **'Remind {name}'**
+  String friendRemindPick(String name);
 
   /// No description provided for @addFriendNoFriends.
   ///
@@ -4802,6 +4964,18 @@ abstract class AppLocalizations {
   /// **'Scan my UPI QR'**
   String get scanUpiQr;
 
+  /// No description provided for @profileAddUpi.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a UPI ID (optional)'**
+  String get profileAddUpi;
+
+  /// No description provided for @profilePhotoTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Change your photo'**
+  String get profilePhotoTooltip;
+
   /// No description provided for @continueLabel.
   ///
   /// In en, this message translates to:
@@ -6121,6 +6295,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Choose CSV file'**
   String get impChooseFile;
+
+  /// No description provided for @impIntoGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Import into'**
+  String get impIntoGroup;
+
+  /// No description provided for @impFileRows.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 row} other{{count} rows}} · {currencies}'**
+  String impFileRows(int count, String currencies);
+
+  /// No description provided for @impChangeFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Change'**
+  String get impChangeFile;
+
+  /// No description provided for @impPreviewButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview import'**
+  String get impPreviewButton;
 
   /// No description provided for @impChooseAnother.
   ///

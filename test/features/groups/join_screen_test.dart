@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:splitify/data/remote/groups_remote.dart';
 import 'package:splitify/features/groups/presentation/join_screen.dart';
@@ -19,9 +20,18 @@ Future<void> _tap(WidgetTester tester, String key) async {
   await settle(tester);
 }
 
+/// Pastes [text] (the whole text arrives at once).
 Future<void> _enterCode(WidgetTester tester, String text) async {
   await tester.enterText(_key('join-code'), text);
   await tester.pump();
+}
+
+/// Types [text] one key at a time, as on the phone's keyboard.
+Future<void> _typeCode(WidgetTester tester, String text) async {
+  for (var i = 1; i <= text.length; i++) {
+    await tester.enterText(_key('join-code'), text.substring(0, i));
+    await tester.pump();
+  }
 }
 
 String _fieldText(WidgetTester tester) => tester
@@ -45,12 +55,72 @@ void main() {
       tester,
     ) async {
       await pumpGroups(tester, '/join', overrides: fixedGroupData());
-      await _enterCode(tester, 'abcdefgh');
+      await _typeCode(tester, 'abcdefgh');
       expect(_fieldText(tester), 'ABCD-EFGH');
-      await _enterCode(tester, 'abcdefgo');
+      await _enterCode(tester, '');
+      await _typeCode(tester, 'abcdefgo');
       expect(_fieldText(tester), 'ABCD-EFG0');
       await _enterCode(tester, 'ab');
       expect(_fieldText(tester), 'AB');
+    });
+
+    // D-033 bug (reproduced before the fix): pasting the shared invite message or its link put the
+    // letters of the whole text into the field ("J01N-MYGR"), so the pasted code never worked.
+    testWidgets('D-033 pasting the shared invite message fills just the code and looks it up', (
+      tester,
+    ) async {
+      final remote = _remoteWith(samplePreview());
+      await pumpGroups(tester, '/join', remote: remote, overrides: fixedGroupData());
+      await _enterCode(tester, 'Join my group “Goa trip” on Splitify Free Forever: code ABCD-EFGH');
+      expect(_fieldText(tester), 'ABCD-EFGH');
+      await settle(tester);
+      expect(remote.calls, ['preview:ABCDEFGH']);
+      expect(_key('join-preview'), findsOneWidget);
+    });
+
+    testWidgets('D-033 pasting the invite link fills its code', (tester) async {
+      final remote = _remoteWith(samplePreview());
+      await pumpGroups(tester, '/join', remote: remote, overrides: fixedGroupData());
+      await _enterCode(tester, 'splitify://join?code=WXYZ2345');
+      expect(_fieldText(tester), 'WXYZ-2345');
+      await settle(tester);
+      expect(remote.calls, ['preview:WXYZ2345']);
+    });
+
+    testWidgets('D-033 typing a code waits for Find group (no lookup per key)', (tester) async {
+      final remote = _remoteWith(samplePreview());
+      await pumpGroups(tester, '/join', remote: remote, overrides: fixedGroupData());
+      await _typeCode(tester, 'abcdefgh');
+      await settle(tester);
+      expect(remote.calls, isEmpty);
+      await _tap(tester, 'join-find');
+      expect(remote.calls, ['preview:ABCDEFGH']);
+    });
+
+    testWidgets('D-033 the Paste chip reads the clipboard and looks the code up', (tester) async {
+      final remote = _remoteWith(samplePreview());
+      await pumpGroups(tester, '/join', remote: remote, overrides: fixedGroupData());
+      await Clipboard.setData(const ClipboardData(text: 'code is abcd efgh, see you'));
+      await _tap(tester, 'join-paste');
+      expect(remote.calls, isEmpty, reason: 'two 4-letter words are not one code');
+      expect(find.text('There is no invite code to paste'), findsOneWidget);
+      await Clipboard.setData(const ClipboardData(text: 'Use ABCD-EFGH to join'));
+      await _tap(tester, 'join-paste');
+      expect(_fieldText(tester), 'ABCD-EFGH');
+      expect(remote.calls, ['preview:ABCDEFGH']);
+      expect(_key('join-preview'), findsOneWidget);
+    });
+
+    testWidgets('D-033 back from the preview returns to the code with it kept', (tester) async {
+      final remote = _remoteWith(samplePreview());
+      await pumpGroups(tester, '/join', remote: remote, overrides: fixedGroupData());
+      await _typeCode(tester, 'abcdefgh');
+      await _tap(tester, 'join-find');
+      expect(_key('join-preview'), findsOneWidget);
+      await tester.tap(find.byTooltip('Back'));
+      await settle(tester);
+      expect(_key('join-preview'), findsNothing);
+      expect(_fieldText(tester), 'ABCD-EFGH');
     });
 
     testWidgets('TC-3-03 a malformed code is refused without calling the server', (tester) async {
@@ -72,7 +142,7 @@ void main() {
     testWidgets('TC-3-03 INVALID_CODE from the server shows the same message', (tester) async {
       final remote = _remoteWith(const GroupFailure(GroupFailureCode.invalidCode));
       await pumpGroups(tester, '/join', remote: remote, overrides: fixedGroupData());
-      await _enterCode(tester, 'abcdefgh');
+      await _typeCode(tester, 'abcdefgh');
       await _tap(tester, 'join-find');
       expect(remote.calls, ['preview:ABCDEFGH']);
       expect(find.text("That code doesn't match any group"), findsOneWidget);
@@ -81,7 +151,7 @@ void main() {
     testWidgets('TC-3-03 RATE_LIMITED asks the user to wait', (tester) async {
       final remote = _remoteWith(const GroupFailure(GroupFailureCode.rateLimited));
       await pumpGroups(tester, '/join', remote: remote, overrides: fixedGroupData());
-      await _enterCode(tester, 'abcdefgh');
+      await _typeCode(tester, 'abcdefgh');
       await _tap(tester, 'join-find');
       expect(find.text('Too many tries. Wait a minute and try again.'), findsOneWidget);
     });
@@ -89,7 +159,7 @@ void main() {
     testWidgets('TC-3-03 offline says joining needs internet', (tester) async {
       final remote = _remoteWith(const GroupFailure(GroupFailureCode.offline));
       await pumpGroups(tester, '/join', remote: remote, overrides: fixedGroupData());
-      await _enterCode(tester, 'abcdefgh');
+      await _typeCode(tester, 'abcdefgh');
       await _tap(tester, 'join-find');
       expect(find.text('Joining needs internet'), findsOneWidget);
     });
@@ -97,7 +167,7 @@ void main() {
     testWidgets('TC-3-03 preview shows the cover, the name and the member count', (tester) async {
       final remote = _remoteWith(samplePreview(memberCount: 5));
       await pumpGroups(tester, '/join', remote: remote, overrides: fixedGroupData());
-      await _enterCode(tester, 'abcdefgh');
+      await _typeCode(tester, 'abcdefgh');
       await _tap(tester, 'join-find');
       expect(_key('join-preview'), findsOneWidget);
       expect(find.text('Goa trip'), findsWidgets);
@@ -111,7 +181,7 @@ void main() {
     testWidgets('TC-3-03 an archived group shows the read-only notice', (tester) async {
       final remote = _remoteWith(samplePreview(archived: true));
       await pumpGroups(tester, '/join', remote: remote, overrides: fixedGroupData());
-      await _enterCode(tester, 'abcdefgh');
+      await _typeCode(tester, 'abcdefgh');
       await _tap(tester, 'join-find');
       expect(
         find.text('This group is archived. You can join, but it is read-only.'),
@@ -122,7 +192,7 @@ void main() {
     testWidgets('TC-3-03 already a member: Open group opens it without joining', (tester) async {
       final remote = _remoteWith(samplePreview(alreadyMember: true));
       final h = await pumpGroups(tester, '/join', remote: remote, overrides: fixedGroupData());
-      await _enterCode(tester, 'abcdefgh');
+      await _typeCode(tester, 'abcdefgh');
       await _tap(tester, 'join-find');
       expect(find.text("You're already in this group."), findsOneWidget);
       expect(find.text('Open group'), findsOneWidget);
@@ -200,7 +270,7 @@ void main() {
     testWidgets('TC-3-03 Use another code goes back to the enter step', (tester) async {
       final remote = _remoteWith(samplePreview());
       await pumpGroups(tester, '/join', remote: remote, overrides: fixedGroupData());
-      await _enterCode(tester, 'abcdefgh');
+      await _typeCode(tester, 'abcdefgh');
       await _tap(tester, 'join-find');
       await _tap(tester, 'join-other-code');
       expect(_key('join-find'), findsOneWidget);
@@ -210,7 +280,7 @@ void main() {
     testWidgets('TC-3-04 joining without a spot calls join and opens the group', (tester) async {
       final remote = _remoteWith(samplePreview())..joinedGroupId = 'g-goa';
       final h = await pumpGroups(tester, '/join', remote: remote, overrides: fixedGroupData());
-      await _enterCode(tester, 'abcdefgh');
+      await _typeCode(tester, 'abcdefgh');
       await _tap(tester, 'join-find');
       await _tap(tester, 'join-submit');
       expect(remote.calls, ['preview:ABCDEFGH', 'join:ABCDEFGH:-']);
@@ -223,7 +293,7 @@ void main() {
       final remote = _remoteWith(samplePreview())
         ..joins.add(const GroupFailure(GroupFailureCode.groupFull));
       final h = await pumpGroups(tester, '/join', remote: remote, overrides: fixedGroupData());
-      await _enterCode(tester, 'abcdefgh');
+      await _typeCode(tester, 'abcdefgh');
       await _tap(tester, 'join-find');
       await _tap(tester, 'join-submit');
       expect(find.text('This group already has 100 members.'), findsOneWidget);

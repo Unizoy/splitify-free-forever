@@ -6,6 +6,7 @@ import 'package:splitify/domain/entities/profile.dart';
 import 'package:splitify/domain/rules/profile_rules.dart';
 import 'package:splitify/features/account/presentation/upi_scan_screen.dart';
 import 'package:splitify/features/currency/presentation/currency_picker_sheet.dart';
+import 'package:splitify/features/expenses/presentation/editor/editor_fields.dart' show ToolChip;
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/components/components.dart';
 import 'package:splitify/ui/theme/theme.dart';
@@ -22,6 +23,9 @@ class ProfileDraft {
   String currency;
 
   bool showErrors = false;
+
+  /// The UPI field lost focus once: its format is checked from then on (inline, D-033).
+  bool upiTouched = false;
 
   /// True once the fields hold a loaded profile.
   bool filled = false;
@@ -40,7 +44,9 @@ class ProfileDraft {
 
   String? upiError(AppLocalizations l) {
     final v = upi.text.trim();
-    return showErrors && v.isNotEmpty && !ProfileRules.isValidUpiId(v) ? l.upiInvalid : null;
+    return (showErrors || upiTouched) && v.isNotEmpty && !ProfileRules.isValidUpiId(v)
+        ? l.upiInvalid
+        : null;
   }
 
   /// True when the fields can be saved; turns on error display.
@@ -67,12 +73,24 @@ class ProfileDraft {
   }
 }
 
-/// Name, UPI ID (+ "Scan my UPI QR") and optionally the default currency.
+/// Name, UPI ID (scan icon in the field) and optionally the default currency (D-033). The UPI format is
+/// checked when the field loses focus, never clearing what was typed. [collapseUpi] (first-run confirm)
+/// hides the UPI field behind "Add a UPI ID (optional)" until tapped or already filled.
 class ProfileFields extends StatefulWidget {
-  const ProfileFields({required this.draft, this.showCurrency = true, super.key});
+  const ProfileFields({
+    required this.draft,
+    this.showCurrency = true,
+    this.collapseUpi = false,
+    this.onSubmitted,
+    super.key,
+  });
 
   final ProfileDraft draft;
   final bool showCurrency;
+  final bool collapseUpi;
+
+  /// Keyboard "done" on the last field.
+  final VoidCallback? onSubmitted;
 
   @override
   State<ProfileFields> createState() => _ProfileFieldsState();
@@ -80,6 +98,24 @@ class ProfileFields extends StatefulWidget {
 
 class _ProfileFieldsState extends State<ProfileFields> {
   ProfileDraft get d => widget.draft;
+  final _upiFocus = FocusNode(debugLabel: 'upi id');
+  late bool _upiOpen = !widget.collapseUpi || d.upi.text.trim().isNotEmpty;
+
+  @override
+  void initState() {
+    super.initState();
+    _upiFocus.addListener(() {
+      if (!_upiFocus.hasFocus && d.upi.text.trim().isNotEmpty && !d.upiTouched) {
+        setState(() => d.upiTouched = true);
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _upiFocus.dispose();
+    super.dispose();
+  }
 
   Future<void> _scan() async {
     final l = AppLocalizations.of(context);
@@ -92,7 +128,10 @@ class _ProfileFieldsState extends State<ProfileFields> {
       messenger.showSnackBar(SnackBar(content: Text(l.upiQrInvalid)));
       return;
     }
-    setState(() => d.upi.text = id);
+    setState(() {
+      d.upi.text = id;
+      _upiOpen = true;
+    });
   }
 
   Future<void> _pickCurrency() async {
@@ -109,6 +148,8 @@ class _ProfileFieldsState extends State<ProfileFields> {
     final l = AppLocalizations.of(context);
     final c = context.colors;
     final cur = Currencies.of(d.currency);
+    // A filled-in field (fillOnce after the first frame) opens the collapsed UPI row.
+    if (!_upiOpen && d.upi.text.trim().isNotEmpty) _upiOpen = true;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -118,40 +159,55 @@ class _ProfileFieldsState extends State<ProfileFields> {
           required: true,
           controller: d.name,
           textCapitalization: TextCapitalization.words,
-          textInputAction: TextInputAction.next,
+          textInputAction: _upiOpen ? TextInputAction.next : TextInputAction.done,
           errorText: d.nameError(l),
           onChanged: (_) => setState(() {}),
+          onSubmitted: (_) => _upiOpen ? _upiFocus.requestFocus() : widget.onSubmitted?.call(),
         ),
         const SizedBox(height: AppSpacing.s5),
-        UnderlineField(
-          key: const Key('profile-upi'),
-          label: l.upiLabel,
-          hint: l.upiHint,
-          controller: d.upi,
-          keyboardType: TextInputType.emailAddress,
-          errorText: d.upiError(l),
-          onChanged: (_) => setState(() {}),
-        ),
-        const SizedBox(height: AppSpacing.s3),
-        Align(
-          alignment: AlignmentDirectional.centerStart,
-          child: PillButton(
-            key: const Key('profile-scan-upi'),
-            label: l.scanUpiQr,
-            icon: AppIcons.qr,
-            variant: PillVariant.outline,
-            size: PillSize.medium,
-            expand: false,
-            onPressed: () => unawaited(_scan()),
+        if (_upiOpen)
+          UnderlineField(
+            key: const Key('profile-upi'),
+            label: l.upiLabel,
+            hint: l.upiHint,
+            controller: d.upi,
+            focusNode: _upiFocus,
+            keyboardType: TextInputType.emailAddress,
+            textInputAction: TextInputAction.done,
+            errorText: d.upiError(l),
+            onChanged: (_) => setState(() {}),
+            onSubmitted: (_) {
+              setState(() => d.upiTouched = d.upi.text.trim().isNotEmpty);
+              widget.onSubmitted?.call();
+            },
+            suffix: AppIconButton(
+              key: const Key('profile-scan-upi'),
+              tooltip: l.scanUpiQr,
+              icon: Icon(AppIcons.qr, color: c.primary),
+              onPressed: () => unawaited(_scan()),
+            ),
+          )
+        else
+          Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: ToolChip(
+              key: const Key('profile-add-upi'),
+              icon: AppIcons.plus,
+              label: l.profileAddUpi,
+              semanticLabel: l.profileAddUpi,
+              onTap: () {
+                setState(() => _upiOpen = true);
+                WidgetsBinding.instance.addPostFrameCallback((_) => _upiFocus.requestFocus());
+              },
+            ),
           ),
-        ),
         if (widget.showCurrency) ...[
           const SizedBox(height: AppSpacing.s6),
           DashedListRow(
             key: const Key('profile-currency'),
             icon: AppIcons.coins,
             label: l.defaultCurrency,
-            value: '${cur.code}\u00A0· ${cur.symbol}',
+            value: '${cur.code} · ${cur.symbol}',
             valueColor: c.textSecondary,
             showDivider: false,
             onTap: () => unawaited(_pickCurrency()),

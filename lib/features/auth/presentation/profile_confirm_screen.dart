@@ -12,7 +12,8 @@ import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/components/components.dart';
 import 'package:splitify/ui/theme/theme.dart';
 
-/// First sign-in (`/sign-in/profile`): confirm the name, optionally add a UPI ID.
+/// First sign-in (`/sign-in/profile`), as short as possible (D-033): the name (prefilled from the sign-in)
+/// and Continue; the UPI ID stays behind "Add a UPI ID (optional)" until tapped.
 class ProfileConfirmScreen extends ConsumerStatefulWidget {
   const ProfileConfirmScreen({super.key});
 
@@ -71,7 +72,12 @@ class _ProfileConfirmScreenState extends ConsumerState<ProfileConfirmScreen> {
         ring: true,
       ),
       children: [
-        ProfileFields(draft: draft, showCurrency: false),
+        ProfileFields(
+          draft: draft,
+          showCurrency: false,
+          collapseUpi: true,
+          onSubmitted: () => unawaited(_continue()),
+        ),
         const SizedBox(height: AppSpacing.s8),
         PillButton(
           key: const Key('profile-continue'),
