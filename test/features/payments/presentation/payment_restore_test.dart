@@ -11,6 +11,8 @@ import 'package:splitify/features/comments/presentation/comment_thread.dart' sho
 import 'package:splitify/features/expenses/application/expense_providers.dart';
 import 'package:splitify/features/payments/application/payment_providers.dart';
 import 'package:splitify/features/payments/presentation/payment_detail_screen.dart';
+import 'package:splitify/ui/components/components.dart'
+    show PillButton, PillVariant, StatusPill, StatusPillTone;
 
 import '../../balances/balance_fixtures.dart';
 import '../../expenses/expense_fixtures.dart' show gid, sampleGroup;
@@ -75,6 +77,12 @@ void main() {
     expect(find.byType(CommentComposer), findsNothing);
     // Still shows what it was.
     expect(find.byKey(const Key('payment-detail-amount')), findsOneWidget);
+    // The same "Deleted" pill and Restore as a deleted expense's page (final QA S-410).
+    expect(
+      t.widget<StatusPill>(find.byKey(const Key('payment-deleted-pill'))).tone,
+      StatusPillTone.negative,
+    );
+    expect(t.widget<PillButton>(find.byKey(const Key('payment-restore'))).variant, PillVariant.ink);
     await t.tap(find.byKey(const Key('payment-restore')));
     await settle(t);
     expect(actions.restored, ['p1']);

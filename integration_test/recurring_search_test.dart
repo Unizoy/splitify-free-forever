@@ -13,8 +13,10 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:splitify/app/router.dart';
 import 'package:splitify/core/config/env.dart';
+import 'package:splitify/core/config/preferences.dart';
 import 'package:splitify/data/data_providers.dart';
 import 'package:splitify/data/local/app_database.dart';
 import 'package:splitify/data/remote/remote_api.dart';
@@ -115,8 +117,12 @@ void main() {
     final client = Supabase.instance.client;
     final server = SwitchableRemote(SupabaseRemoteApi.client(client));
     final db = AppDatabase(NativeDatabase.memory());
+    // Search keeps the recent searches on the phone since D-034 D (preferences).
+    SharedPreferences.setMockInitialValues({});
+    final prefs = await SharedPreferences.getInstance();
     final container = ProviderContainer(
       overrides: [
+        sharedPreferencesProvider.overrideWithValue(prefs),
         appDatabaseProvider.overrideWithValue(db),
         remoteApiProvider.overrideWithValue(server),
         authRepositoryProvider.overrideWithValue(remote.auth),

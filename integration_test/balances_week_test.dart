@@ -349,6 +349,9 @@ void main() {
     await t.enterText(find.byKey(const Key('settle-amount')), '200');
     FocusManager.instance.primaryFocus?.unfocus();
     await _pumpFor(t, const Duration(milliseconds: 500));
+    // The method is a chip that opens a sheet since D-033 (minimal pay).
+    await _tap(t, find.byKey(const Key('settle-method')));
+    await _waitFor(t, find.byKey(const Key('method-upi')));
     await _tap(t, find.byKey(const Key('method-upi')));
     await _tap(t, find.byKey(const Key('settle-save')));
     await _waitFor(t, find.byKey(const Key('group-settle')));

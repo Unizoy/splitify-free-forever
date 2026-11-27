@@ -5460,4 +5460,8 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get qaSignInToAddFriend =>
       'Sign in with Google or an email code, then we add your friend.';
+
+  @override
+  String get qaExpenseRestoreArchived =>
+      'This group is archived, so the expense can\'t be restored.';
 }

@@ -1,5 +1,5 @@
 // UI review scenario for "Sync & storage" (phase 06 T5, ui-review skill): signs in e2e-a on the dev project,
-// opens the screen through Account → settings, and holds two real states on screen while the host script
+// opens the screen from the Account tab's settings list, and holds two real states on screen while the host script
 // `.claude/skills/ui-review/scripts/capture_markers.ps1` takes light / dark / 200 % screenshots on each
 // `UI-CAPTURE <name>` log line. Also walks Retry → Discard on a change the server really refused.
 // Run through the capture script, or: flutter test integration_test/scenarios/sync_storage_review_test.dart
@@ -82,11 +82,9 @@ void main() {
     await pumpUntil(tester, () => c.read(routerProvider).state.uri.path == Routes.groups);
     await c.read(syncRepositoryProvider).syncNow();
 
-    // Real path: Account → gear → Sync & storage.
+    // Real path: Account (its settings list since D-033) → Sync & storage.
     c.read(routerProvider).go(Routes.account);
-    await pumpUntil(tester, () => find.byTooltip('Account settings').evaluate().isNotEmpty);
-    await tester.tap(find.byTooltip('Account settings'));
-    await tester.pump(const Duration(seconds: 1));
+    await pumpUntil(tester, () => find.byKey(const Key('settings-sync')).evaluate().isNotEmpty);
     await tester.ensureVisible(find.byKey(const Key('settings-sync')));
     await tester.tap(find.byKey(const Key('settings-sync')));
     await pumpUntil(tester, () => find.text('Everything is synced').evaluate().isNotEmpty);

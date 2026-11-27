@@ -106,9 +106,8 @@ void main() {
     scope(tester).read(routerProvider).go(Routes.account);
     await pumpUntil(tester, () => find.text(name).evaluate().isNotEmpty, reason: 'account name');
 
-    // TC-B1-04: sign out from the settings sheet → welcome, session and local data gone.
-    await tester.tap(find.byTooltip('Account settings'));
-    await tester.pump(const Duration(seconds: 1));
+    // TC-B1-04: sign out from the settings list (the Account tab itself since D-033) → welcome, session and
+    // local data gone.
     await tester.ensureVisible(find.byKey(const Key('settings-sign-out')));
     await tester.tap(find.byKey(const Key('settings-sign-out')));
     await tester.pump(const Duration(seconds: 1));

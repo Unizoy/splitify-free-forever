@@ -78,7 +78,7 @@ class ExpenseDetailScreen extends ConsumerWidget {
         child: OverlapColumn(
           top: _Hero(view: v, group: group),
           bottom: OverlapSheet(
-            child: _Body(view: v, readOnly: readOnly),
+            child: _Body(view: v, readOnly: readOnly, archived: group?.archivedAt != null),
           ),
         ),
       ),
@@ -149,14 +149,8 @@ class _Hero extends ConsumerWidget {
         onPressed: () => Navigator.of(context).maybePop(),
       ),
       actions: [
-        if (deleted)
-          HeroIconButton(
-            key: const Key('expense-restore-top'),
-            icon: AppIcons.restore,
-            tooltip: l.entryRestore,
-            onPressed: () => unawaited(restoreExpense(context, ref, e)),
-          )
-        else ...[
+        // A deleted expense: Restore lives in the card under the hero (one button, S-410).
+        if (!deleted) ...[
           HeroIconButton(
             key: const Key('expense-edit'),
             icon: AppIcons.edit,
@@ -240,12 +234,15 @@ class _Hero extends ConsumerWidget {
 }
 
 class _Body extends StatelessWidget {
-  const _Body({required this.view, this.readOnly = false});
+  const _Body({required this.view, this.readOnly = false, this.archived = false});
 
   final ExpenseView view;
 
   /// Archived group (read-only).
   final bool readOnly;
+
+  /// The group itself is archived (a deleted expense cannot be restored then, S-410).
+  final bool archived;
 
   @override
   Widget build(BuildContext context) {
@@ -268,7 +265,10 @@ class _Body extends StatelessWidget {
           const Center(child: SyncMarker()),
           const SizedBox(height: AppSpacing.s4),
         ],
-        if (view.deleted) ...[_DeletedNote(expense: e), const SizedBox(height: AppSpacing.s6)],
+        if (view.deleted) ...[
+          _DeletedNote(expense: e, archived: archived),
+          const SizedBox(height: AppSpacing.s6),
+        ],
         SectionLabel(view.isLoan ? l.loanLentBy : l.expPaidByLabel),
         for (var i = 0; i < payers.length; i++)
           _PersonRow(
@@ -431,9 +431,12 @@ Future<void> restoreExpense(BuildContext context, WidgetRef ref, LocalExpense e)
 
 /// "This expense was deleted …" with the Restore button, at the top of a deleted expense's page.
 class _DeletedNote extends ConsumerWidget {
-  const _DeletedNote({required this.expense});
+  const _DeletedNote({required this.expense, this.archived = false});
 
   final LocalExpense expense;
+
+  /// An archived group is read-only (the server refuses the restore): the card only explains (S-410).
+  final bool archived;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -449,18 +452,25 @@ class _DeletedNote extends ConsumerWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(AppIcons.info, size: 20, color: c.textSecondary),
+              Icon(AppIcons.trash, size: 22, color: c.textSecondary),
               const SizedBox(width: AppSpacing.s3),
-              Expanded(child: Text(l.entryDeletedNote, style: context.text.body)),
+              Expanded(
+                child: Text(
+                  archived ? l.qaExpenseRestoreArchived : l.entryDeletedNote,
+                  style: context.text.body,
+                ),
+              ),
             ],
           ),
-          const SizedBox(height: AppSpacing.s4),
-          PillButton(
-            key: const Key('expense-restore'),
-            label: l.entryRestoreExpense,
-            icon: AppIcons.restore,
-            onPressed: () => unawaited(restoreExpense(context, ref, expense)),
-          ),
+          if (!archived) ...[
+            const SizedBox(height: AppSpacing.s4),
+            PillButton(
+              key: const Key('expense-restore'),
+              label: l.entryRestoreExpense,
+              icon: AppIcons.restore,
+              onPressed: () => unawaited(restoreExpense(context, ref, expense)),
+            ),
+          ],
         ],
       ),
     );

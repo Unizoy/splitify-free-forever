@@ -8689,6 +8689,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Sign in with Google or an email code, then we add your friend.'**
   String get qaSignInToAddFriend;
+
+  /// No description provided for @qaExpenseRestoreArchived.
+  ///
+  /// In en, this message translates to:
+  /// **'This group is archived, so the expense can\'t be restored.'**
+  String get qaExpenseRestoreArchived;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

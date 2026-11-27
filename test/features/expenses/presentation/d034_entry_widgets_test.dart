@@ -26,6 +26,7 @@ import 'package:splitify/features/groups/application/groups_providers.dart'
 import 'package:splitify/features/receipt_scan/application/receipt_ocr.dart';
 import 'package:splitify/features/receipt_scan/application/share_intake.dart';
 import 'package:splitify/features/receipt_scan/presentation/scan_review_sheet.dart';
+import 'package:splitify/ui/components/components.dart' show PillButton, PillVariant;
 
 import '../../../support/sample_photo.dart';
 import '../expense_fixtures.dart';
@@ -384,11 +385,45 @@ void main() {
       expect(find.byKey(const Key('expense-deleted-pill')), findsOneWidget);
       expect(find.byKey(const Key('expense-edit')), findsNothing);
       expect(find.byKey(const Key('expense-delete')), findsNothing);
-      expect(find.byKey(const Key('expense-restore-top')), findsOneWidget);
+      // One Restore on the page (final QA S-410): the card's, not a second one in the hero.
+      expect(find.byKey(const Key('expense-restore-top')), findsNothing);
       expect(find.byKey(const Key('expense-deleted-note')), findsOneWidget);
+      expect(
+        t.widget<PillButton>(find.byKey(const Key('expense-restore'))).variant,
+        PillVariant.ink,
+      );
       await tapKey(t, 'expense-restore');
       expect(actions.restored, ['e1']);
       expect(find.text('Expense restored'), findsOneWidget);
+    });
+
+    // Final QA (S-410): an archived group is read-only on the server, so the deleted expense only explains
+    // (like a deleted payment, D-034 B2).
+    testWidgets('deleted in an archived group: it only explains, no Restore', (t) async {
+      usePhone(t);
+      final deleted = sampleExpense().copyWith(deletedAt: const Value('2026-11-21T09:00:00Z'));
+      await t.pumpWidget(
+        expenseApp(
+          const ExpenseDetailScreen(expenseId: 'e1'),
+          overrides: [
+            expenseViewProvider('e1').overrideWithValue(AsyncData(sampleView(deleted))),
+            expenseGroupProvider(gid).overrideWith(
+              (ref) => Stream.value(
+                sampleGroup().copyWith(archivedAt: const Value('2026-11-25T10:00:00Z')),
+              ),
+            ),
+            noRepeat('e1'),
+          ],
+        ),
+      );
+      await settle(t);
+      expect(find.byKey(const Key('expense-deleted-note')), findsOneWidget);
+      expect(
+        find.text("This group is archived, so the expense can't be restored."),
+        findsOneWidget,
+      );
+      expect(find.byKey(const Key('expense-restore')), findsNothing);
+      expect(find.byKey(const Key('expense-restore-top')), findsNothing);
     });
 
     testWidgets('a live expense keeps Edit and Delete', (t) async {
