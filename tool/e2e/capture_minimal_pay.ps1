@@ -27,7 +27,9 @@ function Save-Shot([string]$name) {
   & $adb pull /sdcard/shot.png (Join-Path $Out "minimal-pay-$Prefix-$name.png") 2>$null | Out-Null
 }
 
-$flutterArgs = @('test', "integration_test/$Test.dart", '-d', 'emulator-5554',
+# --no-uninstall: at the end `flutter test` uninstalls the project's BASE application id (com.unizoy.splitify,
+# without the .qa suffix) — that removed the owner's store build on 2026-11-27 (S-329).
+$flutterArgs = @('test', "integration_test/$Test.dart", '-d', 'emulator-5554', '--no-uninstall',
   '--dart-define-from-file=secrets/env.dev.json', "--dart-define=UI_HOLD=$Hold", "--dart-define=PIN_HOST_IP=$ip")
 foreach ($d in ($Defines -split ' ' | Where-Object { $_ })) { $flutterArgs += "--dart-define=$d" }
 $p = Start-Process -FilePath 'flutter.bat' -NoNewWindow -PassThru -RedirectStandardOutput $log -ArgumentList $flutterArgs

@@ -370,7 +370,7 @@ void main() {
         args: editLoan,
       );
       expect(_pillTitle(t), 'Asha Rao lent Rahul Mehta');
-      expect(_pillSub(t), 'Asha Rao lent Rahul Mehta ₹300');
+      expect(_pillSub(t), 'Rahul Mehta will owe Asha Rao ₹300');
       await tapKey(t, 'loan-who');
       expect(find.text('Asha Rao lent'), findsOneWidget);
       await t.tap(find.text('Asha Rao borrowed'));
@@ -378,6 +378,7 @@ void main() {
       await tapKey(t, 'loan-who-done');
       expect(c.state.value!.direction, LoanDirection.borrowed);
       expect(_pillTitle(t), 'Rahul Mehta lent Asha Rao');
+      expect(_pillSub(t), 'Asha Rao will owe Rahul Mehta ₹300');
     });
 
     testWidgets('large text: the form scrolls and nothing overflows', (t) async {

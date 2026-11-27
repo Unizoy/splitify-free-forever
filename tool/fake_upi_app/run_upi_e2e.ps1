@@ -14,13 +14,14 @@ New-Item -ItemType Directory -Force $out | Out-Null
 # The emulator's plain DNS gets a block page for *.supabase.co on this ISP; pin the PC's answer (S-214).
 $supabaseHost = ([Uri](Get-Content secrets\env.dev.json -Raw | ConvertFrom-Json).SUPABASE_URL).Host
 $ip = (Resolve-DnsName $supabaseHost -Type A | Where-Object IPAddress | Select-Object -First 1).IPAddress
-# Side by side with the store build on the emulator (S-310): never replace or uninstall the owner's app.
+# Side by side with the store build on the emulator (S-310): never replace or uninstall the owner's app. The
+# flutter command below also needs --no-uninstall: `flutter test` uninstalls the BASE application id at the end.
 if (-not $env:SPLITIFY_APP_ID_SUFFIX) { $env:SPLITIFY_APP_ID_SUFFIX = '.qa' }
 
 function Invoke-UpiTest([string]$mode) {
   $log = Join-Path $out "test-$mode.log"
   # flutter.bat writes warnings to stderr; run it through cmd so PowerShell does not stop on them.
-  & cmd /c "flutter test integration_test/friends_upi_test.dart -d $Device --dart-define-from-file=secrets/env.dev.json --dart-define=PIN_HOST_IP=$ip --dart-define=FAKE_UPI=$mode > `"$log`" 2>&1"
+  & cmd /c "flutter test integration_test/friends_upi_test.dart -d $Device --no-uninstall --dart-define-from-file=secrets/env.dev.json --dart-define=PIN_HOST_IP=$ip --dart-define=FAKE_UPI=$mode > `"$log`" 2>&1"
   $code = $LASTEXITCODE
   Get-Content $log | Select-String -Pattern 'UPI-EXPECT|All tests passed|Some tests failed|Expected:|Actual:|\[E\]' |
     ForEach-Object { Write-Host "  $_" }

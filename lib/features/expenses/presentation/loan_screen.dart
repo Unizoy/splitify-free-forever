@@ -455,8 +455,8 @@ class _WhoPill extends StatelessWidget {
       sub = amount == null
           ? l.loanPillNoAmount
           : (lent
-                ? l.loanCaption(self, person.name, amount)
-                : l.loanCaption(person.name, self, amount));
+                ? l.loanResultOthers(person.name, self, amount)
+                : l.loanResultOthers(self, person.name, amount));
     }
     return FormPill(
       key: const Key('loan-who'),

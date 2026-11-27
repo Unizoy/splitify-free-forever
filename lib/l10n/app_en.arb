@@ -556,6 +556,8 @@
   "loanPillOthers": "{lender} lent {borrower}",
   "@loanPillOthers": {"placeholders": {"lender": {"type": "String"}, "borrower": {"type": "String"}}},
   "loanPillNoAmount": "Type the amount",
+  "loanResultOthers": "{borrower} will owe {lender} {amount}",
+  "@loanResultOthers": {"placeholders": {"borrower": {"type": "String"}, "lender": {"type": "String"}, "amount": {"type": "String"}}},
   "actFilterAll": "All",
   "actFilterExpenses": "Expenses",
   "actFilterPayments": "Payments",

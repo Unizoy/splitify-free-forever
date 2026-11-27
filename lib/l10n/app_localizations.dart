@@ -2672,6 +2672,12 @@ abstract class AppLocalizations {
   /// **'Type the amount'**
   String get loanPillNoAmount;
 
+  /// No description provided for @loanResultOthers.
+  ///
+  /// In en, this message translates to:
+  /// **'{borrower} will owe {lender} {amount}'**
+  String loanResultOthers(String borrower, String lender, String amount);
+
   /// No description provided for @actFilterAll.
   ///
   /// In en, this message translates to:

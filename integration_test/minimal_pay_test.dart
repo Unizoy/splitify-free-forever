@@ -141,7 +141,7 @@ void main() {
       'kind': 'expense',
       'description': 'Beach shack dinner',
       'notes': null,
-      'category': 'food.restaurant',
+      'category': 'food.dining_out',
       'date': '2026-11-26',
       'currency': 'INR',
       'total': 120000,
@@ -156,6 +156,8 @@ void main() {
       await groups.delete(gid, gid);
       await sync();
     });
+    final seeded = await (db.select(db.expenses)..where((e) => e.groupId.equals(gid))).getSingle();
+    expect(seeded.syncState, SyncState.synced, reason: '${engine.lastError}');
     expect((await serverNets())[me], -40000);
 
     final router = buildRouter(initialLocation: Routes.group(gid));

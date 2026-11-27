@@ -1551,6 +1551,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get loanPillNoAmount => 'Type the amount';
 
   @override
+  String loanResultOthers(String borrower, String lender, String amount) {
+    return '$borrower will owe $lender $amount';
+  }
+
+  @override
   String get actFilterAll => 'All';
 
   @override
