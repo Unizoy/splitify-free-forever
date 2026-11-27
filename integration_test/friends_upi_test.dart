@@ -127,7 +127,9 @@ void main() {
       ),
     );
 
-    Future<void> viaApi(String groupId, String entity, Map<String, Object?> data) async {
+    /// B writes [data] through the API; returns the record id.
+    Future<String> viaApi(String groupId, String entity, Map<String, Object?> data) async {
+      final id = newId();
       final r = (await t.runAsync(
         () => b.rpc('apply_mutations', {
           'batch': [
@@ -135,7 +137,7 @@ void main() {
               'mutation_id': newId(),
               'entity': entity,
               'op': 'upsert',
-              'id': newId(),
+              'id': id,
               'group_id': groupId,
               'client_updated_at': DateTime.now().toUtc().toIso8601String(),
               'source': 'app',
@@ -145,6 +147,7 @@ void main() {
         }),
       ))!;
       expect(((r['results']! as List).single! as Map)['status'], 'applied', reason: '$r');
+      return id;
     }
 
     Map<String, Object?> expense(String what, int total, String payer, Map<String, int> shares) => {
@@ -213,7 +216,11 @@ void main() {
     final rows = await (db.select(db.groupMembers)..where((m) => m.groupId.equals(gid))).get();
     final a = rows.firstWhere((m) => m.userId == uidA).id;
     final mb = rows.firstWhere((m) => m.userId == b.id).id;
-    await viaApi(gid, 'expense', expense('Train tickets', 60000, mb, {a: 30000, mb: 30000}));
+    final train = await viaApi(
+      gid,
+      'expense',
+      expense('Train tickets', 60000, mb, {a: 30000, mb: 30000}),
+    );
     await sync();
 
     // The app, signed in as A, on the Friends tab.
@@ -278,14 +285,45 @@ void main() {
     final coffee = await container
         .read(expensesRepositoryProvider)
         .save(directId, expense('Coffee', 20000, da, {da: 10000, db2: 10000}));
-    await viaApi(directId, 'expense', expense('Snacks', 8000, db2, {da: 4000, db2: 4000}));
+    final snacks = await viaApi(
+      directId,
+      'expense',
+      expense('Snacks', 8000, db2, {da: 4000, db2: 4000}),
+    );
     await sync();
 
     // TC-2-02: both expenses on A's friend page. In the trip A owes B ₹300; in the direct group B owes A
     // ₹100 − ₹40 = ₹60. Other groups A and B share (other test runs) add to the total, so compare parts.
-    await _waitFor(t, find.byKey(ValueKey('friend-item-$coffee')));
-    expect(find.text('Snacks'), findsOneWidget);
-    expect(find.text('Train tickets'), findsOneWidget);
+    // The shared items are a lazy list under the by-group rows (S-267), and other suites' groups with B
+    // push them below the fold: find each row by scrolling to it (D-033: the old check only looked at what
+    // was built on screen and timed out once enough shared items had piled up on dev).
+    Future<void> seeRow(Finder f) async {
+      final end = DateTime.now().add(const Duration(seconds: 30));
+      while (DateTime.now().isBefore(end)) {
+        await t.pump(const Duration(milliseconds: 200));
+        if (f.evaluate().isNotEmpty) return;
+        try {
+          await t.scrollUntilVisible(
+            f,
+            400,
+            scrollable: find.byType(Scrollable).first,
+            maxScrolls: 80,
+          );
+          return;
+        } on Object {
+          // Not there yet (the sync may still be writing): back to the top and look again.
+          await t.drag(find.byType(Scrollable).first, const Offset(0, 40000));
+          await t.pump();
+        }
+      }
+      fail('Timed out scrolling to $f');
+    }
+
+    await seeRow(find.byKey(ValueKey('friend-item-$coffee')));
+    await seeRow(find.byKey(ValueKey('friend-item-$snacks')));
+    await seeRow(find.byKey(ValueKey('friend-item-$train')));
+    await t.drag(find.byType(Scrollable).first, const Offset(0, 40000));
+    await _pumpFor(t, const Duration(milliseconds: 500));
     expect(find.byKey(ValueKey('friend-group-$gid')), findsOneWidget);
     expect(find.byKey(ValueKey('friend-group-$directId')), findsOneWidget);
     final friend = container.read(friendProvider(bKey)).value!;
