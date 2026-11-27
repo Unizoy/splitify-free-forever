@@ -229,13 +229,15 @@ class _Body extends StatelessWidget {
           label: methodLabel(l, p.method),
           value: shortDate(context, parseIsoDate(p.date)),
         ),
-        ConversionTile(
-          recordId: p.id,
-          groupId: p.groupId,
-          currency: p.currency.trim(),
-          saved: savedFxOfPayment(p),
-          payment: true,
-        ),
+        // A deleted payment is read-only: no conversion to start from it.
+        if (!view.deleted)
+          ConversionTile(
+            recordId: p.id,
+            groupId: p.groupId,
+            currency: p.currency.trim(),
+            saved: savedFxOfPayment(p),
+            payment: true,
+          ),
         if (note.isNotEmpty)
           Padding(
             padding: const EdgeInsets.symmetric(vertical: AppSpacing.s4),
