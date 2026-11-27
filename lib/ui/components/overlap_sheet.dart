@@ -16,11 +16,11 @@ const heroBarStyle = SystemUiOverlayStyle(
 /// below the status bar.
 const _scrimRamp = AppSpacing.s2;
 
-/// Wraps a page whose hero scrolls up under the status bar (D-033): once the page scrolls, a
-/// status-bar-high band in the hero colour sits under the clock and icons (light in both themes), so text
-/// and buttons never run under them. It follows the first vertical scroll view below it and stays at the top
-/// of the screen however far the page scrolls, also when the rows are slivers after the hero.
-/// An [OverlapColumn] inside leaves its own band to it.
+/// The status-bar scrim of a page (D-033): once the page scrolls, a status-bar-high band in the hero colour
+/// sits under the clock and icons (light in both themes), so text and buttons never run under them. Every
+/// routed page has one ([AppRoute]); it shows only while a hero [OverlapColumn] is on the page, follows the
+/// page's vertical scroll view and stays at the top however far the page scrolls — also when the rows are
+/// slivers after the hero and the hero itself is gone. An [OverlapColumn] inside leaves its own band to it.
 class HeroScrim extends StatefulWidget {
   const HeroScrim({required this.child, super.key});
 
@@ -34,10 +34,20 @@ class _HeroScrimState extends State<HeroScrim> {
   /// 0 = page at the top (no band), 1 = scrolled by [_scrimRamp] or more.
   final _shown = ValueNotifier<double>(0);
 
+  /// Hero columns on this page; the band (and its light icons) only exists while there is one.
+  int _heroes = 0;
+
   @override
   void dispose() {
     _shown.dispose();
     super.dispose();
+  }
+
+  /// Called by a hero [OverlapColumn] when it comes and goes (after the frame: never during a build).
+  void _count(int delta) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) setState(() => _heroes += delta);
+    });
   }
 
   void _follow(ScrollMetrics m) {
@@ -60,6 +70,7 @@ class _HeroScrimState extends State<HeroScrim> {
     final bar = MediaQuery.paddingOf(context).top;
     final color = context.colors.heroTop;
     return _HeroScrimScope(
+      state: this,
       child: Stack(
         children: [
           NotificationListener<ScrollMetricsNotification>(
@@ -69,37 +80,40 @@ class _HeroScrimState extends State<HeroScrim> {
               child: widget.child,
             ),
           ),
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            height: bar,
-            child: IgnorePointer(
-              child: AnnotatedRegion<SystemUiOverlayStyle>(
-                value: heroBarStyle,
-                child: ValueListenableBuilder<double>(
-                  valueListenable: _shown,
-                  builder: (context, shown, _) => Opacity(
-                    key: const Key('hero-status-scrim'),
-                    opacity: shown,
-                    child: ColoredBox(color: color),
+          if (_heroes > 0)
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              height: bar,
+              child: IgnorePointer(
+                child: AnnotatedRegion<SystemUiOverlayStyle>(
+                  value: heroBarStyle,
+                  child: ValueListenableBuilder<double>(
+                    valueListenable: _shown,
+                    builder: (context, shown, _) => Opacity(
+                      key: const Key('hero-status-scrim'),
+                      opacity: shown,
+                      child: ColoredBox(color: color),
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
         ],
       ),
     );
   }
 }
 
-/// Marks a subtree that has a [HeroScrim] above it.
+/// Lets a hero [OverlapColumn] find its page's [HeroScrim].
 class _HeroScrimScope extends InheritedWidget {
-  const _HeroScrimScope({required super.child});
+  const _HeroScrimScope({required this.state, required super.child});
 
-  static bool inside(BuildContext context) =>
-      context.getInheritedWidgetOfExactType<_HeroScrimScope>() != null;
+  final _HeroScrimState state;
+
+  static _HeroScrimState? of(BuildContext context) =>
+      context.getInheritedWidgetOfExactType<_HeroScrimScope>()?.state;
 
   @override
   bool updateShouldNotify(_HeroScrimScope old) => false;
@@ -144,29 +158,67 @@ class OverlapSheet extends StatelessWidget {
 ///
 /// When [bottom] is an [OverlapSheet] and the page scrolls (the hero moves up under the status bar), a
 /// status-bar-high band in the hero colour is painted under the clock with light icons, so text and buttons
-/// never run under it (S-255, D-033). Inside a [HeroScrim] (pages whose rows are slivers after the hero)
-/// the scrim draws that band instead.
-class OverlapColumn extends MultiChildRenderObjectWidget {
-  OverlapColumn({
-    required Widget top,
-    required Widget bottom,
+/// never run under it (S-255, D-033). On a routed page the page's [HeroScrim] draws that band instead (it
+/// stays when rows are slivers after the hero and the column has scrolled away).
+class OverlapColumn extends StatefulWidget {
+  const OverlapColumn({
+    required this.top,
+    required this.bottom,
     this.overlap = AppSpacing.sheetOverlap,
     super.key,
-  }) : sheetBelow = bottom is OverlapSheet,
-       super(children: [top, bottom]);
+  });
+
+  final Widget top;
+  final Widget bottom;
+  final double overlap;
+
+  @override
+  State<OverlapColumn> createState() => _OverlapColumnState();
+}
+
+class _OverlapColumnState extends State<OverlapColumn> {
+  /// The page's scrim this hero is counted in.
+  _HeroScrimState? _scrim;
+
+  bool get _hero => widget.bottom is OverlapSheet;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final scrim = _hero ? _HeroScrimScope.of(context) : null;
+    if (scrim != _scrim) {
+      _scrim?._count(-1);
+      scrim?._count(1);
+      _scrim = scrim;
+    }
+  }
+
+  @override
+  void dispose() {
+    _scrim?._count(-1);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => _OverlapBox(
+    overlap: widget.overlap,
+    statusBar: _hero && _scrim == null ? MediaQuery.paddingOf(context).top : 0,
+    children: [widget.top, widget.bottom],
+  );
+}
+
+class _OverlapBox extends MultiChildRenderObjectWidget {
+  const _OverlapBox({required this.overlap, required this.statusBar, required super.children});
 
   final double overlap;
 
-  /// [bottom] is an [OverlapSheet]: a hero page, which gets the status-bar band.
-  final bool sheetBelow;
-
-  double _bar(BuildContext context) =>
-      sheetBelow && !_HeroScrimScope.inside(context) ? MediaQuery.paddingOf(context).top : 0;
+  /// Status bar height for the column's own band; 0 = none (no hero, or the page's [HeroScrim] draws it).
+  final double statusBar;
 
   @override
   RenderOverlapColumn createRenderObject(BuildContext context) => RenderOverlapColumn(
     overlap: overlap,
-    statusBar: _bar(context),
+    statusBar: statusBar,
     scrimColor: context.colors.heroTop,
   );
 
@@ -174,7 +226,7 @@ class OverlapColumn extends MultiChildRenderObjectWidget {
   void updateRenderObject(BuildContext context, RenderOverlapColumn renderObject) {
     renderObject
       ..overlap = overlap
-      ..statusBar = _bar(context)
+      ..statusBar = statusBar
       ..scrimColor = context.colors.heroTop;
   }
 }

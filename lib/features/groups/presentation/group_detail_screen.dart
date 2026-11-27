@@ -147,8 +147,8 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen> {
       ),
     );
     return Scaffold(
-      // The rows are slivers after the hero: the scrim stays under the status bar however far it scrolls.
-      body: HeroScrim(child: scrolled),
+      // The rows are slivers after the hero: the page's HeroScrim (AppRoute) keeps the status-bar band.
+      body: scrolled,
       bottomNavigationBar: archived ? null : _ActionBar(groupId: widget.groupId),
     );
   }

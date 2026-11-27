@@ -193,10 +193,12 @@ class _WithPickerState extends ConsumerState<WithPicker> {
     ];
     final shown = q.isEmpty ? matches.take(_recent).toList() : matches;
     // Friends we share only a normal group with (no direct group yet): picking one finds or makes it.
-    final others = [
+    final allOthers = [
       for (final f in searchFriends(friends, q))
         if (f.directGroupId == null || !direct.contains(f.directGroupId)) f,
     ];
+    // Without a search only a few: the field finds the rest.
+    final others = q.isEmpty ? allOthers.take(_recent).toList() : allOthers;
     final exact =
         matches.any((t) => t.name.toLowerCase() == q) ||
         others.any((f) => f.name.toLowerCase() == q);

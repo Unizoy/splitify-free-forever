@@ -52,7 +52,7 @@ class AccountScreen extends ConsumerWidget {
               AppSpacing.screen,
               AppSpacing.s2,
               AppSpacing.screen,
-              bottom + AppSpacing.s6,
+              bottom + AppSpacing.navReserve,
             ),
             child: Column(
               children: [

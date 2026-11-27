@@ -2834,12 +2834,6 @@ abstract class AppLocalizations {
   /// **'People you\nsplit with'**
   String get statPeople;
 
-  /// No description provided for @statExpenses.
-  ///
-  /// In en, this message translates to:
-  /// **'Expenses\nadded'**
-  String get statExpenses;
-
   /// No description provided for @preferences.
   ///
   /// In en, this message translates to:
@@ -4507,18 +4501,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Default split saved'**
   String get expDefaultSplitSaved;
-
-  /// No description provided for @expPickGroup.
-  ///
-  /// In en, this message translates to:
-  /// **'Add to which group?'**
-  String get expPickGroup;
-
-  /// No description provided for @expNoGroupFirst.
-  ///
-  /// In en, this message translates to:
-  /// **'Create a group first, then add expenses to it.'**
-  String get expNoGroupFirst;
 
   /// No description provided for @catFood.
   ///

@@ -26,8 +26,8 @@ Widget _page(Widget body, {Brightness brightness = Brightness.light}) => MediaQu
 );
 
 /// The status-bar style the system would read at the clock.
-SystemUiOverlayStyle? _barStyle(WidgetTester tester) =>
-    tester.binding.renderViews.first.layer!.find<SystemUiOverlayStyle>(const Offset(200, _bar / 2));
+SystemUiOverlayStyle? _barStyle(WidgetTester tester) => tester.binding.renderViews.first.debugLayer!
+    .find<SystemUiOverlayStyle>(const Offset(200, _bar / 2));
 
 double _scrim(WidgetTester tester) =>
     tester.widget<Opacity>(find.byKey(const Key('hero-status-scrim'))).opacity;
@@ -117,6 +117,8 @@ void main() {
           ),
         ),
       );
+      // The hero column joins the page's scrim after its first frame.
+      await tester.pump();
       expect(_scrim(tester), 0);
       expect(_barStyle(tester)?.statusBarIconBrightness, Brightness.light);
       await _scrollBy(tester, find.byType(CustomScrollView), 4);
@@ -133,10 +135,32 @@ void main() {
     });
   });
 
+  testWidgets('a page without a hero gets no band and keeps its own status-bar style', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(400, 800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(
+      _page(
+        HeroScrim(
+          child: AnnotatedRegion<SystemUiOverlayStyle>(
+            value: SystemUiOverlayStyle.dark,
+            child: ListView(children: [for (var i = 0; i < 80; i++) Text('row $i')]),
+          ),
+        ),
+      ),
+    );
+    await tester.pump();
+    await _scrollBy(tester, find.byType(ListView), 400);
+    expect(find.byKey(const Key('hero-status-scrim')), findsNothing);
+    expect(_barStyle(tester)?.statusBarIconBrightness, Brightness.dark);
+  });
+
   group('every hero screen', () {
     const top = EdgeInsets.only(top: _bar);
 
-    testWidgets('Groups home', (tester) async {
+    testWidgets('Groups home (the page scrim; the column leaves the band to it)', (tester) async {
       await pumpGroups(
         tester,
         '/groups',
@@ -146,10 +170,10 @@ void main() {
         ),
       );
       final heroTop = AppTheme.light().extension<AppColors>()!.heroTop;
-      final column = find.byType(OverlapColumn);
-      expect(column, isNot(_band(heroTop)));
+      expect(_scrim(tester), 0);
       await _scrollBy(tester, find.byType(SingleChildScrollView).first, 200);
-      expect(column, _band(heroTop));
+      expect(_scrim(tester), 1);
+      expect(find.byType(OverlapColumn), isNot(_band(heroTop)));
       expect(_barStyle(tester)?.statusBarIconBrightness, Brightness.light);
     });
 
@@ -199,7 +223,11 @@ void main() {
       );
       expect(_scrim(tester), 0);
       // The rows are pressable: move the list itself (what a drag does) and check the band.
-      tester.state<ScrollableState>(find.byType(Scrollable)).position.jumpTo(1500);
+      tester
+          .stateList<ScrollableState>(find.byType(Scrollable))
+          .firstWhere((s) => s.position.axis == Axis.vertical)
+          .position
+          .jumpTo(1500);
       await tester.pump();
       expect(_scrim(tester), 1);
       expect(_barStyle(tester)?.statusBarIconBrightness, Brightness.light);

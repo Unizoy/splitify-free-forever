@@ -209,11 +209,11 @@ void main() {
     // Home-screen widget: a sheet with "Hide amounts"; the row says so; then back on.
     await _tapKey(t, 'settings-widget');
     await _waitFor(t, find.byKey(const Key('widget-hide-amounts')));
-    await _tap(t, find.byType(Switch).last);
+    await _tapKey(t, 'widget-hide-amounts');
     await _back(t);
     expect(find.text('Amounts hidden'), findsOneWidget);
     await _tapKey(t, 'settings-widget');
-    await _tap(t, find.byType(Switch).last);
+    await _tapKey(t, 'widget-hide-amounts');
     await _back(t);
     expect(find.text('Amounts hidden'), findsNothing);
 

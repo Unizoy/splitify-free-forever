@@ -110,24 +110,21 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
       ),
     );
     return Scaffold(
-      // Up to 300 rows as slivers after the hero: the scrim stays under the status bar (D-033).
-      body: HeroScrim(
-        child: SyncRefresh(
-          child: CustomScrollView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            slivers: [
-              SliverToBoxAdapter(child: header),
-              if (feed != null) ...[
-                EntranceScope(
-                  child: SliverPadding(
-                    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
-                    sliver: feed,
-                  ),
+      body: SyncRefresh(
+        child: CustomScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          slivers: [
+            SliverToBoxAdapter(child: header),
+            if (feed != null) ...[
+              EntranceScope(
+                child: SliverPadding(
+                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
+                  sliver: feed,
                 ),
-                const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.navReserve)),
-              ],
+              ),
+              const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.navReserve)),
             ],
-          ),
+          ],
         ),
       ),
     );

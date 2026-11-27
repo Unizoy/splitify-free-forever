@@ -607,7 +607,6 @@
   "statThisMonth": "Spent this\nmonth",
   "statGroups": "Active\ngroups",
   "statPeople": "People you\nsplit with",
-  "statExpenses": "Expenses\nadded",
 
   "preferences": "Preferences",
   "preferencesSubtitle": "Appearance",
@@ -973,8 +972,6 @@
   "@expDefaultSplitBody": {"placeholders": {"group": {"type": "String"}}},
   "expDefaultSplitEqualNote": "Everyone pays the same share.",
   "expDefaultSplitSaved": "Default split saved",
-  "expPickGroup": "Add to which group?",
-  "expNoGroupFirst": "Create a group first, then add expenses to it.",
   "catFood": "Food",
   "catGroceries": "Groceries",
   "catTravel": "Travel",

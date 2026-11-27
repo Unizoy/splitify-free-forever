@@ -1704,9 +1704,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get statPeople => 'People you\nsplit with';
 
   @override
-  String get statExpenses => 'Expenses\nadded';
-
-  @override
   String get preferences => 'Preferences';
 
   @override
@@ -2739,12 +2736,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get expDefaultSplitSaved => 'Default split saved';
-
-  @override
-  String get expPickGroup => 'Add to which group?';
-
-  @override
-  String get expNoGroupFirst => 'Create a group first, then add expenses to it.';
 
   @override
   String get catFood => 'Food';
