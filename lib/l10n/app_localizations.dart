@@ -7261,6 +7261,330 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Open phone settings'**
   String get notifOpenSettings;
+
+  /// Account settings row that opens the Your data sheet (D-034 WP-D).
+  ///
+  /// In en, this message translates to:
+  /// **'Your data'**
+  String get backupRow;
+
+  /// Value on the Your data row.
+  ///
+  /// In en, this message translates to:
+  /// **'Download'**
+  String get backupRowValue;
+
+  /// Title of the Your data sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Your data'**
+  String get backupTitle;
+
+  /// No description provided for @backupBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything on this phone in one .zip: a full backup (JSON) and a spreadsheet (CSV) for each group. It is made on your phone, so it works offline.'**
+  String get backupBody;
+
+  /// No description provided for @backupGroups.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 group} other{{count} groups}}'**
+  String backupGroups(int count);
+
+  /// No description provided for @backupExpenses.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 expense} other{{count} expenses}}'**
+  String backupExpenses(int count);
+
+  /// No description provided for @backupPayments.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 payment} other{{count} payments}}'**
+  String backupPayments(int count);
+
+  /// No description provided for @backupPending.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 change is not synced yet. It is in the file, marked as pending.} other{{count} changes are not synced yet. They are in the file, marked as pending.}}'**
+  String backupPending(int count);
+
+  /// No description provided for @backupDownload.
+  ///
+  /// In en, this message translates to:
+  /// **'Download my data'**
+  String get backupDownload;
+
+  /// No description provided for @backupShare.
+  ///
+  /// In en, this message translates to:
+  /// **'Share instead'**
+  String get backupShare;
+
+  /// No description provided for @backupWorking.
+  ///
+  /// In en, this message translates to:
+  /// **'Preparing your file…'**
+  String get backupWorking;
+
+  /// Shown after the system save dialog wrote the backup.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved {file}'**
+  String backupSaved(String file);
+
+  /// No description provided for @backupFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The file could not be made. Try again.'**
+  String get backupFailed;
+
+  /// No description provided for @backupEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing to download yet. Create a group first.'**
+  String get backupEmpty;
+
+  /// Share-sheet subject of the backup .zip.
+  ///
+  /// In en, this message translates to:
+  /// **'My Splitify data'**
+  String get backupSubject;
+
+  /// No description provided for @backupFormatNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Amounts are whole paise (or cents) with their currency code, so nothing is rounded.'**
+  String get backupFormatNote;
+
+  /// Search field hint: expenses, payments and comments.
+  ///
+  /// In en, this message translates to:
+  /// **'Search everything'**
+  String get search2FieldHint;
+
+  /// Search field hint when the search was opened from a group.
+  ///
+  /// In en, this message translates to:
+  /// **'Search in {group}'**
+  String search2HintIn(String group);
+
+  /// No description provided for @search2StartTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Find anything'**
+  String get search2StartTitle;
+
+  /// No description provided for @search2StartBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Expenses, payments and comments, by description, note, person or amount. It works offline too.'**
+  String get search2StartBody;
+
+  /// No description provided for @search2StartBodyIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Expenses, payments and comments in {group}, by description, note, person or amount.'**
+  String search2StartBodyIn(String group);
+
+  /// No description provided for @search2KindAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get search2KindAll;
+
+  /// No description provided for @search2KindExpenses.
+  ///
+  /// In en, this message translates to:
+  /// **'Expenses'**
+  String get search2KindExpenses;
+
+  /// No description provided for @search2KindPayments.
+  ///
+  /// In en, this message translates to:
+  /// **'Payments'**
+  String get search2KindPayments;
+
+  /// No description provided for @search2KindComments.
+  ///
+  /// In en, this message translates to:
+  /// **'Comments'**
+  String get search2KindComments;
+
+  /// Result-type chip: "Payments · 3".
+  ///
+  /// In en, this message translates to:
+  /// **'{label} · {count}'**
+  String search2KindChip(String label, int count);
+
+  /// Semantics label of the result-type chips.
+  ///
+  /// In en, this message translates to:
+  /// **'Result type'**
+  String get search2KindLabel;
+
+  /// No description provided for @search2ResultCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 result} other{{count} results}}'**
+  String search2ResultCount(int count);
+
+  /// No description provided for @search2ResultCountIn.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 result in {group}} other{{count} results in {group}}}'**
+  String search2ResultCountIn(int count, String group);
+
+  /// No description provided for @search2Recent.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent searches'**
+  String get search2Recent;
+
+  /// No description provided for @search2RecentClear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get search2RecentClear;
+
+  /// No description provided for @search2RecentClearHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear recent searches'**
+  String get search2RecentClearHint;
+
+  /// Tooltip of the x on a recent search.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove {text}'**
+  String search2RecentRemove(String text);
+
+  /// No description provided for @search2RecentHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search again'**
+  String get search2RecentHint;
+
+  /// No description provided for @search2PaymentCaption.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment · {date} · {group}'**
+  String search2PaymentCaption(String date, String group);
+
+  /// No description provided for @search2CommentTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'“{body}”'**
+  String search2CommentTitle(String body);
+
+  /// No description provided for @search2CommentCaption.
+  ///
+  /// In en, this message translates to:
+  /// **'{author} on {target} · {date}'**
+  String search2CommentCaption(String author, String target, String date);
+
+  /// No description provided for @search2CommentCaptionIn.
+  ///
+  /// In en, this message translates to:
+  /// **'{author} on {target} · {date} · {group}'**
+  String search2CommentCaptionIn(String author, String target, String date, String group);
+
+  /// No description provided for @search2CommentTargetPayment.
+  ///
+  /// In en, this message translates to:
+  /// **'a payment'**
+  String get search2CommentTargetPayment;
+
+  /// No description provided for @search2Comment.
+  ///
+  /// In en, this message translates to:
+  /// **'comment'**
+  String get search2Comment;
+
+  /// Totals tab period: one month with previous / next.
+  ///
+  /// In en, this message translates to:
+  /// **'Month'**
+  String get trendMonthTab;
+
+  /// No description provided for @trendPrevMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous month'**
+  String get trendPrevMonth;
+
+  /// No description provided for @trendNextMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Next month'**
+  String get trendNextMonth;
+
+  /// No description provided for @trendEmptyMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing spent in {month}'**
+  String trendEmptyMonth(String month);
+
+  /// No description provided for @trendCategoryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Category over time'**
+  String get trendCategoryTitle;
+
+  /// No description provided for @trendCategoryTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} on {category} in the last 12 months'**
+  String trendCategoryTotal(String amount, String category);
+
+  /// No description provided for @trendPickCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get trendPickCategory;
+
+  /// No description provided for @trendWhoPaidTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Who paid'**
+  String get trendWhoPaidTitle;
+
+  /// No description provided for @trendPickPerson.
+  ///
+  /// In en, this message translates to:
+  /// **'Person'**
+  String get trendPickPerson;
+
+  /// No description provided for @trendPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid'**
+  String get trendPaid;
+
+  /// No description provided for @trendShare.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get trendShare;
+
+  /// No description provided for @trendWhoPaidHint.
+  ///
+  /// In en, this message translates to:
+  /// **'What each person paid against their share, month by month.'**
+  String get trendWhoPaidHint;
+
+  /// No description provided for @trendMemberBar.
+  ///
+  /// In en, this message translates to:
+  /// **'{month}: paid {paid}, share {share}'**
+  String trendMemberBar(String month, String paid, String share);
+
+  /// No description provided for @trendMemberTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 12 months: paid {paid} · share {share}'**
+  String trendMemberTotal(String paid, String share);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

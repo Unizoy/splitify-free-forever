@@ -9,18 +9,25 @@ import 'package:splitify/data/data_providers.dart' show clockProvider;
 import 'package:splitify/data/local/app_database.dart';
 import 'package:splitify/data/repositories/search_repository.dart';
 import 'package:splitify/domain/rules/expense_categories.dart';
+import 'package:splitify/features/balances/presentation/balance_copy.dart' show listMoney;
 import 'package:splitify/features/expenses/application/expense_draft.dart' show parseIsoDate;
 import 'package:splitify/features/expenses/presentation/editor/pickers.dart' show MonthCalendar;
 import 'package:splitify/features/expenses/presentation/expense_copy.dart';
 import 'package:splitify/features/expenses/presentation/expense_list.dart' show ExpenseRow;
+import 'package:splitify/features/expenses/presentation/expense_routes.dart';
+import 'package:splitify/features/payments/application/payment_providers.dart' show PaymentView;
+import 'package:splitify/features/payments/presentation/payment_routes.dart';
 import 'package:splitify/features/search/application/search_controller.dart';
+import 'package:splitify/features/search/application/search_everything.dart';
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/components/components.dart';
 import 'package:splitify/ui/theme/theme.dart';
 
-/// Search (`/search?group=`, #34): pill search field (description, notes, people, amount), filter chips
-/// (group, person, date, category) and the matching expenses by month. Reads only the phone's own data,
-/// so it works offline; rows not synced yet carry the marker.
+/// Search (`/search?group=`, #34, D-034 P-5): pill search field (description, notes, people, amount),
+/// filter chips (group, person, date, category), result-type chips and the matching expenses, payments
+/// and comments by month; the last 5 searches when nothing is typed. Reads only the phone's own data,
+/// so it works offline; rows not synced yet carry the marker. Opened from a group, it starts in that
+/// group ("Search in Goa trip").
 class SearchScreen extends ConsumerStatefulWidget {
   const SearchScreen({this.groupId, super.key});
 
@@ -40,10 +47,38 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   ExpenseSearchController get _ctrl => ref.read(searchControllerProvider(widget.groupId).notifier);
 
   @override
+  void initState() {
+    super.initState();
+    _focus.addListener(_onFocus);
+  }
+
+  @override
   void dispose() {
+    _focus
+      ..removeListener(_onFocus)
+      ..dispose();
     _text.dispose();
-    _focus.dispose();
     super.dispose();
+  }
+
+  /// Leaving the field (a result tapped, the list scrolled, the keyboard closed) or pressing search keeps
+  /// the text among the recent searches (S-362).
+  void _onFocus() {
+    if (!_focus.hasFocus && mounted) _remember();
+  }
+
+  void _remember() {
+    if (_text.text.trim().isEmpty) return;
+    ref.read(recentSearchesProvider.notifier).add(_text.text);
+  }
+
+  void _useRecent(String text) {
+    _text.value = TextEditingValue(
+      text: text,
+      selection: TextSelection.collapsed(offset: text.length),
+    );
+    _ctrl.setText(text);
+    ref.read(recentSearchesProvider.notifier).add(text);
   }
 
   DateTime get _today {
@@ -54,7 +89,9 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     final s = ref.watch(searchControllerProvider(widget.groupId));
-    final results = ref.watch(searchResultsProvider(widget.groupId));
+    final results = ref.watch(searchEverythingProvider(widget.groupId));
+    final groups = ref.watch(searchGroupsProvider).value ?? const <LocalGroup>[];
+    final groupName = groups.where((g) => g.id == s.groupId).firstOrNull?.name;
     return Scaffold(
       body: SafeArea(
         bottom: false,
@@ -81,7 +118,9 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                     child: _SearchField(
                       controller: _text,
                       focusNode: _focus,
+                      hint: groupName == null ? l.search2FieldHint : l.search2HintIn(groupName),
                       onChanged: _ctrl.setText,
+                      onSubmitted: (_) => _remember(),
                       onClear: () {
                         _text.clear();
                         _ctrl.setText('');
@@ -94,7 +133,14 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
             ),
             _Filters(state: s, groupKey: widget.groupId, today: _today),
             Expanded(
-              child: _Results(state: s, results: results, onClear: _ctrl.clearFilters),
+              child: _Results(
+                state: s,
+                results: results,
+                groupName: groupName,
+                onClear: _ctrl.clearFilters,
+                onKind: _ctrl.setKind,
+                onRecent: _useRecent,
+              ),
             ),
           ],
         ),
@@ -107,13 +153,17 @@ class _SearchField extends StatelessWidget {
   const _SearchField({
     required this.controller,
     required this.focusNode,
+    required this.hint,
     required this.onChanged,
+    required this.onSubmitted,
     required this.onClear,
   });
 
   final TextEditingController controller;
   final FocusNode focusNode;
+  final String hint;
   final ValueChanged<String> onChanged;
+  final ValueChanged<String> onSubmitted;
   final VoidCallback onClear;
 
   @override
@@ -144,11 +194,12 @@ class _SearchField extends StatelessWidget {
               cursorColor: c.primary,
               decoration: pillInputDecoration(
                 context: context,
-                hint: l.searchFieldHint,
+                hint: hint,
                 style: context.text.body,
                 hintStyle: context.text.body.copyWith(color: c.textTertiary),
               ),
               onChanged: onChanged,
+              onSubmitted: onSubmitted,
             ),
           ),
           ListenableBuilder(
@@ -476,15 +527,27 @@ class _OptionList extends StatelessWidget {
   );
 }
 
-class _Results extends StatelessWidget {
-  const _Results({required this.state, required this.results, required this.onClear});
+class _Results extends ConsumerWidget {
+  const _Results({
+    required this.state,
+    required this.results,
+    required this.groupName,
+    required this.onClear,
+    required this.onKind,
+    required this.onRecent,
+  });
 
   final SearchState state;
-  final AsyncValue<List<SearchHit>> results;
+  final AsyncValue<SearchEverything> results;
+
+  /// The group filter's name, when one is set.
+  final String? groupName;
   final VoidCallback onClear;
+  final ValueChanged<SearchKind> onKind;
+  final ValueChanged<String> onRecent;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context);
     final c = context.colors;
     Widget padded(Widget child) => SingleChildScrollView(
@@ -494,35 +557,48 @@ class _Results extends StatelessWidget {
         AppSpacing.screen,
         AppSpacing.s8,
       ),
+      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       child: child,
     );
     if (state.idle) {
+      final recent = ref.watch(recentSearchesProvider);
       return padded(
-        ClipRRect(
-          key: const Key('search-start'),
-          borderRadius: AppRadii.all28,
-          child: BlobBackground(
-            child: SizedBox(
-              width: double.infinity,
-              child: EmptyState(
-                icon: AppIcons.search,
-                title: l.searchStartTitle,
-                message: l.searchStartBody,
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (recent.isNotEmpty) ...[
+              _RecentSearches(recent: recent, onPick: onRecent),
+              const SizedBox(height: AppSpacing.s6),
+            ],
+            ClipRRect(
+              key: const Key('search-start'),
+              borderRadius: AppRadii.all28,
+              child: BlobBackground(
+                child: SizedBox(
+                  width: double.infinity,
+                  child: EmptyState(
+                    icon: AppIcons.search,
+                    title: l.search2StartTitle,
+                    message: groupName == null
+                        ? l.search2StartBody
+                        : l.search2StartBodyIn(groupName!),
+                  ),
+                ),
               ),
             ),
-          ),
+          ],
         ),
       );
     }
-    final hits = results.value;
-    if (hits == null) {
+    final found = results.value;
+    if (found == null) {
       return results.hasError
           ? padded(EmptyState(icon: AppIcons.warning, title: l.expLoadError))
           : Center(
               child: DotsPulse(color: c.primary, semanticLabel: l.loading),
             );
     }
-    if (hits.isEmpty) {
+    if (found.count(SearchKind.all) == 0) {
       return padded(
         EmptyState(
           key: const Key('search-empty'),
@@ -542,13 +618,25 @@ class _Results extends StatelessWidget {
         ),
       );
     }
+    // A type that found nothing keeps its chip only while it is picked.
+    final kind = state.kind;
+    final hits = found.rows(kind);
+    final kinds = [
+      for (final k in SearchKind.values.skip(1))
+        if (found.count(k) > 0 || k == kind) k,
+    ];
+    final count = hits.length;
     final rows = <Widget>[
+      if (kinds.length > 1 || kind != SearchKind.all)
+        _KindChips(found: found, kinds: kinds, selected: kind, onPick: onKind),
       Padding(
         padding: const EdgeInsets.only(bottom: AppSpacing.s2),
         child: Text(
-          hits.length >= SearchRepository.limit
+          found.limited(SearchRepository.limit)
               ? l.searchLimited(SearchRepository.limit)
-              : l.searchResultCount(hits.length),
+              : groupName == null
+              ? l.search2ResultCount(count)
+              : l.search2ResultCountIn(count, groupName!),
           key: const Key('search-count'),
           style: context.text.caption.copyWith(color: c.textSecondary),
         ),
@@ -556,8 +644,7 @@ class _Results extends StatelessWidget {
     ];
     String? month;
     for (var i = 0; i < hits.length; i++) {
-      final date = parseIsoDate(hits[i].view.expense.date);
-      final header = monthHeader(context, date);
+      final header = monthHeader(context, hits[i].day);
       if (header != month) {
         month = header;
         rows.add(
@@ -573,16 +660,25 @@ class _Results extends StatelessWidget {
           ),
         );
       }
-      final nextSame =
-          i + 1 < hits.length &&
-          monthHeader(context, parseIsoDate(hits[i + 1].view.expense.date)) == header;
-      rows.add(
-        ExpenseRow(
-          view: hits[i].view,
+      final nextSame = i + 1 < hits.length && monthHeader(context, hits[i + 1].day) == header;
+      final allGroups = state.groupId == null;
+      rows.add(switch (hits[i]) {
+        ExpenseResult(:final hit) => ExpenseRow(
+          view: hit.view,
           showDivider: nextSame,
-          groupName: state.groupId == null ? hits[i].groupName : null,
+          groupName: allGroups ? hit.groupName : null,
         ),
-      );
+        PaymentResult(:final hit) => _PaymentHitRow(
+          hit: hit,
+          showDivider: nextSame,
+          showGroup: allGroups,
+        ),
+        final CommentResult r => _CommentHitRow(
+          result: r,
+          showDivider: nextSame,
+          showGroup: allGroups,
+        ),
+      });
     }
     return ListView(
       key: const Key('search-results'),
@@ -594,6 +690,238 @@ class _Results extends StatelessWidget {
       ),
       keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       children: rows,
+    );
+  }
+}
+
+/// All · Expenses · Payments · Comments, each with its count; only types that found something.
+class _KindChips extends StatelessWidget {
+  const _KindChips({
+    required this.found,
+    required this.kinds,
+    required this.selected,
+    required this.onPick,
+  });
+
+  final SearchEverything found;
+  final List<SearchKind> kinds;
+  final SearchKind selected;
+  final ValueChanged<SearchKind> onPick;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    String label(SearchKind k) => switch (k) {
+      SearchKind.all => l.search2KindAll,
+      SearchKind.expenses => l.search2KindExpenses,
+      SearchKind.payments => l.search2KindPayments,
+      SearchKind.comments => l.search2KindComments,
+    };
+    IconData icon(SearchKind k) => switch (k) {
+      SearchKind.all => AppIcons.search,
+      SearchKind.expenses => AppIcons.receipt,
+      SearchKind.payments => AppIcons.payment,
+      SearchKind.comments => AppIcons.chat,
+    };
+    return Semantics(
+      container: true,
+      label: l.search2KindLabel,
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: AppSpacing.s3),
+        child: Wrap(
+          key: const Key('search-kinds'),
+          spacing: AppSpacing.s2,
+          runSpacing: AppSpacing.s2,
+          children: [
+            for (final k in [SearchKind.all, ...kinds])
+              IconChip(
+                key: Key('search-kind-${k.name}'),
+                label: l.search2KindChip(label(k), found.count(k)),
+                icon: icon(k),
+                selected: selected == k,
+                onTap: () => onPick(k),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// "RECENT SEARCHES · Clear" and the last searches; a tap searches again, × forgets one.
+class _RecentSearches extends ConsumerWidget {
+  const _RecentSearches({required this.recent, required this.onPick});
+
+  final List<String> recent;
+  final ValueChanged<String> onPick;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context);
+    final c = context.colors;
+    final store = ref.read(recentSearchesProvider.notifier);
+    return Column(
+      key: const Key('search-recent'),
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: Semantics(
+                header: true,
+                child: Text(
+                  l.search2Recent.toUpperCase(),
+                  style: context.text.labelCaps.copyWith(color: c.textSecondary),
+                ),
+              ),
+            ),
+            TextButton(
+              key: const Key('search-recent-clear'),
+              onPressed: store.clear,
+              child: Semantics(
+                label: l.search2RecentClearHint,
+                excludeSemantics: true,
+                child: Text(l.search2RecentClear),
+              ),
+            ),
+          ],
+        ),
+        for (var i = 0; i < recent.length; i++)
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Semantics(
+                      button: true,
+                      label: recent[i],
+                      hint: l.search2RecentHint,
+                      excludeSemantics: true,
+                      onTap: () => onPick(recent[i]),
+                      child: Pressable(
+                        key: Key('search-recent-$i'),
+                        onTap: () => onPick(recent[i]),
+                        borderRadius: AppRadii.all16,
+                        scale: AppMotion.rowPressScale,
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(minHeight: AppSpacing.minTouch),
+                          child: Row(
+                            children: [
+                              Icon(AppIcons.history, size: 20, color: c.textTertiary),
+                              const SizedBox(width: AppSpacing.s3),
+                              Expanded(
+                                child: Text(
+                                  recent[i],
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: context.text.body,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  AppIconButton(
+                    key: Key('search-recent-remove-$i'),
+                    tooltip: l.search2RecentRemove(recent[i]),
+                    icon: Icon(AppIcons.close, size: 18, color: c.textTertiary),
+                    onPressed: () => store.remove(recent[i]),
+                  ),
+                ],
+              ),
+              if (i < recent.length - 1) const DashedDivider(),
+            ],
+          ),
+      ],
+    );
+  }
+}
+
+/// "Asha paid you" · "Payment · 21 Nov · Goa trip", the amount and my side.
+class _PaymentHitRow extends StatelessWidget {
+  const _PaymentHitRow({required this.hit, required this.showDivider, required this.showGroup});
+
+  final PaymentHit hit;
+  final bool showDivider;
+  final bool showGroup;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final v = hit.view;
+    final p = v.payment;
+    final date = dayMonth(context, parseIsoDate(p.date));
+    return AmountRow(
+      key: ValueKey('search-payment-${p.id}'),
+      title: paymentSentence(l, v),
+      caption: showGroup && hit.groupName.isNotEmpty
+          ? l.search2PaymentCaption(date, hit.groupName)
+          : l.payRowCaption(date),
+      amountText: listMoney(p.amount, p.currency.trim()),
+      amountCaption: v.iPaid
+          ? l.payYouPaid
+          : v.iReceived
+          ? l.payYouReceived
+          : l.expNotInvolved,
+      unsynced: v.unsynced,
+      showDivider: showDivider,
+      leading: TintedIcon(icon: AppIcons.payment, color: context.colors.owedAccent, size: 44),
+      onTap: () => unawaited(context.push(PaymentRoutes.detail(p.id))),
+    );
+  }
+}
+
+/// "Asha paid you" / "You paid Asha" for a payment.
+String paymentSentence(AppLocalizations l, PaymentView v) {
+  String name(String id, {bool start = true}) {
+    if (id == v.meId) return start ? l.you : l.youLower;
+    final n = v.nameOf(id);
+    return n.isEmpty ? l.someone : n;
+  }
+
+  return l.settlePaidSentence(name(v.payment.fromMember), name(v.payment.toMember, start: false));
+}
+
+/// A comment: its text, "Asha on Dinner · 21 Nov", opening the expense or payment it is on.
+class _CommentHitRow extends StatelessWidget {
+  const _CommentHitRow({required this.result, required this.showDivider, required this.showGroup});
+
+  final CommentResult result;
+  final bool showDivider;
+  final bool showGroup;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final hit = result.hit;
+    final cm = hit.comment;
+    final body = cm.body.trim().replaceAll(RegExp(r'\s+'), ' ');
+    final snippet = body.length > 90 ? '${body.substring(0, 89).trimRight()}…' : body;
+    final target =
+        hit.expense?.description ??
+        (hit.payment == null ? l.search2CommentTargetPayment : paymentSentence(l, hit.payment!));
+    final author = hit.authorName ?? l.someone;
+    final date = dayMonth(context, result.at);
+    return AmountRow(
+      key: ValueKey('search-comment-${cm.id}'),
+      title: l.search2CommentTitle(snippet),
+      caption: showGroup && hit.groupName.isNotEmpty
+          ? l.search2CommentCaptionIn(author, target, date, hit.groupName)
+          : l.search2CommentCaption(author, target, date),
+      amountText: '',
+      unsynced: result.unsynced,
+      showDivider: showDivider,
+      leading: TintedIcon(icon: AppIcons.chat, color: context.colors.primary, size: 44),
+      onTap: () => unawaited(
+        context.push(
+          cm.targetType == 'payment'
+              ? PaymentRoutes.detail(cm.targetId)
+              : ExpenseRoutes.detail(cm.targetId),
+        ),
+      ),
     );
   }
 }

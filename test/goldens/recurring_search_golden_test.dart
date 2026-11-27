@@ -18,6 +18,7 @@ import 'package:splitify/features/recurring/application/repeat_draft.dart';
 import 'package:splitify/features/recurring/presentation/recurring_tile.dart';
 import 'package:splitify/features/recurring/presentation/repeat_picker.dart';
 import 'package:splitify/features/search/application/search_controller.dart';
+import 'package:splitify/features/search/application/search_everything.dart';
 import 'package:splitify/features/search/presentation/search_screen.dart';
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/components/components.dart';
@@ -118,6 +119,10 @@ List<Override> _search(SearchState s, List<SearchHit> hits) => [
   searchControllerProvider(null).overrideWith(() => _FixedSearch(s)),
   searchResultsProvider(null).overrideWithValue(AsyncData(hits)),
   searchGroupsProvider.overrideWith((ref) => Stream.value([sampleGroup()])),
+  // D-034 WP-D: payments and comments are searched too; none here, and no recent searches.
+  searchPaymentHitsProvider(null).overrideWithValue(const AsyncData([])),
+  searchCommentHitsProvider(null).overrideWithValue(const AsyncData([])),
+  recentSearchesProvider.overrideWithBuild((ref, notifier) => const []),
 ];
 
 List<Override> _detail(LocalExpense e, LocalRecurring t) => [

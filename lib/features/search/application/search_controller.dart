@@ -11,6 +11,9 @@ import 'package:splitify/features/expenses/application/expense_providers.dart';
 /// Date filter presets of the search screen (#34); [custom] = two picked days.
 enum DatePreset { thisMonth, lastMonth, last3Months, thisYear, custom }
 
+/// Which results the search shows (D-034 WP-D, P-5): everything, or one type.
+enum SearchKind { all, expenses, payments, comments }
+
 /// A person the search can be narrowed to: one account across groups (`u:<user id>`) or one name-only
 /// member (`m:<member id>`), with every member id they have.
 typedef SearchPerson = ({String key, String name, Set<String> memberIds});
@@ -25,6 +28,7 @@ final class SearchState {
     this.from,
     this.to,
     this.category,
+    this.kind = SearchKind.all,
   });
 
   final String text;
@@ -38,6 +42,9 @@ final class SearchState {
 
   /// Parent category key (`food`).
   final String? category;
+
+  /// The result-type chip picked (not a filter: the counts of every type stay visible).
+  final SearchKind kind;
 
   SearchQuery get query => SearchQuery.parse(text);
 
@@ -63,6 +70,7 @@ final class SearchState {
     DateTime? Function()? from,
     DateTime? Function()? to,
     String? Function()? category,
+    SearchKind? kind,
   }) => SearchState(
     text: text ?? this.text,
     groupId: groupId == null ? this.groupId : groupId(),
@@ -71,6 +79,7 @@ final class SearchState {
     from: from == null ? this.from : from(),
     to: to == null ? this.to : to(),
     category: category == null ? this.category : category(),
+    kind: kind ?? this.kind,
   );
 }
 
@@ -96,13 +105,15 @@ class ExpenseSearchController extends Notifier<SearchState> {
 
   void setCategory(String? category) => state = state.copyWith(category: () => category);
 
+  void setKind(SearchKind kind) => state = state.copyWith(kind: kind);
+
   /// A preset (computed from [today]) or a custom range; null clears the date filter.
   void setDates(DatePreset? preset, {required DateTime today, DateTime? from, DateTime? to}) {
     final range = preset == null ? null : presetRange(preset, today, from: from, to: to);
     state = state.copyWith(datePreset: () => preset, from: () => range?.from, to: () => range?.to);
   }
 
-  void clearFilters() => state = SearchState(text: state.text);
+  void clearFilters() => state = SearchState(text: state.text, kind: state.kind);
 }
 
 /// The days a preset covers on [today] (custom: [from]..[to], swapped when picked backwards).
