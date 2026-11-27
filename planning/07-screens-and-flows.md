@@ -94,14 +94,36 @@ Settings sheet: AccordionCards **Profile** (name, photo, UPI ID, default currenc
 notifications), **Security** (app lock); DashedListRows: Sync & storage, Deleted groups, Import from Splitwise,
 About & licences, Sign out, Delete account; footer "Version x.y.z (code)".
 
-### Join (`/join`) — 532 + 602
-Question "Join a group" (headline); OptionTiles "Enter code" / "Scan QR"; code UnderlineField with auto dash;
-preview card (cover + name + members); claim step: `AvatarCarousel` of unclaimed name-only members inside the ring +
-"I'm new here" pill; black "Join group" CTA.
+### Create / edit group (`/groups/new`, `/groups/:id/edit`) — one screen like Splitwise (D-033)
+App bar (back, "New group"/"Edit group"); cover tile with a camera badge beside the name field (tile → sheet:
+generated / photo); type IconChips (Trip, Home, Couple, Other); main currency row; MEMBERS: you (owner) or the
+current members, people typed here (name-only, × to remove), "Add people" field with + (keyboard Done adds and
+keeps focus), "Invite with a link or QR" (new group: saves, then shows the invite sheet over the group page);
+Save / "Create group" above the keyboard. A name left in the people field is added on Save; back asks to discard
+only after a change.
+
+### Group settings (`/groups/:id/settings`) — Splitwise-like list (D-033)
+Group row (cover, name, "Trip · INR"; tap = edit screen) → MEMBERS: "Add people to group" (name sheet), "Invite
+via link or QR" (invite sheet), member rows (sheet: rename / unlink / remove or leave) → SETTINGS: default split,
+simplify debts → DATA: export CSV, import from Splitwise, deleted items → archive, leave, delete (each confirmed).
+Invite sheet: QR, code + copy, link + "Copy link", Share invite, Reset code.
+
+### Join (`/join`) — 532 + 602, minimal (D-033)
+App bar "Join a group"; one code UnderlineField (auto dash; takes a pasted link or the whole shared message) with
+"Paste" and "Scan QR" chips; a pasted/scanned code is looked up at once, a typed one on "Find group" (above the
+keyboard); preview: cover, group name, member count; claim step: `AvatarCarousel` of unclaimed name-only members +
+"I'm new here"; "Join group" / "Join as …" CTA. Signed out, the code is kept through sign-in (S-283).
 
 ### Others (brief)
-- **Friends:** search pill; list of friends with avatar, total chip (owed/owe/settled per currency); amber
-  "Add friend expense".
+- **Friends:** search pill + "Add friend" (top right: one sheet, name → Add friend / Add and invite with a link);
+  list of friends with avatar, total chip (owed/owe/settled per currency); amber "Add friend expense". Friend page
+  (D-033): compact hero (56 dp avatar, total pill), Settle up + Remind under it, by-group rows, shared items, Add
+  expense at the bottom.
+- **Profile (D-033):** one screen — avatar with camera badge (tap = new photo; the saved photo shows), name, UPI ID
+  with the scan button inside the field (format checked on leaving it), default currency, Save above the keyboard.
+  First-run confirm: name + Continue; UPI behind "Add a UPI ID (optional)".
+- **Import from Splitwise (D-033):** file → one setup screen (file card with Change; Account entry: "Import into"
+  New group named after the file or one of my groups; who is who) → preview with the totals check → done.
 - **Activity:** header with bell (badge); filter IconChips; day headers; rows (actor avatar, sentence, time,
   amount); BlobBackground empty state.
 - **Expense detail:** category hero band, serif amount, paid/owe rows, receipt thumbnail, "History" link, comments
@@ -119,5 +141,5 @@ preview card (cover + name + members); claim step: `AvatarCarousel` of unclaimed
 2. **Add expense:** group → Add expense → description + amount → (defaults) → Save → row appears with SyncMarker → marker clears
    after sync.
 3. **Settle up:** group Balances row "You owe Asha ₹500" → Settle → Pay via UPI → chooser → return → Mark as paid.
-4. **Join:** Groups → Join → scan/enter → preview → claim "Rahul" → group opens.
+4. **Join:** Groups → Join → paste/scan/enter → preview → claim "Rahul" → group opens.
 5. **Offline:** airplane mode → add/edit/delete → markers → back online → markers clear, other member sees changes.
