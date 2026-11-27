@@ -14,6 +14,8 @@ New-Item -ItemType Directory -Force $out | Out-Null
 # The emulator's plain DNS gets a block page for *.supabase.co on this ISP; pin the PC's answer (S-214).
 $supabaseHost = ([Uri](Get-Content secrets\env.dev.json -Raw | ConvertFrom-Json).SUPABASE_URL).Host
 $ip = (Resolve-DnsName $supabaseHost -Type A | Where-Object IPAddress | Select-Object -First 1).IPAddress
+# Side by side with the store build on the emulator (S-310): never replace or uninstall the owner's app.
+if (-not $env:SPLITIFY_APP_ID_SUFFIX) { $env:SPLITIFY_APP_ID_SUFFIX = '.qa' }
 
 function Invoke-UpiTest([string]$mode) {
   $log = Join-Path $out "test-$mode.log"

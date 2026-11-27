@@ -14,11 +14,12 @@ import 'package:splitify/features/expenses/application/expense_draft.dart';
 import 'package:splitify/features/expenses/application/expense_editor_controller.dart';
 import 'package:splitify/features/expenses/application/expense_providers.dart';
 import 'package:splitify/features/expenses/application/split_draft.dart';
-import 'package:splitify/features/expenses/presentation/default_split_screen.dart';
+import 'package:splitify/features/expenses/presentation/default_split_sheet.dart';
 import 'package:splitify/features/expenses/presentation/editor/expense_editor_screen.dart';
 import 'package:splitify/features/expenses/presentation/expense_detail_screen.dart';
 import 'package:splitify/features/expenses/presentation/expense_list.dart';
 import 'package:splitify/l10n/app_localizations.dart';
+import 'package:splitify/ui/components/components.dart';
 import 'package:splitify/ui/theme/theme.dart';
 
 import '../test/features/expenses/expense_fixtures.dart';
@@ -107,7 +108,19 @@ List<(String, Widget, List<Override>)> _screens() {
     ),
     (
       'default-split',
-      const DefaultSplitScreen(groupId: gid),
+      // A sheet from group settings since D-033.
+      Builder(
+        builder: (context) => Scaffold(
+          backgroundColor: context.colors.scrim,
+          body: Align(
+            alignment: Alignment.bottomCenter,
+            child: AppSheet(
+              title: AppLocalizations.of(context).expDefaultSplitTitle,
+              child: DefaultSplitSheet(groupId: gid, onSaved: () {}),
+            ),
+          ),
+        ),
+      ),
       [
         defaultSplitProvider(gid).overrideWith(
           () => FixedDefaultSplitController(

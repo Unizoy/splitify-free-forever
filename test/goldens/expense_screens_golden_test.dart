@@ -5,12 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
-import 'package:splitify/core/money/split.dart';
 import 'package:splitify/features/comments/application/comments_providers.dart';
-import 'package:splitify/features/expenses/application/default_split_controller.dart';
 import 'package:splitify/features/expenses/application/expense_providers.dart';
-import 'package:splitify/features/expenses/application/split_draft.dart';
-import 'package:splitify/features/expenses/presentation/default_split_screen.dart';
 import 'package:splitify/features/expenses/presentation/expense_detail_screen.dart';
 import 'package:splitify/features/expenses/presentation/expense_list.dart';
 import 'package:splitify/ui/theme/theme.dart';
@@ -77,31 +73,12 @@ List<_Case> _cases() {
             .overrideWithValue(const AsyncData([])),
       ],
     ),
-    (
-      'default_split',
-      const DefaultSplitScreen(groupId: gid),
-      [
-        defaultSplitProvider(gid).overrideWith(
-          () => FixedDefaultSplitController(
-            gid,
-            DefaultSplitState(
-              groupName: 'Goa trip',
-              members: people,
-              split: SplitDraft.initial(
-                ids,
-                2,
-              ).withValues(SplitKind.percent, {'m1': 4000, 'm2': 4000, 'm3': 1000, 'm4': 500}),
-            ),
-          ),
-        ),
-      ],
-    ),
   ];
 }
 
 void main() {
-  // TC-35-02 (+ list/detail states): the expense list, detail and default split in light and dark at
-  // text scale 1.0 and 2.0. The add/edit editor (TC-5..9-04, TC-13-02) is in expense_editor_golden_test.dart.
+  // The expense list and detail in light and dark at text scale 1.0 and 2.0 (the default split sheet,
+  // TC-35-02, is in minimal_pay_golden_test.dart). The add/edit editor (TC-5..9-04, TC-13-02) is in expense_editor_golden_test.dart.
   for (final (name, screen, overrides) in _cases()) {
     for (final mode in [ThemeMode.light, ThemeMode.dark]) {
       for (final (suffix, scale) in goldenScales) {
