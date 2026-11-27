@@ -145,6 +145,16 @@ void main() {
     FocusManager.instance.primaryFocus?.unfocus();
     await _capture(t, 'fab');
     await _capture(t, 'fab-dark');
+    // After D-033: the "With you and" picker on the editor.
+    final choose = find.byKey(const Key('expense-with-choose'));
+    if (choose.evaluate().isNotEmpty) {
+      await t.tap(choose);
+      await _pumpFor(t, const Duration(seconds: 2));
+      await _capture(t, 'fab-picker');
+      await _capture(t, 'fab-picker-dark');
+      await t.binding.handlePopRoute();
+      await _pumpFor(t, const Duration(seconds: 1));
+    }
     await t.binding.handlePopRoute();
     await _pumpFor(t, const Duration(seconds: 1));
 

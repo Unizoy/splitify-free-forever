@@ -241,7 +241,9 @@ void main() {
       expect(find.text('3 members'), findsOneWidget);
       expect(find.byType(ExpenseList), findsOneWidget); // phase 08 Expenses tab
       await settle(tester);
-      expect(_key('expenses-empty-add'), findsOneWidget);
+      // D-033: one Add expense on the page (the bar), not a second one in the empty list.
+      expect(_key('expenses-empty-add'), findsNothing);
+      expect(_key('group-add-expense'), findsOneWidget);
       expect(find.byType(SyncMarker), findsOneWidget);
       await tester.tap(find.text('Balances'));
       await settle(tester);

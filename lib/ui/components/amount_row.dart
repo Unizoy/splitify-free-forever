@@ -19,6 +19,7 @@ class AmountRow extends StatelessWidget {
     this.unsynced = false,
     this.onTap,
     this.showDivider = true,
+    this.dense = false,
     super.key,
   });
 
@@ -38,6 +39,9 @@ class AmountRow extends StatelessWidget {
   final bool unsynced;
   final VoidCallback? onTap;
   final bool showDivider;
+
+  /// Tighter rows for long feeds (Activity, D-033).
+  final bool dense;
 
   @override
   Widget build(BuildContext context) {
@@ -88,7 +92,7 @@ class AmountRow extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: AppSpacing.s4),
+              padding: EdgeInsets.symmetric(vertical: dense ? AppSpacing.s3 : AppSpacing.s4),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [

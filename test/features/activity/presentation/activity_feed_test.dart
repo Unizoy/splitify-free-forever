@@ -421,6 +421,8 @@ void main() {
       t.view.physicalSize = const Size(412, 2400);
       await settle(t);
       Future<void> pick(String name) async {
+        // One line of chips that scrolls sideways (D-033).
+        await t.ensureVisible(find.byKey(Key('activity-filter-$name')));
         await t.tap(find.byKey(Key('activity-filter-$name')));
         await settle(t);
       }

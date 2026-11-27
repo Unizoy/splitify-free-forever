@@ -124,13 +124,11 @@ void main() {
     });
 
     // TC-13-01
-    testWidgets('empty list shows the first-expense prompt; its button opens the editor', (
-      t,
-    ) async {
+    // D-033: no second Add expense button; the page's own bar has it.
+    testWidgets('empty list shows the first-expense prompt without its own add button', (t) async {
       await _pumpList(t, const AsyncData([]));
       expect(find.text('No expenses yet'), findsOneWidget);
-      await tapKey(t, 'expenses-empty-add');
-      expect(find.text('at /expense/new?group=$gid'), findsOneWidget);
+      expect(find.byKey(const Key('expenses-empty-add')), findsNothing);
     });
 
     // TC-13-01

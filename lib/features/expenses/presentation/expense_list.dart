@@ -36,17 +36,8 @@ class ExpenseList extends ConsumerWidget {
         child: EmptyState(
           icon: AppIcons.receipt,
           title: l.expNoExpensesTitle,
+          // The group page's bar has Add expense: no second button here (D-033).
           message: l.expNoExpensesBody,
-          actions: [
-            PillButton(
-              key: const Key('expenses-empty-add'),
-              label: l.addExpense,
-              icon: AppIcons.add,
-              variant: PillVariant.money,
-              expand: false,
-              onPressed: () => unawaited(context.push(ExpenseRoutes.add(groupId))),
-            ),
-          ],
         ),
       ),
       AsyncData(:final value) => EntranceScope(

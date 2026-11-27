@@ -323,52 +323,27 @@ class _Filters extends ConsumerWidget {
     if (picked != null) ctrl.setPerson(picked.person);
   }
 
+  /// Presets, or "Pick dates": From then To on a calendar in the same sheet (D-033: one sheet, not three).
   Future<void> _pickDates(BuildContext context, ExpenseSearchController ctrl) async {
     final l = AppLocalizations.of(context);
-    final picked = await showAppSheet<({DatePreset? preset})>(
+    final picked = await showAppSheet<_DatePick>(
       context,
       title: l.searchFilterDate,
-      builder: (sheet) => _OptionList(
-        children: [
-          for (final (p, label) in <(DatePreset?, String)>[
-            (null, l.searchAnyDate),
-            (DatePreset.thisMonth, l.searchThisMonth),
-            (DatePreset.lastMonth, l.searchLastMonth),
-            (DatePreset.last3Months, l.searchLast3Months),
-            (DatePreset.thisYear, l.searchThisYear),
-            (DatePreset.custom, l.searchPickDates),
-          ])
-            OptionTile(
-              key: Key('search-date-${p?.name ?? 'any'}'),
-              label: label,
-              selected: state.datePreset == p,
-              onTap: () => Navigator.of(sheet).pop((preset: p)),
-            ),
-        ],
+      builder: (sheet) => _DateSheet(
+        preset: state.datePreset,
+        from: state.from ?? today,
+        to: state.to ?? today,
+        today: today,
+        onDone: (p) => Navigator.of(sheet).pop(p),
       ),
     );
-    if (picked == null || !context.mounted) return;
+    if (picked == null) return;
     if (picked.preset != DatePreset.custom) {
       ctrl.setDates(picked.preset, today: today);
       return;
     }
-    final from = await _pickDay(context, l.searchFromTitle, state.from ?? today);
-    if (from == null || !context.mounted) return;
-    final to = await _pickDay(context, l.searchToTitle, state.to ?? today);
-    if (to == null) return;
-    ctrl.setDates(DatePreset.custom, today: today, from: from, to: to);
+    ctrl.setDates(DatePreset.custom, today: today, from: picked.from, to: picked.to);
   }
-
-  Future<DateTime?> _pickDay(BuildContext context, String title, DateTime initial) =>
-      showAppSheet<DateTime>(
-        context,
-        title: title,
-        builder: (sheet) => MonthCalendar(
-          initial: initial,
-          today: today,
-          onPicked: (d) => Navigator.of(sheet).pop(d),
-        ),
-      );
 
   Future<void> _pickCategory(BuildContext context, ExpenseSearchController ctrl) async {
     final l = AppLocalizations.of(context);
@@ -404,6 +379,86 @@ class _Filters extends ConsumerWidget {
       ),
     );
     if (picked != null) ctrl.setCategory(picked.key);
+  }
+}
+
+typedef _DatePick = ({DatePreset? preset, DateTime? from, DateTime? to});
+
+/// The date filter sheet: the presets; "Pick dates" turns it into From, then To, on one calendar.
+class _DateSheet extends StatefulWidget {
+  const _DateSheet({
+    required this.preset,
+    required this.from,
+    required this.to,
+    required this.today,
+    required this.onDone,
+  });
+
+  final DatePreset? preset;
+  final DateTime from;
+  final DateTime to;
+  final DateTime today;
+  final ValueChanged<_DatePick> onDone;
+
+  @override
+  State<_DateSheet> createState() => _DateSheetState();
+}
+
+class _DateSheetState extends State<_DateSheet> {
+  /// null = the presets; then the From and To steps of a custom range.
+  DateTime? _from;
+  bool _range = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    if (!_range) {
+      return _OptionList(
+        children: [
+          for (final (p, label) in <(DatePreset?, String)>[
+            (null, l.searchAnyDate),
+            (DatePreset.thisMonth, l.searchThisMonth),
+            (DatePreset.lastMonth, l.searchLastMonth),
+            (DatePreset.last3Months, l.searchLast3Months),
+            (DatePreset.thisYear, l.searchThisYear),
+            (DatePreset.custom, l.searchPickDates),
+          ])
+            OptionTile(
+              key: Key('search-date-${p?.name ?? 'any'}'),
+              label: label,
+              selected: widget.preset == p,
+              onTap: () => p == DatePreset.custom
+                  ? setState(() => _range = true)
+                  : widget.onDone((preset: p, from: null, to: null)),
+            ),
+        ],
+      );
+    }
+    final from = _from;
+    return Column(
+      key: ValueKey(from == null ? 'from' : 'to'),
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Semantics(
+          header: true,
+          liveRegion: true,
+          child: Text(
+            (from == null ? l.searchFromTitle : l.searchToTitle).toUpperCase(),
+            key: const Key('search-range-step'),
+            style: context.text.labelCaps.copyWith(color: context.colors.textSecondary),
+          ),
+        ),
+        const SizedBox(height: AppSpacing.s3),
+        MonthCalendar(
+          key: ValueKey(from),
+          initial: from ?? widget.from,
+          today: widget.today,
+          onPicked: (d) => from == null
+              ? setState(() => _from = d)
+              : widget.onDone((preset: DatePreset.custom, from: from, to: d)),
+        ),
+      ],
+    );
   }
 }
 

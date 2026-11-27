@@ -101,7 +101,7 @@ String activityDay(BuildContext context, DateTime day, DateTime today) {
   return unbroken(DateFormat(d.year == t.year ? 'EEE, d MMM' : 'EEE, d MMM y', locale).format(d));
 }
 
-/// Filter chips: All · Expenses · Payments · Comments · Groups.
+/// Filter chips: All · Expenses · Payments · Comments · Groups, on one line that scrolls sideways (D-033).
 class ActivityFilters extends StatelessWidget {
   const ActivityFilters({required this.value, required this.onChanged, super.key});
 
@@ -111,18 +111,23 @@ class ActivityFilters extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    return Wrap(
-      spacing: AppSpacing.s2,
-      runSpacing: AppSpacing.s2,
-      children: [
-        for (final f in ActivityFilter.values)
-          IconChip(
-            key: Key('activity-filter-${f.name}'),
-            label: activityFilterLabel(l, f),
-            selected: value == f,
-            onTap: () => onChanged(f),
-          ),
-      ],
+    return SingleChildScrollView(
+      key: const Key('activity-filters'),
+      scrollDirection: Axis.horizontal,
+      clipBehavior: Clip.none,
+      child: Row(
+        children: [
+          for (final f in ActivityFilter.values) ...[
+            IconChip(
+              key: Key('activity-filter-${f.name}'),
+              label: activityFilterLabel(l, f),
+              selected: value == f,
+              onTap: () => onChanged(f),
+            ),
+            if (f != ActivityFilter.values.last) const SizedBox(width: AppSpacing.s2),
+          ],
+        ],
+      ),
     );
   }
 }
@@ -227,7 +232,8 @@ class ActivityRow extends StatelessWidget {
           : listMoney(amount, currency),
       unsynced: i.pending,
       showDivider: showDivider,
-      leading: Avatar(name: actorName, seed: i.actor.seed),
+      dense: true,
+      leading: Avatar(name: actorName, seed: i.actor.seed, size: AvatarSize.s32),
       onTap: () => _open(context),
     );
   }
