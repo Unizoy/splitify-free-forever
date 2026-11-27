@@ -161,6 +161,25 @@ void main() {
     });
   });
 
+  group('what the on-device text model read (emulator run, S-374)', () {
+    test('"₹" read as a leading 1 is undone by the payment line; "₹" read as T is a mark', () {
+      final cab = _scan('cab_device_ocr');
+      expect(cab.total, 31200);
+      expect(cab.merchant, 'Uber');
+      final upi = _scan('upi_device_ocr');
+      expect(upi.total, 25000);
+      expect(upi.merchant, 'Ramesh Kumar');
+      expect(upi.date, DateTime(2026, 11, 21));
+    });
+
+    test('a leading 1 stays when nothing else says otherwise', () {
+      expect(parseReceipt(const ['Total 1312.00', 'Cash 1312.00']).total, 131200);
+      expect(parseReceipt(const ['Total 1312.00', 'Masala Dosa 312.00']).total, 131200);
+      expect(parseReceipt(const ['Total <312.00']).total, 31200);
+      expect(parseReceipt(const ['Table T2', 'Coffee 120']).total, 12000);
+    });
+  });
+
   group('number formats', () {
     int? total(String row, {int exponent = 2}) =>
         parseReceipt([row], exponent: exponent, today: _today).total;

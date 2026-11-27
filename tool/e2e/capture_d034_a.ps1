@@ -41,7 +41,27 @@ foreach ($p in $pics) {
 & $adb shell rm -r /data/local/tmp/d034a | Out-Null
 Write-Output "pushed $($pics.Count) receipt pictures"
 
+# A freshly installed test window can stay black even when it reports itself shown (D-034 B's finding):
+# HOME + start the activity again brings it to the front.
+function Test-Shown {
+  $w = & $adb shell dumpsys window windows
+  $i = ($w | Select-String -Pattern 'Window #\d+ Window\{.*splitify\.qa' | Select-Object -First 1).LineNumber
+  if (-not $i) { return $false }
+  return [bool]($w[($i - 1)..($i + 40)] | Select-String -Pattern 'Surface: shown=true' | Select-Object -First 1)
+}
+
+function Show-App {
+  for ($n = 0; $n -lt 3 -and -not (Test-Shown); $n++) {
+    & $adb shell input keyevent KEYCODE_HOME
+    Start-Sleep -Milliseconds 1000
+    & $adb shell am start -n "$pkg/com.unizoy.splitify.MainActivity" 2>$null | Out-Null
+    Start-Sleep -Milliseconds 1800
+    Write-Output 'window was hidden: brought to the front'
+  }
+}
+
 function Save-Shot([string]$name) {
+  Show-App
   & $adb shell screencap -p /sdcard/d034a.png
   & $adb pull /sdcard/d034a.png (Join-Path $Out "d034-a-$name.png") 2>$null | Out-Null
 }
@@ -55,6 +75,13 @@ while (-not $p.HasExited) {
   Start-Sleep -Milliseconds 500
   $text = Get-Content $log -Raw -ErrorAction SilentlyContinue
   if (-not $text) { continue }
+  if ($text -match 'UI-READY' -and -not $done.ContainsKey('ready')) {
+    $done['ready'] = $true
+    & $adb shell input keyevent KEYCODE_HOME
+    Start-Sleep -Milliseconds 1000
+    & $adb shell am start -n "$pkg/com.unizoy.splitify.MainActivity" 2>$null | Out-Null
+    Write-Output 'window brought to the front'
+  }
   foreach ($m in [regex]::Matches($text, 'UI-CAPTURE ([\w-]+)')) {
     $name = $m.Groups[1].Value
     if ($done.ContainsKey($name)) { continue }

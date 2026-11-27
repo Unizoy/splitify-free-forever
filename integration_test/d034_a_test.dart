@@ -240,6 +240,11 @@ void main() {
       timeout: const Duration(seconds: 90),
       reason: 'home',
     );
+    // The capture script brings a freshly installed window to the front once (it can stay black).
+    if (_hold > 0) {
+      debugPrint('UI-READY');
+      await _pumpFor(t, const Duration(seconds: 4));
+    }
 
     // ------------------------------------------------------------------ 1. two people (A1)
     router.push(ExpenseRoutes.add(duo));
@@ -403,7 +408,9 @@ void main() {
       ),
     );
     await _waitFor(t, deletedRow, reason: 'activity row', seconds: 60);
-    await _tap(t, deletedRow.first);
+    // Newest first: the "deleted" line opens the group (Activity is WP-C's), the older "added" line opens the
+    // expense itself, which is now deleted.
+    await _tap(t, deletedRow.last);
     await _waitFor(t, find.byKey(const Key('expense-deleted-pill')), reason: 'deleted page');
     expect(find.byKey(const Key('expense-edit')), findsNothing);
     await _capture(t, 'deleted');

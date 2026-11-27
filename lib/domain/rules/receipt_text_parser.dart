@@ -338,6 +338,10 @@ final _amountToken = RegExp(
 
 final _letter = RegExp('[A-Za-z]');
 
+/// What the on-device text model makes of a "₹" glued to a number when it does not drop it ("T250",
+/// "<270.48", "Z312"): read as a currency mark (measured on the emulator, S-374).
+final _rupeeMisread = RegExp('[<TZzF%?&₹]');
+
 /// Amounts on a row, left to right, as minor units with [exponent] decimals.
 List<_Amount> _amounts(String text, int exponent) {
   final t = _stripNoise(text);
@@ -345,8 +349,14 @@ List<_Amount> _amounts(String text, int exponent) {
   for (final m in _amountToken.allMatches(t)) {
     var whole = m[3]!;
     final digitsAt = m.start + m[0]!.indexOf(whole);
+    // A misread "₹" right before the digits, at the start of a word: a currency mark.
+    final misread =
+        m[1] == null &&
+        digitsAt > 0 &&
+        _rupeeMisread.hasMatch(t[digitsAt - 1]) &&
+        (digitsAt == 1 || t[digitsAt - 2] == ' ');
     // A number glued to letters ("A1", "x2", "500ml", "5kg") is not an amount.
-    if (m[1] == null && digitsAt > 0 && _letter.hasMatch(t[digitsAt - 1])) continue;
+    if (!misread && m[1] == null && digitsAt > 0 && _letter.hasMatch(t[digitsAt - 1])) continue;
     if (m[5] == null && m.end < t.length && _letter.hasMatch(t[m.end])) continue;
     var fraction = m[4] ?? '';
     final groups = whole.split(',');
@@ -367,7 +377,7 @@ List<_Amount> _amounts(String text, int exponent) {
     final value = int.parse(whole + fraction.padRight(exponent, '0'));
     out.add((
       value: m[2] != null ? -value : value,
-      marked: m[1] != null || m[5] != null,
+      marked: m[1] != null || m[5] != null || misread,
       decimals: hadDecimals,
     ));
   }
@@ -396,7 +406,7 @@ int? _total(List<_Row> rows) {
       }
     }
   }
-  if (best != null) return best.amount!.value;
+  if (best != null) return _unmisread(best.amount!.value, best, rows);
   // 2. Amounts marked ₹ / Rs. / /- (a UPI screenshot shows just "₹250"): the biggest.
   int? marked;
   for (final row in rows) {
@@ -428,6 +438,22 @@ int? _total(List<_Row> rows) {
     if (a.value > 0 && !year && (largest == null || a.value > largest)) largest = a.value;
   }
   return largest;
+}
+
+/// The text model sometimes reads "₹" as a 1, 2 or 7 glued to the amount ("₹312.00" → "1312.00"). When the
+/// total starts with such a digit and a payment or another total line shows exactly the amount without it
+/// ("Cash 312.00"), that amount is the total.
+int _unmisread(int total, _Row best, List<_Row> rows) {
+  final digits = total.toString();
+  if (digits.length < 4 || !'127'.contains(digits[0])) return total;
+  final rest = int.parse(digits.substring(1));
+  if (rest <= 0) return total;
+  for (final row in rows) {
+    if (row.index == best.index) continue;
+    if (row.kind != _Kind.payment && row.kind != _Kind.total) continue;
+    if (row.amounts.any((a) => a.value == rest)) return rest;
+  }
+  return total;
 }
 
 /// Index of the first row of the receipt's footer (sub total, tax, total …): item lines sit above it.
