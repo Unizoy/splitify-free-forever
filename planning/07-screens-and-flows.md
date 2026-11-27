@@ -65,17 +65,20 @@ OverlapSheet with `FolderTabs` Expenses · Balances · Totals:
 - **Totals:** total spent, per person paid/share, link to Insights.
 Bottom: `StickyActionBar` with amber "Add expense" and secondary "Settle up".
 
-### Add expense (`/expense/new`) — StepHeader 532/534
-Steps (icons): **Amount · Paid by · Split · Details · Review**. Header pill shows group name + "Saved offline"
-when no network.
-1. Amount: huge centred amount (amountHero) with currency chip; custom keypad; description UnderlineField.
-2. Paid by: OptionTiles of members (you first) + "Multiple people" → payer amounts.
-3. Split: split-type segmented row; member rows per type; live footer.
-4. Details: category IconChips grid, date (calendar like 534), notes, receipt (photo pill), repeat.
-5. Review: sentence summary "Paid by **you** and split **equally** between 4" + per-person list + amber
-   "Save expense". Success: small Celebration-lite (check draw) then back to group.
-Fast path: from step 1 "Save" button available once amount+description set (uses defaults: you paid, default split)
-— most expenses take one screen.
+### Add expense (`/expense/new`, `/expense/:id/edit`) — one screen like Splitwise (D-032)
+App bar: back (asks "Discard this expense?" in an app sheet once anything was typed), title "Add expense" /
+"Edit expense" / "Edit future copies", and Save (enabled only when valid). Then, top to bottom:
+1. "With you and" + the group chip (the friend's avatar and name for a friend expense); "saved offline" pill.
+2. Category icon button (opens the category picker sheet; the small AUTO tag while the description picked it,
+   D-028) + description UnderlineField (system text keyboard, sentence case; required).
+3. Currency chip (currency picker) + large amount field on the system number keyboard (no custom keypad, so only
+   one keyboard is ever up); text → integer minor units via `AmountExpression`.
+4. One pill "Paid by You · split equally" with the live line under it ("3 people · ₹400 each", or in red what is
+   left); tapping opens one sheet with the payer chips (+ "Multiple people" amounts) and the split editors.
+5. Bottom toolbar (stays above the keyboard): Date (calendar sheet, today in local time), Notes, Receipt, Repeat
+   chips that open sheets, and the amber full-width "Save expense". Save with a problem shows the inline errors and
+   points at the first one (description → amount → sheet → notes → repeat). Success: Celebration-lite check, then
+   back to the group.
 
 ### Settle up (`/settle`) — 712 + 646
 Header "Settle up" serif; person row (avatar → arrow → avatar); amount (editable, prefilled); `ArcGauge` showing
@@ -113,7 +116,7 @@ preview card (cover + name + members); claim step: `AvatarCarousel` of unclaimed
 
 1. **First run:** welcome → sign-in (Google or email code) → profile name confirm (+ optional UPI) → notification
    pre-prompt → Groups (empty) → Create group.
-2. **Add expense:** group → Add expense → amount → (defaults) → Save → row appears with SyncMarker → marker clears
+2. **Add expense:** group → Add expense → description + amount → (defaults) → Save → row appears with SyncMarker → marker clears
    after sync.
 3. **Settle up:** group Balances row "You owe Asha ₹500" → Settle → Pay via UPI → chooser → return → Mark as paid.
 4. **Join:** Groups → Join → scan/enter → preview → claim "Rahul" → group opens.

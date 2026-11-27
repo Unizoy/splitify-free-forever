@@ -223,7 +223,7 @@ void main() {
     testWidgets('/expense/new?group= opens the add editor for that group', (t) async {
       await open(t, ExpenseRoutes.add(gid));
       expect(find.byType(ExpenseEditorScreen), findsOneWidget);
-      expect(find.text('How much was it?'), findsOneWidget);
+      expect(find.text('Add expense'), findsOneWidget);
       expect(find.text('Goa trip'), findsOneWidget);
     });
 
@@ -233,7 +233,7 @@ void main() {
       expect(find.byType(ExpenseDetailScreen), findsOneWidget);
       await tapKey(t, 'expense-edit');
       expect(find.byType(ExpenseEditorScreen), findsOneWidget);
-      expect(find.text('Editing\u00A0· Goa trip'), findsOneWidget);
+      expect(find.text('Edit expense'), findsWidgets);
       expect(router.state.uri.path, '/expense/e1/edit');
     });
 
@@ -251,10 +251,6 @@ void main() {
       await t.tap(find.byTooltip('Back'));
       await settle(t);
       expect(router.state.uri.path, '/groups');
-
-      await open(t, ExpenseRoutes.add(gid));
-      await t.tap(find.byTooltip('Home'));
-      await settle(t);
       expect(find.text('at /groups'), findsOneWidget);
     });
   });
