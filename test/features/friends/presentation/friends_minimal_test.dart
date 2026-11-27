@@ -1,14 +1,17 @@
 // D-033 (minimal flows like Splitwise): the one-sheet "Add friend" on the Friends tab, and the compact
 // friend page (Settle up / Remind under the hero, Add expense at the bottom).
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:splitify/data/data_providers.dart' show syncRepositoryProvider;
 import 'package:splitify/features/friends/application/friends_view.dart';
 import 'package:splitify/features/friends/presentation/friend_page.dart';
+import 'package:splitify/features/notifications/application/notifications_providers.dart'
+    show notificationsRemoteProvider;
 
+import '../../../support/fakes.dart' show FakeSyncRepository;
 import '../../../support/group_harness.dart';
 import '../../../support/notification_fakes.dart';
-import '../../expenses/presentation/presentation_harness.dart';
-import '../../notifications/presentation/notif_harness.dart';
 import '../friend_fixtures.dart';
 import 'friends_harness.dart';
 
@@ -29,22 +32,23 @@ void main() {
     }
 
     // D-033
-    testWidgets('D-033 the hero has Add friend; the empty state has its own button; both open the sheet', (
-      t,
-    ) async {
-      await pumpTab(t);
-      expect(_key('friends-add'), findsOneWidget);
-      expect(find.byTooltip('Add friend'), findsOneWidget);
-      expect(_key('friends-empty-add'), findsOneWidget);
+    testWidgets(
+      'D-033 the hero has Add friend; the empty state has its own button; both open the sheet',
+      (t) async {
+        await pumpTab(t);
+        expect(_key('friends-add'), findsOneWidget);
+        expect(find.byTooltip('Add friend'), findsOneWidget);
+        expect(_key('friends-empty-add'), findsOneWidget);
 
-      await _tap(t, 'friends-add');
-      expect(find.text('Add a friend'), findsOneWidget);
-      expect(_key('add-friend-name'), findsOneWidget);
-      expect(_key('add-friend-save'), findsOneWidget);
-      expect(find.text('Add friend'), findsWidgets);
-      expect(_key('add-friend-invite'), findsOneWidget);
-      expect(find.text('Add and invite with a link'), findsOneWidget);
-    });
+        await _tap(t, 'friends-add');
+        expect(find.text('Add a friend'), findsOneWidget);
+        expect(_key('add-friend-name'), findsOneWidget);
+        expect(_key('add-friend-save'), findsOneWidget);
+        expect(find.text('Add friend'), findsWidgets);
+        expect(_key('add-friend-invite'), findsOneWidget);
+        expect(find.text('Add and invite with a link'), findsOneWidget);
+      },
+    );
 
     // D-033
     testWidgets('D-033 the empty-state button opens the same sheet', (t) async {
@@ -65,7 +69,9 @@ void main() {
     });
 
     // D-033
-    testWidgets('D-033 a 51-letter name shows the error, keeps the text and writes nothing', (t) async {
+    testWidgets('D-033 a 51-letter name shows the error, keeps the text and writes nothing', (
+      t,
+    ) async {
       final h = await pumpTab(t);
       final long = 'a' * 51;
       await _tap(t, 'friends-add');
@@ -79,68 +85,72 @@ void main() {
     });
 
     // D-033
-    testWidgets('D-033 Add friend writes a direct group and a name-only member, opens the friend page, says "added"', (
-      t,
-    ) async {
-      final h = await pumpTab(t);
-      await _tap(t, 'friends-add');
-      await t.enterText(_key('add-friend-name'), '  Tanvi ');
-      await t.pump();
-      await _tap(t, 'add-friend-save', db: true);
+    testWidgets(
+      'D-033 Add friend writes a direct group and a name-only member, opens the friend page, says "added"',
+      (t) async {
+        final h = await pumpTab(t);
+        await _tap(t, 'friends-add');
+        await t.enterText(_key('add-friend-name'), '  Tanvi ');
+        await t.pump();
+        await _tap(t, 'add-friend-save', db: true);
 
-      final db = h.db!;
-      final groups = await real(t, () => db.select(db.groups).get());
-      expect(groups, hasLength(1));
-      expect(groups.single.type, 'direct');
-      final members = await real(t, () => db.select(db.groupMembers).get());
-      final friend = members.singleWhere((m) => m.userId == null);
-      expect(friend.displayName, 'Tanvi');
-      final outbox = await real(t, () => db.select(db.outbox).get());
-      expect(outbox.map((o) => o.entity), containsAll(['group', 'member']));
-      expect(h.location, '/friends/m:${friend.id}');
-      expect(find.text('Tanvi added'), findsOneWidget);
-      expect(_key('invite-no-code'), findsNothing);
-    });
+        final db = h.db!;
+        final groups = await real(t, () => db.select(db.groups).get());
+        expect(groups, hasLength(1));
+        expect(groups.single.type, 'direct');
+        final members = await real(t, () => db.select(db.groupMembers).get());
+        final friend = members.singleWhere((m) => m.userId == null);
+        expect(friend.displayName, 'Tanvi');
+        final outbox = await real(t, () => db.select(db.outbox).get());
+        expect(outbox.map((o) => o.entity), containsAll(['group', 'member']));
+        expect(h.location, '/friends/${Uri.encodeComponent('m:${friend.id}')}');
+        expect(find.text('Tanvi added'), findsOneWidget);
+        expect(_key('invite-no-code'), findsNothing);
+      },
+    );
 
     // D-033
-    testWidgets('D-033 Add and invite does the same writes, opens the friend page and the invite sheet', (
-      t,
-    ) async {
-      final h = await pumpTab(t);
-      await _tap(t, 'friends-add');
-      await t.enterText(_key('add-friend-name'), 'Tanvi');
-      await t.pump();
-      await _tap(t, 'add-friend-invite', db: true);
-      await settle(t, db: true);
+    testWidgets(
+      'D-033 Add and invite does the same writes, opens the friend page and the invite sheet',
+      (t) async {
+        final h = await pumpTab(t);
+        await _tap(t, 'friends-add');
+        await t.enterText(_key('add-friend-name'), 'Tanvi');
+        await t.pump();
+        await _tap(t, 'add-friend-invite', db: true);
+        await settle(t, db: true);
 
-      final db = h.db!;
-      final groups = await real(t, () => db.select(db.groups).get());
-      expect(groups.single.type, 'direct');
-      final members = await real(t, () => db.select(db.groupMembers).get());
-      final friend = members.singleWhere((m) => m.userId == null);
-      expect(friend.displayName, 'Tanvi');
-      final outbox = await real(t, () => db.select(db.outbox).get());
-      expect(outbox.map((o) => o.entity), containsAll(['group', 'member']));
-      expect(h.location, '/friends/m:${friend.id}');
-      // Offline group: no invite code yet.
-      expect(_key('invite-no-code'), findsOneWidget);
-      expect(find.text('Tanvi added'), findsNothing);
-    });
+        final db = h.db!;
+        final groups = await real(t, () => db.select(db.groups).get());
+        expect(groups.single.type, 'direct');
+        final members = await real(t, () => db.select(db.groupMembers).get());
+        final friend = members.singleWhere((m) => m.userId == null);
+        expect(friend.displayName, 'Tanvi');
+        final outbox = await real(t, () => db.select(db.outbox).get());
+        expect(outbox.map((o) => o.entity), containsAll(['group', 'member']));
+        expect(h.location, '/friends/${Uri.encodeComponent('m:${friend.id}')}');
+        // Offline group: no invite code yet.
+        expect(_key('invite-no-code'), findsOneWidget);
+        expect(find.text('Tanvi added'), findsNothing);
+      },
+    );
   });
 
   group('D-033 friend page', () {
-    Future<void> pumpPage(WidgetTester t, String key, List<Friend> friends, {FakeNotificationsRemote? remote}) =>
-        pumpFriends(
-          t,
-          FriendPage(friendKey: key),
-          overrides: [
-            ...friendOverrides(
-              AsyncData(friends),
-              actions: (ref) => FakeFriendActions(ref),
-            ),
-            ...notifOverrides(remote: remote ?? FakeNotificationsRemote()),
-          ],
-        );
+    Future<void> pumpPage(
+      WidgetTester t,
+      String key,
+      List<Friend> friends, {
+      FakeNotificationsRemote? remote,
+    }) => pumpFriends(
+      t,
+      FriendPage(friendKey: key),
+      overrides: [
+        ...friendOverrides(AsyncData(friends), actions: (ref) => FakeFriendActions(ref)),
+        notificationsRemoteProvider.overrideWithValue(remote ?? FakeNotificationsRemote()),
+        syncRepositoryProvider.overrideWithValue(FakeSyncRepository()),
+      ],
+    );
 
     // Asha (u2, linked) owes me only in Goa.
     List<Friend> oneGroup() => friendsOf([goaLedger()], 'u1', profileNames: profileNames);

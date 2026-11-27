@@ -4,6 +4,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:drift/drift.dart' show driftRuntimeOptions;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -48,6 +49,7 @@ Future<_Rig> _pump(
   Uint8List? photo,
   PendingJoin? pending,
 }) async {
+  driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
   FlutterSecureStorage.setMockInitialValues({});
   SharedPreferences.setMockInitialValues({});
   final prefs = await SharedPreferences.getInstance();
@@ -67,7 +69,9 @@ Future<_Rig> _pump(
         appDatabaseProvider.overrideWithValue(db),
         authRepositoryProvider.overrideWithValue(auth),
         profileRemoteProvider.overrideWithValue(remote),
-        groupsRemoteProvider.overrideWithValue(FakeGroupsRemote()..previews.add(const GroupFailure(GroupFailureCode.offline))),
+        groupsRemoteProvider.overrideWithValue(
+          FakeGroupsRemote()..previews.add(const GroupFailure(GroupFailureCode.offline)),
+        ),
         photoPickerProvider.overrideWithValue(() async => photo),
         if (pending != null) pendingJoinProvider.overrideWithValue(pending),
         ...emptyGroupsOverrides(),
@@ -115,7 +119,7 @@ void main() {
     testWidgets('D-033 tapping the avatar picks a photo and Save uploads it', (t) async {
       final rig = await _pump(t, Routes.profile, photo: base64Decode(_png1x1));
       expect(_key('profile-photo'), findsOneWidget);
-      expect(find.byTooltip('Change your photo'), findsWidgets);
+      expect(find.bySemanticsLabel('Change your photo'), findsOneWidget);
       await t.tap(_key('profile-photo'));
       await _settle(t);
       await _save(t);
@@ -137,37 +141,41 @@ void main() {
       await _pump(t, Routes.profile);
       expect(_key('profile-upi'), findsOneWidget);
       expect(_key('profile-scan-upi'), findsOneWidget);
-      expect(find.descendant(of: _key('profile-upi'), matching: _key('profile-scan-upi')), findsOneWidget);
+      expect(
+        find.descendant(of: _key('profile-upi'), matching: _key('profile-scan-upi')),
+        findsOneWidget,
+      );
       expect(find.byTooltip('Scan my UPI QR'), findsOneWidget);
     });
 
     // D-033
-    testWidgets('D-033 a bad UPI ID is flagged when focus leaves the field, keeps the text, and Save writes nothing', (
-      t,
-    ) async {
-      final rig = await _pump(t, Routes.profile);
-      expect(find.text('Enter a UPI ID like name@bank'), findsNothing);
-      await _type(t, 'profile-upi', 'abc');
-      // Still typing: no error yet.
-      expect(find.text('Enter a UPI ID like name@bank'), findsNothing);
-      // Move focus away by tapping the name field.
-      await t.tap(_field('profile-name'));
-      await _settle(t);
-      expect(find.text('Enter a UPI ID like name@bank'), findsOneWidget);
-      expect(find.text('abc'), findsOneWidget);
+    testWidgets(
+      'D-033 a bad UPI ID is flagged when focus leaves the field, keeps the text, and Save writes nothing',
+      (t) async {
+        final rig = await _pump(t, Routes.profile);
+        expect(find.text('Enter a UPI ID like name@bank'), findsNothing);
+        await _type(t, 'profile-upi', 'abc');
+        // Still typing: no error yet.
+        expect(find.text('Enter a UPI ID like name@bank'), findsNothing);
+        // Move focus away by tapping the name field.
+        await t.tap(_field('profile-name'));
+        await _settle(t);
+        expect(find.text('Enter a UPI ID like name@bank'), findsOneWidget);
+        expect(find.text('abc'), findsOneWidget);
 
-      await _save(t);
-      expect(rig.remote.profile, sampleProfile);
-      expect(find.text('Enter a UPI ID like name@bank'), findsOneWidget);
-      expect(find.text('abc'), findsOneWidget);
-      expect(rig.path, Routes.profile);
+        await _save(t);
+        expect(rig.remote.profile, sampleProfile);
+        expect(find.text('Enter a UPI ID like name@bank'), findsOneWidget);
+        expect(find.text('abc'), findsOneWidget);
+        expect(rig.path, Routes.profile);
 
-      // Fix it: the error clears and Save stores it.
-      await _type(t, 'profile-upi', 'asha@okaxis');
-      expect(find.text('Enter a UPI ID like name@bank'), findsNothing);
-      await _save(t);
-      expect(rig.remote.profile?.upiId, 'asha@okaxis');
-    });
+        // Fix it: the error clears and Save stores it.
+        await _type(t, 'profile-upi', 'asha@okaxis');
+        expect(find.text('Enter a UPI ID like name@bank'), findsNothing);
+        await _save(t);
+        expect(rig.remote.profile?.upiId, 'asha@okaxis');
+      },
+    );
 
     // D-033
     testWidgets('D-033 clearing the UPI field saves no UPI ID', (t) async {
@@ -190,23 +198,24 @@ void main() {
 
   group('D-033 profile confirm (first sign-in)', () {
     // D-033
-    testWidgets('D-033 shows only the name and an "Add a UPI ID" chip; the chip opens the focused field', (
-      t,
-    ) async {
-      await _pump(t, Routes.signInProfile, profile: _noUpi);
-      expect(_key('profile-name'), findsOneWidget);
-      expect(_key('profile-add-upi'), findsOneWidget);
-      expect(find.text('Add a UPI ID (optional)'), findsOneWidget);
-      expect(_key('profile-upi'), findsNothing);
-      expect(_key('profile-currency'), findsNothing);
-      expect(_key('profile-continue'), findsOneWidget);
+    testWidgets(
+      'D-033 shows only the name and an "Add a UPI ID" chip; the chip opens the focused field',
+      (t) async {
+        await _pump(t, Routes.signInProfile, profile: _noUpi);
+        expect(_key('profile-name'), findsOneWidget);
+        expect(_key('profile-add-upi'), findsOneWidget);
+        expect(find.text('Add a UPI ID (optional)'), findsOneWidget);
+        expect(_key('profile-upi'), findsNothing);
+        expect(_key('profile-currency'), findsNothing);
+        expect(_key('profile-continue'), findsOneWidget);
 
-      await t.tap(_key('profile-add-upi'));
-      await _settle(t);
-      expect(_key('profile-upi'), findsOneWidget);
-      expect(_key('profile-add-upi'), findsNothing);
-      expect(t.widget<TextField>(_field('profile-upi')).focusNode?.hasFocus ?? false, isTrue);
-    });
+        await t.tap(_key('profile-add-upi'));
+        await _settle(t);
+        expect(_key('profile-upi'), findsOneWidget);
+        expect(_key('profile-add-upi'), findsNothing);
+        expect(t.widget<TextField>(_field('profile-upi')).focusNode?.hasFocus ?? false, isTrue);
+      },
+    );
 
     // D-033
     testWidgets('D-033 a profile that already has a UPI ID shows the field at once', (t) async {
@@ -228,7 +237,9 @@ void main() {
     });
 
     // D-033
-    testWidgets('D-033 Continue with a pending invite opens that join instead of Groups', (t) async {
+    testWidgets('D-033 Continue with a pending invite opens that join instead of Groups', (
+      t,
+    ) async {
       final pending = PendingJoin()..remember('ABCD2345');
       final rig = await _pump(t, Routes.signInProfile, profile: _noUpi, pending: pending);
       await t.tap(_key('profile-continue'));
