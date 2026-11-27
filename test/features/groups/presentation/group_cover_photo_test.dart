@@ -6,6 +6,7 @@ import 'package:splitify/data/local/app_database.dart';
 import 'package:splitify/domain/entities/prepared_image.dart';
 import 'package:splitify/features/groups/application/groups_providers.dart';
 import 'package:splitify/features/photos/application/photo_providers.dart';
+import 'package:splitify/ui/components/components.dart' show OptionTile;
 
 import '../../../support/group_fakes.dart';
 import '../../../support/group_harness.dart';
@@ -81,35 +82,53 @@ Future<List<String>> _pumpForm(WidgetTester t, String location, {LocalGroup? gro
 }
 
 void main() {
+  // D-033: the cover is a small tile beside the name; tapping it opens the cover sheet.
   group('Group form cover', () {
+    Future<void> openSheet(WidgetTester t) => _tap(t, 'group-cover');
+
+    bool selected(WidgetTester t, String key) => t.widget<OptionTile>(_key(key)).selected;
+
     // TC-29 UI
     testWidgets('a new group starts with the generated cover and its hint', (t) async {
       await _pumpForm(t, '/groups/new');
-      expect(_key('cover-generated'), findsOneWidget);
-      expect(_key('cover-photo'), findsOneWidget);
+      expect(_key('group-cover-preview'), findsOneWidget);
+      await openSheet(t);
+      expect(selected(t, 'cover-generated'), isTrue);
+      expect(_key('cover-saved-photo'), findsNothing);
+      expect(find.text('Choose a photo'), findsOneWidget);
       expect(find.text('Every group gets its own generated cover.'), findsOneWidget);
-      expect(find.text('Photo'), findsOneWidget);
     });
 
     // TC-29 UI
-    testWidgets('picking a photo switches the hint and the chip label', (t) async {
+    testWidgets('picking a photo switches the hint and the option label', (t) async {
       await _pumpForm(t, '/groups/new');
+      await openSheet(t);
       await _tap(t, 'cover-photo');
       await _tap(t, 'photo-gallery');
+      await openSheet(t);
+      expect(selected(t, 'cover-saved-photo'), isTrue);
       expect(find.text('Your photo is shrunk and shared with group members only.'), findsOneWidget);
       expect(find.text('Change photo'), findsOneWidget);
       expect(find.text('Every group gets its own generated cover.'), findsNothing);
     });
 
     // TC-29 UI
-    testWidgets('going back to Generated restores the generated hint', (t) async {
+    testWidgets('going back to Generated restores the generated hint and keeps the photo', (
+      t,
+    ) async {
       await _pumpForm(t, '/groups/new');
+      await openSheet(t);
       await _tap(t, 'cover-photo');
       await _tap(t, 'photo-gallery');
+      await openSheet(t);
       await _tap(t, 'cover-generated');
+      await openSheet(t);
       expect(find.text('Every group gets its own generated cover.'), findsOneWidget);
-      // The picked photo is kept: the chip now just switches back to it.
-      expect(find.text('Change photo'), findsNothing);
+      // The picked photo is kept: one tap switches back to it.
+      expect(selected(t, 'cover-saved-photo'), isFalse);
+      await _tap(t, 'cover-saved-photo');
+      await openSheet(t);
+      expect(selected(t, 'cover-saved-photo'), isTrue);
     });
 
     // TC-29 UI
@@ -117,6 +136,7 @@ void main() {
       final calls = await _pumpForm(t, '/groups/new');
       await t.enterText(_key('group-name'), 'Goa 2026');
       await t.pump();
+      await openSheet(t);
       await _tap(t, 'cover-photo');
       await _tap(t, 'photo-gallery');
       await _tap(t, 'group-save');
@@ -136,8 +156,10 @@ void main() {
     });
 
     // TC-29 UI
-    testWidgets('a group with a photo cover opens with "Change photo" selected', (t) async {
+    testWidgets('a group with a photo cover opens with the photo selected', (t) async {
       await _pumpForm(t, '/groups/g1/edit', group: _photoGroup());
+      await openSheet(t);
+      expect(selected(t, 'cover-saved-photo'), isTrue);
       expect(find.text('Change photo'), findsOneWidget);
       expect(find.text('Your photo is shrunk and shared with group members only.'), findsOneWidget);
     });
@@ -145,6 +167,7 @@ void main() {
     // TC-29 UI
     testWidgets('switching a photo group to generated calls useGeneratedCover', (t) async {
       final calls = await _pumpForm(t, '/groups/g1/edit', group: _photoGroup());
+      await openSheet(t);
       await _tap(t, 'cover-generated');
       await _tap(t, 'group-save');
       expect(calls, ['update g1 Goa trip', 'useGeneratedCover g1 old=$_photoPath']);
@@ -160,6 +183,7 @@ void main() {
     // TC-29 UI
     testWidgets('replacing the photo passes the old path to setCoverPhoto', (t) async {
       final calls = await _pumpForm(t, '/groups/g1/edit', group: _photoGroup());
+      await openSheet(t);
       await _tap(t, 'cover-photo');
       await _tap(t, 'photo-gallery');
       await _tap(t, 'group-save');

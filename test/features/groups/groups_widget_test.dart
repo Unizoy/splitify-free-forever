@@ -420,7 +420,7 @@ void main() {
       await _tap(tester, 'member-m3');
       expect(_key('member-rename'), findsOneWidget);
       expect(_key('member-unlink'), findsNothing);
-      await tester.tapAt(const Offset(200, 40));
+      Navigator.of(tester.element(_key('member-rename'))).pop();
       await settle(tester);
 
       // Me: no unlink, Leave instead of Remove.

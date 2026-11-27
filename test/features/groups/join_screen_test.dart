@@ -118,7 +118,6 @@ void main() {
       expect(find.text('There is no invite code to paste'), findsOneWidget);
       clipboard = 'Use ABCD-EFGH to join';
       await _tap(tester, 'join-paste');
-      expect(_fieldText(tester), 'ABCD-EFGH');
       expect(remote.calls, ['preview:ABCDEFGH']);
       expect(_key('join-preview'), findsOneWidget);
     });

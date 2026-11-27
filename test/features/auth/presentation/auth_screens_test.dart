@@ -249,7 +249,7 @@ void main() {
     expect(find.text('Enter your name (up to 50 characters)'), findsOneWidget);
 
     await tester.enterText(find.byKey(const Key('profile-name')).last, 'Asha R');
-    await tester.tap(find.text('Change photo'));
+    await tester.tap(find.byKey(const Key('profile-photo')));
     await tester.pump();
     await tester.tap(find.byKey(const Key('profile-currency')));
     await _settle(tester);
