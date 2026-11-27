@@ -11,7 +11,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 9;
+  int get schemaVersion => 10;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -52,6 +52,14 @@ class AppDatabase extends _$AppDatabase {
       // v9 (D-030, S-293): the payment bubble is off main; its table (and its index) goes. Nothing in it was ever
       // synced.
       if (from < 9) await m.deleteTable('payment_captures');
+      // v10 (D-034 WP-C, 0026): trip dates, settle-up reminders and the group notes on `groups`. Existing rows
+      // get them with the next pull (null = not set / reminders off).
+      if (from < 10) {
+        await m.addColumn(groups, groups.tripStartsOn);
+        await m.addColumn(groups, groups.tripEndsOn);
+        await m.addColumn(groups, groups.settleReminder);
+        await m.addColumn(groups, groups.whiteboard);
+      }
     },
     beforeOpen: (details) async {
       await customStatement('PRAGMA foreign_keys = ON');

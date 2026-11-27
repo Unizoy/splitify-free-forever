@@ -665,6 +665,42 @@ class Groups extends Table with TableInfo<Groups, LocalGroup> {
     $customConstraints: 'NOT NULL DEFAULT \'synced\'',
     defaultValue: const CustomExpression('\'synced\''),
   );
+  static const VerificationMeta _tripStartsOnMeta = const VerificationMeta('tripStartsOn');
+  late final GeneratedColumn<String> tripStartsOn = GeneratedColumn<String>(
+    'trip_starts_on',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    $customConstraints: '',
+  );
+  static const VerificationMeta _tripEndsOnMeta = const VerificationMeta('tripEndsOn');
+  late final GeneratedColumn<String> tripEndsOn = GeneratedColumn<String>(
+    'trip_ends_on',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    $customConstraints: '',
+  );
+  static const VerificationMeta _settleReminderMeta = const VerificationMeta('settleReminder');
+  late final GeneratedColumn<String> settleReminder = GeneratedColumn<String>(
+    'settle_reminder',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    $customConstraints: '',
+  );
+  static const VerificationMeta _whiteboardMeta = const VerificationMeta('whiteboard');
+  late final GeneratedColumn<String> whiteboard = GeneratedColumn<String>(
+    'whiteboard',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    $customConstraints: '',
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -687,6 +723,10 @@ class Groups extends Table with TableInfo<Groups, LocalGroup> {
     deletedBy,
     seq,
     syncState,
+    tripStartsOn,
+    tripEndsOn,
+    settleReminder,
+    whiteboard,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -812,6 +852,30 @@ class Groups extends Table with TableInfo<Groups, LocalGroup> {
         syncState.isAcceptableOrUnknown(data['sync_state']!, _syncStateMeta),
       );
     }
+    if (data.containsKey('trip_starts_on')) {
+      context.handle(
+        _tripStartsOnMeta,
+        tripStartsOn.isAcceptableOrUnknown(data['trip_starts_on']!, _tripStartsOnMeta),
+      );
+    }
+    if (data.containsKey('trip_ends_on')) {
+      context.handle(
+        _tripEndsOnMeta,
+        tripEndsOn.isAcceptableOrUnknown(data['trip_ends_on']!, _tripEndsOnMeta),
+      );
+    }
+    if (data.containsKey('settle_reminder')) {
+      context.handle(
+        _settleReminderMeta,
+        settleReminder.isAcceptableOrUnknown(data['settle_reminder']!, _settleReminderMeta),
+      );
+    }
+    if (data.containsKey('whiteboard')) {
+      context.handle(
+        _whiteboardMeta,
+        whiteboard.isAcceptableOrUnknown(data['whiteboard']!, _whiteboardMeta),
+      );
+    }
     return context;
   }
 
@@ -889,6 +953,22 @@ class Groups extends Table with TableInfo<Groups, LocalGroup> {
         DriftSqlType.string,
         data['${effectivePrefix}sync_state'],
       )!,
+      tripStartsOn: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}trip_starts_on'],
+      ),
+      tripEndsOn: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}trip_ends_on'],
+      ),
+      settleReminder: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}settle_reminder'],
+      ),
+      whiteboard: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}whiteboard'],
+      ),
     );
   }
 
@@ -922,6 +1002,13 @@ class LocalGroup extends DataClass implements Insertable<LocalGroup> {
   final String? deletedBy;
   final int seq;
   final String syncState;
+
+  /// v10 (D-034 WP-C, 0026): trip dates as 'YYYY-MM-DD', settle-up reminders ('off' | 'weekly' | 'monthly'; null
+  /// until the server's row arrives = 'off') and the group notes (whiteboard, <= 5,000 characters).
+  final String? tripStartsOn;
+  final String? tripEndsOn;
+  final String? settleReminder;
+  final String? whiteboard;
   const LocalGroup({
     required this.id,
     required this.name,
@@ -943,6 +1030,10 @@ class LocalGroup extends DataClass implements Insertable<LocalGroup> {
     this.deletedBy,
     required this.seq,
     required this.syncState,
+    this.tripStartsOn,
+    this.tripEndsOn,
+    this.settleReminder,
+    this.whiteboard,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -991,6 +1082,18 @@ class LocalGroup extends DataClass implements Insertable<LocalGroup> {
     }
     map['seq'] = Variable<int>(seq);
     map['sync_state'] = Variable<String>(syncState);
+    if (!nullToAbsent || tripStartsOn != null) {
+      map['trip_starts_on'] = Variable<String>(tripStartsOn);
+    }
+    if (!nullToAbsent || tripEndsOn != null) {
+      map['trip_ends_on'] = Variable<String>(tripEndsOn);
+    }
+    if (!nullToAbsent || settleReminder != null) {
+      map['settle_reminder'] = Variable<String>(settleReminder);
+    }
+    if (!nullToAbsent || whiteboard != null) {
+      map['whiteboard'] = Variable<String>(whiteboard);
+    }
     return map;
   }
 
@@ -1020,6 +1123,14 @@ class LocalGroup extends DataClass implements Insertable<LocalGroup> {
       deletedBy: deletedBy == null && nullToAbsent ? const Value.absent() : Value(deletedBy),
       seq: Value(seq),
       syncState: Value(syncState),
+      tripStartsOn: tripStartsOn == null && nullToAbsent
+          ? const Value.absent()
+          : Value(tripStartsOn),
+      tripEndsOn: tripEndsOn == null && nullToAbsent ? const Value.absent() : Value(tripEndsOn),
+      settleReminder: settleReminder == null && nullToAbsent
+          ? const Value.absent()
+          : Value(settleReminder),
+      whiteboard: whiteboard == null && nullToAbsent ? const Value.absent() : Value(whiteboard),
     );
   }
 
@@ -1046,6 +1157,10 @@ class LocalGroup extends DataClass implements Insertable<LocalGroup> {
       deletedBy: serializer.fromJson<String?>(json['deleted_by']),
       seq: serializer.fromJson<int>(json['seq']),
       syncState: serializer.fromJson<String>(json['sync_state']),
+      tripStartsOn: serializer.fromJson<String?>(json['trip_starts_on']),
+      tripEndsOn: serializer.fromJson<String?>(json['trip_ends_on']),
+      settleReminder: serializer.fromJson<String?>(json['settle_reminder']),
+      whiteboard: serializer.fromJson<String?>(json['whiteboard']),
     );
   }
   @override
@@ -1072,6 +1187,10 @@ class LocalGroup extends DataClass implements Insertable<LocalGroup> {
       'deleted_by': serializer.toJson<String?>(deletedBy),
       'seq': serializer.toJson<int>(seq),
       'sync_state': serializer.toJson<String>(syncState),
+      'trip_starts_on': serializer.toJson<String?>(tripStartsOn),
+      'trip_ends_on': serializer.toJson<String?>(tripEndsOn),
+      'settle_reminder': serializer.toJson<String?>(settleReminder),
+      'whiteboard': serializer.toJson<String?>(whiteboard),
     };
   }
 
@@ -1096,6 +1215,10 @@ class LocalGroup extends DataClass implements Insertable<LocalGroup> {
     Value<String?> deletedBy = const Value.absent(),
     int? seq,
     String? syncState,
+    Value<String?> tripStartsOn = const Value.absent(),
+    Value<String?> tripEndsOn = const Value.absent(),
+    Value<String?> settleReminder = const Value.absent(),
+    Value<String?> whiteboard = const Value.absent(),
   }) => LocalGroup(
     id: id ?? this.id,
     name: name ?? this.name,
@@ -1117,6 +1240,10 @@ class LocalGroup extends DataClass implements Insertable<LocalGroup> {
     deletedBy: deletedBy.present ? deletedBy.value : this.deletedBy,
     seq: seq ?? this.seq,
     syncState: syncState ?? this.syncState,
+    tripStartsOn: tripStartsOn.present ? tripStartsOn.value : this.tripStartsOn,
+    tripEndsOn: tripEndsOn.present ? tripEndsOn.value : this.tripEndsOn,
+    settleReminder: settleReminder.present ? settleReminder.value : this.settleReminder,
+    whiteboard: whiteboard.present ? whiteboard.value : this.whiteboard,
   );
   LocalGroup copyWithCompanion(GroupsCompanion data) {
     return LocalGroup(
@@ -1142,6 +1269,10 @@ class LocalGroup extends DataClass implements Insertable<LocalGroup> {
       deletedBy: data.deletedBy.present ? data.deletedBy.value : this.deletedBy,
       seq: data.seq.present ? data.seq.value : this.seq,
       syncState: data.syncState.present ? data.syncState.value : this.syncState,
+      tripStartsOn: data.tripStartsOn.present ? data.tripStartsOn.value : this.tripStartsOn,
+      tripEndsOn: data.tripEndsOn.present ? data.tripEndsOn.value : this.tripEndsOn,
+      settleReminder: data.settleReminder.present ? data.settleReminder.value : this.settleReminder,
+      whiteboard: data.whiteboard.present ? data.whiteboard.value : this.whiteboard,
     );
   }
 
@@ -1167,13 +1298,17 @@ class LocalGroup extends DataClass implements Insertable<LocalGroup> {
           ..write('deletedAt: $deletedAt, ')
           ..write('deletedBy: $deletedBy, ')
           ..write('seq: $seq, ')
-          ..write('syncState: $syncState')
+          ..write('syncState: $syncState, ')
+          ..write('tripStartsOn: $tripStartsOn, ')
+          ..write('tripEndsOn: $tripEndsOn, ')
+          ..write('settleReminder: $settleReminder, ')
+          ..write('whiteboard: $whiteboard')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(
+  int get hashCode => Object.hashAll([
     id,
     name,
     type,
@@ -1194,7 +1329,11 @@ class LocalGroup extends DataClass implements Insertable<LocalGroup> {
     deletedBy,
     seq,
     syncState,
-  );
+    tripStartsOn,
+    tripEndsOn,
+    settleReminder,
+    whiteboard,
+  ]);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -1218,7 +1357,11 @@ class LocalGroup extends DataClass implements Insertable<LocalGroup> {
           other.deletedAt == this.deletedAt &&
           other.deletedBy == this.deletedBy &&
           other.seq == this.seq &&
-          other.syncState == this.syncState);
+          other.syncState == this.syncState &&
+          other.tripStartsOn == this.tripStartsOn &&
+          other.tripEndsOn == this.tripEndsOn &&
+          other.settleReminder == this.settleReminder &&
+          other.whiteboard == this.whiteboard);
 }
 
 class GroupsCompanion extends UpdateCompanion<LocalGroup> {
@@ -1242,6 +1385,10 @@ class GroupsCompanion extends UpdateCompanion<LocalGroup> {
   final Value<String?> deletedBy;
   final Value<int> seq;
   final Value<String> syncState;
+  final Value<String?> tripStartsOn;
+  final Value<String?> tripEndsOn;
+  final Value<String?> settleReminder;
+  final Value<String?> whiteboard;
   final Value<int> rowid;
   const GroupsCompanion({
     this.id = const Value.absent(),
@@ -1264,6 +1411,10 @@ class GroupsCompanion extends UpdateCompanion<LocalGroup> {
     this.deletedBy = const Value.absent(),
     this.seq = const Value.absent(),
     this.syncState = const Value.absent(),
+    this.tripStartsOn = const Value.absent(),
+    this.tripEndsOn = const Value.absent(),
+    this.settleReminder = const Value.absent(),
+    this.whiteboard = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   GroupsCompanion.insert({
@@ -1287,6 +1438,10 @@ class GroupsCompanion extends UpdateCompanion<LocalGroup> {
     this.deletedBy = const Value.absent(),
     this.seq = const Value.absent(),
     this.syncState = const Value.absent(),
+    this.tripStartsOn = const Value.absent(),
+    this.tripEndsOn = const Value.absent(),
+    this.settleReminder = const Value.absent(),
+    this.whiteboard = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        name = Value(name);
@@ -1311,6 +1466,10 @@ class GroupsCompanion extends UpdateCompanion<LocalGroup> {
     Expression<String>? deletedBy,
     Expression<int>? seq,
     Expression<String>? syncState,
+    Expression<String>? tripStartsOn,
+    Expression<String>? tripEndsOn,
+    Expression<String>? settleReminder,
+    Expression<String>? whiteboard,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -1334,6 +1493,10 @@ class GroupsCompanion extends UpdateCompanion<LocalGroup> {
       if (deletedBy != null) 'deleted_by': deletedBy,
       if (seq != null) 'seq': seq,
       if (syncState != null) 'sync_state': syncState,
+      if (tripStartsOn != null) 'trip_starts_on': tripStartsOn,
+      if (tripEndsOn != null) 'trip_ends_on': tripEndsOn,
+      if (settleReminder != null) 'settle_reminder': settleReminder,
+      if (whiteboard != null) 'whiteboard': whiteboard,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -1359,6 +1522,10 @@ class GroupsCompanion extends UpdateCompanion<LocalGroup> {
     Value<String?>? deletedBy,
     Value<int>? seq,
     Value<String>? syncState,
+    Value<String?>? tripStartsOn,
+    Value<String?>? tripEndsOn,
+    Value<String?>? settleReminder,
+    Value<String?>? whiteboard,
     Value<int>? rowid,
   }) {
     return GroupsCompanion(
@@ -1382,6 +1549,10 @@ class GroupsCompanion extends UpdateCompanion<LocalGroup> {
       deletedBy: deletedBy ?? this.deletedBy,
       seq: seq ?? this.seq,
       syncState: syncState ?? this.syncState,
+      tripStartsOn: tripStartsOn ?? this.tripStartsOn,
+      tripEndsOn: tripEndsOn ?? this.tripEndsOn,
+      settleReminder: settleReminder ?? this.settleReminder,
+      whiteboard: whiteboard ?? this.whiteboard,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -1449,6 +1620,18 @@ class GroupsCompanion extends UpdateCompanion<LocalGroup> {
     if (syncState.present) {
       map['sync_state'] = Variable<String>(syncState.value);
     }
+    if (tripStartsOn.present) {
+      map['trip_starts_on'] = Variable<String>(tripStartsOn.value);
+    }
+    if (tripEndsOn.present) {
+      map['trip_ends_on'] = Variable<String>(tripEndsOn.value);
+    }
+    if (settleReminder.present) {
+      map['settle_reminder'] = Variable<String>(settleReminder.value);
+    }
+    if (whiteboard.present) {
+      map['whiteboard'] = Variable<String>(whiteboard.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -1478,6 +1661,10 @@ class GroupsCompanion extends UpdateCompanion<LocalGroup> {
           ..write('deletedBy: $deletedBy, ')
           ..write('seq: $seq, ')
           ..write('syncState: $syncState, ')
+          ..write('tripStartsOn: $tripStartsOn, ')
+          ..write('tripEndsOn: $tripEndsOn, ')
+          ..write('settleReminder: $settleReminder, ')
+          ..write('whiteboard: $whiteboard, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -12274,6 +12461,10 @@ typedef $GroupsCreateCompanionBuilder = GroupsCompanion Function({
   Value<String?> deletedBy,
   Value<int> seq,
   Value<String> syncState,
+  Value<String?> tripStartsOn,
+  Value<String?> tripEndsOn,
+  Value<String?> settleReminder,
+  Value<String?> whiteboard,
   Value<int> rowid,
 });
 typedef $GroupsUpdateCompanionBuilder = GroupsCompanion Function({
@@ -12297,6 +12488,10 @@ typedef $GroupsUpdateCompanionBuilder = GroupsCompanion Function({
   Value<String?> deletedBy,
   Value<int> seq,
   Value<String> syncState,
+  Value<String?> tripStartsOn,
+  Value<String?> tripEndsOn,
+  Value<String?> settleReminder,
+  Value<String?> whiteboard,
   Value<int> rowid,
 });
 
@@ -12369,6 +12564,18 @@ class $GroupsFilterComposer extends Composer<_$AppDatabase, Groups> {
 
   ColumnFilters<String> get syncState =>
       $composableBuilder(column: $table.syncState, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get tripStartsOn =>
+      $composableBuilder(column: $table.tripStartsOn, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get tripEndsOn =>
+      $composableBuilder(column: $table.tripEndsOn, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get settleReminder =>
+      $composableBuilder(column: $table.settleReminder, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get whiteboard =>
+      $composableBuilder(column: $table.whiteboard, builder: (column) => ColumnFilters(column));
 }
 
 class $GroupsOrderingComposer extends Composer<_$AppDatabase, Groups> {
@@ -12442,6 +12649,20 @@ class $GroupsOrderingComposer extends Composer<_$AppDatabase, Groups> {
 
   ColumnOrderings<String> get syncState =>
       $composableBuilder(column: $table.syncState, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get tripStartsOn =>
+      $composableBuilder(column: $table.tripStartsOn, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get tripEndsOn =>
+      $composableBuilder(column: $table.tripEndsOn, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get settleReminder => $composableBuilder(
+    column: $table.settleReminder,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get whiteboard =>
+      $composableBuilder(column: $table.whiteboard, builder: (column) => ColumnOrderings(column));
 }
 
 class $GroupsAnnotationComposer extends Composer<_$AppDatabase, Groups> {
@@ -12511,6 +12732,18 @@ class $GroupsAnnotationComposer extends Composer<_$AppDatabase, Groups> {
 
   GeneratedColumn<String> get syncState =>
       $composableBuilder(column: $table.syncState, builder: (column) => column);
+
+  GeneratedColumn<String> get tripStartsOn =>
+      $composableBuilder(column: $table.tripStartsOn, builder: (column) => column);
+
+  GeneratedColumn<String> get tripEndsOn =>
+      $composableBuilder(column: $table.tripEndsOn, builder: (column) => column);
+
+  GeneratedColumn<String> get settleReminder =>
+      $composableBuilder(column: $table.settleReminder, builder: (column) => column);
+
+  GeneratedColumn<String> get whiteboard =>
+      $composableBuilder(column: $table.whiteboard, builder: (column) => column);
 }
 
 class $GroupsTableManager
@@ -12558,6 +12791,10 @@ class $GroupsTableManager
                 Value<String?> deletedBy = const Value.absent(),
                 Value<int> seq = const Value.absent(),
                 Value<String> syncState = const Value.absent(),
+                Value<String?> tripStartsOn = const Value.absent(),
+                Value<String?> tripEndsOn = const Value.absent(),
+                Value<String?> settleReminder = const Value.absent(),
+                Value<String?> whiteboard = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => GroupsCompanion(
                 id: id,
@@ -12580,6 +12817,10 @@ class $GroupsTableManager
                 deletedBy: deletedBy,
                 seq: seq,
                 syncState: syncState,
+                tripStartsOn: tripStartsOn,
+                tripEndsOn: tripEndsOn,
+                settleReminder: settleReminder,
+                whiteboard: whiteboard,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -12604,6 +12845,10 @@ class $GroupsTableManager
                 Value<String?> deletedBy = const Value.absent(),
                 Value<int> seq = const Value.absent(),
                 Value<String> syncState = const Value.absent(),
+                Value<String?> tripStartsOn = const Value.absent(),
+                Value<String?> tripEndsOn = const Value.absent(),
+                Value<String?> settleReminder = const Value.absent(),
+                Value<String?> whiteboard = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => GroupsCompanion.insert(
                 id: id,
@@ -12626,6 +12871,10 @@ class $GroupsTableManager
                 deletedBy: deletedBy,
                 seq: seq,
                 syncState: syncState,
+                tripStartsOn: tripStartsOn,
+                tripEndsOn: tripEndsOn,
+                settleReminder: settleReminder,
+                whiteboard: whiteboard,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0

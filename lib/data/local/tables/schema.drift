@@ -33,7 +33,13 @@ CREATE TABLE "groups" (
   deleted_at TEXT,
   deleted_by TEXT,
   seq INT NOT NULL DEFAULT 0,
-  sync_state TEXT NOT NULL DEFAULT 'synced'
+  sync_state TEXT NOT NULL DEFAULT 'synced',
+  -- v10 (D-034 WP-C, 0026): trip dates as 'YYYY-MM-DD', settle-up reminders ('off' | 'weekly' | 'monthly'; null
+  -- until the server's row arrives = 'off') and the group notes (whiteboard, <= 5,000 characters).
+  trip_starts_on TEXT,
+  trip_ends_on TEXT,
+  settle_reminder TEXT,
+  whiteboard TEXT
 ) AS LocalGroup;
 
 CREATE TABLE group_members (
