@@ -144,7 +144,9 @@ void main() {
     final db = AppDatabase(NativeDatabase.memory());
     SharedPreferences.setMockInitialValues({});
     final prefs = await SharedPreferences.getInstance();
-    final files = (await t.runAsync(getExternalStorageDirectory))!;
+    // The app's own files folder: the capture script copies the pictures in with `run-as` (files adb puts in
+    // Android/data are owned by shell and hidden from the app on Android 11+).
+    final files = (await t.runAsync(getApplicationSupportDirectory))!;
     final receiptDir = '${files.path}/receipts';
     final remote = _Switchable(SupabaseRemoteApi.client(client));
     final container = ProviderContainer(

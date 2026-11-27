@@ -4,7 +4,7 @@
 # Side-by-side build com.unizoy.splitify.qa (SPLITIFY_APP_ID_SUFFIX, S-310) and `--no-uninstall` always (S-329):
 # the owner's store build com.unizoy.splitify is never replaced or removed. Installed packages are listed before
 # and after. The receipt fixture pictures (tool/e2e/d034_receipt_images.py) are pushed to the gallery
-# (Pictures/Splitify-e2e) and to the app's own files folder, which the test reads without any permission.
+# (Pictures/Splitify-e2e) and to the app's own internal files folder (run-as), which the test reads.
 # Each `UI-CAPTURE <name>` becomes splitify-artifacts\screenshots\d034-a-<name>.png (names ending in -dark are
 # taken with the emulator in dark mode).
 param(
@@ -25,14 +25,20 @@ function Get-Splitify { & $adb -s emulator-5554 shell pm list packages | Where-O
 $before = @(Get-Splitify)
 Write-Output "splitify packages before: $($before -join ', ')"
 
-# Receipt pictures: the gallery (as a person would have them) and the app's files folder (read by the test).
+# Receipt pictures: the gallery (as a person would have them) and the app's internal files folder (read by the
+# test). Files adb writes into Android/data are owned by shell and hidden from the app on Android 11+, so that copy
+# goes in through `run-as` (debug build).
 $pics = Get-ChildItem test\fixtures\receipts\*.jpg
-& $adb shell mkdir -p /sdcard/Pictures/Splitify-e2e "/sdcard/Android/data/$pkg/files/receipts" | Out-Null
+& $adb shell mkdir -p /sdcard/Pictures/Splitify-e2e /data/local/tmp/d034a | Out-Null
+& $adb shell "run-as $pkg mkdir -p files/receipts" | Out-Null
 foreach ($p in $pics) {
   & $adb push $p.FullName "/sdcard/Pictures/Splitify-e2e/$($p.Name)" | Out-Null
-  & $adb push $p.FullName "/sdcard/Android/data/$pkg/files/receipts/$($p.Name)" | Out-Null
   & $adb shell am broadcast -a android.intent.action.MEDIA_SCANNER_SCAN_FILE -d "file:///sdcard/Pictures/Splitify-e2e/$($p.Name)" | Out-Null
+  & $adb push $p.FullName "/data/local/tmp/d034a/$($p.Name)" | Out-Null
+  & $adb shell "cat /data/local/tmp/d034a/$($p.Name) | run-as $pkg sh -c 'cat > files/receipts/$($p.Name)'" | Out-Null
 }
+& $adb shell "run-as $pkg ls files/receipts"
+& $adb shell rm -r /data/local/tmp/d034a | Out-Null
 Write-Output "pushed $($pics.Count) receipt pictures"
 
 function Save-Shot([string]$name) {
