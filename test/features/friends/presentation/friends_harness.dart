@@ -88,7 +88,9 @@ Future<GoRouter> pumpFriends(
     initialLocation: initial,
     routes: [
       GoRoute(path: '/', builder: (_, _) => home),
+      stubRoute('/friends/code'),
       stubRoute('/friends/:key'),
+      stubRoute('/settle/all'),
       stubRoute('/expense/new'),
       stubRoute('/loan/new'),
       stubRoute('/expense/:id'),
