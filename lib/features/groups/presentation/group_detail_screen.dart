@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:splitify/core/time/clock.dart';
 import 'package:splitify/data/data_providers.dart';
 import 'package:splitify/data/local/app_database.dart';
 import 'package:splitify/features/balances/application/balance_views.dart';
@@ -11,7 +12,10 @@ import 'package:splitify/features/balances/presentation/balance_copy.dart';
 import 'package:splitify/features/groups/application/groups_providers.dart';
 import 'package:splitify/features/activity/presentation/group_activity_screen.dart';
 import 'package:splitify/features/expenses/presentation/expense_list.dart';
+import 'package:splitify/features/groups/presentation/group_hero_extras.dart';
+import 'package:splitify/features/groups/presentation/group_notes_screen.dart' show GroupRoutes;
 import 'package:splitify/features/groups/presentation/group_tabs.dart';
+import 'package:splitify/features/search/presentation/search_screen.dart' show SearchRoutes;
 import 'package:splitify/features/groups/presentation/group_visuals.dart';
 import 'package:splitify/features/groups/presentation/invite_sheet.dart';
 import 'package:splitify/l10n/app_localizations.dart';
@@ -83,7 +87,13 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen> {
         slivers: [
           SliverToBoxAdapter(
             child: OverlapColumn(
-              top: _Hero(group: group, members: members, me: me, balances: balances),
+              top: _Hero(
+                group: group,
+                members: members,
+                me: me,
+                balances: balances,
+                onBalances: () => setState(() => _tab = 1),
+              ),
               bottom: OverlapSheet(
                 padding: const EdgeInsets.fromLTRB(
                   AppSpacing.screen,
@@ -209,12 +219,21 @@ class _ActionBar extends StatelessWidget {
 }
 
 class _Hero extends ConsumerWidget {
-  const _Hero({required this.group, required this.members, required this.me, this.balances});
+  const _Hero({
+    required this.group,
+    required this.members,
+    required this.me,
+    required this.onBalances,
+    this.balances,
+  });
 
   final LocalGroup group;
   final List<LocalMember> members;
   final String? me;
   final GroupBalances? balances;
+
+  /// Switches to the Balances tab ("+2 more" under the lines).
+  final VoidCallback onBalances;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -230,6 +249,13 @@ class _Hero extends ConsumerWidget {
         onPressed: () => _GroupDetailScreenState._close(context),
       ),
       actions: [
+        // Search this group (D-034 C6): the search page opens with the group already picked.
+        HeroIconButton(
+          key: const Key('group-search'),
+          icon: AppIcons.search,
+          tooltip: l.searchTooltip,
+          onPressed: () => unawaited(context.push(SearchRoutes.search(groupId: group.id))),
+        ),
         if (group.archivedAt == null)
           HeroIconButton(
             key: const Key('group-loan'),
@@ -253,12 +279,17 @@ class _Hero extends ConsumerWidget {
       title: group.name,
       child: Column(
         children: [
-          // The pill keeps its shape at 200 % text (like the serif titles, 06 §4).
-          MediaQuery.withClampedTextScaling(
-            maxScaleFactor: AppText.maxSerifScale,
-            child: _StatusPill(
-              archived: group.archivedAt != null,
-              mine: balances?.myNets ?? const {},
+          // Who owes whom from my side under the pill (D-034 C1). The pill keeps its shape at 200 % text
+          // (like the serif titles, 06 §4).
+          GroupBalanceLines(
+            balances: group.archivedAt != null ? null : balances,
+            onMore: onBalances,
+            pill: MediaQuery.withClampedTextScaling(
+              maxScaleFactor: AppText.maxSerifScale,
+              child: _StatusPill(
+                archived: group.archivedAt != null,
+                mine: balances?.myNets ?? const {},
+              ),
             ),
           ),
           const SizedBox(height: AppSpacing.s4),
@@ -274,6 +305,12 @@ class _Hero extends ConsumerWidget {
                 style: context.text.body.w(600).copyWith(color: c.onHero),
               ),
             ],
+          ),
+          // Trip dates and the notes chip (D-034 C4/C5).
+          GroupHeroChips(
+            group: group,
+            today: ref.watch(clockProvider).today(),
+            onNotes: () => unawaited(context.push(GroupRoutes.notes(group.id))),
           ),
         ],
       ),

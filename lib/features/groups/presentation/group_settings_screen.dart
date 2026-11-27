@@ -9,6 +9,7 @@ import 'package:splitify/data/remote/groups_remote.dart';
 import 'package:splitify/data/sync/sync_types.dart';
 import 'package:splitify/domain/rules/group_rules.dart';
 import 'package:splitify/features/groups/application/groups_providers.dart';
+import 'package:splitify/features/groups/presentation/group_notes_screen.dart' show GroupRoutes;
 import 'package:splitify/features/groups/presentation/group_visuals.dart';
 import 'package:splitify/features/groups/presentation/invite_sheet.dart';
 import 'package:splitify/features/groups/presentation/simplify_setting.dart';
@@ -106,6 +107,15 @@ class GroupSettingsScreen extends ConsumerWidget {
             ),
             // #17: simplify debts (phase 11); friend (direct) groups have only two people.
             if (!direct) SimplifySettingRow(group: group),
+            // D-034 C5: the group notes (whiteboard).
+            if (!direct)
+              DashedListRow(
+                key: const Key('settings-notes'),
+                icon: AppIcons.notes,
+                label: l.boardTitle,
+                showDivider: false,
+                onTap: () => context.push(GroupRoutes.notes(groupId)),
+              ),
             const SizedBox(height: AppSpacing.s8),
             SectionLabel(l.settingsSectionData),
             // #22: every expense and payment as a CSV file, through the share sheet (phase 17).

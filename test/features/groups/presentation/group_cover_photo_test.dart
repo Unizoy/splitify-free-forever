@@ -2,6 +2,7 @@
 import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:splitify/features/groups/domain/group_extras.dart';
 import 'package:splitify/data/local/app_database.dart';
 import 'package:splitify/domain/entities/prepared_image.dart';
 import 'package:splitify/features/groups/application/groups_providers.dart';
@@ -37,6 +38,9 @@ class _SpyActions extends GroupActions {
     required String currency,
     required String ownerName,
     String? id,
+    DateTime? tripStartsOn,
+    DateTime? tripEndsOn,
+    SettleReminder reminder = SettleReminder.off,
   }) async {
     calls.add('create $name');
     return id ?? 'new';
@@ -48,6 +52,9 @@ class _SpyActions extends GroupActions {
     required String name,
     required String type,
     required String currency,
+    DateTime? tripStartsOn,
+    DateTime? tripEndsOn,
+    SettleReminder reminder = SettleReminder.off,
   }) async => calls.add('update $id $name');
 
   @override

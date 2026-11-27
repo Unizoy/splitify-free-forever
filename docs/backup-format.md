@@ -72,6 +72,12 @@ Every row (group, member, expense, payment, comment, repeating expense) has:
 `id`, `name`, `type` (`trip` · `home` · `couple` · `other` · `direct` for a friend), `main_currency`,
 `simplify_debts` (true/false), `default_split` (an object, or `null`), `archived_at`, plus the common fields.
 
+Also, since D-034 (still version 1; readers ignore keys they do not know):
+
+- `trip_starts_on`, `trip_ends_on`: the trip's first and last day as `YYYY-MM-DD`, or `null` (no end date = no end).
+- `settle_reminder`: `off`, `weekly` (on the weekday the group was created) or `monthly` (on the 1st).
+- `whiteboard`: the group notes (free text, at most 5,000 characters), or `null`.
+
 `me_member_id` is your member id in this group (`null` if you are not an active member).
 
 ### `members[]`

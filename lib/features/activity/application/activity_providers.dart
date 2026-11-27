@@ -73,7 +73,9 @@ class ActivityItem {
         type.startsWith('import_')) {
       return ActivityFilter.expenses;
     }
-    if (type.startsWith('payment_') || type == 'reminder_sent') return ActivityFilter.payments;
+    if (type.startsWith('payment_') || type == 'reminder_sent' || type.startsWith('settle_nudge')) {
+      return ActivityFilter.payments;
+    }
     if (type.startsWith('comment_')) return ActivityFilter.comments;
     return ActivityFilter.groups;
   }
@@ -275,6 +277,12 @@ ActivityItem? _pendingItem(
           payload.containsKey('simplify_debts') &&
           payload.length == 1) {
         type = simplifyActivityType(on: payload['simplify_debts'] == true);
+      } else if (op == 'upsert' &&
+          !isNew &&
+          payload.containsKey('whiteboard') &&
+          payload.length == 1) {
+        // D-034 C5: a notes edit on its own (the server logs `whiteboard_updated`).
+        type = 'whiteboard_updated';
       } else {
         type = 'group_${verb('created', isNew: isNew).replaceFirst('edited', 'updated')}';
       }

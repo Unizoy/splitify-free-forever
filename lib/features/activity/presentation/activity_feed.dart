@@ -9,6 +9,7 @@ import 'package:splitify/features/activity/application/activity_providers.dart';
 import 'package:splitify/features/balances/presentation/balance_copy.dart' show listMoney;
 import 'package:splitify/features/expenses/presentation/expense_copy.dart' show unbroken;
 import 'package:splitify/features/expenses/presentation/expense_routes.dart';
+import 'package:splitify/features/groups/presentation/group_notes_screen.dart' show GroupRoutes;
 import 'package:splitify/features/payments/presentation/payment_routes.dart';
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/components/components.dart';
@@ -63,6 +64,13 @@ String activitySentence(AppLocalizations l, ActivityItem i) {
     'settings_simplify_on' => l.actSimplifyOn(a),
     'settings_simplify_off' => l.actSimplifyOff(a),
     'settings_default_split' => l.actDefaultSplitChanged(a),
+    // D-034 C4/C5 (0026).
+    'settings_reminder_weekly' => l.nudgeSettingWeekly(a),
+    'settings_reminder_monthly' => l.nudgeSettingMonthly(a),
+    'settings_reminder_off' => l.nudgeSettingOff(a),
+    'settle_nudge' => l.nudgeActivity,
+    'settle_nudge_trip_end' => l.nudgeActivityTripEnd,
+    'whiteboard_updated' => l.boardActivity(a),
     'expense_added_recurring' => l.actRecurringCopy(d),
     'recurring_created' when d.isEmpty => l.actRecurringCreated(a),
     'recurring_updated' when d.isEmpty => l.actRecurringUpdated(a),
@@ -233,7 +241,10 @@ class ActivityRow extends StatelessWidget {
       unsynced: i.pending,
       showDivider: showDivider,
       dense: true,
-      leading: Avatar(name: actorName, seed: i.actor.seed, size: AvatarSize.s32),
+      // A settle-up nudge comes from Splitify itself, not from a person (D-034 C4).
+      leading: i.type.startsWith('settle_nudge')
+          ? TintedIcon(icon: AppIcons.bell, color: context.colors.primary, size: 32)
+          : Avatar(name: actorName, seed: i.actor.seed, size: AvatarSize.s32),
       onTap: () => _open(context),
     );
   }
@@ -244,6 +255,9 @@ class ActivityRow extends StatelessWidget {
     final route = switch (item.targetType) {
       'expense' => ExpenseRoutes.detail(id),
       'payment' => PaymentRoutes.detail(id),
+      // A nudge opens who owes whom; a notes edit opens the notes (D-034 C4/C5).
+      _ when item.type.startsWith('settle_nudge') => '/groups/$id?tab=balances',
+      _ when item.type == 'whiteboard_updated' => GroupRoutes.notes(id),
       _ => '/groups/$id',
     };
     unawaited(context.push(route));

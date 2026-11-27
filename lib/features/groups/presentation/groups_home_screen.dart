@@ -10,7 +10,10 @@ import 'package:splitify/features/auth/application/auth_providers.dart' show pro
 import 'package:splitify/features/balances/application/balance_views.dart';
 import 'package:splitify/features/balances/application/balances_providers.dart';
 import 'package:splitify/features/balances/presentation/balance_copy.dart';
+import 'package:splitify/features/groups/application/group_extras_providers.dart';
 import 'package:splitify/features/groups/application/groups_providers.dart';
+import 'package:splitify/features/groups/domain/group_extras.dart';
+import 'package:splitify/features/groups/presentation/group_filter_pill.dart';
 import 'package:splitify/features/groups/presentation/group_visuals.dart';
 import 'package:splitify/features/notifications/application/notifications_providers.dart';
 import 'package:splitify/features/payments/presentation/settle_picker.dart';
@@ -51,12 +54,15 @@ class _GroupsHomeScreenState extends ConsumerState<GroupsHomeScreen> {
     final mine = ref.watch(myBalancesProvider).value;
     final byGroup = mine?.byGroup ?? const <String, Map<String, int>>{};
     bool open(LocalGroup g) => byGroup[g.id]?.isNotEmpty ?? false;
+    // The filter pill (D-034 C3), kept on this phone.
+    final filter = ref.watch(groupFilterProvider);
+    bool shown(LocalGroup g) => groupMatches(filter, byGroup[g.id] ?? const {});
     // Unsettled groups first (S-076 amendment); otherwise newest first.
     final active = [
-      ...?groups?.where((g) => g.archivedAt == null && open(g)),
-      ...?groups?.where((g) => g.archivedAt == null && !open(g)),
+      ...?groups?.where((g) => g.archivedAt == null && open(g) && shown(g)),
+      ...?groups?.where((g) => g.archivedAt == null && !open(g) && shown(g)),
     ];
-    final archived = [...?groups?.where((g) => g.archivedAt != null)];
+    final archived = [...?groups?.where((g) => g.archivedAt != null && shown(g))];
 
     final Widget content;
     if (groups == null && groupsAsync.hasError) {
@@ -79,6 +85,20 @@ class _GroupsHomeScreenState extends ConsumerState<GroupsHomeScreen> {
             label: l.joinGroupShort,
             variant: PillVariant.outline,
             onPressed: () => context.push('/join'),
+          ),
+        ],
+      );
+    } else if (active.isEmpty && archived.isEmpty) {
+      content = EmptyState(
+        key: const Key('groups-filter-empty'),
+        icon: AppIcons.filter,
+        title: l.groupFilterEmpty,
+        actions: [
+          PillButton(
+            key: const Key('groups-filter-show-all'),
+            label: l.groupFilterShowAll,
+            variant: PillVariant.outline,
+            onPressed: () => ref.read(groupFilterProvider.notifier).select(GroupFilter.all),
           ),
         ],
       );
@@ -114,7 +134,10 @@ class _GroupsHomeScreenState extends ConsumerState<GroupsHomeScreen> {
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           child: OverlapColumn(
-            top: _Hero(groupCount: active.length, balances: mine),
+            top: _Hero(
+              groupCount: groups?.where((g) => g.archivedAt == null).length ?? 0,
+              balances: mine,
+            ),
             bottom: OverlapSheet(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -125,9 +148,19 @@ class _GroupsHomeScreenState extends ConsumerState<GroupsHomeScreen> {
                     alignment: WrapAlignment.spaceBetween,
                     crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.only(right: AppSpacing.s2),
-                        child: SectionLabel(l.activeGroups(active.length)),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Flexible(child: SectionLabel(l.activeGroups(active.length))),
+                          if (groups != null && groups.isNotEmpty) ...[
+                            const SizedBox(width: AppSpacing.s2),
+                            GroupFilterPill(
+                              value: filter,
+                              onChanged: (f) => ref.read(groupFilterProvider.notifier).select(f),
+                            ),
+                          ],
+                          const SizedBox(width: AppSpacing.s2),
+                        ],
                       ),
                       if (groups != null && groups.isNotEmpty)
                         Row(

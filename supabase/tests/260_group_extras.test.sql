@@ -109,7 +109,7 @@ select is(pg_temp.apply(pg_temp.m('06', 'group', 'upsert', pg_temp.g('02'), '02'
   jsonb_build_object('whiteboard', repeat('x', 5001)))) ->> 'code', 'INVALID_VALUE',
   'notes longer than 5,000 characters are rejected');
 select is(pg_temp.apply(pg_temp.m('07', 'group', 'upsert', pg_temp.g('02'), '02',
-  jsonb_build_object('whiteboard', repeat('Ã©', 5000)))) ->> 'status', 'applied', 'exactly 5,000 characters fit');
+  jsonb_build_object('whiteboard', repeat('é', 5000)))) ->> 'status', 'applied', 'exactly 5,000 characters fit');
 select is(pg_temp.err($$ update public.groups set settle_reminder = null where id = 'c2600000-0000-4000-8000-000000000002' $$),
   '23502', 'settle_reminder is not null');
 
@@ -210,11 +210,11 @@ select is(private.send_settle_nudges(date '2026-11-11'), 0, 'a second run the sa
 select is(pg_temp.nudges('01'), 1, 'exactly one settle_nudge row');
 select is((select actor_user_id is null and data ->> 'reason' = 'weekly' from public.activity
            where group_id = pg_temp.g('01')::uuid and type = 'settle_nudge'), true, 'system row, reason weekly');
-select is((pg_temp.nudge_note('01', 'b1')).body, 'Time to settle up: you owe â‚¹300',
+select is((pg_temp.nudge_note('01', 'b1')).body, 'Time to settle up: you owe ₹300',
   'Bina hears what she owes');
 select is((pg_temp.nudge_note('01', 'b1')).kind || '/' || (pg_temp.nudge_note('01', 'b1')).push_status,
   'reminders/pending', 'kind reminders, pushed');
-select is((pg_temp.nudge_note('01', 'a1')).body, 'Time to settle up: you''re owed â‚¹600',
+select is((pg_temp.nudge_note('01', 'a1')).body, 'Time to settle up: you''re owed ₹600',
   'Asha (who set it up) hears she is owed');
 select is((pg_temp.nudge_note('01', 'd1')).push_status || '/' || (pg_temp.nudge_note('01', 'd1')).inapp::text,
   'skipped/true', 'muted Dev: in the bell, no push');
@@ -244,7 +244,7 @@ select is(private.send_settle_nudges(date '2026-11-15'), 0, 'trip end: nothing o
 select is(private.send_settle_nudges(date '2026-11-16'), 1, 'trip end: one nudge the day after (Ladakh only)');
 select is((select data ->> 'reason' from public.activity where group_id = pg_temp.g('03')::uuid and type = 'settle_nudge'),
   'trip_end', 'reason trip_end');
-select is((pg_temp.nudge_note('03', 'a1')).body, 'Your trip is over. Time to settle up: you owe â‚¹100',
+select is((pg_temp.nudge_note('03', 'a1')).body, 'Your trip is over. Time to settle up: you owe ₹100',
   'trip end text');
 select is(pg_temp.nudges('04') + pg_temp.nudges('05'), 0, 'settled and archived groups get no nudge');
 

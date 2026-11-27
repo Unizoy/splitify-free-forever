@@ -4749,4 +4749,231 @@ class AppLocalizationsEn extends AppLocalizations {
   String trendMemberTotal(String paid, String share) {
     return 'Last 12 months: paid $paid · share $share';
   }
+
+  @override
+  String groupLinesMore(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '+$count more',
+      one: '+1 more',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get groupLinesHide => 'Hide who owes whom';
+
+  @override
+  String get groupLinesShow => 'Show who owes whom';
+
+  @override
+  String get groupLinesLabel => 'Who owes whom';
+
+  @override
+  String groupSettledShow(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Show $count settled expenses',
+      one: 'Show 1 settled expense',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get groupSettledHide => 'Hide settled expenses';
+
+  @override
+  String get groupSettledCaption => 'Everyone was settled up after these';
+
+  @override
+  String get groupFilterLabel => 'Show groups';
+
+  @override
+  String get groupFilterAll => 'All';
+
+  @override
+  String get groupFilterOutstanding => 'Outstanding';
+
+  @override
+  String get groupFilterIOwe => 'I owe';
+
+  @override
+  String get groupFilterOwesMe => 'Owe me';
+
+  @override
+  String get groupFilterAllGroups => 'All groups';
+
+  @override
+  String get groupFilterOutstandingHint => 'Groups where you owe or are owed';
+
+  @override
+  String get groupFilterIOweHint => 'Groups where you owe someone';
+
+  @override
+  String get groupFilterOwesMeHint => 'Groups where someone owes you';
+
+  @override
+  String get groupFilterEmpty => 'No groups match';
+
+  @override
+  String get groupFilterShowAll => 'Show all';
+
+  @override
+  String groupFilterButton(String filter) {
+    return 'Filter: $filter';
+  }
+
+  @override
+  String get tripDatesTitle => 'Trip dates';
+
+  @override
+  String get tripStarts => 'Starts';
+
+  @override
+  String get tripEnds => 'Ends';
+
+  @override
+  String get tripNotSet => 'Not set';
+
+  @override
+  String get tripNoEnd => 'No end';
+
+  @override
+  String get tripPickStart => 'Trip starts';
+
+  @override
+  String get tripPickEnd => 'Trip ends';
+
+  @override
+  String get tripNoStartDate => 'No start date';
+
+  @override
+  String get tripNoEndDate => 'No end date';
+
+  @override
+  String get tripEndBeforeStart => 'The trip ends before it starts';
+
+  @override
+  String get tripDatesHint =>
+      'The day after the trip, everyone who still owes or is owed gets a reminder to settle up.';
+
+  @override
+  String tripFrom(String date) {
+    return 'From $date';
+  }
+
+  @override
+  String tripUntil(String date) {
+    return 'Until $date';
+  }
+
+  @override
+  String tripRange(String start, String end) {
+    return '$start – $end';
+  }
+
+  @override
+  String tripChipLabel(String dates) {
+    return 'Trip dates: $dates';
+  }
+
+  @override
+  String get nudgeTitle => 'Settle-up reminders';
+
+  @override
+  String get nudgeOff => 'Off';
+
+  @override
+  String get nudgeWeekly => 'Weekly';
+
+  @override
+  String get nudgeMonthly => 'Monthly';
+
+  @override
+  String get nudgeHintOff => 'No automatic reminders. You can still remind people from Balances.';
+
+  @override
+  String nudgeHintWeekly(String weekday) {
+    return 'Every $weekday, everyone who owes or is owed gets a reminder.';
+  }
+
+  @override
+  String get nudgeHintMonthly =>
+      'On the 1st of every month, everyone who owes or is owed gets a reminder.';
+
+  @override
+  String nudgeNext(String date) {
+    return 'Next reminder: $date';
+  }
+
+  @override
+  String get nudgeActivity => 'Reminder to settle up sent';
+
+  @override
+  String get nudgeActivityTripEnd => 'The trip is over: reminder to settle up sent';
+
+  @override
+  String nudgeSettingWeekly(String actor) {
+    return '$actor turned on weekly settle-up reminders';
+  }
+
+  @override
+  String nudgeSettingMonthly(String actor) {
+    return '$actor turned on monthly settle-up reminders';
+  }
+
+  @override
+  String nudgeSettingOff(String actor) {
+    return '$actor turned off settle-up reminders';
+  }
+
+  @override
+  String get boardTitle => 'Group notes';
+
+  @override
+  String get boardHint =>
+      'Address, Wi-Fi, door codes, phone numbers — anything the group should know';
+
+  @override
+  String get boardHelp => 'Everyone in the group can see and edit these notes.';
+
+  @override
+  String boardLastEdited(String name, String date) {
+    return 'Last edited by $name · $date';
+  }
+
+  @override
+  String get boardSaved => 'Notes saved';
+
+  @override
+  String boardTooLong(String max) {
+    return 'Notes can be up to $max characters';
+  }
+
+  @override
+  String boardCount(String count, String max) {
+    return '$count / $max';
+  }
+
+  @override
+  String get boardChip => 'Notes';
+
+  @override
+  String get boardOpen => 'Open the group notes';
+
+  @override
+  String get boardEmpty => 'No notes yet';
+
+  @override
+  String boardActivity(String actor) {
+    return '$actor updated the group notes';
+  }
+
+  @override
+  String get boardDiscardBody => 'Your changes to the notes will be lost.';
+
+  @override
+  String get boardReadOnly => 'This group is archived, so its notes can\'t be changed.';
 }

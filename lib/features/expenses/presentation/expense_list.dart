@@ -8,6 +8,7 @@ import 'package:splitify/features/expenses/application/expense_draft.dart';
 import 'package:splitify/features/expenses/application/expense_providers.dart';
 import 'package:splitify/features/expenses/presentation/expense_copy.dart';
 import 'package:splitify/features/expenses/presentation/expense_routes.dart';
+import 'package:splitify/features/groups/domain/group_extras.dart';
 import 'package:splitify/features/payments/application/payment_providers.dart';
 import 'package:splitify/features/payments/presentation/payment_row.dart';
 import 'package:splitify/l10n/app_localizations.dart';
@@ -58,6 +59,9 @@ class ExpenseList extends ConsumerWidget {
 
 /// The newest [ExpenseList.pageSize] records, then "Show older" adds a page. [ExpenseList] builds every shown
 /// row (it sits in a plain column); [ExpenseListSliver] builds only the rows on screen (S-167, phase 19).
+/// Once everyone is settled up in every currency, the records up to the last settle-up fold into one
+/// "Show N settled expenses" row (D-034 C2, worked out on the phone from these same rows); search and export
+/// read their own lists, so they still see everything.
 class _Rows extends StatefulWidget {
   const _Rows({required this.views, this.payments = const [], this.sliver = false});
 
@@ -72,11 +76,36 @@ class _Rows extends StatefulWidget {
 class _RowsState extends State<_Rows> {
   int _limit = ExpenseList.pageSize;
 
+  /// The settled history is unfolded.
+  bool _showSettled = false;
+
+  /// Ids of the records behind "Show settled expenses" (empty while any balance is open).
+  Set<String> _settled() => settledHistoryIds([
+    for (final v in widget.views)
+      (
+        id: v.expense.id,
+        date: v.expense.date,
+        createdAt: v.expense.createdAt,
+        currency: v.expense.currency.trim(),
+        deltas: expenseDeltas(v.paid, v.owed),
+      ),
+    for (final v in widget.payments)
+      (
+        id: v.payment.id,
+        date: v.payment.date,
+        createdAt: v.payment.createdAt,
+        currency: v.payment.currency.trim(),
+        deltas: paymentDeltas(v.payment.fromMember, v.payment.toMember, v.payment.amount),
+      ),
+  ]);
+
   /// Month headers, rows and the "Show older" button, in order, built only when asked for.
   List<WidgetBuilder> _entries(BuildContext context) {
     final views = widget.views;
     final payments = widget.payments;
     // Expenses and payments by date, newest first (both lists already are; merge keeps that).
+    final settled = _settled();
+    final fold = settled.isNotEmpty && !_showSettled;
     final items = <(String date, Widget Function(bool divider) row)>[];
     var e = 0;
     var p = 0;
@@ -86,9 +115,11 @@ class _RowsState extends State<_Rows> {
           (e < views.length && views[e].expense.date.compareTo(payments[p].payment.date) >= 0);
       if (takeExpense) {
         final v = views[e++];
+        if (fold && settled.contains(v.expense.id)) continue;
         items.add((v.expense.date, (d) => ExpenseRow(view: v, showDivider: d, hero: true)));
       } else {
         final v = payments[p++];
+        if (fold && settled.contains(v.payment.id)) continue;
         items.add((v.payment.date, (d) => PaymentRow(view: v, showDivider: d)));
       }
     }
@@ -122,6 +153,18 @@ class _RowsState extends State<_Rows> {
             variant: PillVariant.outline,
             size: PillSize.medium,
             onPressed: () => setState(() => _limit += ExpenseList.pageSize),
+          ),
+        ),
+      );
+    }
+    if (settled.isNotEmpty && hidden <= 0) {
+      entries.add(
+        (context) => Padding(
+          padding: EdgeInsets.only(top: items.isEmpty ? 0 : AppSpacing.s4),
+          child: _SettledRow(
+            count: settled.length,
+            open: _showSettled,
+            onTap: () => setState(() => _showSettled = !_showSettled),
           ),
         ),
       );
@@ -165,6 +208,27 @@ class ExpenseListSliver extends ConsumerWidget {
       ),
       _ => SliverToBoxAdapter(child: ExpenseList(groupId: groupId)),
     };
+  }
+}
+
+/// "Show 5 settled expenses" (D-034 C2) / "Hide settled expenses" at the end of the list.
+class _SettledRow extends StatelessWidget {
+  const _SettledRow({required this.count, required this.open, required this.onTap});
+
+  final int count;
+  final bool open;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    return DashedListRow(
+      key: const Key('expenses-settled'),
+      icon: AppIcons.checkCircle,
+      label: open ? l.groupSettledHide : l.groupSettledShow(count),
+      showDivider: false,
+      onTap: onTap,
+    );
   }
 }
 

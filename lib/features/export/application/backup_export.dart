@@ -57,6 +57,11 @@ Map<String, Object?> _group(BackupGroupRows x, String? userId) {
       'simplify_debts': g.simplifyDebts,
       'default_split': _json(g.defaultSplit),
       'archived_at': g.archivedAt,
+      // D-034 WP-C (0026): trip dates, settle-up reminders and the group notes.
+      'trip_starts_on': g.tripStartsOn,
+      'trip_ends_on': g.tripEndsOn,
+      'settle_reminder': g.settleReminder ?? 'off',
+      'whiteboard': g.whiteboard,
       'created_at': g.createdAt,
       'created_by': g.createdBy,
       'updated_at': g.updatedAt,

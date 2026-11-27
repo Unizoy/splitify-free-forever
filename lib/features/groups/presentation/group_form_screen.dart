@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:splitify/core/time/clock.dart';
 import 'package:splitify/core/money/currencies.dart';
 import 'package:splitify/core/utils/uuid.dart';
 import 'package:splitify/data/local/app_database.dart';
@@ -11,7 +12,10 @@ import 'package:splitify/domain/entities/prepared_image.dart';
 import 'package:splitify/domain/rules/group_rules.dart';
 import 'package:splitify/features/auth/application/auth_providers.dart';
 import 'package:splitify/features/currency/presentation/currency_picker_sheet.dart';
+import 'package:splitify/features/expenses/presentation/editor/pickers.dart' show MonthCalendar;
 import 'package:splitify/features/groups/application/groups_providers.dart';
+import 'package:splitify/features/groups/domain/group_extras.dart';
+import 'package:splitify/features/groups/presentation/group_trip_rows.dart';
 import 'package:splitify/features/groups/presentation/group_visuals.dart';
 import 'package:splitify/features/groups/presentation/invite_sheet.dart';
 import 'package:splitify/features/notifications/application/notifications_providers.dart';
@@ -44,6 +48,7 @@ class _GroupFormScreenState extends ConsumerState<GroupFormScreen> {
   final _person = TextEditingController();
   final _nameFocus = FocusNode(debugLabel: 'group name');
   final _personFocus = FocusNode(debugLabel: 'add person');
+  final _scroll = ScrollController();
   late final String _seed = widget.groupId ?? newId();
   String _type = 'trip';
   String? _currency;
@@ -57,6 +62,12 @@ class _GroupFormScreenState extends ConsumerState<GroupFormScreen> {
   bool _showErrors = false;
   bool _personError = false;
   String? _limitError;
+
+  /// Trip dates (trips only) and settle-up reminders (D-034 C4).
+  DateTime? _tripStart;
+  DateTime? _tripEnd;
+  SettleReminder _reminder = SettleReminder.off;
+  final _tripKey = GlobalKey(debugLabel: 'trip dates');
   bool _saving = false;
   bool _saved = false;
 
@@ -71,6 +82,7 @@ class _GroupFormScreenState extends ConsumerState<GroupFormScreen> {
     _person.dispose();
     _nameFocus.dispose();
     _personFocus.dispose();
+    _scroll.dispose();
     super.dispose();
   }
 
@@ -123,7 +135,17 @@ class _GroupFormScreenState extends ConsumerState<GroupFormScreen> {
     if (_saving) return;
     if (GroupRules.name(_name.text) != null) {
       setState(() => _showErrors = true);
-      _nameFocus.requestFocus();
+      // The name sits at the top of a long, lazy list: bring it back first, then focus it.
+      if (_scroll.hasClients && _scroll.offset > 0) _scroll.jumpTo(0);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _nameFocus.requestFocus();
+      });
+      return;
+    }
+    // The end before the start: the dates stay as picked, the inline error points at them.
+    if (_type == 'trip' && tripDatesInvalid(_tripStart, _tripEnd)) {
+      final trip = _tripKey.currentContext;
+      if (trip != null) unawaited(Scrollable.ensureVisible(trip, alignment: 0.3));
       return;
     }
     // A name still in the people field is added, never dropped.
@@ -135,7 +157,15 @@ class _GroupFormScreenState extends ConsumerState<GroupFormScreen> {
       final String id;
       if (_isEdit) {
         id = widget.groupId!;
-        await actions.update(id, name: _name.text, type: _type, currency: currency);
+        await actions.update(
+          id,
+          name: _name.text,
+          type: _type,
+          currency: currency,
+          tripStartsOn: _tripStart,
+          tripEndsOn: _tripEnd,
+          reminder: _reminder,
+        );
       } else {
         id = _seed;
         final profile = ref.read(profileProvider).value;
@@ -145,6 +175,9 @@ class _GroupFormScreenState extends ConsumerState<GroupFormScreen> {
           type: _type,
           currency: currency,
           ownerName: profile?.displayName ?? '',
+          tripStartsOn: _tripStart,
+          tripEndsOn: _tripEnd,
+          reminder: _reminder,
         );
       }
       for (final p in _people) {
@@ -255,6 +288,40 @@ class _GroupFormScreenState extends ConsumerState<GroupFormScreen> {
     if (code != null && mounted) _change(() => _currency = code);
   }
 
+  /// Picks the trip's first ([start]) or last day in a calendar sheet; "No start / end date" clears it.
+  Future<void> _pickTripDay({required bool start}) async {
+    final l = AppLocalizations.of(context);
+    final today = ref.read(clockProvider).today();
+    final current = start ? _tripStart : _tripEnd;
+    final picked = await showAppSheet<({DateTime? day})>(
+      context,
+      title: start ? l.tripPickStart : l.tripPickEnd,
+      builder: (sheet) => Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Wrap(
+            children: [
+              IconChip(
+                key: Key(start ? 'trip-no-start' : 'trip-no-end'),
+                label: start ? l.tripNoStartDate : l.tripNoEndDate,
+                selected: current == null,
+                onTap: () => Navigator.of(sheet).pop((day: null)),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.s4),
+          MonthCalendar(
+            initial: current ?? (start ? null : _tripStart) ?? today,
+            today: today,
+            onPicked: (d) => Navigator.of(sheet).pop((day: d)),
+          ),
+        ],
+      ),
+    );
+    if (picked == null || !mounted) return;
+    _change(() => start ? _tripStart = picked.day : _tripEnd = picked.day);
+  }
+
   Future<void> _back() async {
     final l = AppLocalizations.of(context);
     if (_dirty && !_saved) {
@@ -304,7 +371,15 @@ class _GroupFormScreenState extends ConsumerState<GroupFormScreen> {
       _currency = group.mainCurrency;
       _coverKind = group.coverKind == 'photo' && group.coverPath != null ? 'photo' : 'generated';
       _savedCoverPath = _coverKind == 'photo' ? group.coverPath : null;
+      _tripStart = parseDay(group.tripStartsOn);
+      _tripEnd = parseDay(group.tripEndsOn);
+      _reminder = SettleReminder.parse(group.settleReminder);
     }
+    final today = ref.watch(clockProvider).today();
+    // Weekly reminders go out on the weekday the group was created (today for a new group).
+    final createdDay = group?.createdAt == null
+        ? today
+        : (DateTime.tryParse(group!.createdAt!)?.toLocal() ?? today);
     final picked = _photo;
     final ImageProvider? coverPhoto = _coverKind != 'photo'
         ? null
@@ -334,6 +409,7 @@ class _GroupFormScreenState extends ConsumerState<GroupFormScreen> {
             Expanded(
               child: ListView(
                 key: const Key('group-form'),
+                controller: _scroll,
                 keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                 padding: const EdgeInsets.fromLTRB(
                   AppSpacing.screen,
@@ -492,6 +568,24 @@ class _GroupFormScreenState extends ConsumerState<GroupFormScreen> {
                         style: context.text.bodySmall.copyWith(color: c.textSecondary),
                       ),
                     ),
+                  // Trip dates for trips, settle-up reminders for every group (D-034 C4): rows at the
+                  // end of the form (optional, after the people), never a dialog on save.
+                  if (_type == 'trip')
+                    TripDatesRows(
+                      key: _tripKey,
+                      start: _tripStart,
+                      end: _tripEnd,
+                      today: today,
+                      onStart: () => unawaited(_pickTripDay(start: true)),
+                      onEnd: () => unawaited(_pickTripDay(start: false)),
+                    ),
+                  SettleReminderRow(
+                    value: _reminder,
+                    today: today,
+                    createdDay: createdDay,
+                    tripEndsOn: _type == 'trip' ? _tripEnd : null,
+                    onChanged: (r) => _change(() => _reminder = r),
+                  ),
                 ],
               ),
             ),

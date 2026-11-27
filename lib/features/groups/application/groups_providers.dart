@@ -12,6 +12,7 @@ import 'package:splitify/data/repositories/repositories.dart';
 import 'package:splitify/data/sync/sync_types.dart';
 import 'package:splitify/domain/entities/prepared_image.dart';
 import 'package:splitify/features/auth/application/auth_providers.dart' hide clockProvider;
+import 'package:splitify/features/groups/domain/group_extras.dart';
 
 /// The signed-in user's id, or null.
 final currentUserIdProvider = Provider<String?>(
@@ -104,28 +105,67 @@ class GroupActions {
     }
   }
 
-  /// New group; the creator becomes the owner member (offline-first).
+  /// New group; the creator becomes the owner member (offline-first). Trip dates and settle-up reminders
+  /// (D-034 C4) follow as one more queued change of the same group (only when set).
   Future<String> create({
     required String name,
     required String type,
     required String currency,
     required String ownerName,
     String? id,
-  }) => _groups.create(
-    id: id,
-    name: name.trim(),
-    type: type,
-    mainCurrency: currency,
-    ownerName: ownerName,
-    ownerUserId: _ref.read(currentUserIdProvider),
-  );
+    DateTime? tripStartsOn,
+    DateTime? tripEndsOn,
+    SettleReminder reminder = SettleReminder.off,
+  }) async {
+    final gid = await _groups.create(
+      id: id,
+      name: name.trim(),
+      type: type,
+      mainCurrency: currency,
+      ownerName: ownerName,
+      ownerUserId: _ref.read(currentUserIdProvider),
+    );
+    final extras = _extras(type, tripStartsOn, tripEndsOn, reminder);
+    if (extras.values.any((v) => v != null && v != SettleReminder.off.name)) {
+      await _groups.update(gid, extras);
+    }
+    return gid;
+  }
 
+  /// Saves the group form. Trip dates are kept for trips only (another type clears them, so no trip-end
+  /// reminder goes out for a home group).
   Future<void> update(
     String id, {
     required String name,
     required String type,
     required String currency,
-  }) => _groups.update(id, {'name': name.trim(), 'type': type, 'main_currency': currency});
+    DateTime? tripStartsOn,
+    DateTime? tripEndsOn,
+    SettleReminder reminder = SettleReminder.off,
+  }) => _groups.update(id, {
+    'name': name.trim(),
+    'type': type,
+    'main_currency': currency,
+    ..._extras(type, tripStartsOn, tripEndsOn, reminder),
+  });
+
+  static Map<String, Object?> _extras(
+    String type,
+    DateTime? start,
+    DateTime? end,
+    SettleReminder reminder,
+  ) => {
+    'trip_starts_on': type == 'trip' && start != null ? isoDay(start) : null,
+    'trip_ends_on': type == 'trip' && end != null ? isoDay(end) : null,
+    'settle_reminder': reminder.name,
+  };
+
+  /// The group notes (D-034 C5), offline through the outbox like any group edit (last save wins, the other
+  /// version stays in the history). Blank notes are cleared.
+  Future<void> saveNotes(String id, String text) {
+    final trimmed = text.trimRight();
+    return _groups.update(id, {'whiteboard': trimmed.trim().isEmpty ? null : trimmed});
+  }
 
   /// Photo cover (S-073): saved offline, uploaded by the queue once the group is on the server.
   Future<void> setCoverPhoto(String id, PreparedImage image, {String? oldPath}) async {

@@ -26,6 +26,7 @@ import 'package:splitify/features/friends/presentation/friends_screen.dart';
 import 'package:splitify/features/groups/presentation/deleted_groups_screen.dart';
 import 'package:splitify/features/groups/presentation/group_detail_screen.dart';
 import 'package:splitify/features/groups/presentation/group_form_screen.dart';
+import 'package:splitify/features/groups/presentation/group_notes_screen.dart';
 import 'package:splitify/features/groups/presentation/group_settings_screen.dart';
 import 'package:splitify/features/groups/presentation/groups_home_screen.dart';
 import 'package:splitify/features/groups/presentation/join_screen.dart';
@@ -62,6 +63,7 @@ abstract final class Routes {
   static String group(String id) => '/groups/$id';
   static String groupSettings(String id) => '/groups/$id/settings';
   static String editGroup(String id) => '/groups/$id/edit';
+  static String groupNotes(String id) => '/groups/$id/notes';
   static const devLogin = '/debug/login';
 }
 
@@ -229,6 +231,13 @@ GoRouter buildRouter({
                       parentNavigatorKey: _rootKey,
                       builder: (context, state) =>
                           GroupSettingsScreen(groupId: state.pathParameters['id']!),
+                    ),
+                    // The group notes (whiteboard, D-034 C5).
+                    AppRoute(
+                      path: 'notes',
+                      parentNavigatorKey: _rootKey,
+                      builder: (context, state) =>
+                          GroupNotesScreen(groupId: state.pathParameters['id']!),
                     ),
                   ],
                 ),

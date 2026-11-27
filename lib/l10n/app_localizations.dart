@@ -7585,6 +7585,366 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Last 12 months: paid {paid} · share {share}'**
   String trendMemberTotal(String paid, String share);
+
+  /// Group page hero: more who-owes-whom lines than shown; opens the Balances tab (D-034 C1).
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{+1 more} other{+{count} more}}'**
+  String groupLinesMore(int count);
+
+  /// No description provided for @groupLinesHide.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide who owes whom'**
+  String get groupLinesHide;
+
+  /// No description provided for @groupLinesShow.
+  ///
+  /// In en, this message translates to:
+  /// **'Show who owes whom'**
+  String get groupLinesShow;
+
+  /// No description provided for @groupLinesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Who owes whom'**
+  String get groupLinesLabel;
+
+  /// Group expense list: older records from before everyone settled up are folded into this row (D-034 C2).
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Show 1 settled expense} other{Show {count} settled expenses}}'**
+  String groupSettledShow(int count);
+
+  /// No description provided for @groupSettledHide.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide settled expenses'**
+  String get groupSettledHide;
+
+  /// No description provided for @groupSettledCaption.
+  ///
+  /// In en, this message translates to:
+  /// **'Everyone was settled up after these'**
+  String get groupSettledCaption;
+
+  /// No description provided for @groupFilterLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Show groups'**
+  String get groupFilterLabel;
+
+  /// No description provided for @groupFilterAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get groupFilterAll;
+
+  /// No description provided for @groupFilterOutstanding.
+  ///
+  /// In en, this message translates to:
+  /// **'Outstanding'**
+  String get groupFilterOutstanding;
+
+  /// No description provided for @groupFilterIOwe.
+  ///
+  /// In en, this message translates to:
+  /// **'I owe'**
+  String get groupFilterIOwe;
+
+  /// No description provided for @groupFilterOwesMe.
+  ///
+  /// In en, this message translates to:
+  /// **'Owe me'**
+  String get groupFilterOwesMe;
+
+  /// No description provided for @groupFilterAllGroups.
+  ///
+  /// In en, this message translates to:
+  /// **'All groups'**
+  String get groupFilterAllGroups;
+
+  /// No description provided for @groupFilterOutstandingHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Groups where you owe or are owed'**
+  String get groupFilterOutstandingHint;
+
+  /// No description provided for @groupFilterIOweHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Groups where you owe someone'**
+  String get groupFilterIOweHint;
+
+  /// No description provided for @groupFilterOwesMeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Groups where someone owes you'**
+  String get groupFilterOwesMeHint;
+
+  /// No description provided for @groupFilterEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No groups match'**
+  String get groupFilterEmpty;
+
+  /// No description provided for @groupFilterShowAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Show all'**
+  String get groupFilterShowAll;
+
+  /// Screen-reader label of the Groups list filter pill.
+  ///
+  /// In en, this message translates to:
+  /// **'Filter: {filter}'**
+  String groupFilterButton(String filter);
+
+  /// No description provided for @tripDatesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Trip dates'**
+  String get tripDatesTitle;
+
+  /// No description provided for @tripStarts.
+  ///
+  /// In en, this message translates to:
+  /// **'Starts'**
+  String get tripStarts;
+
+  /// No description provided for @tripEnds.
+  ///
+  /// In en, this message translates to:
+  /// **'Ends'**
+  String get tripEnds;
+
+  /// No description provided for @tripNotSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Not set'**
+  String get tripNotSet;
+
+  /// No description provided for @tripNoEnd.
+  ///
+  /// In en, this message translates to:
+  /// **'No end'**
+  String get tripNoEnd;
+
+  /// No description provided for @tripPickStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Trip starts'**
+  String get tripPickStart;
+
+  /// No description provided for @tripPickEnd.
+  ///
+  /// In en, this message translates to:
+  /// **'Trip ends'**
+  String get tripPickEnd;
+
+  /// No description provided for @tripNoStartDate.
+  ///
+  /// In en, this message translates to:
+  /// **'No start date'**
+  String get tripNoStartDate;
+
+  /// No description provided for @tripNoEndDate.
+  ///
+  /// In en, this message translates to:
+  /// **'No end date'**
+  String get tripNoEndDate;
+
+  /// No description provided for @tripEndBeforeStart.
+  ///
+  /// In en, this message translates to:
+  /// **'The trip ends before it starts'**
+  String get tripEndBeforeStart;
+
+  /// No description provided for @tripDatesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The day after the trip, everyone who still owes or is owed gets a reminder to settle up.'**
+  String get tripDatesHint;
+
+  /// No description provided for @tripFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'From {date}'**
+  String tripFrom(String date);
+
+  /// No description provided for @tripUntil.
+  ///
+  /// In en, this message translates to:
+  /// **'Until {date}'**
+  String tripUntil(String date);
+
+  /// Trip dates chip: 12–18 Dec, 28 Nov – 3 Dec.
+  ///
+  /// In en, this message translates to:
+  /// **'{start} – {end}'**
+  String tripRange(String start, String end);
+
+  /// No description provided for @tripChipLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Trip dates: {dates}'**
+  String tripChipLabel(String dates);
+
+  /// No description provided for @nudgeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Settle-up reminders'**
+  String get nudgeTitle;
+
+  /// No description provided for @nudgeOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get nudgeOff;
+
+  /// No description provided for @nudgeWeekly.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly'**
+  String get nudgeWeekly;
+
+  /// No description provided for @nudgeMonthly.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly'**
+  String get nudgeMonthly;
+
+  /// No description provided for @nudgeHintOff.
+  ///
+  /// In en, this message translates to:
+  /// **'No automatic reminders. You can still remind people from Balances.'**
+  String get nudgeHintOff;
+
+  /// No description provided for @nudgeHintWeekly.
+  ///
+  /// In en, this message translates to:
+  /// **'Every {weekday}, everyone who owes or is owed gets a reminder.'**
+  String nudgeHintWeekly(String weekday);
+
+  /// No description provided for @nudgeHintMonthly.
+  ///
+  /// In en, this message translates to:
+  /// **'On the 1st of every month, everyone who owes or is owed gets a reminder.'**
+  String get nudgeHintMonthly;
+
+  /// No description provided for @nudgeNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Next reminder: {date}'**
+  String nudgeNext(String date);
+
+  /// No description provided for @nudgeActivity.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminder to settle up sent'**
+  String get nudgeActivity;
+
+  /// No description provided for @nudgeActivityTripEnd.
+  ///
+  /// In en, this message translates to:
+  /// **'The trip is over: reminder to settle up sent'**
+  String get nudgeActivityTripEnd;
+
+  /// No description provided for @nudgeSettingWeekly.
+  ///
+  /// In en, this message translates to:
+  /// **'{actor} turned on weekly settle-up reminders'**
+  String nudgeSettingWeekly(String actor);
+
+  /// No description provided for @nudgeSettingMonthly.
+  ///
+  /// In en, this message translates to:
+  /// **'{actor} turned on monthly settle-up reminders'**
+  String nudgeSettingMonthly(String actor);
+
+  /// No description provided for @nudgeSettingOff.
+  ///
+  /// In en, this message translates to:
+  /// **'{actor} turned off settle-up reminders'**
+  String nudgeSettingOff(String actor);
+
+  /// No description provided for @boardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Group notes'**
+  String get boardTitle;
+
+  /// No description provided for @boardHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Address, Wi-Fi, door codes, phone numbers — anything the group should know'**
+  String get boardHint;
+
+  /// No description provided for @boardHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Everyone in the group can see and edit these notes.'**
+  String get boardHelp;
+
+  /// No description provided for @boardLastEdited.
+  ///
+  /// In en, this message translates to:
+  /// **'Last edited by {name} · {date}'**
+  String boardLastEdited(String name, String date);
+
+  /// No description provided for @boardSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes saved'**
+  String get boardSaved;
+
+  /// No description provided for @boardTooLong.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes can be up to {max} characters'**
+  String boardTooLong(String max);
+
+  /// No description provided for @boardCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} / {max}'**
+  String boardCount(String count, String max);
+
+  /// No description provided for @boardChip.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes'**
+  String get boardChip;
+
+  /// No description provided for @boardOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open the group notes'**
+  String get boardOpen;
+
+  /// No description provided for @boardEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No notes yet'**
+  String get boardEmpty;
+
+  /// No description provided for @boardActivity.
+  ///
+  /// In en, this message translates to:
+  /// **'{actor} updated the group notes'**
+  String boardActivity(String actor);
+
+  /// No description provided for @boardDiscardBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your changes to the notes will be lost.'**
+  String get boardDiscardBody;
+
+  /// No description provided for @boardReadOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'This group is archived, so its notes can\'t be changed.'**
+  String get boardReadOnly;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
