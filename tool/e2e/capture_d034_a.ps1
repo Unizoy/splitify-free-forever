@@ -5,8 +5,8 @@
 # the owner's store build com.unizoy.splitify is never replaced or removed. Installed packages are listed before
 # and after. The receipt fixture pictures (tool/e2e/d034_receipt_images.py) are pushed to the gallery
 # (Pictures/Splitify-e2e) and to the app's own internal files folder (run-as), which the test reads.
-# Each `UI-CAPTURE <name>` becomes splitify-artifacts\screenshots\d034-a-<name>.png (names ending in -dark are
-# taken with the emulator in dark mode).
+# The test saves each screen (light, then dark through the app's theme setting) in its files folder; this script
+# pulls them to splitify-artifacts\screenshots\d034-a-<name>.png.
 param(
   [string]$File = 'integration_test/d034_a_test.dart',
   [int]$Hold = 6,
@@ -41,64 +41,23 @@ foreach ($p in $pics) {
 & $adb shell rm -r /data/local/tmp/d034a | Out-Null
 Write-Output "pushed $($pics.Count) receipt pictures"
 
-# A freshly installed test window can stay black even when it reports itself shown (D-034 B's finding):
-# HOME + start the activity again brings it to the front.
-function Test-Shown {
-  $w = & $adb shell dumpsys window windows
-  $i = ($w | Select-String -Pattern 'Window #\d+ Window\{.*splitify\.qa' | Select-Object -First 1).LineNumber
-  if (-not $i) { return $false }
-  return [bool]($w[($i - 1)..($i + 40)] | Select-String -Pattern 'Surface: shown=true' | Select-Object -First 1)
-}
-
-function Show-App {
-  for ($n = 0; $n -lt 3 -and -not (Test-Shown); $n++) {
-    & $adb shell input keyevent KEYCODE_HOME
-    Start-Sleep -Milliseconds 1000
-    & $adb shell am start -n "$pkg/com.unizoy.splitify.MainActivity" 2>$null | Out-Null
-    Start-Sleep -Milliseconds 1800
-    Write-Output 'window was hidden: brought to the front'
-  }
-}
-
-function Save-Shot([string]$name) {
-  Show-App
-  & $adb shell screencap -p /sdcard/d034a.png
-  & $adb pull /sdcard/d034a.png (Join-Path $Out "d034-a-$name.png") 2>$null | Out-Null
-}
+# Screens are captured inside the app (takeScreenshot): the emulator showed the test window black here.
+& $adb shell "run-as $pkg rm -rf files/shots" | Out-Null
 
 $p = Start-Process -FilePath 'flutter.bat' -NoNewWindow -PassThru -RedirectStandardOutput $log `
   -ArgumentList @('test', $File, '-d', 'emulator-5554', '--no-uninstall',
   '--dart-define-from-file=secrets/env.dev.json', "--dart-define=UI_HOLD=$Hold", "--dart-define=PIN_HOST_IP=$ip")
 $null = $p.Handle
-$done = @{}
-while (-not $p.HasExited) {
-  Start-Sleep -Milliseconds 500
-  $text = Get-Content $log -Raw -ErrorAction SilentlyContinue
-  if (-not $text) { continue }
-  if ($text -match 'UI-READY' -and -not $done.ContainsKey('ready')) {
-    $done['ready'] = $true
-    & $adb shell input keyevent KEYCODE_HOME
-    Start-Sleep -Milliseconds 1000
-    & $adb shell am start -n "$pkg/com.unizoy.splitify.MainActivity" 2>$null | Out-Null
-    Write-Output 'window brought to the front'
-  }
-  foreach ($m in [regex]::Matches($text, 'UI-CAPTURE ([\w-]+)')) {
-    $name = $m.Groups[1].Value
-    if ($done.ContainsKey($name)) { continue }
-    $done[$name] = $true
-    if ($name.EndsWith('-dark')) {
-      & $adb shell cmd uimode night yes | Out-Null
-      Start-Sleep -Milliseconds 3000
-      Save-Shot $name
-      & $adb shell cmd uimode night no | Out-Null
-    } else {
-      Start-Sleep -Milliseconds 1500
-      Save-Shot $name
-    }
-    Write-Output "captured $name"
-  }
-}
+$null = $p.WaitForExit()
 & $adb shell cmd uimode night no | Out-Null
+# Pull the screenshots the test saved in the app's files folder (binary-safe through cmd /c).
+$names = & $adb shell "run-as $pkg ls files/shots" 2>$null
+foreach ($n in $names) {
+  $n = $n.Trim()
+  if (-not $n.EndsWith('.png')) { continue }
+  cmd /c "`"$adb`" exec-out run-as $pkg cat files/shots/$n > `"$(Join-Path $Out $n)`""
+  Write-Output "captured $n"
+}
 $after = @(Get-Splitify)
 Write-Output "splitify packages after: $($after -join ', ')"
 Get-Content $log | Select-String -Pattern 'D034-|All tests|Some tests|\[E\]|Expected|Actual|Timed out' | ForEach-Object { $_.Line }

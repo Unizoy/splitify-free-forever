@@ -50,6 +50,8 @@ def render(txt_path: str, png_path: str) -> None:
 def main() -> None:
     root = os.path.join('test', 'fixtures', 'receipts')
     for txt in sorted(glob.glob(os.path.join(root, '*.txt'))):
+        if txt.endswith('_device_ocr.txt'):
+            continue  # what the phone read back, not a receipt
         png = txt[:-4] + '.jpg'
         render(txt, png)
         print('wrote', png)

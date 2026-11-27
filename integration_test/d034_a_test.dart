@@ -83,25 +83,36 @@ Future<void> _waitFor(WidgetTester t, Finder f, {String reason = '', int seconds
 Finder _field(String key) =>
     find.descendant(of: find.byKey(Key(key)), matching: find.byType(TextField));
 
-/// Screenshot points for the host script: light, then dark (the script flips the emulator's night mode).
-/// Real-time waits between pumps, so the engine presents the frames the host captures (a tight
-/// `pump(duration)` loop leaves the screen black).
+/// Screenshots are taken inside the app (`takeScreenshot` on the Flutter surface turned into an image), so a
+/// window the emulator shows black still gives the real screen; light, then dark through the app's own theme
+/// setting. Saved as `files/shots/d034-a-<name>.png`, pulled by the capture script.
+late IntegrationTestWidgetsFlutterBinding _binding;
+late ProviderContainer _container;
+late String _shotDir;
+var _surfaceConverted = false;
+
+Future<void> _shot(WidgetTester t, String name) async {
+  if (!_surfaceConverted) {
+    await _binding.convertFlutterSurfaceToImage();
+    _surfaceConverted = true;
+  }
+  await t.pump();
+  final bytes = await _binding.takeScreenshot(name);
+  File('$_shotDir/d034-a-$name.png').writeAsBytesSync(bytes);
+  debugPrint('UI-SHOT $name');
+}
+
 Future<void> _capture(WidgetTester t, String name, {bool dark = true}) async {
   await _pumpFor(t, const Duration(milliseconds: 900));
   if (_hold <= 0) return;
-  Future<void> hold(int seconds) async {
-    final end = DateTime.now().add(Duration(seconds: seconds));
-    while (DateTime.now().isBefore(end)) {
-      await Future<void>.delayed(const Duration(milliseconds: 200));
-      await t.pump();
-    }
-  }
-
-  debugPrint('UI-CAPTURE $name');
-  await hold(_hold);
+  await _shot(t, name);
   if (!dark) return;
-  debugPrint('UI-CAPTURE $name-dark');
-  await hold(_hold + 2);
+  final theme = _container.read(themeModeControllerProvider.notifier);
+  await theme.select(ThemeMode.dark);
+  await _pumpFor(t, const Duration(milliseconds: 1200));
+  await _shot(t, '$name-dark');
+  await theme.select(ThemeMode.light);
+  await _pumpFor(t, const Duration(milliseconds: 900));
 }
 
 /// The real server, with a switch that makes the phone "offline" (every call fails like a dropped network),
@@ -142,7 +153,7 @@ Future<void> _back(WidgetTester t) async {
 }
 
 void main() {
-  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  _binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   testWidgets('D-034 A: two-person answer, itemize, receipt scan, restore from Activity', (
     t,
@@ -174,6 +185,11 @@ void main() {
       ],
     );
     addTearDown(container.dispose);
+    _container = container;
+    _shotDir = '${files.path}/shots';
+    Directory(_shotDir).createSync(recursive: true);
+    // Light theme for the light shots (the dark ones switch the app's own setting).
+    await container.read(themeModeControllerProvider.notifier).select(ThemeMode.light);
     final engine = container.read(syncEngineProvider);
     Future<void> sync() => t.runAsync(() async {
       await engine.sync();
@@ -240,11 +256,6 @@ void main() {
       timeout: const Duration(seconds: 90),
       reason: 'home',
     );
-    // The capture script brings a freshly installed window to the front once (it can stay black).
-    if (_hold > 0) {
-      debugPrint('UI-READY');
-      await _pumpFor(t, const Duration(seconds: 4));
-    }
 
     // ------------------------------------------------------------------ 1. two people (A1)
     router.push(ExpenseRoutes.add(duo));
