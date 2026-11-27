@@ -1,8 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:logging/logging.dart';
 import 'package:splitify/data/data_providers.dart';
 import 'package:splitify/data/fx_providers.dart';
+import 'package:splitify/data/repositories/fx_rates_repository.dart';
 import 'package:splitify/data/repositories/currency_reads.dart';
 import 'package:splitify/features/balances/application/balance_views.dart';
 import 'package:splitify/features/balances/application/balances_providers.dart';
@@ -15,9 +17,21 @@ import 'package:splitify/features/groups/application/groups_providers.dart'
 /// younger than 6 h), so conversions work offline later (05 §6). Watched by the signed-in shell.
 final fxAutoRefreshProvider = Provider<void>((ref) {
   ref.listen<DateTime?>(lastSyncProvider, (_, next) {
-    if (next != null) unawaited(ref.read(fxRatesRepositoryProvider).refresh());
+    if (next != null) unawaited(_refreshQuietly(ref.read(fxRatesRepositoryProvider)));
   }, fireImmediately: true);
 });
+
+final _log = Logger('fx');
+
+/// A refresh the app starts on its own: when the database closes under it (the sign-out / sign-in wipe, the
+/// app torn down) there is nothing left to keep, so drift's StateError is not an app error (final QA, S-412).
+Future<void> _refreshQuietly(FxRatesRepository rates) async {
+  try {
+    await rates.refresh();
+  } on StateError catch (e) {
+    _log.fine('rates refresh stopped: $e');
+  }
+}
 
 final currencyReadsProvider = Provider<CurrencyReads>(
   (ref) => CurrencyReads(ref.watch(appDatabaseProvider)),

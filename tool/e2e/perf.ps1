@@ -27,6 +27,12 @@ if (-not $NoLock) {
   }
   Write-Host 'emulator lock taken'
 }
+# `flutter drive` has no --no-uninstall: when it ends it runs `adb uninstall` on the BASE id (seen in final QA,
+# S-409), so it must never run while the owner's store build com.unizoy.splitify is on the device.
+if (-not $SkipDrive -and ((& $adb shell pm list packages) -contains 'package:com.unizoy.splitify')) {
+  Write-Host 'com.unizoy.splitify is installed: flutter drive would uninstall it, so the drive part is SKIPPED.'
+  $SkipDrive = $true
+}
 try {
   if (-not $SkipDrive) {
     $log = Join-Path $out 'perf-drive.log'
