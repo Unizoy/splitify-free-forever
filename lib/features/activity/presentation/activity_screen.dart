@@ -28,7 +28,6 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    final c = context.colors;
     final async = ref.watch(activityItemsProvider(null));
     final items = async.value;
     final unread = ref.watch(unreadNotificationsProvider).value ?? 0;
@@ -100,18 +99,11 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Semantics(
-              header: true,
-              child: Text(
-                l.navActivity.toUpperCase(),
-                style: context.text.labelCaps.copyWith(color: c.textSecondary),
-              ),
-            ),
+            // The hero says "Activity": the filters come first (D-033).
             if (items != null && items.isNotEmpty) ...[
-              const SizedBox(height: AppSpacing.s4),
               ActivityFilters(value: _filter, onChanged: (f) => setState(() => _filter = f)),
+              const SizedBox(height: AppSpacing.s2),
             ],
-            const SizedBox(height: AppSpacing.s4),
             if (content != null) ...[content, const SizedBox(height: AppSpacing.navReserve)],
           ],
         ),

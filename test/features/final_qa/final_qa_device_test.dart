@@ -230,8 +230,8 @@ void main() {
     });
   });
 
-  group('S-255 status bar over a scrolled sheet', () {
-    testWidgets('no scrim while the hero is under the status bar, page colour once the sheet is', (
+  group('S-255/D-033 status bar over a scrolled hero', () {
+    testWidgets('no band at the top; a hero-coloured band under the clock once the page scrolls', (
       tester,
     ) async {
       tester.view
@@ -251,13 +251,13 @@ void main() {
           ),
         ),
       );
-      final bg = AppTheme.light().extension<AppColors>()!.bg;
+      final hero = AppTheme.light().extension<AppColors>()!.heroTop;
       final column = find.byType(OverlapColumn);
-      expect(column, isNot(paints..rect(color: bg)));
+      expect(column, isNot(paints..rect(color: hero)));
       await tester.drag(find.byType(SingleChildScrollView), const Offset(0, -500));
       await tester.pump();
       // In the column's own coordinates the screen top is 500 px down (the page scrolled 500 px).
-      expect(column, paints..rect(rect: const Rect.fromLTWH(0, 500, 400, 24), color: bg));
+      expect(column, paints..rect(rect: const Rect.fromLTWH(0, 500, 400, 24), color: hero));
     });
   });
 
@@ -421,7 +421,7 @@ void main() {
   });
 
   testWidgets(
-    'S-255 the group page keeps a status-bar scrim once its rows scroll under the clock',
+    'S-255/D-033 the group page keeps its status-bar scrim once its rows scroll under the clock',
     (tester) async {
       tester.view.padding = const FakeViewPadding(top: 63);
       addTearDown(tester.view.resetPadding);
@@ -435,13 +435,14 @@ void main() {
           },
         ),
       );
-      expect(find.byKey(const Key('group-status-scrim')), findsNothing);
+      double scrim() => tester.widget<Opacity>(find.byKey(const Key('hero-status-scrim'))).opacity;
+      expect(scrim(), 0);
       await tester.drag(find.byType(CustomScrollView), const Offset(0, -1500));
       await settle(tester);
-      expect(find.byKey(const Key('group-status-scrim')), findsOneWidget);
+      expect(scrim(), 1);
       await tester.drag(find.byType(CustomScrollView), const Offset(0, 3000));
       await settle(tester);
-      expect(find.byKey(const Key('group-status-scrim')), findsNothing);
+      expect(scrim(), 0);
     },
   );
 

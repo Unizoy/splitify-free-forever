@@ -40,6 +40,7 @@ export 'pill_input.dart';
 export 'pressable.dart';
 export 'quantity_stepper.dart';
 export 'segmented_pill.dart';
+export 'settings_section.dart';
 export 'skeleton.dart';
 export 'stacked_cards_loader.dart';
 export 'stat_grid.dart';

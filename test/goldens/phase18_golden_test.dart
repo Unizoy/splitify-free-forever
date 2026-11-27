@@ -19,6 +19,9 @@ import 'package:splitify/features/import_splitwise/presentation/import_screen.da
 import 'package:splitify/features/widget/application/home_widget_sync.dart';
 import 'package:splitify/features/widget/domain/widget_data.dart';
 import 'package:splitify/features/widget/presentation/widget_settings_screen.dart';
+import 'package:splitify/l10n/app_localizations.dart';
+import 'package:splitify/ui/components/components.dart';
+import 'package:splitify/ui/theme/theme.dart';
 
 import '../features/expenses/expense_fixtures.dart' show expenseApp, gid, sampleGroup;
 import 'golden_support.dart';
@@ -102,6 +105,23 @@ Map<String, Object> _widgetData() => buildWidgetData(
 );
 
 typedef _Case = (String, Widget Function(), List<Override> Function(), double);
+
+/// The home-screen widget sheet (D-033) at the bottom of a dimmed screen, like the real modal sheet.
+class _WidgetSheetHost extends StatelessWidget {
+  const _WidgetSheetHost();
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+    backgroundColor: context.colors.scrim,
+    body: Align(
+      alignment: Alignment.bottomCenter,
+      child: AppSheet(
+        title: AppLocalizations.of(context).widgetTitle,
+        child: const WidgetSettingsBody(),
+      ),
+    ),
+  );
+}
 
 List<_Case> _cases() => [
   (
@@ -192,7 +212,7 @@ List<_Case> _cases() => [
   ),
   (
     'widget_settings_hidden',
-    () => const WidgetSettingsScreen(),
+    () => const _WidgetSheetHost(),
     () => [
       widgetHideAmountsProvider.overrideWith(_Hide.new),
       homeWidgetDataProvider.overrideWithValue(_widgetData()),

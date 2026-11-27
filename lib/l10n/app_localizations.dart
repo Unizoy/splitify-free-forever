@@ -3146,6 +3146,18 @@ abstract class AppLocalizations {
   /// **'Account settings'**
   String get accountSettings;
 
+  /// No description provided for @settingsNoUpi.
+  ///
+  /// In en, this message translates to:
+  /// **'No UPI ID yet'**
+  String get settingsNoUpi;
+
+  /// No description provided for @settingsEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get settingsEdit;
+
   /// No description provided for @walletBrand.
   ///
   /// In en, this message translates to:
@@ -3193,12 +3205,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'People you\nsplit with'**
   String get statPeople;
-
-  /// No description provided for @statExpenses.
-  ///
-  /// In en, this message translates to:
-  /// **'Expenses\nadded'**
-  String get statExpenses;
 
   /// No description provided for @preferences.
   ///
@@ -3374,12 +3380,6 @@ abstract class AppLocalizations {
   /// **'{label}, current step'**
   String stepCurrent(String label);
 
-  /// No description provided for @expOfflinePill.
-  ///
-  /// In en, this message translates to:
-  /// **'{group} · saved offline'**
-  String expOfflinePill(String group);
-
   /// No description provided for @expDescriptionLabel.
   ///
   /// In en, this message translates to:
@@ -3415,6 +3415,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'With you and'**
   String get expWithLabel;
+
+  /// No description provided for @expWithChoose.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose group or friend'**
+  String get expWithChoose;
+
+  /// No description provided for @expWithChange.
+  ///
+  /// In en, this message translates to:
+  /// **'Change group or friend'**
+  String get expWithChange;
+
+  /// No description provided for @expWithMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose who this is with'**
+  String get expWithMissing;
+
+  /// No description provided for @expWithChooseFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a group or friend first'**
+  String get expWithChooseFirst;
+
+  /// No description provided for @expWithPickTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'With you and…'**
+  String get expWithPickTitle;
+
+  /// No description provided for @expWithSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search groups and friends'**
+  String get expWithSearchHint;
+
+  /// No description provided for @expWithRecent.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent'**
+  String get expWithRecent;
+
+  /// No description provided for @expWithGroups.
+  ///
+  /// In en, this message translates to:
+  /// **'Groups and friends'**
+  String get expWithGroups;
+
+  /// No description provided for @expWithFriends.
+  ///
+  /// In en, this message translates to:
+  /// **'More friends'**
+  String get expWithFriends;
+
+  /// No description provided for @expWithFriendLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Friend'**
+  String get expWithFriendLabel;
+
+  /// No description provided for @expWithAddFriend.
+  ///
+  /// In en, this message translates to:
+  /// **'Add “{name}” as a friend'**
+  String expWithAddFriend(String name);
+
+  /// No description provided for @expWithAddFriendHint.
+  ///
+  /// In en, this message translates to:
+  /// **'No account needed; they can join later'**
+  String get expWithAddFriendHint;
+
+  /// No description provided for @expWithNothingYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No groups or friends yet. Type a name to add a friend.'**
+  String get expWithNothingYet;
 
   /// No description provided for @expAmountMissing.
   ///
@@ -4789,18 +4867,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Default split saved'**
   String get expDefaultSplitSaved;
-
-  /// No description provided for @expPickGroup.
-  ///
-  /// In en, this message translates to:
-  /// **'Add to which group?'**
-  String get expPickGroup;
-
-  /// No description provided for @expNoGroupFirst.
-  ///
-  /// In en, this message translates to:
-  /// **'Create a group first, then add expenses to it.'**
-  String get expNoGroupFirst;
 
   /// No description provided for @catFood.
   ///

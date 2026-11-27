@@ -370,10 +370,11 @@ void main() {
     });
 
     // TC-15-01
-    testWidgets('the stats cards show this month, groups, people and expenses', (t) async {
+    // D-033 (S-344): the "Your stats" card (expenses, groups) is gone; the spending card keeps the numbers.
+    testWidgets('the spending card shows this month, groups and people', (t) async {
       await pumpGroups(t, '/account', overrides: _data(my: myOwed));
       expect(find.text('₹12,345.50'), findsOneWidget);
-      expect(find.text('18'), findsOneWidget);
+      expect(find.text('18'), findsNothing);
       expect(find.text('3'), findsOneWidget);
       expect(find.text('2'), findsWidgets);
     });

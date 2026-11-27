@@ -153,8 +153,13 @@ void main() {
           push: FakePushMessaging(),
         ),
       );
+      // D-033: in-app rows carry only the kind's name (the push rows above explain it).
       final node = t.getSemantics(_row('inapp', NotificationKind.payments));
-      expect(node.label, 'Payments, Payments recorded with you');
+      expect(node.label, 'Payments');
+      expect(
+        t.getSemantics(_row('push', NotificationKind.payments)).label,
+        'Payments, Payments recorded with you',
+      );
       expect(node.flagsCollection.isToggled, Tristate.isFalse);
       h.dispose();
     });

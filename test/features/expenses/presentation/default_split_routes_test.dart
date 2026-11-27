@@ -314,42 +314,31 @@ void main() {
       return router;
     }
 
-    // TC-13-01
-    testWidgets('no group yet: asks to create one first', (t) async {
+    // TC-13-01, D-033: the + never asks "Add to which group?" first; the editor's "With you and" picks.
+    testWidgets('no group yet: the editor opens with nobody picked', (t) async {
       await pump(t, []);
-      expect(find.text('Create a group first, then add expenses to it.'), findsOneWidget);
+      expect(find.text('at /expense/new'), findsOneWidget);
+      expect(find.text('Create a group first, then add expenses to it.'), findsNothing);
     });
 
     // TC-13-01
     testWidgets('archived groups do not count', (t) async {
       await pump(t, [group('g1', archived: true)]);
-      expect(find.text('Create a group first, then add expenses to it.'), findsOneWidget);
+      expect(find.text('at /expense/new'), findsOneWidget);
     });
 
     // TC-13-01
-    testWidgets('one group: goes straight to its editor', (t) async {
+    testWidgets('one group: the editor opens with it picked', (t) async {
       await pump(t, [group('g1'), group('g0', archived: true)]);
       expect(find.text('at /expense/new?group=g1'), findsOneWidget);
     });
 
-    // TC-13-01
-    testWidgets('several groups: asks which one', (t) async {
+    // TC-13-01, D-033
+    testWidgets('several groups: the editor opens at once, no which-group sheet', (t) async {
       await pump(t, [group('g1'), group('g2'), group('g3', archived: true)]);
-      expect(find.text('Add to which group?'), findsOneWidget);
-      expect(find.byKey(const Key('pick-group-g1')), findsOneWidget);
-      expect(find.byKey(const Key('pick-group-g3')), findsNothing);
-      await tapKey(t, 'pick-group-g2');
-      await settle(t);
-      expect(find.text('at /expense/new?group=g2'), findsOneWidget);
-    });
-
-    // TC-13-01
-    testWidgets('dismissing the group sheet adds nothing', (t) async {
-      await pump(t, [group('g1'), group('g2')]);
-      await t.tapAt(const Offset(200, 40));
-      await settle(t);
       expect(find.text('Add to which group?'), findsNothing);
-      expect(find.textContaining('at /expense/new'), findsNothing);
+      expect(find.byKey(const Key('pick-group-g1')), findsNothing);
+      expect(find.text('at /expense/new'), findsOneWidget);
     });
   });
 }

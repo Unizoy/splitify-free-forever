@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:splitify/core/money/currencies.dart';
 import 'package:splitify/features/expenses/application/amount_input.dart';
 import 'package:splitify/features/expenses/application/expense_draft.dart';
+import 'package:splitify/features/expenses/presentation/editor/with_picker.dart';
 import 'package:splitify/features/expenses/presentation/expense_copy.dart';
 import 'package:splitify/features/friends/presentation/friend_widgets.dart' show groupTypeIcon;
 import 'package:splitify/l10n/app_localizations.dart';
@@ -10,22 +12,117 @@ import 'package:splitify/ui/components/components.dart';
 import 'package:splitify/ui/painters/dashed.dart';
 import 'package:splitify/ui/theme/theme.dart';
 
-/// "With you and" + the group chip (Splitwise's first row, D-032): the group, or the friend of a friend
-/// expense (#2). The group is chosen before the editor opens, so the chip only says where it goes.
-class WithRow extends StatelessWidget {
-  const WithRow({required this.draft, required this.offline, super.key});
+/// "With you and" + the group chip (Splitwise's first row, D-032/D-033): the group, or the friend of a
+/// friend expense (#2). Tapping the chip opens the picker of recent groups and friends ([onPick]); a saved
+/// expense or a template keeps its group, so the chip is read-only there ([onPick] null). With nobody
+/// picked yet (the + of the tab bar) a dashed "Choose group or friend" chip and the most recent groups /
+/// friends as one-tap suggestions ([onQuickPick]) show instead.
+class WithRow extends ConsumerWidget {
+  const WithRow({
+    required this.draft,
+    required this.offline,
+    this.onPick,
+    this.onQuickPick,
+    this.showError = false,
+    super.key,
+  });
 
   final ExpenseDraft draft;
 
-  /// Saved on this phone only for now: the chip says so.
+  /// Saved on this phone only for now: the "Not synced yet" marker says so.
   final bool offline;
+  final VoidCallback? onPick;
+  final ValueChanged<String>? onQuickPick;
+
+  /// After a Save attempt without a group: says what is missing.
+  final bool showError;
+
+  /// Suggestions shown before anything is picked.
+  static const quickPicks = 4;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context);
     final c = context.colors;
+    final targets = ref.watch(withTargetsProvider) ?? const <WithTarget>[];
+    if (!draft.hasGroup) {
+      final recent = targets.take(quickPicks);
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Wrap(
+            spacing: AppSpacing.s2,
+            runSpacing: AppSpacing.s2,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              Text(l.expWithLabel, style: context.text.body.copyWith(color: c.textSecondary)),
+              _ChooseChip(onTap: onPick, error: showError),
+            ],
+          ),
+          if (showError) ...[
+            const SizedBox(height: AppSpacing.s1),
+            Semantics(
+              liveRegion: true,
+              child: Text(
+                l.expWithMissing,
+                key: const Key('with-error'),
+                style: context.text.caption.copyWith(color: c.oweText, fontSize: 13),
+              ),
+            ),
+          ],
+          if (recent.isNotEmpty && onQuickPick != null) ...[
+            const SizedBox(height: AppSpacing.s2),
+            SingleChildScrollView(
+              key: const Key('with-suggestions'),
+              scrollDirection: Axis.horizontal,
+              clipBehavior: Clip.none,
+              child: Row(
+                children: [
+                  for (final t in recent) ...[
+                    _QuickPick(target: t, onTap: () => onQuickPick!(t.groupId)),
+                    const SizedBox(width: AppSpacing.s2),
+                  ],
+                ],
+              ),
+            ),
+          ],
+        ],
+      );
+    }
     final friend = draft.friend;
     final name = friend?.name ?? draft.groupName;
+    final target = targets.where((t) => t.groupId == draft.groupId).firstOrNull;
+    final tap = onPick;
+    final chip = Container(
+      constraints: const BoxConstraints(minHeight: 40),
+      padding: EdgeInsetsDirectional.fromSTEB(
+        AppSpacing.s1,
+        AppSpacing.s1,
+        tap == null ? AppSpacing.s4 : AppSpacing.s3,
+        AppSpacing.s1,
+      ),
+      decoration: ShapeDecoration(
+        color: c.surface,
+        shape: StadiumBorder(side: BorderSide(color: c.border, width: 1.2)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (friend != null)
+            Avatar(name: friend.name, seed: friend.id, size: AvatarSize.s32)
+          else if (target != null)
+            WithThumb(target: target, size: 32)
+          else
+            TintedIcon(icon: groupTypeIcon(draft.groupType), color: c.primary, size: 32),
+          const SizedBox(width: AppSpacing.s2),
+          Flexible(child: Text(name, style: context.text.body.w(600))),
+          if (tap != null) ...[
+            const SizedBox(width: AppSpacing.s1),
+            Icon(AppIcons.chevronDown, size: 16, color: c.textSecondary),
+          ],
+        ],
+      ),
+    );
     return Wrap(
       spacing: AppSpacing.s2,
       runSpacing: AppSpacing.s2,
@@ -35,39 +132,149 @@ class WithRow extends StatelessWidget {
         Semantics(
           key: const Key('expense-with'),
           container: true,
-          child: Container(
-            constraints: const BoxConstraints(minHeight: 40),
-            padding: const EdgeInsetsDirectional.fromSTEB(
-              AppSpacing.s1,
-              AppSpacing.s1,
-              AppSpacing.s4,
-              AppSpacing.s1,
-            ),
-            decoration: ShapeDecoration(
-              color: c.surface,
-              shape: StadiumBorder(side: BorderSide(color: c.border, width: 1.2)),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (friend != null)
-                  Avatar(name: friend.name, seed: friend.id, size: AvatarSize.s32)
-                else
-                  TintedIcon(icon: groupTypeIcon(draft.groupType), color: c.primary, size: 32),
-                const SizedBox(width: AppSpacing.s2),
-                Flexible(child: Text(name, style: context.text.body.w(600))),
-              ],
+          button: tap != null,
+          label: name,
+          hint: tap == null ? null : l.expWithChange,
+          excludeSemantics: true,
+          onTap: tap,
+          child: tap == null
+              ? chip
+              : Pressable(
+                  key: const Key('expense-with-chip'),
+                  onTap: tap,
+                  borderRadius: AppRadii.allPill,
+                  scale: 0.96,
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(minHeight: AppSpacing.minTouch),
+                    child: Center(widthFactor: 1, child: chip),
+                  ),
+                ),
+        ),
+        // Saved on this phone first: the app's own "Not synced yet" marker (the hero's flat pill was white
+        // text on this light page, D-033).
+        if (offline)
+          const Padding(
+            key: Key('expense-offline'),
+            padding: EdgeInsets.symmetric(vertical: AppSpacing.s3),
+            child: SyncMarker(),
+          ),
+      ],
+    );
+  }
+}
+
+/// The dashed "Choose group or friend" chip of a new expense with nobody picked yet.
+class _ChooseChip extends StatelessWidget {
+  const _ChooseChip({required this.onTap, required this.error});
+
+  final VoidCallback? onTap;
+  final bool error;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final c = context.colors;
+    final color = error ? c.oweText : c.primary;
+    return Semantics(
+      key: const Key('expense-with'),
+      button: true,
+      label: l.expWithChoose,
+      excludeSemantics: true,
+      onTap: onTap,
+      child: Pressable(
+        key: const Key('expense-with-choose'),
+        onTap: onTap,
+        borderRadius: AppRadii.allPill,
+        scale: 0.96,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: AppSpacing.minTouch),
+          child: Center(
+            widthFactor: 1,
+            child: CustomPaint(
+              painter: DashedBorderPainter(color: color, strokeWidth: 1.4, dash: 5, gap: 4),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.s4,
+                  vertical: AppSpacing.s2,
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(AppIcons.plus, size: 16, color: color),
+                    const SizedBox(width: AppSpacing.s1),
+                    Flexible(
+                      child: Text(
+                        l.expWithChoose,
+                        style: context.text.body.w(600).copyWith(color: color),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
           ),
         ),
-        if (offline)
-          StatusPill(
-            key: const Key('expense-offline'),
-            label: l.expOfflinePill(name),
-            icon: AppIcons.unsynced,
-            tone: StatusPillTone.flat,
+      ),
+    );
+  }
+}
+
+/// One suggested group or friend under the dashed chip: picture + name, one tap picks it.
+class _QuickPick extends StatelessWidget {
+  const _QuickPick({required this.target, required this.onTap});
+
+  final WithTarget target;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    return Semantics(
+      button: true,
+      label: target.name,
+      excludeSemantics: true,
+      onTap: onTap,
+      child: Pressable(
+        key: Key('with-quick-${target.groupId}'),
+        onTap: onTap,
+        borderRadius: AppRadii.allPill,
+        scale: 0.95,
+        haptic: PressHaptic.selection,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: AppSpacing.minTouch),
+          child: Center(
+            widthFactor: 1,
+            child: Container(
+              padding: const EdgeInsetsDirectional.fromSTEB(
+                AppSpacing.s1,
+                AppSpacing.s1,
+                AppSpacing.s3,
+                AppSpacing.s1,
+              ),
+              decoration: ShapeDecoration(
+                color: c.surface,
+                shape: StadiumBorder(side: BorderSide(color: c.border, width: 1.2)),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  WithThumb(target: target, size: 28),
+                  const SizedBox(width: AppSpacing.s2),
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 160),
+                    child: Text(
+                      target.name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: context.text.bodySmall.w(600),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
-      ],
+        ),
+      ),
     );
   }
 }

@@ -38,7 +38,7 @@ void main() {
   for (final (name, location) in [
     ('welcome', Routes.welcome),
     ('sign in', Routes.signIn),
-    ('appearance', Routes.appearance),
+    ('security', '/account/security'),
     ('about', Routes.about),
   ]) {
     testWidgets('$name: traversal goes top to bottom', (tester) async {

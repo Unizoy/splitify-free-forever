@@ -426,13 +426,16 @@ void main() {
     },
   );
 
-  testWidgets('a custom date range is picked on two calendars', (t) async {
+  testWidgets('D-033 a custom date range is picked in the same sheet: From, then To', (t) async {
     await _pump(t);
     await _tap(t, 'search-filter-date');
     await _tap(t, 'search-date-custom', rounds: 10);
     expect(find.text('November 2026'), findsOneWidget);
+    expect(find.text('FROM'), findsOneWidget);
     await t.tap(find.text('5'));
     await _settleReal(t, 8);
+    expect(find.text('TO'), findsOneWidget);
+    expect(find.byKey(const Key('search-date-custom')), findsNothing);
     await t.tap(find.text('15'));
     await _settleReal(t, 6);
     expect(find.text('5\u00A0Nov – 15\u00A0Nov'), findsOneWidget);

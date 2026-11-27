@@ -11,14 +11,14 @@ import 'package:splitify/features/expenses/presentation/expense_detail_screen.da
 import 'package:splitify/features/expenses/presentation/loan_screen.dart';
 import 'package:splitify/features/recurring/presentation/recurring_tile.dart'
     show recurringEditRoute;
-import 'package:splitify/l10n/app_localizations.dart';
-import 'package:splitify/ui/components/components.dart';
-import 'package:splitify/ui/theme/theme.dart';
 
 /// Expense routes (07 §1): `/expense/new?group=`, `/expense/:id`, `/expense/:id/edit` and loans
 /// (`/loan/new?group=&with=`, `/loan/:id/edit`, phase 10). The group's default split is a sheet from group
 /// settings (`showDefaultSplitSheet`, D-033), not a page.
 abstract final class ExpenseRoutes {
+  /// A new expense with nobody picked yet: "With you and" asks (D-033).
+  static const addNew = '/expense/new';
+
   static String add(String groupId) =>
       Uri(path: '/expense/new', queryParameters: {'group': groupId}).toString();
   static String detail(String id) => '/expense/$id';
@@ -69,45 +69,19 @@ List<RouteBase> expenseRoutes() => [
   ),
 ];
 
-/// The amber "+" in the capsule nav: add to the only group, or ask which group first.
+/// The amber "+" in the capsule nav (D-033): opens the one-screen editor at once, like Splitwise. Its
+/// "With you and" picks the group or friend there; with only one open group it is already picked.
 Future<void> startAddExpense(BuildContext context) async {
-  final l = AppLocalizations.of(context);
   final router = GoRouter.of(context);
-  final messenger = ScaffoldMessenger.of(context);
   final groups = await ProviderScope.containerOf(
     context,
     listen: false,
   ).read(groupsRepositoryProvider).watchAll().first;
   final open = [
     for (final g in groups)
-      if (g.archivedAt == null) g,
+      if (g.archivedAt == null && g.deletedAt == null) g,
   ];
-  if (open.isEmpty) {
-    messenger
-      ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text(l.expNoGroupFirst)));
-    return;
-  }
-  if (open.length == 1) {
-    unawaited(router.push(ExpenseRoutes.add(open.first.id)));
-    return;
-  }
-  if (!context.mounted) return;
-  final picked = await showAppSheet<String>(
-    context,
-    title: l.expPickGroup,
-    builder: (sheet) => Column(
-      children: [
-        for (final g in open) ...[
-          OptionTile(
-            key: Key('pick-group-${g.id}'),
-            label: g.name,
-            onTap: () => Navigator.of(sheet).pop(g.id),
-          ),
-          const SizedBox(height: AppSpacing.s3),
-        ],
-      ],
-    ),
+  unawaited(
+    router.push(open.length == 1 ? ExpenseRoutes.add(open.first.id) : ExpenseRoutes.addNew),
   );
-  if (picked != null) unawaited(router.push(ExpenseRoutes.add(picked)));
 }

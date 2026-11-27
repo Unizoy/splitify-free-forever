@@ -6,8 +6,7 @@ import 'package:splitify/data/local/app_database.dart';
 import 'package:splitify/data/remote/push_messaging.dart';
 import 'package:splitify/domain/entities/notification_prefs.dart';
 import 'package:splitify/features/groups/application/groups_providers.dart';
-import 'package:splitify/features/groups/presentation/group_visuals.dart'
-    show PageTitle, SectionLabel;
+import 'package:splitify/features/groups/presentation/group_visuals.dart' show GroupThumb;
 import 'package:splitify/features/notifications/application/notifications_providers.dart';
 import 'package:splitify/features/notifications/presentation/notifications_screen.dart'
     show kindHint, kindIcon, kindLabel;
@@ -15,7 +14,8 @@ import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/components/components.dart';
 import 'package:splitify/ui/theme/theme.dart';
 
-/// Notification settings (`/account/notifications`, #19): per kind push / in-app switches and muted groups.
+/// Notification settings (`/account/notifications`, #19): per kind push / in-app switches and muted groups,
+/// each group of switches in one card (D-033).
 /// Saved on the phone at once (offline too) and sent with the next refresh; a banner explains when this
 /// phone gets no pushes (not set up in this build, or blocked in Android). While push is blocked or missing
 /// the push switches are shown disabled and the banner offers Android's settings; the state is read again
@@ -54,13 +54,14 @@ class _NotificationSettingsScreenState extends ConsumerState<NotificationSetting
     ];
     final actions = ref.read(notificationActionsProvider);
     final pushOff = push != null && (!push.available || push.permission == PushPermission.denied);
+    // Push rows explain each kind; the in-app rows repeat only the names (D-033: shorter page).
     List<Widget> kindRows(NotificationChannel ch) => [
       for (final k in NotificationKind.values)
         ToggleRow(
           key: Key('notif-${ch.name}-${k.name}'),
           icon: kindIcon(k),
           title: kindLabel(l, k),
-          subtitle: kindHint(l, k),
+          subtitle: ch == NotificationChannel.push ? kindHint(l, k) : null,
           value: prefs.isOn(k, ch),
           showDivider: k != NotificationKind.values.last,
           onChanged: ch == NotificationChannel.push && pushOff
@@ -69,61 +70,68 @@ class _NotificationSettingsScreenState extends ConsumerState<NotificationSetting
         ),
     ];
     return Scaffold(
-      body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.fromLTRB(
-            AppSpacing.screen,
-            AppSpacing.s2,
-            AppSpacing.screen,
-            AppSpacing.s8,
-          ),
-          children: [
-            Align(
-              alignment: AlignmentDirectional.centerStart,
-              child: AppIconButton(
-                tooltip: l.back,
-                icon: const Icon(AppIcons.back),
-                onPressed: () => Navigator.of(context).maybePop(),
-              ),
-            ),
-            const SizedBox(height: AppSpacing.s2),
-            PageTitle(title: l.notifications, subtitle: l.notifSettingsHint),
-            if (pending) ...[const SizedBox(height: AppSpacing.s3), const SyncMarker()],
-            if (push != null && (!push.available || push.permission != PushPermission.granted)) ...[
-              const SizedBox(height: AppSpacing.s6),
-              _PushBanner(available: push.available, permission: push.permission),
-            ],
-            const SizedBox(height: AppSpacing.s8),
-            SectionLabel(l.notifSectionPush),
-            ...kindRows(NotificationChannel.push),
-            const SizedBox(height: AppSpacing.s8),
-            SectionLabel(l.notifSectionInApp),
-            ...kindRows(NotificationChannel.inapp),
-            const SizedBox(height: AppSpacing.s8),
-            SectionLabel(l.notifSectionMuted),
-            const SizedBox(height: AppSpacing.s1),
-            Text(
-              l.notifMutedHint,
-              style: context.text.bodySmall.copyWith(color: context.colors.textSecondary),
-            ),
-            if (groups.isEmpty)
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: AppSpacing.s4),
-                child: Text(l.notifMutedEmpty, style: context.text.body),
-              )
-            else
-              for (var i = 0; i < groups.length; i++)
-                ToggleRow(
-                  key: Key('notif-mute-${groups[i].id}'),
-                  leading: Avatar(name: groups[i].name, seed: groups[i].id),
-                  title: groups[i].name,
-                  subtitle: prefs.isMuted(groups[i].id) ? l.notifMutedOn : l.notifMutedOff,
-                  value: prefs.isMuted(groups[i].id),
-                  showDivider: i < groups.length - 1,
-                  onChanged: (muted) => unawaited(actions.setMuted(groups[i].id, muted: muted)),
-                ),
-          ],
+      appBar: AppBar(
+        leading: AppIconButton(
+          tooltip: l.back,
+          icon: const Icon(AppIcons.back),
+          onPressed: () => Navigator.of(context).maybePop(),
         ),
+        title: Text(l.notifications),
+      ),
+      body: ListView(
+        padding: const EdgeInsets.fromLTRB(
+          AppSpacing.screen,
+          AppSpacing.s2,
+          AppSpacing.screen,
+          AppSpacing.s8,
+        ),
+        children: [
+          Text(
+            l.notifSettingsHint,
+            style: context.text.body.copyWith(color: context.colors.textSecondary),
+          ),
+          if (pending) ...[const SizedBox(height: AppSpacing.s3), const SyncMarker()],
+          if (push != null && (!push.available || push.permission != PushPermission.granted)) ...[
+            const SizedBox(height: AppSpacing.s5),
+            _PushBanner(available: push.available, permission: push.permission),
+          ],
+          const SizedBox(height: AppSpacing.s6),
+          SettingsSection(
+            key: const Key('notif-section-push'),
+            title: l.notifSectionPush,
+            children: kindRows(NotificationChannel.push),
+          ),
+          const SizedBox(height: AppSpacing.s6),
+          SettingsSection(
+            key: const Key('notif-section-inapp'),
+            title: l.notifSectionInApp,
+            children: kindRows(NotificationChannel.inapp),
+          ),
+          const SizedBox(height: AppSpacing.s6),
+          SettingsSection(
+            key: const Key('notif-section-muted'),
+            title: l.notifSectionMuted,
+            footer: l.notifMutedHint,
+            children: [
+              if (groups.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: AppSpacing.s4),
+                  child: Text(l.notifMutedEmpty, style: context.text.body),
+                )
+              else
+                for (var i = 0; i < groups.length; i++)
+                  ToggleRow(
+                    key: Key('notif-mute-${groups[i].id}'),
+                    leading: GroupThumb(group: groups[i]),
+                    title: groups[i].name,
+                    subtitle: prefs.isMuted(groups[i].id) ? l.notifMutedOn : l.notifMutedOff,
+                    value: prefs.isMuted(groups[i].id),
+                    showDivider: i < groups.length - 1,
+                    onChanged: (muted) => unawaited(actions.setMuted(groups[i].id, muted: muted)),
+                  ),
+            ],
+          ),
+        ],
       ),
     );
   }

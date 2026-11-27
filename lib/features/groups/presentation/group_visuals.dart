@@ -123,6 +123,42 @@ class SectionLabel extends StatelessWidget {
   }
 }
 
+/// A small round picture of the group (D-033 "With you and" chip and picker): its photo cover, or a slice
+/// of its generated art with the type icon on top.
+class GroupThumb extends ConsumerWidget {
+  const GroupThumb({required this.group, this.size = 40, super.key});
+
+  final LocalGroup group;
+  final double size;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final c = context.colors;
+    final family = coverFamilyFor(group.type);
+    final photo = groupCoverImage(ref, group, width: (size * 3).round());
+    return ExcludeSemantics(
+      child: ClipOval(
+        child: SizedBox.square(
+          dimension: size,
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              if (photo == null)
+                CoverArt(seed: group.id, family: family, legibilityScrim: false)
+              else
+                Image(image: photo, fit: BoxFit.cover, gaplessPlayback: true),
+              ColoredBox(color: AppPalette.black.withValues(alpha: 0.18)),
+              Center(
+                child: Icon(GroupCoverCard.iconFor(family), size: size * 0.42, color: c.onHero),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 /// Wide generated cover with the type icon and the group name (create/edit preview, join preview).
 class CoverBanner extends StatelessWidget {
   const CoverBanner({

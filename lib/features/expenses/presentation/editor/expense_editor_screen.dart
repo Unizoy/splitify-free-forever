@@ -8,7 +8,7 @@ import 'package:splitify/core/time/clock.dart';
 import 'package:splitify/data/data_providers.dart' show clockProvider;
 import 'package:splitify/domain/rules/expense_categories.dart';
 import 'package:splitify/features/currency/presentation/currency_picker_sheet.dart'
-    show CurrencyChip, pickGroupCurrency;
+    show CurrencyChip, pickGroupCurrency, showCurrencyPicker;
 import 'package:splitify/features/expenses/application/category_providers.dart';
 import 'package:splitify/features/expenses/application/expense_draft.dart';
 import 'package:splitify/features/expenses/application/expense_editor_controller.dart';
@@ -16,6 +16,7 @@ import 'package:splitify/features/expenses/presentation/editor/editor_fields.dar
 import 'package:splitify/features/expenses/presentation/editor/paid_split_sheet.dart';
 import 'package:splitify/features/expenses/presentation/editor/pickers.dart';
 import 'package:splitify/features/expenses/presentation/editor/receipt_field.dart';
+import 'package:splitify/features/expenses/presentation/editor/with_picker.dart';
 import 'package:splitify/features/expenses/presentation/expense_copy.dart';
 import 'package:splitify/features/groups/application/groups_providers.dart'
     show syncOfflineProvider;
@@ -62,6 +63,9 @@ class _ExpenseEditorScreenState extends ConsumerState<ExpenseEditorScreen> {
 
   /// The user changed something: leaving asks first.
   bool _dirty = false;
+
+  /// The user chose the currency: it stays when "With you and" moves the draft to another group.
+  bool _currencyPicked = false;
 
   ExpenseEditorArgs get _args => (groupId: widget.groupId, expenseId: widget.expenseId);
 
@@ -118,9 +122,28 @@ class _ExpenseEditorScreenState extends ConsumerState<ExpenseEditorScreen> {
   );
 
   Future<void> _pickCurrency(ExpenseDraft d) async {
-    final code = await pickGroupCurrency(context, ref, groupId: d.groupId, selected: d.currency);
-    if (code != null && code != d.currency) _edit((x) => x.withCurrency(code));
+    final code = d.hasGroup
+        ? await pickGroupCurrency(context, ref, groupId: d.groupId, selected: d.currency)
+        : await showCurrencyPicker(context, selected: d.currency);
+    if (code != null && code != d.currency) {
+      _currencyPicked = true;
+      _edit((x) => x.withCurrency(code));
+    }
   }
+
+  /// "With you and" (D-033): the compact picker of recent groups and friends; the draft moves to the
+  /// picked one and keeps what was typed. Saved expenses and templates stay in their group.
+  Future<void> _pickWith() async {
+    final d = _draft;
+    if (d == null || d.isEdit || d.isTemplate) return;
+    if (_suggest != null) _flushSuggestion();
+    FocusManager.instance.primaryFocus?.unfocus();
+    final picked = await showWithPicker(context, selected: d.hasGroup ? d.groupId : null);
+    if (picked != null && picked != d.groupId && mounted) await _moveTo(picked);
+  }
+
+  Future<void> _moveTo(String groupId) =>
+      ref.read(_provider.notifier).pickGroup(groupId, keepCurrency: _currencyPicked);
 
   Future<void> _pickCategory() async {
     if (_suggest != null) _flushSuggestion();
@@ -342,6 +365,8 @@ class _ExpenseEditorScreenState extends ConsumerState<ExpenseEditorScreen> {
   /// Points at what stops Save: focuses the field, or opens the sheet that fixes it.
   void _point(EditorProblem problem) {
     switch (problem) {
+      case EditorProblem.group:
+        unawaited(_pickWith());
       case EditorProblem.description:
         _descriptionFocus.requestFocus();
       case EditorProblem.amount:
@@ -499,7 +524,15 @@ class _ExpenseEditorScreenState extends ConsumerState<ExpenseEditorScreen> {
                       AppSpacing.s6,
                     ),
                     children: [
-                      WithRow(draft: draft, offline: offline),
+                      WithRow(
+                        draft: draft,
+                        offline: offline,
+                        onPick: draft.isEdit || draft.isTemplate
+                            ? null
+                            : () => unawaited(_pickWith()),
+                        onQuickPick: (id) => unawaited(_moveTo(id)),
+                        showError: _showErrors && !draft.hasGroup,
+                      ),
                       const SizedBox(height: AppSpacing.s6),
                       // Icon column (category, currency) sized to the wider of the two, so both fields
                       // start at the same edge at any text size.
@@ -570,10 +603,15 @@ class _ExpenseEditorScreenState extends ConsumerState<ExpenseEditorScreen> {
                         ],
                       ),
                       const SizedBox(height: AppSpacing.s6),
+                      // Nobody picked yet: the pill says the default and asks for the group first.
                       PaidSplitPill(
-                        summary: paidSplitSummary(l, draft),
-                        footer: splitSheetFooter(l, draft),
-                        onTap: () => unawaited(_openPaidSplit()),
+                        summary: draft.hasGroup
+                            ? paidSplitSummary(l, draft)
+                            : l.expPillSummary(l.expPillPaidBy(l.you), l.expPillSplitEqual),
+                        footer: draft.hasGroup
+                            ? splitSheetFooter(l, draft)
+                            : (text: l.expWithChooseFirst, error: false),
+                        onTap: () => unawaited(draft.hasGroup ? _openPaidSplit() : _pickWith()),
                       ),
                       if (draft.isTemplate) ...[
                         const SizedBox(height: AppSpacing.s5),

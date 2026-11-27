@@ -193,10 +193,9 @@ void main() {
       Routes.account,
       status: const SyncStatus(phase: SyncPhase.idle, waiting: 2),
     );
-    await tester.tap(find.byTooltip('Account settings'));
+    await tester.ensureVisible(find.byKey(const Key('settings-sync')));
     await _settle(tester);
     expect(find.text('2 waiting'), findsOneWidget);
-    await tester.ensureVisible(find.byKey(const Key('settings-sync')));
     await tester.tap(find.byKey(const Key('settings-sync')));
     await tester.pump(const Duration(milliseconds: 600));
     await tester.pump();

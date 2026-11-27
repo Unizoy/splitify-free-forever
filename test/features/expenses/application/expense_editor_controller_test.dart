@@ -416,6 +416,97 @@ void main() {
     });
   });
 
+  // D-033: the + opens the editor before anyone is picked; "With you and" moves the draft to a group.
+  group('With you and', () {
+    const none = (groupId: null, expenseId: null);
+
+    Future<ExpenseEditorController> unpicked() async {
+      final p = expenseEditorProvider(none);
+      env.container.listen(p, (_, _) {});
+      await env.container.read(p.future);
+      return env.container.read(p.notifier);
+    }
+
+    ExpenseDraft draft() => env.container.read(expenseEditorProvider(none)).requireValue;
+
+    Future<String> secondGroup({String currency = 'INR'}) async {
+      final id = await env.container
+          .read(groupsRepositoryProvider)
+          .create(name: 'Flat', ownerName: 'Mohit', ownerUserId: 'u1', mainCurrency: currency);
+      await env.container.read(membersRepositoryProvider).addNameOnly(id, 'Neha');
+      return id;
+    }
+
+    test('with neither id: nobody picked, no people, Save points at the group first', () async {
+      await unpicked();
+      final d = draft();
+      expect(d.hasGroup, isFalse);
+      expect(d.members, isEmpty);
+      expect(d.currency, 'INR');
+      expect(d.canRepeat, isTrue);
+      expect(d.firstProblem, EditorProblem.group);
+      expect(d.copyWith(description: 'Tea', amountText: '60').firstProblem, EditorProblem.group);
+    });
+
+    test('picking a group keeps what was typed and takes its people, payer and split', () async {
+      final c = await unpicked();
+      c.edit((d) => _fill('1250.50', 'Dinner')(d).copyWith(notes: 'Thalassa'));
+      await c.pickGroup(env.groupId);
+      final d = draft();
+      expect(d.groupId, env.groupId);
+      expect(d.groupName, 'Goa trip');
+      expect([for (final m in d.members) m.name], ['Mohit', 'Asha', 'Ravi']);
+      expect(d.payerId, env.me);
+      expect(d.description, 'Dinner');
+      expect(d.amountText, '1250.50');
+      expect(d.notes, 'Thalassa');
+      expect(d.firstProblem, isNull);
+      final id = (await c.save())!;
+      final saved = await expense(id);
+      expect(saved.groupId, env.groupId);
+      expect(saved.total, 125050);
+      final shares = _json(saved.shares).values.cast<int>();
+      expect(shares.fold<int>(0, (a, b) => a + b), 125050);
+    });
+
+    test('moving to another group swaps the people and keeps a picked category', () async {
+      final flat = await secondGroup();
+      final c = await unpicked();
+      await c.pickGroup(env.groupId);
+      c.edit((d) => _fill('90', 'Milk')(d).pickCategory('groceries.groceries'));
+      await c.pickGroup(flat);
+      final d = draft();
+      expect(d.groupName, 'Flat');
+      expect([for (final m in d.members) m.name], ['Mohit', 'Neha']);
+      expect(d.split.participants.length, 2);
+      expect(d.category, 'groceries.groceries');
+      expect(d.categoryOrigin, CategoryOrigin.manual);
+      expect(d.amountText, '90');
+    });
+
+    test('the currency follows the group unless the user chose one', () async {
+      final usd = await secondGroup(currency: 'USD');
+      final c = await unpicked();
+      await c.pickGroup(env.groupId);
+      await c.pickGroup(usd);
+      expect(draft().currency, 'USD');
+      c.edit((d) => d.withCurrency('EUR'));
+      await c.pickGroup(env.groupId, keepCurrency: true);
+      expect(draft().currency, 'EUR');
+      expect(draft().groupName, 'Goa trip');
+    });
+
+    test('a saved expense stays in its group', () async {
+      final flat = await secondGroup();
+      final e = await env.open();
+      e.edit(_fill('100', 'Dinner'));
+      final id = (await e.save())!;
+      final edit = await env.open(expenseId: id);
+      await edit.controller.pickGroup(flat);
+      expect(edit.draft.groupId, env.groupId);
+    });
+  });
+
   group('ExpenseNotFound', () {
     Future<void> notFound(ExpenseEditorArgs args) async {
       final p = expenseEditorProvider(args);
@@ -426,8 +517,6 @@ void main() {
     test('unknown expense id', () => notFound((groupId: env.groupId, expenseId: 'nope')));
 
     test('unknown group', () => notFound((groupId: 'nope', expenseId: null)));
-
-    test('args with neither id', () => notFound((groupId: null, expenseId: null)));
 
     test('deleted expense', () async {
       final e = await env.open();

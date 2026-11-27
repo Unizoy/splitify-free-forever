@@ -21,6 +21,7 @@ import 'package:splitify/features/groups/application/groups_providers.dart'
 import 'package:splitify/features/recurring/application/repeat_draft.dart';
 import 'package:splitify/features/recurring/presentation/repeat_picker.dart';
 import 'package:splitify/ui/components/components.dart';
+import 'package:splitify/ui/theme/theme.dart';
 
 import '../expense_fixtures.dart';
 import 'presentation_harness.dart';
@@ -226,6 +227,24 @@ void main() {
       );
       expect(find.text('Add expense'), findsOneWidget);
       expect(find.byKey(const Key('expense-offline')), findsOneWidget);
+    });
+
+    // D-033: the offline note was white text on the light page (only its icon showed).
+    testWidgets('the offline note is the app sync marker, readable on the page', (t) async {
+      await pumpEditor(
+        t,
+        blank,
+        args: newArgs,
+        overrides: [syncOfflineProvider.overrideWith((ref) => Stream.value(true))],
+      );
+      final note = find.byKey(const Key('expense-offline'));
+      expect(find.descendant(of: note, matching: find.byType(SyncMarker)), findsOneWidget);
+      final label = t.widget<Text>(
+        find.descendant(of: note, matching: find.text('Not synced yet')),
+      );
+      final colors = Theme.of(t.element(note)).extension<AppColors>()!;
+      expect(label.style?.color, colors.unsynced);
+      expect(label.style?.color, isNot(colors.onHero));
     });
 
     // TC-13-01
