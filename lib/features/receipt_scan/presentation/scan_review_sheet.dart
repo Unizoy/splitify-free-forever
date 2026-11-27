@@ -91,7 +91,9 @@ class _ScanReviewPanelState extends State<ScanReviewPanel> {
           key: const Key('scan-amount'),
           label: l.entryScanAmount,
           value: money(total),
-          replaces: typedAmount != null && typedAmount != total ? money(typedAmount) : null,
+          replaces: typedAmount != null && typedAmount != total
+              ? MoneyFormatter.list.format(typedAmount, d.currency)
+              : null,
           ticked: _choice.amount,
           onTap: () => setState(
             () => _choice = (

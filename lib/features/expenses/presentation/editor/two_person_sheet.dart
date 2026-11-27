@@ -70,7 +70,7 @@ String answerLine(AppLocalizations l, ExpenseDraft d, TwoPersonAnswer a) {
       TwoPersonAnswer.theyOwedFull => l.entryAnswerYouOweAll(other.name),
     };
   }
-  final amount = MoneyFormatter.detail.format(net.abs(), d.currency);
+  final amount = MoneyFormatter.list.format(net.abs(), d.currency);
   return net >= 0
       ? l.entryAnswerOwesYou(other.name, amount)
       : l.entryAnswerYouOwe(other.name, amount);

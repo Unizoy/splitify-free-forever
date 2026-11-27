@@ -85,7 +85,8 @@ class _ItemsEditorState extends State<ItemsEditor> {
               variant: PillVariant.outline,
               size: PillSize.medium,
               expand: false,
-              onPressed: () => _set(_items.addItem(widget.split.chosen)),
+              // A new line starts with everyone in the split.
+              onPressed: () => _set(_items.addItem(widget.split.members)),
             ),
           ),
         const SizedBox(height: AppSpacing.s5),

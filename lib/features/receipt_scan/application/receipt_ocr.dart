@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
@@ -18,8 +17,8 @@ typedef ReceiptOcr = Future<List<OcrLine>> Function(String path);
 /// Picks a receipt picture and returns its file path (null when the person backs out).
 typedef ReceiptImagePicker = Future<String?> Function(PhotoSource source);
 
-/// Turns picked bytes into the receipt photo kept with the expense (compressed, with a thumbnail).
-typedef ReceiptPhotoPreparer = Future<PreparedImage> Function(Uint8List bytes);
+/// Turns the picked file into the receipt photo kept with the expense (compressed, with a thumbnail).
+typedef ReceiptPhotoPreparer = Future<PreparedImage> Function(String path);
 
 /// ML Kit text recognition on [path] (EXIF rotation applied by ML Kit). Platform glue: proven on the
 /// device (`integration_test/d034_a_test.dart`).
@@ -55,8 +54,8 @@ Future<String?> pickReceiptPath(PhotoSource source) async {
   return file?.path;
 }
 
-Future<PreparedImage> _prepare(Uint8List bytes) =>
-    preparePhoto(bytes, encode: platformJpeg, sizeOf: readImageSize);
+Future<PreparedImage> _prepare(String path) async =>
+    preparePhoto(await File(path).readAsBytes(), encode: platformJpeg, sizeOf: readImageSize);
 
 final receiptOcrProvider = Provider<ReceiptOcr>((ref) => mlKitOcr);
 
@@ -77,10 +76,9 @@ Future<ScanOutcome> readReceipt(
   required int exponent,
   DateTime? today,
 }) async {
-  final bytes = await File(path).readAsBytes();
   PreparedImage? photo;
   try {
-    photo = await prepare(bytes);
+    photo = await prepare(path);
   } on Exception {
     photo = null;
   }
