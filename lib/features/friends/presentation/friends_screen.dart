@@ -127,7 +127,7 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen> {
                     label: l.addFriendExpense,
                     icon: AppIcons.add,
                     variant: PillVariant.money,
-                    onPressed: () => unawaited(showAddFriendExpense(context, ref)),
+                    onPressed: () => showAddFriendExpense(context),
                   ),
                   const SizedBox(height: AppSpacing.s4),
                   content,

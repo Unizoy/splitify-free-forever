@@ -3,7 +3,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:splitify/data/remote/groups_remote.dart';
 import 'package:splitify/features/friends/application/friends_view.dart';
 import 'package:splitify/features/friends/presentation/friend_widgets.dart';
 import 'package:splitify/features/friends/presentation/friends_screen.dart';
@@ -205,124 +204,22 @@ void main() {
     });
   });
 
+  // D-033: the editor opens at once; its "With you and" picker chooses the friend (no friend sheet first).
   group('Add friend expense', () {
-    Future<void> openSheet(WidgetTester t) async {
+    testWidgets('D-033 Add friend expense opens the one-screen editor at once', (t) async {
+      await pumpTab(t);
       await t.tap(find.byKey(const Key('friends-add-expense')));
       await settle(t, 10);
-    }
-
-    // TC-2-03
-    testWidgets('the sheet lists the friends and "Someone new"', (t) async {
-      await pumpTab(t);
-      await openSheet(t);
-      expect(find.byKey(const Key('add-friend-picker')), findsOneWidget);
-      expect(find.byKey(const Key('add-friend-new')), findsOneWidget);
-      expect(find.text('Someone new'), findsOneWidget);
-      expect(find.text('Who with?'.toUpperCase()), findsOneWidget);
-      // The picker repeats each friend row (the tab behind has them too).
-      expect(find.byType(FriendRow), findsNWidgets(8));
+      expect(_stub(t), 'at /expense/new');
+      expect(find.byKey(const Key('add-friend-picker')), findsNothing);
+      expect(actions?.asked ?? const <String>[], isEmpty);
     });
 
-    // TC-2-03
-    testWidgets('no friends: the sheet says so and still offers "Someone new"', (t) async {
+    testWidgets('D-033 with no friends it opens the editor too', (t) async {
       await pumpTab(t, value: const AsyncData(<Friend>[]));
-      await openSheet(t);
-      expect(find.text('No friends yet. Add someone new below.'), findsOneWidget);
-      expect(find.byKey(const Key('add-friend-new')), findsOneWidget);
-    });
-
-    // TC-2-03
-    testWidgets('picking a friend opens the add-expense stepper in the group made for them', (
-      t,
-    ) async {
-      await pumpTab(t);
-      await openSheet(t);
-      final inSheet = find.descendant(
-        of: find.byKey(const Key('add-friend-picker')),
-        matching: _row('u:u2'),
-      );
-      await t.tap(inSheet);
+      await t.tap(find.byKey(const Key('friends-add-expense')));
       await settle(t, 10);
-      expect(actions!.asked, ['u:u2']);
-      expect(_stub(t), 'at /expense/new?group=g-friend');
-    });
-
-    // TC-2-03
-    testWidgets('a linked friend needing the internet shows the message and opens nothing', (
-      t,
-    ) async {
-      await pumpTab(
-        t,
-        make: (ref) {
-          return actions = FakeFriendActions(
-            ref,
-            failure: const GroupFailure(GroupFailureCode.offline),
-          );
-        },
-      );
-      await openSheet(t);
-      await t.tap(
-        find.descendant(of: find.byKey(const Key('add-friend-picker')), matching: _row('u:u2')),
-      );
-      await settle(t, 10);
-      expect(
-        find.text(
-          'Connect to the internet once to start sharing with Asha Rao. After that it works offline.',
-        ),
-        findsOneWidget,
-      );
-      expect(find.byKey(const Key('stub')), findsNothing);
-    });
-
-    // TC-2-03
-    testWidgets('another failure says it could not start', (t) async {
-      await pumpTab(
-        t,
-        make: (ref) {
-          return actions = FakeFriendActions(
-            ref,
-            failure: const GroupFailure(GroupFailureCode.unknown),
-          );
-        },
-      );
-      await openSheet(t);
-      await t.tap(
-        find.descendant(of: find.byKey(const Key('add-friend-picker')), matching: _row('m:a3')),
-      );
-      await settle(t, 10);
-      expect(find.text("Couldn't start an expense with Rahul Mehta. Try again."), findsOneWidget);
-    });
-
-    // TC-2-03
-    testWidgets('"Someone new" asks for a name, makes the direct group and opens the stepper', (
-      t,
-    ) async {
-      await pumpTab(t);
-      await openSheet(t);
-      await t.tap(find.byKey(const Key('add-friend-new')));
-      await settle(t, 10);
-      expect(
-        find.text("They don't need the app. Invite them later to claim their spot."),
-        findsOneWidget,
-      );
-      await t.enterText(find.byKey(const Key('member-name')).last, ' Tanvi ');
-      await t.pump();
-      await t.tap(find.text('Continue'));
-      await settle(t, 10);
-      expect(actions!.added, ['Tanvi']);
-      expect(_stub(t), 'at /expense/new?group=g-new');
-    });
-
-    // TC-2-03
-    testWidgets('an empty name is not accepted', (t) async {
-      await pumpTab(t);
-      await openSheet(t);
-      await t.tap(find.byKey(const Key('add-friend-new')));
-      await settle(t, 10);
-      await t.tap(find.text('Continue'));
-      await settle(t, 4);
-      expect(actions?.added ?? const <String>[], isEmpty);
-      expect(find.byKey(const Key('stub')), findsNothing);
+      expect(_stub(t), 'at /expense/new');
     });
   });
 }

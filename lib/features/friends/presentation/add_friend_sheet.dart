@@ -4,18 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:splitify/data/remote/groups_remote.dart';
-import 'package:splitify/features/auth/application/auth_providers.dart' show profileProvider;
 import 'package:splitify/features/expenses/presentation/expense_routes.dart';
 import 'package:splitify/features/friends/application/friends_providers.dart';
 import 'package:splitify/features/friends/application/friends_view.dart';
 import 'package:splitify/domain/rules/group_rules.dart';
 import 'package:splitify/features/friends/presentation/friend_routes.dart';
-import 'package:splitify/features/friends/presentation/friend_widgets.dart';
 import 'package:splitify/features/groups/presentation/invite_sheet.dart';
-import 'package:splitify/features/groups/presentation/group_settings_screen.dart'
-    show MemberNameForm;
-import 'package:splitify/features/groups/presentation/group_visuals.dart'
-    show SectionLabel, showGroupMessage;
+import 'package:splitify/features/groups/presentation/group_visuals.dart' show showGroupMessage;
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/components/components.dart';
 import 'package:splitify/ui/theme/theme.dart';
@@ -57,30 +52,11 @@ Future<void> startFriendLoan(BuildContext context, WidgetRef ref, Friend friend)
   }
 }
 
-/// "Add friend expense" (Friends tab): pick a friend, or add someone new as a name-only friend (offline),
-/// then the normal add-expense stepper opens.
-Future<void> showAddFriendExpense(BuildContext context, WidgetRef ref) async {
-  final l = AppLocalizations.of(context);
-  final router = GoRouter.of(context);
-  final picked = await showAppSheet<Object>(
-    context,
-    title: l.addFriendExpense,
-    builder: (sheet) => const _Picker(),
-  );
-  if (!context.mounted || picked == null) return;
-  if (picked is Friend) {
-    await startFriendExpense(context, ref, picked);
-    return;
-  }
-  final result = await showAppSheet<({String name, int tint})>(
-    context,
-    title: l.addFriendNew,
-    builder: (context) => MemberNameForm(hint: l.addFriendNewHint, confirm: l.continueLabel),
-  );
-  if (result == null) return;
-  final made = await ref.read(friendActionsProvider).addNameOnlyFriend(result.name);
-  unawaited(router.push(ExpenseRoutes.add(made.groupId)));
-}
+/// "Add friend expense" (Friends tab, D-033): the one-screen editor opens at once, like the "+"; its "With
+/// you and" picker lists friends (and "Add <name> as a friend") — no friend sheet first. A friend page's
+/// Add expense opens it with that friend already picked (`startFriendExpense`).
+void showAddFriendExpense(BuildContext context) =>
+    unawaited(GoRouter.of(context).push(ExpenseRoutes.addNew));
 
 /// "Add friend" (Friends tab, D-033): one sheet with the name, then Add friend (a name-only friend, made
 /// offline) or "Add and invite with a link" (the same, then the invite sheet of our friend group, whose code
@@ -178,52 +154,6 @@ class _AddFriendFormState extends State<AddFriendForm> {
           ),
         ],
       ),
-    );
-  }
-}
-
-/// Marker popped by the "Someone new" row.
-const _someoneNew = 'new';
-
-class _Picker extends ConsumerWidget {
-  const _Picker();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l = AppLocalizations.of(context);
-    final friends = ref.watch(friendsProvider).value;
-    final first = ref.watch(profileProvider).value?.defaultCurrency ?? 'INR';
-    return Column(
-      key: const Key('add-friend-picker'),
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        OptionTile(
-          key: const Key('add-friend-new'),
-          label: l.addFriendNew,
-          leading: const Icon(AppIcons.userPlus),
-          onTap: () => Navigator.of(context).pop(_someoneNew),
-        ),
-        const SizedBox(height: AppSpacing.s6),
-        SectionLabel(l.addFriendWho),
-        if (friends == null)
-          const FriendsSkeleton()
-        else if (friends.isEmpty)
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: AppSpacing.s4),
-            child: Text(
-              l.addFriendNoFriends,
-              style: context.text.body.copyWith(color: context.colors.textSecondary),
-            ),
-          )
-        else
-          for (var i = 0; i < friends.length; i++)
-            FriendRow(
-              friend: friends[i],
-              firstCurrency: first,
-              showDivider: i < friends.length - 1,
-              onTap: () => Navigator.of(context).pop(friends[i]),
-            ),
-      ],
     );
   }
 }

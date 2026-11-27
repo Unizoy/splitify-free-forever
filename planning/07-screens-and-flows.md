@@ -137,7 +137,8 @@ keyboard); preview: cover, group name, member count; claim step: `AvatarCarousel
 
 ### Others (brief)
 - **Friends:** search pill + "Add friend" (top right: one sheet, name → Add friend / Add and invite with a link);
-  list of friends with avatar, total chip (owed/owe/settled per currency); amber "Add friend expense". Friend page
+  list of friends with avatar, total chip (owed/owe/settled per currency); amber "Add friend expense" (opens the
+  editor at once; "With you and" picks the friend). Friend page
   (D-033): compact hero (56 dp avatar, total pill), Settle up + Remind under it, by-group rows, shared items, Add
   expense at the bottom.
 - **Profile (D-033):** one screen — avatar with camera badge (tap = new photo; the saved photo shows), name, UPI ID
