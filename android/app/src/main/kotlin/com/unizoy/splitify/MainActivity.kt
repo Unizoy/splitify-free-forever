@@ -7,14 +7,70 @@ import android.os.Bundle
 import android.provider.Settings
 import android.view.WindowManager
 import io.flutter.embedding.android.FlutterFragmentActivity
+import java.io.File
+import java.util.UUID
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 
 // FlutterFragmentActivity: local_auth shows the system BiometricPrompt from a fragment (X2).
 class MainActivity : FlutterFragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+        // Share to Splitify (D-034 A7): a shared picture or text opens the add-expense editor as an app link.
+        shareLink(intent)?.let { intent = it }
         super.onCreate(savedInstanceState)
         preferHighRefreshRate()
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(shareLink(intent) ?: intent)
+    }
+
+    /**
+     * Turns an ACTION_SEND (a receipt picture or text such as a UPI app's "Paid ₹250 to …") into
+     * `splitify://expense/new?share=<token>`; the editor takes the payload once over `splitify/share`. A shared
+     * picture is copied into the app's cache first (Dart cannot read content:// URIs). Null for other intents.
+     */
+    private fun shareLink(incoming: Intent?): Intent? {
+        if (incoming == null || incoming.action != Intent.ACTION_SEND) return null
+        val payload = HashMap<String, String>()
+        incoming.getStringExtra(Intent.EXTRA_TEXT)?.takeIf { it.isNotBlank() }?.let { payload["text"] = it.take(4000) }
+        val type = incoming.type ?: ""
+        if (type.startsWith("image/")) {
+            val stream: Uri? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                incoming.getParcelableExtra(Intent.EXTRA_STREAM, Uri::class.java)
+            } else {
+                @Suppress("DEPRECATION")
+                incoming.getParcelableExtra(Intent.EXTRA_STREAM)
+            }
+            stream?.let { copyShared(it) }?.let { payload["image"] = it }
+        }
+        if (payload.isEmpty()) return null
+        val token = UUID.randomUUID().toString()
+        shares[token] = payload
+        return Intent(Intent.ACTION_VIEW, Uri.parse("splitify://expense/new?share=$token"))
+    }
+
+    /** Copies a shared picture (max 25 MB) to cache/shared/; returns its path or null. */
+    private fun copyShared(uri: Uri): String? = try {
+        val dir = File(cacheDir, "shared").apply { mkdirs() }
+        dir.listFiles()?.forEach { it.delete() }
+        val file = File(dir, "receipt-${UUID.randomUUID()}.jpg")
+        contentResolver.openInputStream(uri)?.use { input ->
+            file.outputStream().use { output ->
+                val buffer = ByteArray(64 * 1024)
+                var total = 0L
+                while (true) {
+                    val n = input.read(buffer)
+                    if (n < 0) break
+                    total += n
+                    if (total > 25L * 1024 * 1024) throw IllegalStateException("too big")
+                    output.write(buffer, 0, n)
+                }
+            }
+        }
+        if (file.length() > 0) file.absolutePath else null
+    } catch (_: Exception) {
+        null
     }
 
     /**
@@ -60,6 +116,14 @@ class MainActivity : FlutterFragmentActivity() {
                     else -> result.notImplemented()
                 }
             }
+        // Share to Splitify (D-034 A7): the editor takes what was shared, once.
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "splitify/share")
+            .setMethodCallHandler { call, result ->
+                when (call.method) {
+                    "take" -> result.success(shares.remove(call.arguments as? String ?: ""))
+                    else -> result.notImplemented()
+                }
+            }
         // Android's own settings screens (lib/core/platform/system_settings.dart): the blocked-push banner opens
         // Splitify's notification settings (app info on Android 7, which has no such screen).
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "splitify/settings")
@@ -83,5 +147,10 @@ class MainActivity : FlutterFragmentActivity() {
         } catch (_: RuntimeException) {
             false
         }
+    }
+
+    companion object {
+        /** Shared payloads waiting for the editor, by token (kept only while the app process lives). */
+        private val shares = HashMap<String, Map<String, String>>()
     }
 }

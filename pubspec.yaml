@@ -45,6 +45,9 @@ dependencies:
   logging: ^1.3.0
   shared_preferences: ^2.5.6
   flutter_animate: ^4.5.2
+  # D-034 / S-370: receipt scanning on the phone. Bundled Latin model only (the plugin links the other scripts
+  # compileOnly), so it works offline without Google Play services.
+  google_mlkit_text_recognition: ^1.0.3
 
 dev_dependencies:
   flutter_test: {sdk: flutter}

@@ -4751,6 +4751,253 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get entryAnswerYouPaidEqual => 'You paid, split equally';
+
+  @override
+  String get entryAnswerYouOwedFull => 'You are owed the full amount';
+
+  @override
+  String entryAnswerTheyPaidEqual(String name) {
+    return '$name paid, split equally';
+  }
+
+  @override
+  String entryAnswerTheyOwedFull(String name) {
+    return '$name is owed the full amount';
+  }
+
+  @override
+  String entryAnswerOwesYou(String name, String amount) {
+    return '$name owes you $amount';
+  }
+
+  @override
+  String entryAnswerYouOwe(String name, String amount) {
+    return 'You owe $name $amount';
+  }
+
+  @override
+  String entryAnswerOwesYouHalf(String name) {
+    return '$name owes you half';
+  }
+
+  @override
+  String entryAnswerOwesYouAll(String name) {
+    return '$name owes you all of it';
+  }
+
+  @override
+  String entryAnswerYouOweHalf(String name) {
+    return 'You owe $name half';
+  }
+
+  @override
+  String entryAnswerYouOweAll(String name) {
+    return 'You owe $name all of it';
+  }
+
+  @override
+  String get entryMoreOptions => 'More options';
+
+  @override
+  String get entryMoreOptionsHint => 'Several payers, exact amounts, %, shares or items';
+
+  @override
+  String entryPillTheyOweFull(String name) {
+    return '$name owes the full amount';
+  }
+
+  @override
+  String get entryPillYouOweFull => 'you owe the full amount';
+
+  @override
+  String get entrySplitItems => 'By items';
+
+  @override
+  String get entrySplitItemsHint => 'each line goes to the people who had it';
+
+  @override
+  String get entryPillSplitItems => 'split by items';
+
+  @override
+  String get entryItemHint => 'Item';
+
+  @override
+  String entryItemNameLabel(int number) {
+    return 'Name of item $number';
+  }
+
+  @override
+  String entryItemAmountLabel(int number) {
+    return 'Price of item $number';
+  }
+
+  @override
+  String entryItemPersonLabel(String name, int number) {
+    return '$name had item $number';
+  }
+
+  @override
+  String entryItemRemove(int number) {
+    return 'Remove item $number';
+  }
+
+  @override
+  String get entryItemAdd => 'Add item';
+
+  @override
+  String get entryItemsExtras => 'Tax, service, tip, discount';
+
+  @override
+  String get entryItemsExtrasHint => 'Shared in proportion to what each person had.';
+
+  @override
+  String get entryExtraTax => 'Tax (GST)';
+
+  @override
+  String get entryExtraService => 'Service charge';
+
+  @override
+  String get entryExtraTip => 'Tip';
+
+  @override
+  String get entryExtraDiscount => 'Discount';
+
+  @override
+  String get entryItemsEach => 'Each person';
+
+  @override
+  String entryItemsUseTotal(String amount) {
+    return 'Use items total · $amount';
+  }
+
+  @override
+  String get entryItemsNoPeople => 'Every item needs at least one person';
+
+  @override
+  String get entryItemsNone => 'Add an item with a price';
+
+  @override
+  String get entryItemsTooMany => 'Too many items to save. Join a few lines.';
+
+  @override
+  String get entryItemsDiscountTooBig => 'The discount is bigger than the items';
+
+  @override
+  String get entryScanReceipt => 'Scan receipt';
+
+  @override
+  String get entryScanReceiptHint => 'Fills in the amount, date and items. Works offline.';
+
+  @override
+  String get entryScanReading => 'Reading the receipt…';
+
+  @override
+  String get entryScanTitle => 'From your receipt';
+
+  @override
+  String get entryScanAmount => 'Amount';
+
+  @override
+  String get entryScanDate => 'Date';
+
+  @override
+  String get entryScanDescription => 'Description';
+
+  @override
+  String entryScanItemsFound(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count items found',
+      one: '1 item found',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String entryScanReplaces(String value) {
+    return 'Replaces $value';
+  }
+
+  @override
+  String get entryScanUse => 'Use these';
+
+  @override
+  String get entryScanItemize => 'Split by items';
+
+  @override
+  String get entryScanItemizeNeedsGroup => 'Choose who it\'s with first to split by items.';
+
+  @override
+  String get entryScanNothingTitle => 'Couldn\'t read this receipt';
+
+  @override
+  String get entryScanNothingBody =>
+      'The photo is attached. Try a sharper photo in good light, or type the amount.';
+
+  @override
+  String get entryScanKeepPhoto => 'Keep the photo';
+
+  @override
+  String get entryScanRetry => 'Try another photo';
+
+  @override
+  String get entryScanFailed => 'Couldn\'t read that photo. Try another one.';
+
+  @override
+  String get entryScanPhotoNote =>
+      'The photo is attached as the receipt and uploads when you\'re online.';
+
+  @override
+  String entryScanTickLabel(String field, String value) {
+    return 'Use $field: $value';
+  }
+
+  @override
+  String get entryDeletedPill => 'Deleted';
+
+  @override
+  String get entryDeletedNote =>
+      'This expense was deleted. It doesn\'t count in balances until it is restored.';
+
+  @override
+  String get entryRestore => 'Restore';
+
+  @override
+  String get entryRestoreExpense => 'Restore expense';
+
+  @override
+  String get entryRestored => 'Expense restored';
+
+  @override
+  String entryTrendTitle(String category, String group) {
+    return '$category in $group';
+  }
+
+  @override
+  String get entryTrendSubtitle => 'Last 3 months';
+
+  @override
+  String get entryTrendOpen => 'Open insights';
+
+  @override
+  String entryTrendMonth(String month, String amount) {
+    return '$month: $amount';
+  }
+
+  @override
+  String get entryShareNothing => 'Nothing to add from what was shared.';
+
+  @override
+  String get entryItemsLabel => 'Items';
+
+  @override
+  String entryItemsComesTo(String amount) {
+    return 'Items come to $amount';
+  }
+
+  @override
   String groupLinesMore(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
