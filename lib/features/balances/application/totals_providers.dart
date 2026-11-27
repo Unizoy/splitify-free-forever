@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:splitify/core/time/clock.dart' show LocalToday;
 import 'package:splitify/data/data_providers.dart';
 import 'package:splitify/data/local/app_database.dart';
 import 'package:splitify/data/repositories/ledger_repository.dart';
@@ -59,7 +60,7 @@ final groupTotalsProvider = Provider.autoDispose.family<AsyncValue<GroupTotalsVi
   groupId,
 ) {
   final uid = ref.watch(currentUserIdProvider);
-  final today = ref.watch(clockProvider).now();
+  final today = ref.watch(clockProvider).today(); // this month = the phone's month (S-413)
   return ref
       .watch(groupLedgerProvider(groupId))
       .whenData((l) => l == null ? null : groupTotalsOf(l, uid, today));

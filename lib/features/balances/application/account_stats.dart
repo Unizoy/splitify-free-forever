@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:splitify/core/time/clock.dart' show LocalToday;
 import 'package:splitify/data/data_providers.dart';
 import 'package:splitify/data/repositories/ledger_repository.dart';
 import 'package:splitify/features/auth/application/auth_providers.dart' show profileProvider;
@@ -71,7 +72,7 @@ AccountStats accountStatsOf(
 
 final accountStatsProvider = Provider.autoDispose<AsyncValue<AccountStats>>((ref) {
   final uid = ref.watch(currentUserIdProvider);
-  final today = ref.watch(clockProvider).now();
+  final today = ref.watch(clockProvider).today(); // this month = the phone's month (S-413)
   final currency = ref.watch(profileProvider).value?.defaultCurrency ?? 'INR';
   return ref.watch(allLedgersProvider).whenData((ls) => accountStatsOf(ls, uid, today, currency));
 });

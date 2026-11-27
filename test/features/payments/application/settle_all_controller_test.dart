@@ -94,16 +94,18 @@ Future<void> _seed(
 void main() {
   late AppDatabase db;
   late ProviderContainer container;
+  late FakeClock clock;
 
   setUp(() {
     driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
     db = memoryDb();
+    clock = FakeClock(DateTime(2026, 11, 27, 10));
     container = ProviderContainer(
       retry: (_, _) => null,
       overrides: [
         appDatabaseProvider.overrideWithValue(db),
         remoteApiProvider.overrideWithValue(FakeRemoteApi()),
-        clockProvider.overrideWithValue(FakeClock(DateTime(2026, 11, 27, 10))),
+        clockProvider.overrideWithValue(clock),
         groups.currentUserIdProvider.overrideWithValue('u1'),
       ],
     );
@@ -224,6 +226,16 @@ void main() {
         throwsA(isA<SettleNotFound>()),
       );
     });
+  });
+
+  // Final QA (S-413): the batch form is dated on the phone's calendar day, not the UTC day.
+  test('the batch is dated today on the phone, not the UTC day', () async {
+    await _seed(db, archivedFlat: true);
+    final instant = DateTime.utc(2026, 11, 26, 23, 32); // 05:02 on 27 Nov in India
+    clock.time = instant;
+    final local = instant.toLocal();
+    final d = await open();
+    expect(d.date, DateTime(local.year, local.month, local.day));
   });
 
   group('saving', () {

@@ -244,13 +244,13 @@ void main() {
       return done.future.whenComplete(sub.close);
     }
 
-    void open({String? currency}) {
+    void open({String? currency, DateTime? now}) {
       c = ProviderContainer(
         retry: (_, _) => null,
         overrides: [
           appDatabaseProvider.overrideWithValue(db),
           currentUserIdProvider.overrideWithValue('u1'),
-          clockProvider.overrideWithValue(FakeClock(_today)),
+          clockProvider.overrideWithValue(FakeClock(now ?? _today)),
           profileProvider.overrideWith(() => _FixedProfile(currency)),
         ],
       );
@@ -292,6 +292,18 @@ void main() {
       expect(s.spentThisMonth, 500);
       expect(s.groups, 1);
       expect(s.people, 2);
+    });
+
+    // Final QA (S-413): "this month" is the phone's month; on the 1st before 05:30 in India the UTC month
+    // is still the previous one.
+    test('this month follows the phone, not UTC', () async {
+      final instant = DateTime.utc(2026, 11, 30, 19); // 00:30 on 1 Dec in India
+      final november = instant.toLocal().month == 11;
+      open(now: instant);
+      final v = (await data(groupTotalsProvider('g1')))!;
+      expect(v.month['INR']?.spent ?? 0, november ? 30000 : 0);
+      final s = await data(accountStatsProvider);
+      expect(s.spentThisMonth, november ? 10000 : 0);
     });
 
     test('accountStatsProvider falls back to INR without a profile', () async {

@@ -3,6 +3,7 @@ import 'package:splitify/core/money/amount_expression.dart';
 import 'package:splitify/core/money/balances.dart' show Transfer;
 import 'package:splitify/core/money/currencies.dart';
 import 'package:splitify/core/money/scaled_input.dart';
+import 'package:splitify/core/time/clock.dart' show LocalToday;
 import 'package:splitify/data/data_providers.dart';
 import 'package:splitify/data/local/app_database.dart';
 import 'package:splitify/data/repositories/ledger_repository.dart';
@@ -208,7 +209,8 @@ class SettleController extends AsyncNotifier<SettleDraft> {
           m,
     ];
     if (members.length < 2) throw const SettleNotFound();
-    final today = ref.read(clockProvider).now();
+    // The phone's calendar day (S-413): the UTC day is yesterday in India before 05:30.
+    final today = ref.read(clockProvider).today();
     if (saved != null) {
       return SettleDraft(
         groupId: ledger.group.id,

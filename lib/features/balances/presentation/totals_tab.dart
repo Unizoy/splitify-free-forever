@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:splitify/core/time/clock.dart' show LocalToday;
 import 'package:splitify/data/data_providers.dart' show clockProvider;
 import 'package:splitify/features/balances/application/balance_views.dart' show orderCurrencies;
 import 'package:splitify/features/balances/application/totals_providers.dart';
@@ -52,7 +53,7 @@ class _TotalsTabState extends ConsumerState<TotalsTab> {
         ),
       );
     }
-    final current = monthKeyOf(ref.watch(clockProvider).now());
+    final current = monthKeyOf(ref.watch(clockProvider).today()); // the phone's month (S-413)
     // Other months come from the ledger; only watched once Month is picked.
     final months = _month ? ref.watch(totalsMonthsProvider(widget.groupId)).value : null;
     final range = MonthRange.of(months?.months ?? const [], current);

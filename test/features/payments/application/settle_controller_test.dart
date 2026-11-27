@@ -63,6 +63,16 @@ void main() {
   SettleController ctl(SettleArgs a) => env.container.read(settleProvider(a).notifier);
   SettleDraft draft(SettleArgs a) => env.container.read(settleProvider(a)).requireValue;
 
+  // Final QA (S-413): seen on the emulator at 05:02 IST — Record a payment said "Yesterday" (the UTC day).
+  test('a new payment is dated today on the phone, not the UTC day', () async {
+    await dinner();
+    final instant = DateTime.utc(2026, 11, 20, 23, 32); // 05:02 on 21 Nov in India
+    env.clock.time = instant;
+    final local = instant.toLocal();
+    final d = await open(args(from: asha, to: me));
+    expect(d.date, DateTime(local.year, local.month, local.day));
+  });
+
   Future<Map<String, Object?>> outboxPayload() async {
     final rows = await env.db.select(env.db.outbox).get();
     final o = rows.where((r) => r.entity == 'payment').last;

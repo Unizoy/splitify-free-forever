@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:splitify/core/money/amount_expression.dart';
 import 'package:splitify/core/money/currencies.dart';
 import 'package:splitify/core/money/scaled_input.dart';
+import 'package:splitify/core/time/clock.dart' show LocalToday;
 import 'package:splitify/data/data_providers.dart';
 import 'package:splitify/data/local/app_database.dart';
 import 'package:splitify/features/balances/application/balance_views.dart' show orderCurrencies;
@@ -213,7 +214,7 @@ class SettleAllController extends AsyncNotifier<SettleAllDraft> {
     final othersOpen = friend.links.any(
       (l) => l.transfers.any((t) => t.currency != args.currency || !inBatch.contains(l.group.id)),
     );
-    final today = ref.read(clockProvider).now();
+    final today = ref.read(clockProvider).today(); // the phone's calendar day (S-413)
     final draft = SettleAllDraft(
       friendKey: friend.key,
       friendName: friend.name,
