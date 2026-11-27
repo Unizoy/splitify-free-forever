@@ -80,7 +80,10 @@ final _members = [
 ];
 
 List<Override> _groupData() => fixedGroupData(
-  groups: [_goa, sampleGroup(id: 'g-flat', name: 'Flat 4B', type: 'home')],
+  groups: [
+    _goa,
+    sampleGroup(id: 'g-flat', name: 'Flat 4B', type: 'home'),
+  ],
   members: {'g-goa': _members},
 );
 
@@ -229,7 +232,11 @@ void main() {
     _route('group_form_edit', '/groups/g-goa/edit'),
     _route('group_settings', '/groups/g-goa/settings'),
     _sheetShot('invite_sheet', (l) => l.invitePeople, const InviteSheetBody(groupId: 'g-goa')),
-    _route('join_enter', Routes.join, act: (t) async => FocusManager.instance.primaryFocus?.unfocus()),
+    _route(
+      'join_enter',
+      Routes.join,
+      act: (t) async => FocusManager.instance.primaryFocus?.unfocus(),
+    ),
     _route('join_claim', '/join?code=ABCDEFGH'),
     _sheetShot('add_friend', (l) => l.addFriendTitle, const AddFriendForm()),
     _route(

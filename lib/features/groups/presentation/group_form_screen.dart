@@ -404,12 +404,17 @@ class _GroupFormScreenState extends ConsumerState<GroupFormScreen> {
                       _PersonRow(
                         key: Key('group-member-${m.id}'),
                         name: memberName(l, m, me),
+                        label: m.userId != null && m.userId == me && memberName(l, m, me) != l.you
+                            ? l.memberYouSuffix(memberName(l, m, me))
+                            : null,
                         seed: m.id,
                         tint: m.tint,
                         caption: m.role == 'owner'
                             ? l.memberOwner
                             : m.userId == null
                             ? l.memberNameOnly
+                            : m.claimedAt != null
+                            ? l.memberClaimed
                             : null,
                       )
                   else
