@@ -10,7 +10,7 @@
 # - `UI-CAPTURE <name>` → splitify-artifacts\screenshots\d034-b-<name>.png; names ending in -dark are taken with
 #   the emulator in dark mode.
 param(
-  [int]$Hold = 5,
+  [int]$Hold = 9,
   [switch]$NoUpi,
   [string]$Device = 'emulator-5554',
   [string]$Out = 'C:\Users\mohit\OneDrive\Desktop\theCode\splitify-artifacts\screenshots'
@@ -35,14 +35,29 @@ if (-not $NoUpi) {
   & $adb -s $Device logcat -c
 }
 
+# On this emulator a freshly installed (or deep-linked) test app's window can stay hidden after its transition
+# (`Surface: shown=false`), so screenshots come out black: HOME + start brings it back.
+function Test-Shown {
+  $w = & $adb -s $Device shell dumpsys window windows
+  $i = ($w | Select-String -Pattern 'Window #\d+ Window\{.*splitify\.qa' | Select-Object -First 1).LineNumber
+  if (-not $i) { return $false }
+  return [bool]($w[($i - 1)..($i + 40)] | Select-String -Pattern 'Surface: shown=true' | Select-Object -First 1)
+}
+
+function Show-App {
+  for ($n = 0; $n -lt 3 -and -not (Test-Shown); $n++) {
+    & $adb -s $Device shell input keyevent KEYCODE_HOME
+    Start-Sleep -Milliseconds 1000
+    & $adb -s $Device shell am start -n com.unizoy.splitify.qa/com.unizoy.splitify.MainActivity 2>$null | Out-Null
+    Start-Sleep -Milliseconds 1800
+    Write-Output 'window was hidden: brought to the front'
+  }
+}
+
 function Save-Shot([string]$name) {
+  Show-App
   & $adb -s $Device shell screencap -p /sdcard/d034b.png
   & $adb -s $Device pull /sdcard/d034b.png (Join-Path $Out "d034-b-$name.png") 2>$null | Out-Null
-  # A black capture is usually a secure or not-yet-drawn window: keep the window state next to it.
-  if ((Get-Item (Join-Path $Out "d034-b-$name.png")).Length -lt 40000) {
-    & $adb -s $Device shell dumpsys window windows | Select-String -Pattern 'splitify.qa|fl=|mDrawState' |
-      Select-Object -First 12 | Out-File -Append (Join-Path $Out 'd034-b-black.txt')
-  }
 }
 
 $flutterArgs = @('test', 'integration_test/d034_b_test.dart', '-d', $Device, '--no-uninstall',
@@ -54,20 +69,12 @@ while (-not $p.HasExited) {
   Start-Sleep -Milliseconds 500
   $text = Get-Content $log -Raw -ErrorAction SilentlyContinue
   if (-not $text) { continue }
-  if ($text -match 'UI-READY' -and -not $done.ContainsKey('ready')) {
-    $done['ready'] = $true
-    # A freshly installed test app's surface can stay hidden here (black screenshots): HOME + start shows it.
-    & $adb -s $Device shell input keyevent KEYCODE_HOME
-    Start-Sleep -Milliseconds 800
-    & $adb -s $Device shell am start -n com.unizoy.splitify.qa/com.unizoy.splitify.MainActivity | Out-Null
-    Write-Output 'window brought to the front'
-  }
   foreach ($m in [regex]::Matches($text, 'UI-DEEPLINK (\S+)')) {
     $uri = $m.Groups[1].Value
     if ($done.ContainsKey("link $uri")) { continue }
     $done["link $uri"] = $true
     Start-Sleep -Milliseconds 1500
-    & $adb -s $Device shell am start -a android.intent.action.VIEW -d "`"$uri`"" com.unizoy.splitify.qa | Out-Null
+    & $adb -s $Device shell am start -a android.intent.action.VIEW -d "`"$uri`"" com.unizoy.splitify.qa 2>$null | Out-Null
     Write-Output "deep link sent: $uri"
   }
   foreach ($m in [regex]::Matches($text, 'UI-CAPTURE ([\w-]+)')) {
