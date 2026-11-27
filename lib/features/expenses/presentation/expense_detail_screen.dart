@@ -11,6 +11,10 @@ import 'package:splitify/features/currency/application/conversion_actions.dart'
 import 'package:splitify/features/currency/presentation/conversion_tile.dart';
 import 'package:splitify/features/expenses/application/expense_draft.dart';
 import 'package:splitify/features/expenses/application/expense_providers.dart';
+import 'package:splitify/features/expenses/application/itemize_draft.dart';
+import 'package:splitify/core/money/currencies.dart';
+import 'package:splitify/core/money/scaled_input.dart';
+import 'package:splitify/features/expenses/presentation/category_trend_card.dart';
 import 'package:splitify/features/expenses/presentation/editor/step_body.dart';
 import 'package:splitify/features/expenses/presentation/expense_copy.dart';
 import 'package:splitify/features/expenses/presentation/expense_routes.dart';
@@ -67,19 +71,21 @@ class ExpenseDetailScreen extends ConsumerWidget {
       );
     }
     final group = ref.watch(expenseGroupProvider(v.expense.groupId)).value;
+    // A deleted expense (D-034 A4) and an archived group are read-only.
+    final readOnly = group?.archivedAt != null || v.deleted;
     return Scaffold(
       body: SingleChildScrollView(
         child: OverlapColumn(
           top: _Hero(view: v, group: group),
           bottom: OverlapSheet(
-            child: _Body(view: v, readOnly: group?.archivedAt != null),
+            child: _Body(view: v, readOnly: readOnly),
           ),
         ),
       ),
-      bottomNavigationBar: CommentComposer(
-        target: _commentTarget(v),
-        readOnly: group?.archivedAt != null,
-      ),
+      // A deleted expense takes no new comments (its thread stays readable); an archived group says why.
+      bottomNavigationBar: v.deleted
+          ? null
+          : CommentComposer(target: _commentTarget(v), readOnly: readOnly),
     );
   }
 }
@@ -126,6 +132,7 @@ class _Hero extends ConsumerWidget {
     final e = view.expense;
     String money(int v) => MoneyFormatter.detail.format(v, e.currency);
     final net = view.myNet;
+    final deleted = view.deleted;
     final (tone, label) = switch (net) {
       > 0 => (StatusPillTone.positive, l.expYouLentAmount(money(net))),
       < 0 => (StatusPillTone.negative, l.expYouBorrowedAmount(money(-net))),
@@ -142,20 +149,29 @@ class _Hero extends ConsumerWidget {
         onPressed: () => Navigator.of(context).maybePop(),
       ),
       actions: [
-        HeroIconButton(
-          key: const Key('expense-edit'),
-          icon: AppIcons.edit,
-          tooltip: l.expEdit,
-          onPressed: () => unawaited(
-            context.push(view.isLoan ? ExpenseRoutes.editLoan(e.id) : ExpenseRoutes.edit(e.id)),
+        if (deleted)
+          HeroIconButton(
+            key: const Key('expense-restore-top'),
+            icon: AppIcons.restore,
+            tooltip: l.entryRestore,
+            onPressed: () => unawaited(restoreExpense(context, ref, e)),
+          )
+        else ...[
+          HeroIconButton(
+            key: const Key('expense-edit'),
+            icon: AppIcons.edit,
+            tooltip: l.expEdit,
+            onPressed: () => unawaited(
+              context.push(view.isLoan ? ExpenseRoutes.editLoan(e.id) : ExpenseRoutes.edit(e.id)),
+            ),
           ),
-        ),
-        HeroIconButton(
-          key: const Key('expense-delete'),
-          icon: AppIcons.trash,
-          tooltip: l.expDelete,
-          onPressed: () => unawaited(_delete(context, ref)),
-        ),
+          HeroIconButton(
+            key: const Key('expense-delete'),
+            icon: AppIcons.trash,
+            tooltip: l.expDelete,
+            onPressed: () => unawaited(_delete(context, ref)),
+          ),
+        ],
       ],
       titleWidget: Column(
         children: [
@@ -200,7 +216,15 @@ class _Hero extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: AppSpacing.s4),
-          StatusPill(label: label, tone: tone),
+          if (deleted)
+            StatusPill(
+              key: const Key('expense-deleted-pill'),
+              label: l.entryDeletedPill,
+              icon: AppIcons.trash,
+              tone: StatusPillTone.negative,
+            )
+          else
+            StatusPill(label: label, tone: tone),
         ],
       ),
     );
@@ -231,6 +255,7 @@ class _Body extends StatelessWidget {
     String money(int v) => MoneyFormatter.detail.format(v, e.currency);
     String name(String id) => id == view.meId ? l.you : view.nameOf(id);
     final kind = splitKindOf(e.splitKind);
+    final items = _itemsOf(e);
     final added = _addedLine(context, l);
     final edited = _editedLine(context, l);
     final payers = view.paid.entries.where((p) => p.value != 0).toList();
@@ -243,6 +268,7 @@ class _Body extends StatelessWidget {
           const Center(child: SyncMarker()),
           const SizedBox(height: AppSpacing.s4),
         ],
+        if (view.deleted) ...[_DeletedNote(expense: e), const SizedBox(height: AppSpacing.s6)],
         SectionLabel(view.isLoan ? l.loanLentBy : l.expPaidByLabel),
         for (var i = 0; i < payers.length; i++)
           _PersonRow(
@@ -254,7 +280,11 @@ class _Body extends StatelessWidget {
             divider: i < payers.length - 1,
           ),
         const SizedBox(height: AppSpacing.s6),
-        SectionLabel(view.isLoan ? l.loanBorrowedBy : l.expSplitLabel(l.splitKind(kind))),
+        SectionLabel(
+          view.isLoan
+              ? l.loanBorrowedBy
+              : l.expSplitLabel(items != null ? l.entrySplitItems : l.splitKind(kind)),
+        ),
         for (var i = 0; i < owed.length; i++)
           _PersonRow(
             name: name(owed[i].key),
@@ -263,6 +293,23 @@ class _Body extends StatelessWidget {
             trailing: owed[i].value == 0 ? l.expOwesNothing : l.expOwes(money(owed[i].value)),
             divider: i < owed.length - 1,
           ),
+        if (items != null) ...[
+          const SizedBox(height: AppSpacing.s6),
+          SectionLabel(l.entryItemsLabel),
+          for (final (i, item) in items.items.indexed)
+            _PersonRow(
+              name: item.name.isEmpty ? l.entryItemHint : item.name,
+              avatarName: item.name.isEmpty ? l.entryItemHint : item.name,
+              seed: 'item-$i',
+              itemRow: true,
+              trailing: money(ScaledInput.parse(item.amountText, items.exponent) ?? 0),
+              caption: [
+                for (final id in view.owed.keys)
+                  if (item.members.contains(id)) name(id),
+              ].join(', '),
+              divider: i < items.items.length - 1,
+            ),
+        ],
         const SizedBox(height: AppSpacing.s6),
         SectionLabel(l.expDetailsLabel),
         if (view.isLoan)
@@ -300,9 +347,11 @@ class _Body extends StatelessWidget {
           ),
         if (e.receiptPath != null) ...[
           const SizedBox(height: AppSpacing.s4),
-          ReceiptCard(expense: e),
+          ReceiptCard(expense: e, readOnly: readOnly),
           const SizedBox(height: AppSpacing.s2),
         ],
+        if (!view.isLoan && !view.deleted)
+          CategoryTrendCard(groupId: e.groupId, category: e.category),
         DashedListRow(
           key: const Key('expense-history'),
           icon: AppIcons.history,
@@ -368,6 +417,61 @@ class _Body extends StatelessWidget {
   }
 }
 
+/// Restores a deleted expense (D-034 A4, rule 9): the outbox `restore` mutation; the server writes
+/// `expense_restored` to Activity. The page stays and turns back into the normal one.
+Future<void> restoreExpense(BuildContext context, WidgetRef ref, LocalExpense e) async {
+  final l = AppLocalizations.of(context);
+  final messenger = ScaffoldMessenger.of(context);
+  await ref.read(expenseActionsProvider).restore(e);
+  unawaited(HapticFeedback.mediumImpact());
+  messenger
+    ..hideCurrentSnackBar()
+    ..showSnackBar(SnackBar(content: Text(l.entryRestored), duration: const Duration(seconds: 3)));
+}
+
+/// "This expense was deleted …" with the Restore button, at the top of a deleted expense's page.
+class _DeletedNote extends ConsumerWidget {
+  const _DeletedNote({required this.expense});
+
+  final LocalExpense expense;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context);
+    final c = context.colors;
+    return Container(
+      key: const Key('expense-deleted-note'),
+      padding: const EdgeInsets.all(AppSpacing.s4),
+      decoration: BoxDecoration(color: c.surfaceMuted, borderRadius: AppRadii.all24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(AppIcons.info, size: 20, color: c.textSecondary),
+              const SizedBox(width: AppSpacing.s3),
+              Expanded(child: Text(l.entryDeletedNote, style: context.text.body)),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.s4),
+          PillButton(
+            key: const Key('expense-restore'),
+            label: l.entryRestoreExpense,
+            icon: AppIcons.restore,
+            onPressed: () => unawaited(restoreExpense(context, ref, expense)),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// The lines of an itemized expense (D-034 A2), read from `split_values`; null for other expenses.
+ItemizeDraft? _itemsOf(LocalExpense e) => e.splitKind == 'exact'
+    ? ItemizeDraft.fromStored(e.splitValues, Currencies.exponentOf(e.currency.trim()))
+    : null;
+
 class _PersonRow extends StatelessWidget {
   const _PersonRow({
     required this.name,
@@ -376,7 +480,12 @@ class _PersonRow extends StatelessWidget {
     required this.trailing,
     required this.divider,
     this.emphasis = false,
+    this.caption,
+    this.itemRow = false,
   });
+
+  /// An item line (receipt icon instead of an avatar).
+  final bool itemRow;
 
   final String name;
   final String avatarName;
@@ -384,6 +493,9 @@ class _PersonRow extends StatelessWidget {
   final String trailing;
   final bool divider;
   final bool emphasis;
+
+  /// A second line under the name (who had an item).
+  final String? caption;
 
   @override
   Widget build(BuildContext context) {
@@ -395,6 +507,16 @@ class _PersonRow extends StatelessWidget {
     );
     // Large text (phase 19 polish): the amount goes under the name, so names never break inside a word.
     final stacked = MediaQuery.textScalerOf(context).scale(1) > 1.4;
+    final line = caption;
+    final title = line == null
+        ? Text(name, style: context.text.body.w(600))
+        : Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(name, style: context.text.body.w(600)),
+              Text(line, style: context.text.bodySmall.copyWith(color: c.textSecondary)),
+            ],
+          );
     return MergeSemantics(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -403,21 +525,24 @@ class _PersonRow extends StatelessWidget {
             padding: const EdgeInsets.symmetric(vertical: AppSpacing.s3),
             child: Row(
               children: [
-                Avatar(name: avatarName, seed: seed),
+                if (itemRow)
+                  TintedIcon(icon: AppIcons.receipt, color: c.primary)
+                else
+                  Avatar(name: avatarName, seed: seed),
                 const SizedBox(width: AppSpacing.s3),
                 if (stacked)
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(name, style: context.text.body.w(600)),
+                        title,
                         const SizedBox(height: AppSpacing.s1),
                         amount,
                       ],
                     ),
                   )
                 else ...[
-                  Expanded(child: Text(name, style: context.text.body.w(600))),
+                  Expanded(child: title),
                   const SizedBox(width: AppSpacing.s3),
                   amount,
                 ],

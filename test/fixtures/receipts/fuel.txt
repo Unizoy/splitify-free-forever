@@ -1,0 +1,13 @@
+INDIAN OIL
+COCO - SECTOR 21 GURUGRAM
+Tel: 0124 2345678
+Receipt No: 004512
+Date: 21/11/2026  Time: 18:42
+Nozzle No: 2
+Product: Petrol
+Rate (Rs/L): 102.86
+Volume (L): 19.44
+Amount (Rs): 2000.00
+Vehicle No: HR26AB1234
+Mode: UPI
+Thank you. Visit again

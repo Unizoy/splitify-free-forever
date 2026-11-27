@@ -1,0 +1,19 @@
+THE GRAND PALACE HOTEL
+MI Road, Jaipur, Rajasthan
+GSTIN: 08AAACT1234K1Z2
+TAX INVOICE
+Bill Date: 21-Nov-2026
+Guest: Mr. Mohit Bindal  Room: 304
+Arrival: 18-Nov-2026  Departure: 21-Nov-2026
+Room Charges (3 nights)  7,500.00
+Food & Beverages  1,250.00
+Laundry  180.00
+Sub Total  8,930.00
+Service Charge  446.50
+CGST @ 6%  562.59
+SGST @ 6%  562.59
+Total  10,501.68
+Round Off  -0.68
+Grand Total  ₹ 10,501.00
+Amount Paid  10,501.00
+Balance  0.00

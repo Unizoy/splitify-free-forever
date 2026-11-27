@@ -41,3 +41,8 @@ Current phase: _none in progress_ (05 + 06 leftovers finished 2026-11-22 on `pha
   Gates: format 0 changed, analyze 0 errors/warnings, guards OK, `flutter test` 3,261 passed (coverage 95.7 %, all
   floors met), debug APK built, `tool/build_release.ps1` 4 APKs (arm64 17.8 MB, universal 32.1 MB) with aapt2: no
   notification-listener / accessibility / overlay / SMS permission. No device run (not needed).
+- 2026-11-28, D-034 WP-A smart entry (`feat/d034-a-entry`, off `feat/simple-add-expense`, no PR): two-person
+  answers, Items split (+ tax/service/tip/discount in proportion), on-device receipt scan (ML Kit bundled Latin),
+  restore from the deleted expense page, focus after "With you and", category trend card, share to Splitify.
+  S-370..S-379. Gates: format/analyze/guards clean, 3,640 tests, coverage floors met, device e2e PASS (OCR 8/8).
+  arm64 split APK +~5.9 MB. [report](reports/d034-a.md)

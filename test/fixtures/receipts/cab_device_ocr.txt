@@ -1,0 +1,10 @@
+Uber
+Thanks for riding, Mohit
+21 November 2026
+Total  1312.00
+Trip fare  <270.48
+Booking fee  715.00
+Taxes  26.52
+Payments
+Cash  312.00
+Distance 12.4 km  Duration 34 min

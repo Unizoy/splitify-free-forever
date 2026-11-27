@@ -9,6 +9,7 @@ import 'package:splitify/core/money/split.dart';
 import 'package:splitify/data/data_providers.dart';
 import 'package:splitify/data/local/app_database.dart';
 import 'package:splitify/data/sync/sync_types.dart';
+import 'package:splitify/features/expenses/application/category_trend.dart';
 import 'package:splitify/features/expenses/application/default_split_controller.dart';
 import 'package:splitify/features/expenses/application/expense_draft.dart';
 import 'package:splitify/features/expenses/application/expense_editor_controller.dart';
@@ -249,6 +250,9 @@ List<Override> baseOverrides({List<WithTarget> targets = const []}) => [
   groupPaymentViewsProvider(gid).overrideWithValue(const AsyncData([])),
   // D-033 "With you and": recent groups and friends come from every group's ledger; none here.
   withTargetsProvider.overrideWithValue(targets),
+  // D-034 A6: the expense page's category trend reads every ledger; none here (goldens that show the
+  // card override it again in a nested ProviderScope).
+  categoryTrendProvider.overrideWith((ref, q) => null),
 ];
 
 /// Themed app around [child] (no router).

@@ -1,0 +1,13 @@
+APOLLO PHARMACY
+Shop No 4, MG Road, Bengaluru
+GSTIN: 29ABCDE1234F1Z5
+Bill No: AP12345  Date: 20-11-2026
+Item  Qty  MRP  Amount
+Dolo 650 Tab  2  30.91  61.82
+Azithral 500  1  119.50  119.50
+Vicks Vaporub 50g  1  178.68  178.68
+Gross Amount  360.00
+Discount (4%)  14.40
+Net Amt  345.60
+Paid by UPI
+Thank you, get well soon

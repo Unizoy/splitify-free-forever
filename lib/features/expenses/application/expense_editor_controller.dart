@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:splitify/core/time/clock.dart';
 import 'package:splitify/core/money/currencies.dart';
 import 'package:splitify/core/money/scaled_input.dart';
+import 'package:splitify/core/money/split.dart';
 import 'package:splitify/core/utils/uuid.dart';
 import 'package:splitify/data/data_providers.dart';
 import 'package:splitify/data/local/app_database.dart';
@@ -20,6 +21,7 @@ import 'package:splitify/features/currency/application/conversion_actions.dart'
 import 'package:splitify/features/currency/domain/conversion.dart' show expenseFxAfterEdit;
 import 'package:splitify/features/expenses/application/category_providers.dart';
 import 'package:splitify/features/expenses/application/expense_draft.dart';
+import 'package:splitify/features/expenses/application/itemize_draft.dart';
 import 'package:splitify/features/expenses/application/receipt_draft.dart';
 import 'package:splitify/features/expenses/application/split_draft.dart';
 import 'package:splitify/features/recurring/application/recurring_providers.dart'
@@ -104,12 +106,15 @@ class ExpenseEditorController extends AsyncNotifier<ExpenseDraft> {
       expenseId: saved.id,
       currency: saved.currency,
       members: _people([...active, ...extra], meId),
-      split: SplitDraft.stored(
-        members: activeIds,
-        exponent: exponent,
-        kind: splitKindOf(saved.splitKind),
-        participants: shares.keys.toList(),
-        values: values,
+      split: _withItems(
+        SplitDraft.stored(
+          members: activeIds,
+          exponent: exponent,
+          kind: splitKindOf(saved.splitKind),
+          participants: shares.keys.toList(),
+          values: values,
+        ),
+        saved.splitValues,
       ),
       date: parseIsoDate(saved.date),
       payerId: payers.length == 1 ? payers.keys.first : null,
@@ -227,12 +232,15 @@ class ExpenseEditorController extends AsyncNotifier<ExpenseDraft> {
       groupType: group.type,
       currency: currency,
       members: _people([...active, ...extra], meId),
-      split: SplitDraft.stored(
-        members: [for (final m in active) m.id],
-        exponent: exponent,
-        kind: splitKindOf(f['split_kind'] as String? ?? 'equal'),
-        participants: shares.keys.toList(),
-        values: values,
+      split: _withItems(
+        SplitDraft.stored(
+          members: [for (final m in active) m.id],
+          exponent: exponent,
+          kind: splitKindOf(f['split_kind'] as String? ?? 'equal'),
+          participants: shares.keys.toList(),
+          values: values,
+        ),
+        f['split_values'],
       ),
       date: parseIsoDate(t.anchorDate),
       payerId: payers.length == 1 ? payers.keys.first : null,
@@ -341,6 +349,13 @@ class ExpenseEditorController extends AsyncNotifier<ExpenseDraft> {
   static List<EditorMember> _people(List<LocalMember> members, String? meId) => [
     for (final m in members) (id: m.id, name: m.displayName, isMe: m.id == meId),
   ];
+}
+
+/// An exact split saved by the Items editor reopens there (D-034 A2): its lines from `split_values`.
+SplitDraft _withItems(SplitDraft split, Object? splitValues) {
+  if (split.kind != SplitKind.exact) return split;
+  final items = ItemizeDraft.fromStored(splitValues, split.exponent, members: split.members);
+  return items == null ? split : split.withItems(items);
 }
 
 /// Member id → minor units of a template's JSON map; non-number entries (an imported expense's

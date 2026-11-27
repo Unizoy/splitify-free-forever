@@ -5,6 +5,7 @@ import 'package:splitify/core/money/scaled_input.dart';
 import 'package:splitify/core/money/split.dart';
 import 'package:splitify/features/expenses/application/receipt_draft.dart';
 import 'package:splitify/features/expenses/application/split_draft.dart';
+import 'package:splitify/features/expenses/application/two_person.dart';
 import 'package:splitify/features/recurring/application/repeat_draft.dart';
 
 /// A member as the editor shows it.
@@ -86,6 +87,7 @@ final class ExpenseDraft {
     this.repeat = RepeatDraft.never,
     this.canRepeat = false,
     this.templateId,
+    this.answer,
   }) : baseCategory = baseCategory ?? category;
 
   final String groupId;
@@ -136,6 +138,10 @@ final class ExpenseDraft {
   /// Set when the editor edits a repeating expense's future copies (its template, #12) instead of one
   /// expense; [date] is then the template's first date and only the repeat can change it.
   final String? templateId;
+
+  /// The two-person answer picked in this edit (D-034 A1); "owed the full amount" follows the amount.
+  /// Cleared by any other payer or split change.
+  final TwoPersonAnswer? answer;
 
   bool get isEdit => expenseId != null;
 
@@ -284,7 +290,7 @@ final class ExpenseDraft {
       'payers': paid.paid,
       'shares': check.shares,
       'split_kind': split.kind.name,
-      'split_values': split.storedValues,
+      'split_values': split.storedSplitValues,
     };
   }
 
@@ -321,7 +327,8 @@ final class ExpenseDraft {
     repeat: repeat,
     canRepeat: canRepeat,
     templateId: templateId,
-  );
+    answer: answer,
+  ).reapplyAnswer();
 
   /// This new draft for another group (D-033 "With you and" picker), keeping what was typed in [old]:
   /// description, amount, date, notes, receipt, repeat and a picked or suggested category. People, payer
@@ -371,15 +378,28 @@ final class ExpenseDraft {
   }
 
   /// One payer for the whole amount.
-  ExpenseDraft withSinglePayer(String id) => _copy(payerId: id, payerText: payerText);
+  ExpenseDraft withSinglePayer(String id) =>
+      _copy(payerId: id, payerText: payerText, clearAnswer: true);
 
   /// "Multiple people": per-person amounts (saved or earlier typed ones are kept).
-  ExpenseDraft withMultiplePayers() => _copy(payerId: null, payerText: payerInputs);
+  ExpenseDraft withMultiplePayers() =>
+      _copy(payerId: null, payerText: payerInputs, clearAnswer: true);
 
   /// Typed amount of [memberId] under "Multiple people".
-  ExpenseDraft withPayerText(String memberId, String text) =>
-      _copy(payerId: null, payerText: Map.unmodifiable({...payerInputs, memberId: text}));
+  ExpenseDraft withPayerText(String memberId, String text) => _copy(
+    payerId: null,
+    payerText: Map.unmodifiable({...payerInputs, memberId: text}),
+    clearAnswer: true,
+  );
 
+  /// A two-person answer's payer and split (D-034 A1, [TwoPersonDraft.withAnswer]).
+  ExpenseDraft answered({
+    required String payerId,
+    required SplitDraft split,
+    required TwoPersonAnswer answer,
+  }) => _copy(payerId: payerId, payerText: null, split: split, answer: answer);
+
+  /// Changes fields; a new payer or split ends a two-person answer, a new amount re-applies it.
   ExpenseDraft copyWith({
     String? amountText,
     String? description,
@@ -389,17 +409,21 @@ final class ExpenseDraft {
     DateTime? date,
     String? notes,
     ReceiptDraft? receipt,
-  }) => _copy(
-    payerId: payerId ?? this.payerId,
-    payerText: payerText,
-    amountText: amountText,
-    description: description,
-    split: split,
-    category: category,
-    date: date,
-    notes: notes,
-    receipt: receipt,
-  );
+  }) {
+    final next = _copy(
+      payerId: payerId ?? this.payerId,
+      payerText: payerText,
+      amountText: amountText,
+      description: description,
+      split: split,
+      category: category,
+      date: date,
+      notes: notes,
+      receipt: receipt,
+      clearAnswer: payerId != null || split != null,
+    );
+    return amountText != null && amountText != this.amountText ? next.reapplyAnswer() : next;
+  }
 
   ExpenseDraft _copy({
     required String? payerId,
@@ -413,6 +437,8 @@ final class ExpenseDraft {
     ReceiptDraft? receipt,
     RepeatDraft? repeat,
     CategoryOrigin? origin,
+    TwoPersonAnswer? answer,
+    bool clearAnswer = false,
   }) => ExpenseDraft(
     groupId: groupId,
     groupName: groupName,
@@ -435,6 +461,7 @@ final class ExpenseDraft {
     repeat: repeat ?? this.repeat,
     canRepeat: canRepeat,
     templateId: templateId,
+    answer: answer ?? (clearAnswer ? null : this.answer),
   );
 }
 
