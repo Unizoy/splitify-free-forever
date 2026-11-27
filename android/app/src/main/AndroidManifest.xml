@@ -37,6 +37,17 @@
                 <category android:name="android.intent.category.BROWSABLE"/>
                 <data android:scheme="splitify"/>
             </intent-filter>
+            <!-- Share to Splitify (D-034 A7): a receipt picture or a payment text opens a prefilled expense. -->
+            <intent-filter>
+                <action android:name="android.intent.action.SEND"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:mimeType="image/*"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.SEND"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:mimeType="text/plain"/>
+            </intent-filter>
         </activity>
         <!-- FCM pushes that arrive in the background: status-bar icon and the fallback channel (the server
              sets android.notification.channel_id to the kind; the app creates one channel per kind). -->

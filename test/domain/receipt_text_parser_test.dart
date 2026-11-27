@@ -231,6 +231,19 @@ void main() {
     });
   });
 
+  group('shared text (D-034 A7)', () {
+    test('a UPI app\'s "Paid ₹250 to …" gives the amount and the payee', () {
+      final s = parseReceipt(const [
+        'Paid ₹250 to Ramesh Kumar via Google Pay. UPI transaction ID: 432112345678',
+      ]);
+      expect(s.total, 25000);
+      expect(s.merchant, 'Ramesh Kumar');
+      final p = parseReceipt(const ['You sent Rs. 1,200.50 to SHARMA GROCERY using PhonePe']);
+      expect(p.total, 120050);
+      expect(p.merchant, 'Sharma Grocery');
+    });
+  });
+
   group('rows from OCR boxes', () {
     test('a name on the left and its price on the right become one row', () {
       final rows = receiptRows(const [

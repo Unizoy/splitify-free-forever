@@ -20,9 +20,11 @@ import 'package:splitify/features/expenses/application/two_person.dart';
 import 'package:splitify/features/expenses/presentation/editor/with_picker.dart'
     show withTargetsProvider;
 import 'package:splitify/features/expenses/presentation/expense_detail_screen.dart';
+import 'package:splitify/features/expenses/presentation/editor/expense_editor_screen.dart';
 import 'package:splitify/features/groups/application/groups_providers.dart'
     show syncOfflineProvider;
 import 'package:splitify/features/receipt_scan/application/receipt_ocr.dart';
+import 'package:splitify/features/receipt_scan/application/share_intake.dart';
 import 'package:splitify/features/receipt_scan/presentation/scan_review_sheet.dart';
 
 import '../../../support/sample_photo.dart';
@@ -316,6 +318,49 @@ void main() {
       expect([for (final i in items.items) i.name], ['Masala Dosa', 'Ghee Roast']);
       expect(items.extras[ItemExtra.tax], '16');
       expect(h.draft.canSave, isTrue);
+    });
+  });
+
+  group('share to Splitify (A7)', () {
+    testWidgets('shared text fills the empty amount and description; nothing is saved', (t) async {
+      final h = await pumpEditor(
+        t,
+        _group(amount: '').copyWith(description: ''),
+        args: newArgs,
+        overrides: [
+          shareReaderProvider.overrideWithValue(
+            (token) async => token == 'tok'
+                ? (text: 'Paid ₹250 to Ramesh Kumar via Google Pay', imagePath: null)
+                : null,
+          ),
+        ],
+        build: (args) => const ExpenseEditorScreen(groupId: gid, shareToken: 'tok'),
+      );
+      await settle(t);
+      expect(h.draft.amountText, '250');
+      expect(h.draft.description, 'Ramesh Kumar');
+      expect(t.widget<TextField>(fieldIn('expense-amount')).controller!.text, '250');
+      expect(h.controller!.saves, 0);
+    });
+
+    testWidgets('a shared picture opens the scan review at once', (t) async {
+      final h = await pumpEditor(
+        t,
+        _group(amount: '').copyWith(description: ''),
+        args: newArgs,
+        overrides: [
+          ..._scanOverrides(lines: _restaurantLines()),
+          shareReaderProvider.overrideWithValue(
+            (token) async => (text: null, imagePath: 'shared.jpg'),
+          ),
+        ],
+        build: (args) => const ExpenseEditorScreen(groupId: gid, shareToken: 'tok'),
+      );
+      await settle(t);
+      expect(find.byKey(const Key('scan-review')), findsOneWidget);
+      await tapKey(t, 'scan-use');
+      expect(h.draft.amountText, '336');
+      expect(h.draft.receipt.hasPhoto, isTrue);
     });
   });
 

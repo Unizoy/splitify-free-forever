@@ -539,6 +539,16 @@ String? _merchant(List<String> rows) {
     final clean = _cleanName(name);
     if (clean != null) return clean;
   }
+  // Text a UPI app shares: "Paid ₹250 to Ramesh Kumar via Google Pay." (D-034 A7).
+  for (final row in rows) {
+    final m = RegExp(
+      r'\b(?:paid|sent|payment of)\b.*?\bto\s+([A-Za-z][A-Za-z .&\x27]{1,40}?)'
+      r'(?=\s+(?:via|on|using|upi|from|for|with|successfully)\b|[.,!]|$)',
+      caseSensitive: false,
+    ).firstMatch(row);
+    final clean = m == null ? null : _cleanName(m[1]!);
+    if (clean != null) return clean;
+  }
   for (final row in rows.take(8)) {
     if (_notMerchant.hasMatch(row)) continue;
     final digits = RegExp(r'\d').allMatches(row).length;

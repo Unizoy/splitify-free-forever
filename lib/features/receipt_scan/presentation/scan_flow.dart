@@ -18,33 +18,40 @@ typedef ScanResult = ({ScanDecision decision, ScanOutcome outcome});
 
 /// "Scan receipt" (D-034 A3): camera or gallery, the text read on this phone (offline), then the review
 /// sheet. Returns null when the person backs out. [read] reads a picked file (tests replace it).
+///
+/// With [path] (a picture shared to Splitify, D-034 A7) the first read skips the camera / gallery choice.
 Future<ScanResult?> scanReceipt(
   BuildContext context,
   WidgetRef ref, {
   required ExpenseDraft draft,
   DateTime? today,
+  String? path,
 }) async {
   final l = AppLocalizations.of(context);
   final messenger = ScaffoldMessenger.of(context);
   final picker = ref.read(receiptImagePickerProvider);
   final ocr = ref.read(receiptOcrProvider);
   final prepare = ref.read(receiptPhotoPreparerProvider);
+  var shared = path;
   while (context.mounted) {
-    final source = await showAppSheet<PhotoSource>(
-      context,
-      title: l.entryScanReceipt,
-      builder: (sheet) => const _ScanSource(),
-    );
-    if (source == null || !context.mounted) return null;
-    final String? path;
-    try {
-      path = await picker(source);
-    } on Exception catch (e) {
-      _log.warning('receipt pick failed: $e');
-      messenger
-        ..hideCurrentSnackBar()
-        ..showSnackBar(SnackBar(content: Text(l.entryScanFailed)));
-      return null;
+    var path = shared;
+    shared = null;
+    if (path == null) {
+      final source = await showAppSheet<PhotoSource>(
+        context,
+        title: l.entryScanReceipt,
+        builder: (sheet) => const _ScanSource(),
+      );
+      if (source == null || !context.mounted) return null;
+      try {
+        path = await picker(source);
+      } on Exception catch (e) {
+        _log.warning('receipt pick failed: $e');
+        messenger
+          ..hideCurrentSnackBar()
+          ..showSnackBar(SnackBar(content: Text(l.entryScanFailed)));
+        return null;
+      }
     }
     if (path == null || !context.mounted) return null;
     final reading = readReceipt(ocr, prepare, path, exponent: draft.exponent, today: today);

@@ -25,6 +25,7 @@ import 'package:splitify/features/groups/application/groups_providers.dart'
     show syncOfflineProvider;
 import 'package:splitify/features/groups/presentation/group_visuals.dart' show confirmAction;
 import 'package:splitify/features/receipt_scan/application/scan_apply.dart';
+import 'package:splitify/features/receipt_scan/application/share_intake.dart';
 import 'package:splitify/features/receipt_scan/presentation/scan_flow.dart';
 import 'package:splitify/features/recurring/application/recurring_providers.dart'
     show intervalLabel;
@@ -41,10 +42,20 @@ const suggestDelay = Duration(milliseconds: 250);
 /// phone's own keyboards, one "Paid by · split" pill that opens a sheet, and a bottom toolbar (date, notes,
 /// receipt, repeat) with Save that stays above the keyboard. Defaults: you paid, the group's default split.
 class ExpenseEditorScreen extends ConsumerStatefulWidget {
-  const ExpenseEditorScreen({this.groupId, this.expenseId, this.templateId, super.key});
+  const ExpenseEditorScreen({
+    this.groupId,
+    this.expenseId,
+    this.templateId,
+    this.shareToken,
+    super.key,
+  });
 
   final String? groupId;
   final String? expenseId;
+
+  /// Something shared to Splitify (D-034 A7, `splitify://expense/new?share=<token>`): a receipt picture is
+  /// read like "Scan receipt", text like "Paid ₹250 to Ramesh" fills the amount and description.
+  final String? shareToken;
 
   /// "Edit future copies" of this repeating-expense template (#12) instead of one expense.
   final String? templateId;
@@ -71,6 +82,9 @@ class _ExpenseEditorScreenState extends ConsumerState<ExpenseEditorScreen> {
 
   /// The user chose the currency: it stays when "With you and" moves the draft to another group.
   bool _currencyPicked = false;
+
+  /// The shared payload was taken (once per screen).
+  bool _shareTaken = false;
 
   ExpenseEditorArgs get _args => (groupId: widget.groupId, expenseId: widget.expenseId);
 
@@ -250,7 +264,7 @@ class _ExpenseEditorScreenState extends ConsumerState<ExpenseEditorScreen> {
 
   /// "Scan receipt" (D-034 A3): reads a photo on the phone, then fills what the person kept ticked. The
   /// photo becomes the receipt; nothing is saved until Save (S-373).
-  Future<void> _scan() async {
+  Future<void> _scan({String? path}) async {
     final d = _draft;
     if (d == null) return;
     if (_suggest != null) _flushSuggestion();
@@ -260,21 +274,58 @@ class _ExpenseEditorScreenState extends ConsumerState<ExpenseEditorScreen> {
       ref,
       draft: d,
       today: ref.read(clockProvider).today(),
+      path: path,
     );
     if (result == null || !mounted) return;
     final now = _draft ?? d;
-    final next = applyScan(
-      now,
-      result.outcome.scan,
-      result.decision.choice,
-      photo: result.outcome.photo,
-      itemize: result.decision.itemize,
+    _applied(
+      applyScan(
+        now,
+        result.outcome.scan,
+        result.decision.choice,
+        photo: result.outcome.photo,
+        itemize: result.decision.itemize,
+      ),
     );
+    if (result.decision.itemize && (_draft?.split.isItems ?? false) && mounted) {
+      await _openFullPaidSplit();
+    }
+  }
+
+  /// Puts a scanned or shared draft into the editor (and its text fields).
+  void _applied(ExpenseDraft next) {
     _edit((_) => next);
     if (_description?.text != next.description) _description?.text = next.description;
     if (_amount?.text != next.amountText) _amount?.text = next.amountText;
     ref.read(_provider.notifier).suggestCategory();
-    if (result.decision.itemize && next.split.isItems && mounted) await _openFullPaidSplit();
+  }
+
+  /// Share to Splitify (D-034 A7): a picture goes through the scan review; text fills the empty amount and
+  /// description at once. Nothing is saved until Save; "With you and" still picks who it is with.
+  Future<void> _takeShare() async {
+    final token = widget.shareToken;
+    if (token == null || _shareTaken) return;
+    _shareTaken = true;
+    final payload = await ref.read(shareReaderProvider)(token);
+    final d = _draft;
+    if (payload == null || d == null || !mounted) return;
+    final image = payload.imagePath;
+    if (image != null) return _scan(path: image);
+    final text = payload.text;
+    if (text == null) return;
+    final scan = parseSharedText(
+      text,
+      exponent: d.exponent,
+      today: ref.read(clockProvider).today(),
+    );
+    if (scan.total == null && scan.merchant == null) {
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text(AppLocalizations.of(context).entryShareNothing)));
+      return;
+    }
+    _dirty = true;
+    _applied(applyScan(d, scan, defaultChoice(d, scan)));
   }
 
   Future<void> _pickDate(ExpenseDraft d) async {
@@ -550,6 +601,11 @@ class _ExpenseEditorScreenState extends ConsumerState<ExpenseEditorScreen> {
       );
     }
 
+    if (widget.shareToken != null && !_shareTaken) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) unawaited(_takeShare());
+      });
+    }
     final description = _description ??= TextEditingController(text: draft.description);
     final amount = _amount ??= TextEditingController(text: draft.amountText);
     _notes ??= TextEditingController(text: draft.notes);
