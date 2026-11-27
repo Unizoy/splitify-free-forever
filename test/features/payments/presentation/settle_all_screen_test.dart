@@ -141,7 +141,7 @@ void main() {
   testWidgets('more than the total is an inline error and Save records nothing', (t) async {
     final rig = await _pump(t);
     await _type(t, '500');
-    expect(find.text('More than the ₹455 owed'), findsWidgets);
+    expect(find.text('More than the ₹455 owed'), findsOneWidget);
     expect(
       find.text("One payment can't be more than what's owed in these groups."),
       findsOneWidget,

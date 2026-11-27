@@ -645,7 +645,7 @@ class OwedSummaryPill extends StatelessWidget {
       final a => (
         AppIcons.warning,
         l.settleSummaryOver(money(owed)),
-        overIsError ? l.settle2OverHint : l.settleSummaryExtra(money(a - owed)),
+        overIsError ? null : l.settleSummaryExtra(money(a - owed)),
       ),
     };
     final error = overIsError && (amount ?? 0) > owed && owed > 0;

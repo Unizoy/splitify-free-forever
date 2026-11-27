@@ -84,6 +84,15 @@ class _FriendPageState extends ConsumerState<FriendPage> {
     final open = items.sublist(0, items.length - settled);
     final rows = [
       ..._itemRows(context, friend, open),
+      if (settled > 0 && open.isEmpty)
+        Padding(
+          padding: const EdgeInsets.only(top: AppSpacing.s2),
+          child: Text(
+            l.friendSettledSnack(friend.name),
+            key: const Key('friend-all-settled'),
+            style: context.text.body.copyWith(color: context.colors.textSecondary),
+          ),
+        ),
       if (settled > 0)
         Padding(
           padding: EdgeInsets.only(top: open.isEmpty ? AppSpacing.s3 : AppSpacing.s6),
@@ -504,11 +513,45 @@ Future<void> _settle(BuildContext context, WidgetRef ref, Friend friend) async {
     return;
   }
   final first = ref.read(profileProvider).value?.defaultCurrency ?? 'INR';
-  final everything = settleAllOptions(friend, first: first);
   await showAppSheet<void>(
     context,
     title: l.friendSettleTitle(friend.name),
-    builder: (sheet) => Column(
+    builder: (sheet) => FriendSettlePicker(
+      friend: friend,
+      firstCurrency: first,
+      onEverything: (currency) {
+        Navigator.of(sheet).pop();
+        unawaited(router.push(PaymentRoutes.settleAll(friend.key, currency)));
+      },
+      onTransfer: (link, currency, t) {
+        Navigator.of(sheet).pop();
+        unawaited(router.push(route(link, currency, t)));
+      },
+    ),
+  );
+}
+
+/// The friend's Settle up sheet: "Everything with Asha" per currency where we have balances in several groups,
+/// then each group's balances with its Settle button.
+class FriendSettlePicker extends StatelessWidget {
+  const FriendSettlePicker({
+    required this.friend,
+    required this.firstCurrency,
+    required this.onEverything,
+    required this.onTransfer,
+    super.key,
+  });
+
+  final Friend friend;
+  final String firstCurrency;
+  final ValueChanged<String> onEverything;
+  final void Function(FriendLink link, String currency, Transfer transfer) onTransfer;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final everything = settleAllOptions(friend, first: firstCurrency);
+    return Column(
       key: const Key('friend-settle-picker'),
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -520,16 +563,13 @@ Future<void> _settle(BuildContext context, WidgetRef ref, Friend friend) async {
               tint: friend.tint,
               option: everything[i],
               showDivider: i < everything.length - 1,
-              onTap: () {
-                Navigator.of(sheet).pop();
-                unawaited(router.push(PaymentRoutes.settleAll(friend.key, everything[i].currency)));
-              },
+              onTap: () => onEverything(everything[i].currency),
             ),
           const SizedBox(height: AppSpacing.s4),
           Text(
             l.settle2OneGroup,
             key: const Key('friend-settle-one-group'),
-            style: sheet.text.bodySmall.copyWith(color: sheet.colors.textSecondary),
+            style: context.text.bodySmall.copyWith(color: context.colors.textSecondary),
           ),
           const SizedBox(height: AppSpacing.s2),
         ],
@@ -542,15 +582,12 @@ Future<void> _settle(BuildContext context, WidgetRef ref, Friend friend) async {
                 currency: link.transfers[i].currency,
                 transfer: link.transfers[i].transfer,
                 showDivider: i < link.transfers.length - 1,
-                onSettle: () {
-                  Navigator.of(sheet).pop();
-                  final x = link.transfers[i];
-                  unawaited(router.push(route(link, x.currency, x.transfer)));
-                },
+                onSettle: () =>
+                    onTransfer(link, link.transfers[i].currency, link.transfers[i].transfer),
               ),
             const SizedBox(height: AppSpacing.s4),
           ],
       ],
-    ),
-  );
+    );
+  }
 }

@@ -257,7 +257,7 @@ class _SettleAllScreenState extends ConsumerState<SettleAllScreen> {
     final money = listMoney(d.total, d.currency);
     final amountError =
         l.amountError(d.amountResult, d.currency) ??
-        (d.over ? l.settleSummaryOver(money) : null) ??
+        (d.over ? l.settle2OverHint : null) ??
         (_showErrors && d.amount == null ? l.expAmountMissing : null);
     final today = ref.read(clockProvider).today();
     final record = PillButton(
