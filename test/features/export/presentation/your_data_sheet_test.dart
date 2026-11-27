@@ -86,7 +86,7 @@ void main() {
     await t.pumpWidget(_host(_fixed(_Calls())));
     await t.pump();
     expect(find.textContaining('a full backup (JSON)'), findsOneWidget);
-    expect(_text(t, 'your-data-counts'), '3 groups · 12 expenses · 1 payment');
+    expect(_text(t, 'your-data-counts'), '3 groups\u00A0· 12 expenses\u00A0· 1 payment');
     expect(find.byKey(const Key('your-data-pending')), findsNothing);
     expect(find.text('Download my data'), findsOneWidget);
     expect(find.text('Share instead'), findsOneWidget);
@@ -99,7 +99,7 @@ void main() {
       _host(_fixed(_Calls(), counts: (groups: 1, expenses: 1, payments: 0, pending: 2))),
     );
     await t.pump();
-    expect(_text(t, 'your-data-counts'), '1 group · 1 expense · 0 payments');
+    expect(_text(t, 'your-data-counts'), '1 group\u00A0· 1 expense\u00A0· 0 payments');
     expect(find.text('Not synced yet'), findsOneWidget);
     expect(_text(t, 'your-data-pending'), contains('2 changes are not synced yet'));
   });
@@ -198,7 +198,7 @@ void main() {
     );
     await t.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 100)));
     await t.pump();
-    expect(_text(t, 'your-data-counts'), '2 groups · 4 expenses · 2 payments');
+    expect(_text(t, 'your-data-counts'), '2 groups\u00A0· 4 expenses\u00A0· 2 payments');
     expect(_text(t, 'your-data-file'), 'splitify‑backup‑2026‑11‑21.zip');
     await t.tap(find.byKey(const Key('your-data-download')));
     for (var i = 0; i < 10 && calls.saved.isEmpty; i++) {

@@ -131,7 +131,7 @@ void main() {
     );
     // November: Asha paid the dinner; my share ₹1,000.
     expect(_who(t), ('₹0', '₹1,000'));
-    expect(_text(t, 'trend-who-total'), 'Last 12 months: paid ₹9,000 · share ₹4,300');
+    expect(_text(t, 'trend-who-total'), 'Last 12 months: paid ₹9,000\u00A0· share ₹4,300');
 
     await t.tap(find.byKey(const Key('trend-person-m2')));
     await settle(t);
@@ -140,7 +140,7 @@ void main() {
     await settle(t);
     expect(_who(t), ('₹0', '₹3,000'));
     expect(_text(t, 'insights-month-title'), 'October 2026');
-    expect(_text(t, 'trend-who-total'), 'Last 12 months: paid ₹3,000 · share ₹4,000');
+    expect(_text(t, 'trend-who-total'), 'Last 12 months: paid ₹3,000\u00A0· share ₹4,000');
   });
 
   // TC-D34D-03

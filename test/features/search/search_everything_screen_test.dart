@@ -89,12 +89,12 @@ void main() {
     await _pump(t);
     await _type(t, '500');
     expect(_count(t), '2 results');
-    expect(_chip(t, 'all'), 'All · 2');
-    expect(_chip(t, 'payments'), 'Payments · 1');
-    expect(_chip(t, 'comments'), 'Comments · 1');
+    expect(_chip(t, 'all'), 'All\u00A0· 2');
+    expect(_chip(t, 'payments'), 'Payments\u00A0· 1');
+    expect(_chip(t, 'comments'), 'Comments\u00A0· 1');
     expect(find.byKey(const Key('search-kind-expenses')), findsNothing);
     expect(find.text('Asha paid you'), findsOneWidget);
-    expect(find.textContaining('Payment · 18 Nov · Goa trip'), findsOneWidget);
+    expect(find.textContaining('Payment\u00A0· 18\u00A0Nov\u00A0· Goa\u00A0trip'), findsOneWidget);
     expect(find.text('“Paid the tip in cash, 500 extra”'), findsOneWidget);
     expect(find.textContaining('Mohit on Dinner at Thalassa'), findsOneWidget);
 
