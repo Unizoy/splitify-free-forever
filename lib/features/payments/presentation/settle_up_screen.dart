@@ -350,7 +350,7 @@ class _SettleUpScreenState extends ConsumerState<SettleUpScreen> {
                     ],
                   ),
                   const SizedBox(height: AppSpacing.s6),
-                  _OwedPill(draft: d),
+                  OwedSummaryPill(owed: d.owed, amount: d.amount, currency: d.currency),
                   if (d.owed > 0 && d.amount != d.owed) ...[
                     const SizedBox(height: AppSpacing.s3),
                     Align(
@@ -369,8 +369,10 @@ class _SettleUpScreenState extends ConsumerState<SettleUpScreen> {
             // In the body (not bottomNavigationBar): the Scaffold lifts it above the keyboard.
             if (!_saved)
               StickyActionBar(
-                summary: _Toolbar(
-                  draft: d,
+                summary: SettleToolbar(
+                  date: d.date,
+                  note: d.note,
+                  method: d.method,
                   today: today,
                   onDate: () => unawaited(_pickDate(d)),
                   onNote: () => unawaited(_openNote()),
@@ -481,7 +483,7 @@ class _People extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
-              child: _Person(
+              child: SettlePerson(
                 key: const Key('settle-from'),
                 member: d.members.firstWhere((m) => m.id == d.from),
                 name: name(d.from),
@@ -506,7 +508,7 @@ class _People extends StatelessWidget {
               ),
             ),
             Expanded(
-              child: _Person(
+              child: SettlePerson(
                 key: const Key('settle-to'),
                 member: d.members.firstWhere((m) => m.id == d.to),
                 name: name(d.to),
@@ -558,8 +560,10 @@ class _People extends StatelessWidget {
   }
 }
 
-class _Person extends StatelessWidget {
-  const _Person({
+/// One side of a payment: the avatar with a ring and the name under it. Tapping picks someone else; without
+/// [onTap] (the batch form) it is read-only.
+class SettlePerson extends StatelessWidget {
+  const SettlePerson({
     required this.member,
     required this.name,
     required this.tooltip,
@@ -570,57 +574,65 @@ class _Person extends StatelessWidget {
   final LocalMember member;
   final String name;
   final String tooltip;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
 
   @override
-  Widget build(BuildContext context) => Semantics(
-    button: true,
-    label: tooltip,
-    excludeSemantics: true,
-    onTap: onTap,
-    child: Pressable(
-      onTap: onTap,
-      borderRadius: AppRadii.all16,
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.s2),
-        child: Column(
-          children: [
-            Avatar(
-              name: member.displayName,
-              seed: member.id,
-              tint: member.tint,
-              size: AvatarSize.s56,
-              ring: true,
-            ),
-            const SizedBox(height: AppSpacing.s2),
-            Text(
-              name,
-              textAlign: TextAlign.center,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: context.text.body.w(600),
-            ),
-          ],
-        ),
+  Widget build(BuildContext context) {
+    final face = Padding(
+      padding: const EdgeInsets.all(AppSpacing.s2),
+      child: Column(
+        children: [
+          Avatar(
+            name: member.displayName,
+            seed: member.id,
+            tint: member.tint,
+            size: AvatarSize.s56,
+            ring: true,
+          ),
+          const SizedBox(height: AppSpacing.s2),
+          Text(
+            name,
+            textAlign: TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: context.text.body.w(600),
+          ),
+        ],
       ),
-    ),
-  );
+    );
+    final tap = onTap;
+    if (tap == null) return Semantics(label: name, excludeSemantics: true, child: face);
+    return Semantics(
+      button: true,
+      label: tooltip,
+      excludeSemantics: true,
+      onTap: tap,
+      child: Pressable(onTap: tap, borderRadius: AppRadii.all16, child: face),
+    );
+  }
 }
 
 /// How much of the debt this payment settles: "Settles all of ₹300", "Part of the ₹300 owed · ₹150 left
-/// after this", "More than the ₹300 owed · ₹200 more than owed", or "Nothing owed right now".
-class _OwedPill extends StatelessWidget {
-  const _OwedPill({required this.draft});
+/// after this", "More than the ₹300 owed · ₹200 more than owed", or "Nothing owed right now". With
+/// [overIsError] (the batch form, D-034) paying more is an error: red edge, no extra line.
+class OwedSummaryPill extends StatelessWidget {
+  const OwedSummaryPill({
+    required this.owed,
+    required this.amount,
+    required this.currency,
+    this.overIsError = false,
+    super.key,
+  });
 
-  final SettleDraft draft;
+  final int owed;
+  final int? amount;
+  final String currency;
+  final bool overIsError;
 
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    final d = draft;
-    final owed = d.owed;
-    final amount = d.amount;
-    String money(int v) => listMoney(v, d.currency);
+    String money(int v) => listMoney(v, currency);
     final (IconData icon, String title, String? sub) = switch (amount) {
       _ when owed <= 0 => (AppIcons.info, l.settleNothingOwed, l.settleNothingOwedSub),
       null => (AppIcons.settle, l.settleSummaryOwed(money(owed)), null),
@@ -633,24 +645,36 @@ class _OwedPill extends StatelessWidget {
       final a => (
         AppIcons.warning,
         l.settleSummaryOver(money(owed)),
-        l.settleSummaryExtra(money(a - owed)),
+        overIsError ? l.settle2OverHint : l.settleSummaryExtra(money(a - owed)),
       ),
     };
-    return FormPill(key: const Key('settle-summary'), icon: icon, title: title, subtitle: sub);
+    final error = overIsError && (amount ?? 0) > owed && owed > 0;
+    return FormPill(
+      key: const Key('settle-summary'),
+      icon: icon,
+      title: title,
+      subtitle: sub,
+      error: error,
+    );
   }
 }
 
 /// The bottom toolbar: date, note and method chips; a chip is filled once it differs from the default.
-class _Toolbar extends StatelessWidget {
-  const _Toolbar({
-    required this.draft,
+class SettleToolbar extends StatelessWidget {
+  const SettleToolbar({
+    required this.date,
+    required this.note,
+    required this.method,
     required this.today,
     required this.onDate,
     required this.onNote,
     required this.onMethod,
+    super.key,
   });
 
-  final SettleDraft draft;
+  final DateTime date;
+  final String note;
+  final String method;
   final DateTime today;
   final VoidCallback onDate;
   final VoidCallback onNote;
@@ -659,8 +683,7 @@ class _Toolbar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    final d = draft;
-    final hasNote = d.note.trim().isNotEmpty;
+    final hasNote = note.trim().isNotEmpty;
     return SingleChildScrollView(
       key: const Key('settle-toolbar'),
       scrollDirection: Axis.horizontal,
@@ -669,9 +692,9 @@ class _Toolbar extends StatelessWidget {
           ToolChip(
             key: const Key('settle-date'),
             icon: AppIcons.calendar,
-            label: dayLabel(context, d.date, today),
-            semanticLabel: l.expToolDate(shortDate(context, d.date)),
-            active: !DateUtils.isSameDay(d.date, today),
+            label: dayLabel(context, date, today),
+            semanticLabel: l.expToolDate(shortDate(context, date)),
+            active: !DateUtils.isSameDay(date, today),
             onTap: onDate,
           ),
           const SizedBox(width: AppSpacing.s2),
@@ -686,10 +709,10 @@ class _Toolbar extends StatelessWidget {
           const SizedBox(width: AppSpacing.s2),
           ToolChip(
             key: const Key('settle-method'),
-            icon: methodIcon(d.method),
-            label: methodLabel(l, d.method),
-            semanticLabel: l.settleToolMethod(methodLabel(l, d.method)),
-            active: d.method != 'cash',
+            icon: methodIcon(method),
+            label: methodLabel(l, method),
+            semanticLabel: l.settleToolMethod(methodLabel(l, method)),
+            active: method != 'cash',
             onTap: onMethod,
           ),
         ],

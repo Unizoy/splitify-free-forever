@@ -7261,6 +7261,342 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Open phone settings'**
   String get notifOpenSettings;
+
+  /// D-034 B1: first row of a friend's Settle up sheet (one payment across groups).
+  ///
+  /// In en, this message translates to:
+  /// **'Everything with {name}'**
+  String settle2Everything(String name);
+
+  /// No description provided for @settle2EverythingOwesYou.
+  ///
+  /// In en, this message translates to:
+  /// **'owes you {amount} · {count, plural, =1{1 group} other{{count} groups}}'**
+  String settle2EverythingOwesYou(String amount, int count);
+
+  /// No description provided for @settle2EverythingYouOwe.
+  ///
+  /// In en, this message translates to:
+  /// **'you owe {amount} · {count, plural, =1{1 group} other{{count} groups}}'**
+  String settle2EverythingYouOwe(String amount, int count);
+
+  /// No description provided for @settle2OneGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Or settle one group'**
+  String get settle2OneGroup;
+
+  /// Before the friend chip on the batch payment form (“With Asha”).
+  ///
+  /// In en, this message translates to:
+  /// **'With'**
+  String get settle2WithLabel;
+
+  /// No description provided for @settle2Across.
+  ///
+  /// In en, this message translates to:
+  /// **'Across {count, plural, =1{1 group} other{{count} groups}}'**
+  String settle2Across(int count);
+
+  /// No description provided for @settle2AcrossHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Shows how the payment is split between the groups'**
+  String get settle2AcrossHint;
+
+  /// No description provided for @settle2BreakdownOrder.
+  ///
+  /// In en, this message translates to:
+  /// **'Balances that go the other way are cleared first. The rest pays the biggest balance first.'**
+  String get settle2BreakdownOrder;
+
+  /// No description provided for @settle2ThisPayment.
+  ///
+  /// In en, this message translates to:
+  /// **'This payment: {amount}'**
+  String settle2ThisPayment(String amount);
+
+  /// No description provided for @settle2NotInPayment.
+  ///
+  /// In en, this message translates to:
+  /// **'Not in this payment'**
+  String get settle2NotInPayment;
+
+  /// No description provided for @settle2OverHint.
+  ///
+  /// In en, this message translates to:
+  /// **'One payment can\'t be more than what\'s owed in these groups.'**
+  String get settle2OverHint;
+
+  /// No description provided for @settle2Recorded.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Payment recorded} other{{count} payments recorded}}'**
+  String settle2Recorded(int count);
+
+  /// No description provided for @settle2UpiNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Splitify: settle up'**
+  String get settle2UpiNote;
+
+  /// No description provided for @settle2NotFoundBody.
+  ///
+  /// In en, this message translates to:
+  /// **'There is nothing to settle with this friend in this currency right now.'**
+  String get settle2NotFoundBody;
+
+  /// No description provided for @settle2Deleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleted'**
+  String get settle2Deleted;
+
+  /// No description provided for @settle2DeletedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This payment was deleted. Restore it to count it in the balances again.'**
+  String get settle2DeletedBody;
+
+  /// No description provided for @settle2Restore.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore payment'**
+  String get settle2Restore;
+
+  /// No description provided for @settle2Restored.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment restored'**
+  String get settle2Restored;
+
+  /// No description provided for @settle2RestoreArchived.
+  ///
+  /// In en, this message translates to:
+  /// **'This group is archived, so the payment can\'t be restored.'**
+  String get settle2RestoreArchived;
+
+  /// D-034 B5: collapsed history on a friend page when everything is settled.
+  ///
+  /// In en, this message translates to:
+  /// **'Show settled items ({count})'**
+  String settle2ShowSettled(int count);
+
+  /// No description provided for @settle2HideSettled.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide settled items'**
+  String get settle2HideSettled;
+
+  /// No description provided for @remindShareTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Share a reminder'**
+  String get remindShareTitle;
+
+  /// No description provided for @remindShareBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Send it with any app on your phone. Splitify doesn\'t send anything itself.'**
+  String get remindShareBody;
+
+  /// No description provided for @remindShareAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Share reminder'**
+  String get remindShareAction;
+
+  /// No description provided for @remindShareInstead.
+  ///
+  /// In en, this message translates to:
+  /// **'Share instead'**
+  String get remindShareInstead;
+
+  /// No description provided for @remindShareTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Share a reminder with {name}'**
+  String remindShareTooltip(String name);
+
+  /// D-034 B3: shared reminder text for a group.
+  ///
+  /// In en, this message translates to:
+  /// **'Hi {name}, a reminder about {amount} for “{group}”.'**
+  String remindShareText(String name, String amount, String group);
+
+  /// No description provided for @remindShareTextDirect.
+  ///
+  /// In en, this message translates to:
+  /// **'Hi {name}, a reminder about the {amount} you owe me.'**
+  String remindShareTextDirect(String name, String amount);
+
+  /// No description provided for @remindShareUpi.
+  ///
+  /// In en, this message translates to:
+  /// **'You can pay me by UPI at {vpa}: {link}'**
+  String remindShareUpi(String vpa, String link);
+
+  /// No description provided for @friendCodeShowMine.
+  ///
+  /// In en, this message translates to:
+  /// **'Show my code'**
+  String get friendCodeShowMine;
+
+  /// No description provided for @friendCodeShowMineHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Friends scan it to add you'**
+  String get friendCodeShowMineHint;
+
+  /// No description provided for @friendCodeScan.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan a friend\'s code'**
+  String get friendCodeScan;
+
+  /// No description provided for @friendCodeScanHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Or paste their code or link'**
+  String get friendCodeScanHint;
+
+  /// No description provided for @friendCodeMyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'My friend code'**
+  String get friendCodeMyTitle;
+
+  /// No description provided for @friendCodeMyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Anyone who scans this or opens the link is added as your friend. Share it only with people you know.'**
+  String get friendCodeMyBody;
+
+  /// No description provided for @friendCodeQrLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'QR code for friend code {code}'**
+  String friendCodeQrLabel(String code);
+
+  /// No description provided for @friendCodeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Your code'**
+  String get friendCodeLabel;
+
+  /// No description provided for @friendCodeShare.
+  ///
+  /// In en, this message translates to:
+  /// **'Share my code'**
+  String get friendCodeShare;
+
+  /// No description provided for @friendCodeShareText.
+  ///
+  /// In en, this message translates to:
+  /// **'Add me as a friend on Splitify Free Forever: code {code} ({link})'**
+  String friendCodeShareText(String code, String link);
+
+  /// No description provided for @friendCodeResetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset your friend code?'**
+  String get friendCodeResetTitle;
+
+  /// No description provided for @friendCodeResetBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The old code, QR and link stop working at once. Friends you already have stay.'**
+  String get friendCodeResetBody;
+
+  /// No description provided for @friendCodeResetDone.
+  ///
+  /// In en, this message translates to:
+  /// **'New friend code ready'**
+  String get friendCodeResetDone;
+
+  /// No description provided for @friendCodeNeedsInternet.
+  ///
+  /// In en, this message translates to:
+  /// **'Your friend code needs internet the first time. After that it shows offline.'**
+  String get friendCodeNeedsInternet;
+
+  /// No description provided for @friendCodeAddTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a friend by code'**
+  String get friendCodeAddTitle;
+
+  /// No description provided for @friendCodeAddBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan the QR on your friend\'s phone, or paste their code or link.'**
+  String get friendCodeAddBody;
+
+  /// No description provided for @friendCodeField.
+  ///
+  /// In en, this message translates to:
+  /// **'Friend code'**
+  String get friendCodeField;
+
+  /// No description provided for @friendCodeInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'That code doesn\'t match anyone. Check it and try again.'**
+  String get friendCodeInvalid;
+
+  /// No description provided for @friendCodeOwn.
+  ///
+  /// In en, this message translates to:
+  /// **'That\'s your own code. Ask your friend for theirs.'**
+  String get friendCodeOwn;
+
+  /// No description provided for @friendCodeOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Adding a friend by code needs internet.'**
+  String get friendCodeOffline;
+
+  /// No description provided for @friendCodeFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t add the friend. Try again.'**
+  String get friendCodeFailed;
+
+  /// No description provided for @friendCodePasteEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'There is no friend code to paste'**
+  String get friendCodePasteEmpty;
+
+  /// No description provided for @friendCodeQrInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'That QR is not a Splitify friend code'**
+  String get friendCodeQrInvalid;
+
+  /// No description provided for @friendCodeScanTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan friend code'**
+  String get friendCodeScanTitle;
+
+  /// No description provided for @friendCodeScanHint2.
+  ///
+  /// In en, this message translates to:
+  /// **'Point the camera at the QR on your friend\'s phone.'**
+  String get friendCodeScanHint2;
+
+  /// No description provided for @friendCodeAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is now your friend'**
+  String friendCodeAdded(String name);
+
+  /// No description provided for @friendCodeAlready.
+  ///
+  /// In en, this message translates to:
+  /// **'You and {name} are already friends'**
+  String friendCodeAlready(String name);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

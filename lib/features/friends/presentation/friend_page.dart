@@ -20,7 +20,10 @@ import 'package:splitify/features/groups/presentation/invite_sheet.dart';
 import 'package:splitify/data/remote/notifications_remote.dart';
 import 'package:splitify/features/notifications/application/reminders.dart';
 import 'package:splitify/features/notifications/presentation/remind_button.dart';
+import 'package:splitify/features/payments/application/settle_all_controller.dart'
+    show settleAllOptions;
 import 'package:splitify/features/payments/presentation/payment_routes.dart';
+import 'package:splitify/features/payments/presentation/settle_picker.dart' show SettleAllRow;
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/components/components.dart';
 import 'package:splitify/ui/theme/theme.dart';
@@ -301,8 +304,8 @@ class _GroupRow extends StatelessWidget {
   }
 }
 
-/// Settle up and Remind under the hero (Splitwise's header buttons); Remind shows only when they owe me in a
-/// group and have the app (name-only friends cannot be reminded).
+/// Settle up and Remind under the hero (Splitwise's header buttons); Remind shows when they owe me in a group:
+/// a push when they have the app, "Share a reminder" through the Android share sheet when they don't (D-034 B3).
 class _Actions extends ConsumerWidget {
   const _Actions({required this.friend});
 
@@ -323,7 +326,7 @@ class _Actions extends ConsumerWidget {
           variant: PillVariant.outline,
           size: PillSize.medium,
           expand: false,
-          onPressed: () => unawaited(_settle(context, friend)),
+          onPressed: () => unawaited(_settle(context, ref, friend)),
         ),
         if (remindable.isNotEmpty)
           PillButton(
@@ -340,15 +343,18 @@ class _Actions extends ConsumerWidget {
   }
 }
 
-/// Groups where [friend] owes me and has the app (a reminder can go there).
+/// Groups where [friend] owes me (a push or a shared reminder can go there).
 List<FriendLink> remindableLinks(Friend friend) => [
   for (final link in friend.links)
-    if (link.owesMe &&
-        link.ledger.members.any((m) => m.id == link.friendMemberId && m.userId != null))
-      link,
+    if (link.owesMe) link,
 ];
 
-/// One group: the reminder goes at once; several: a sheet with each group's Remind button.
+/// The friend has the app in [link]'s group (a push can reach them).
+bool _linkedIn(FriendLink link) =>
+    link.ledger.members.any((m) => m.id == link.friendMemberId && m.userId != null);
+
+/// One group: the push goes at once (when it can't, "Share instead"), or the share sheet for a friend without the
+/// app; several: a sheet with each group's Remind button.
 Future<void> _remind(
   BuildContext context,
   WidgetRef ref,
@@ -377,17 +383,39 @@ Future<void> _remind(
     return;
   }
   final link = links.single;
+  Future<void> share() => showShareReminder(
+    context,
+    ref,
+    balances: link.balances,
+    direct: link.isDirect,
+    me: link.meId,
+    them: link.friendMemberId,
+    name: friend.name,
+  );
+  if (!_linkedIn(link)) return share();
   final messenger = ScaffoldMessenger.of(context);
-  void snack(String text) => messenger
+  void snack(String text, {bool offerShare = true}) => messenger
     ..hideCurrentSnackBar()
-    ..showSnackBar(SnackBar(content: Text(text)));
+    ..showSnackBar(
+      SnackBar(
+        content: Text(text),
+        action: offerShare
+            ? SnackBarAction(
+                label: l.remindShareInstead,
+                onPressed: () {
+                  if (context.mounted) unawaited(share());
+                },
+              )
+            : null,
+      ),
+    );
   try {
     await ref.read(reminderActionsProvider).send((
       groupId: link.group.id,
       fromMember: link.meId,
       toMember: link.friendMemberId,
     ));
-    snack(l.remindSent(friend.name));
+    snack(l.remindSent(friend.name), offerShare: false);
   } on ReminderFailure catch (e) {
     final now = ref.read(clockProvider).now().toUtc();
     final retry = e.retryAt;
@@ -398,7 +426,7 @@ Future<void> _remind(
       ReminderFailureCode.nothingOwed => l.remindNothingOwed(friend.name),
       ReminderFailureCode.nameOnly => l.remindNameOnly,
       _ => l.remindFailed,
-    });
+    }, offerShare: e.code != ReminderFailureCode.nothingOwed);
   }
 }
 
@@ -423,8 +451,10 @@ class _ActionBar extends ConsumerWidget {
   }
 }
 
-/// One transfer between us → Settle up prefilled; several → a sheet by group; none → "settled up".
-Future<void> _settle(BuildContext context, Friend friend) async {
+/// One transfer between us → Settle up prefilled; several → a sheet: first "Everything with Asha" per currency
+/// where we have balances in several groups (one payment form for all of them, D-034 B1), then each group's
+/// balances; none → "settled up".
+Future<void> _settle(BuildContext context, WidgetRef ref, Friend friend) async {
   final l = AppLocalizations.of(context);
   final router = GoRouter.of(context);
   final all = friend.transfers;
@@ -441,6 +471,8 @@ Future<void> _settle(BuildContext context, Friend friend) async {
     unawaited(router.push(route(x.link, x.currency, x.transfer)));
     return;
   }
+  final first = ref.read(profileProvider).value?.defaultCurrency ?? 'INR';
+  final everything = settleAllOptions(friend, first: first);
   await showAppSheet<void>(
     context,
     title: l.friendSettleTitle(friend.name),
@@ -448,6 +480,27 @@ Future<void> _settle(BuildContext context, Friend friend) async {
       key: const Key('friend-settle-picker'),
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        if (everything.isNotEmpty) ...[
+          for (var i = 0; i < everything.length; i++)
+            SettleAllRow(
+              friendName: friend.name,
+              seed: friend.seed,
+              tint: friend.tint,
+              option: everything[i],
+              showDivider: i < everything.length - 1,
+              onTap: () {
+                Navigator.of(sheet).pop();
+                unawaited(router.push(PaymentRoutes.settleAll(friend.key, everything[i].currency)));
+              },
+            ),
+          const SizedBox(height: AppSpacing.s4),
+          Text(
+            l.settle2OneGroup,
+            key: const Key('friend-settle-one-group'),
+            style: sheet.text.bodySmall.copyWith(color: sheet.colors.textSecondary),
+          ),
+          const SizedBox(height: AppSpacing.s2),
+        ],
         for (final link in friend.links)
           if (link.transfers.isNotEmpty) ...[
             SectionLabel(friendLinkLabel(l, link)),
