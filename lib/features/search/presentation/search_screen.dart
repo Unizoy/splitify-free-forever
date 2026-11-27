@@ -899,7 +899,7 @@ class _CommentHitRow extends StatelessWidget {
     final hit = result.hit;
     final cm = hit.comment;
     final body = cm.body.trim().replaceAll(RegExp(r'\s+'), ' ');
-    final snippet = body.length > 90 ? '${body.substring(0, 89).trimRight()}…' : body;
+    final snippet = body.length > 90 ? '${body.substring(0, 89).trimRight()}\u2026' : body;
     final target =
         hit.expense?.description ??
         (hit.payment == null ? l.search2CommentTargetPayment : paymentSentence(l, hit.payment!));

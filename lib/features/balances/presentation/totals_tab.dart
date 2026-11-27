@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:splitify/data/data_providers.dart' show clockProvider;
 import 'package:splitify/features/balances/application/balance_views.dart' show orderCurrencies;
 import 'package:splitify/features/balances/application/totals_providers.dart';
 import 'package:splitify/features/balances/domain/group_totals.dart';
@@ -10,14 +11,17 @@ import 'package:splitify/features/balances/presentation/balance_copy.dart';
 import 'package:splitify/features/balances/presentation/balances_tab.dart' show BalancesSkeleton;
 import 'package:splitify/features/export/presentation/export_action.dart';
 import 'package:splitify/features/groups/presentation/group_visuals.dart' show SectionLabel;
+import 'package:splitify/features/insights/application/totals_months.dart';
+import 'package:splitify/features/insights/domain/month_period.dart';
+import 'package:splitify/features/insights/presentation/insights_charts.dart' show monthTitle;
 import 'package:splitify/features/insights/presentation/insights_routes.dart';
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/components/components.dart';
 import 'package:splitify/ui/theme/theme.dart';
 
-/// The group's Totals tab (#21): This month · All time; per currency the total spent (IOUs and
-/// payments excluded), my share and what I paid, then each person's paid and share; links to the
-/// charts and the CSV export (phase 17).
+/// The group's Totals tab (#21): Month (‹ › through the months, D-034 F13) · All time; per currency
+/// the total spent (IOUs and payments excluded), my share and what I paid, then each person's paid and
+/// share; links to the charts and the CSV export (phase 17).
 class TotalsTab extends ConsumerStatefulWidget {
   const TotalsTab({required this.groupId, super.key});
 
@@ -29,6 +33,9 @@ class TotalsTab extends ConsumerStatefulWidget {
 
 class _TotalsTabState extends ConsumerState<TotalsTab> {
   bool _month = false;
+
+  /// The month shown in Month mode (`YYYY-MM`); null = this month.
+  String? _picked;
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +52,16 @@ class _TotalsTabState extends ConsumerState<TotalsTab> {
         ),
       );
     }
-    final totals = _month ? v.month : v.allTime;
+    final current = monthKeyOf(ref.watch(clockProvider).now());
+    // Other months come from the ledger; only watched once Month is picked.
+    final months = _month ? ref.watch(totalsMonthsProvider(widget.groupId)).value : null;
+    final range = MonthRange.of(months?.months ?? const [], current);
+    final picked = range.clamp(_picked ?? current);
+    final totals = !_month
+        ? v.allTime
+        : picked == current
+        ? v.month
+        : months?.of(picked) ?? const <String, CurrencyTotals>{};
     final codes = orderCurrencies(totals.keys, v.mainCurrency);
     return Column(
       key: const Key('totals-tab'),
@@ -55,18 +71,34 @@ class _TotalsTabState extends ConsumerState<TotalsTab> {
         SegmentedPill<bool>(
           key: const Key('totals-period'),
           items: [
-            SegmentedPillItem(value: true, label: l.totThisMonth),
+            SegmentedPillItem(value: true, label: l.trendMonthTab),
             SegmentedPillItem(value: false, label: l.totAllTime),
           ],
           value: _month,
           onChanged: (m) => setState(() => _month = m),
         ),
+        if (_month) ...[
+          const SizedBox(height: AppSpacing.s3),
+          _MonthStepper(
+            title: monthTitle(context, picked),
+            onBack: range.canGoBack(picked)
+                ? () => setState(() => _picked = addMonths(picked, -1))
+                : null,
+            onForward: range.canGoForward(picked)
+                ? () => setState(() => _picked = addMonths(picked, 1))
+                : null,
+          ),
+        ],
         if (codes.isEmpty)
           Padding(
             padding: const EdgeInsets.symmetric(vertical: AppSpacing.s8),
             child: EmptyState(
               icon: AppIcons.chart,
-              title: _month ? l.totEmptyMonthTitle : l.totEmptyTitle,
+              title: !_month
+                  ? l.totEmptyTitle
+                  : picked == current
+                  ? l.totEmptyMonthTitle
+                  : l.trendEmptyMonth(monthTitle(context, picked)),
               message: l.totEmptyBody,
             ),
           )
@@ -126,6 +158,53 @@ class _TotalsTabState extends ConsumerState<TotalsTab> {
           showDivider: i < ids.length - 1,
         ),
     ];
+  }
+}
+
+/// "‹  November 2026  ›": the month Totals shows; the arrows stop at the oldest and newest month with
+/// spending (this month at least).
+class _MonthStepper extends StatelessWidget {
+  const _MonthStepper({required this.title, required this.onBack, required this.onForward});
+
+  final String title;
+  final VoidCallback? onBack;
+  final VoidCallback? onForward;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final c = context.colors;
+    Widget arrow(Key key, IconData icon, String tip, VoidCallback? onTap) => AppIconButton(
+      key: key,
+      tooltip: tip,
+      icon: Icon(icon, size: 18, color: onTap == null ? c.textTertiary : c.textPrimary),
+      onPressed: onTap,
+    );
+    return Container(
+      key: const Key('totals-month'),
+      decoration: BoxDecoration(
+        borderRadius: AppRadii.allPill,
+        border: Border.all(color: c.border),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s1),
+      child: Row(
+        children: [
+          arrow(const Key('totals-prev'), AppIcons.backChevron, l.trendPrevMonth, onBack),
+          Expanded(
+            child: Semantics(
+              liveRegion: true,
+              child: Text(
+                title,
+                key: const Key('totals-month-title'),
+                textAlign: TextAlign.center,
+                style: context.text.body.w(600).copyWith(color: c.textPrimary),
+              ),
+            ),
+          ),
+          arrow(const Key('totals-next'), AppIcons.chevronRight, l.trendNextMonth, onForward),
+        ],
+      ),
+    );
   }
 }
 

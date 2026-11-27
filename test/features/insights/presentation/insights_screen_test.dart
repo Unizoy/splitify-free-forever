@@ -318,8 +318,12 @@ void main() {
     testWidgets('every bar and the donut are labelled for screen readers', (t) async {
       final handle = t.ensureSemantics();
       await _pump(t);
-      expect(find.bySemanticsLabel('November 2026: ₹5,500'), findsOneWidget);
-      expect(find.bySemanticsLabel('March 2026: ₹0'), findsOneWidget);
+      Finder inMonths(String label) => find.descendant(
+        of: find.byKey(const Key('insights-months')),
+        matching: find.bySemanticsLabel(label),
+      );
+      expect(inMonths('November 2026: ₹5,500'), findsOneWidget);
+      expect(inMonths('March 2026: ₹0'), findsOneWidget);
       expect(
         find.bySemanticsLabel(RegExp(r'^Spending by category: Travel ₹31,850, 55%')),
         findsOneWidget,

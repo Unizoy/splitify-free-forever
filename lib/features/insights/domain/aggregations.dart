@@ -20,10 +20,12 @@ final class InsightExpense {
     required this.total,
     this.kind = 'expense',
     this.owed = const {},
+    this.paid = const {},
     this.deleted = false,
     this.fxCurrency,
     this.fxTotal,
     this.fxOwed,
+    this.fxPaid,
   });
 
   final String id;
@@ -46,6 +48,9 @@ final class InsightExpense {
   /// Member id → owed minor units (`expense_parts.owed`).
   final Map<String, int> owed;
 
+  /// Member id → paid minor units (`payers`; D-034 "Who paid").
+  final Map<String, int> paid;
+
   /// `deleted_at` is set.
   final bool deleted;
 
@@ -57,6 +62,9 @@ final class InsightExpense {
 
   /// Saved converted owed parts (`expense_parts.fx_owed`) by member id.
   final Map<String, int>? fxOwed;
+
+  /// Saved converted paid parts (`fx_payers`) by member id.
+  final Map<String, int>? fxPaid;
 
   /// `YYYY-MM` of [date].
   String get monthKey => date.substring(0, 7);
@@ -259,4 +267,123 @@ final class _Builder {
       byMonth: List.unmodifiable([for (final m in _months.entries) MonthSpend(m.key, m.value)]),
     );
   }
+}
+
+/// Each top-level bucket's spending over the [count] months ending at [year]-[month], oldest first
+/// (D-034 WP-D "Category over time"): in [mainCurrency] only, other currencies through their saved
+/// conversion, the rest left out (as [spendingInMainCurrency] does, so a month's buckets add up to the
+/// month bar). Buckets come from [categoryOf] (e.g. the parent category).
+Map<String, List<MonthSpend>> categoryTrends(
+  Iterable<InsightExpense> expenses,
+  InsightScope scope,
+  String mainCurrency, {
+  required String Function(String category) categoryOf,
+  required int year,
+  required int month,
+  int count = 12,
+}) {
+  final byCategory = SplayTreeMap<String, List<InsightExpense>>();
+  for (final e in expenses) {
+    if (!e.isSpending) continue;
+    byCategory.putIfAbsent(categoryOf(e.category), () => []).add(e);
+  }
+  return {
+    for (final entry in byCategory.entries)
+      entry.key: spendingInMainCurrency(
+        entry.value,
+        scope,
+        mainCurrency,
+      ).summary.lastMonths(year: year, month: month, count: count),
+  };
+}
+
+/// What one person paid and owed in one month.
+final class PaidShareMonth {
+  const PaidShareMonth(this.month, this.paid, this.share);
+
+  /// `YYYY-MM`.
+  final String month;
+  final int paid;
+  final int share;
+
+  @override
+  bool operator ==(Object other) =>
+      other is PaidShareMonth && other.month == month && other.paid == paid && other.share == share;
+
+  @override
+  int get hashCode => Object.hash(month, paid, share);
+
+  @override
+  String toString() => 'PaidShareMonth($month, $paid, $share)';
+}
+
+/// One member's paid and share per month ("Who paid").
+final class MemberTrend {
+  const MemberTrend(this.memberId, this.months);
+
+  final String memberId;
+
+  /// The window's months, oldest first, zeros included.
+  final List<PaidShareMonth> months;
+
+  int get paid => months.fold(0, (sum, m) => sum + m.paid);
+  int get share => months.fold(0, (sum, m) => sum + m.share);
+}
+
+/// Per member, what they paid against their share in each of the [count] months ending at
+/// [year]-[month] (D-034 WP-D "Who paid", a group's view): spending only (no loans, no payments), in
+/// [mainCurrency], other currencies through their saved conversion (paid and owed parts both saved),
+/// the rest left out. Members follow [order] (fixed order); ids missing from it come after, sorted.
+/// Members with nothing in the window are left out.
+List<MemberTrend> paidShareMonths(
+  Iterable<InsightExpense> expenses,
+  String mainCurrency, {
+  required List<String> order,
+  required int year,
+  required int month,
+  int count = 12,
+}) {
+  final keys = <String>[];
+  for (var i = count - 1; i >= 0; i--) {
+    final index = year * 12 + (month - 1) - i;
+    keys.add(monthKey(index ~/ 12, index % 12 + 1));
+  }
+  final window = keys.toSet();
+  final paid = <String, Map<String, int>>{};
+  final share = <String, Map<String, int>>{};
+  for (final e in expenses) {
+    if (!e.isSpending || !window.contains(e.monthKey)) continue;
+    final Map<String, int> p;
+    final Map<String, int> o;
+    if (e.currency == mainCurrency) {
+      p = e.paid;
+      o = e.owed;
+    } else if (e.fxCurrency == mainCurrency && e.fxPaid != null && e.fxOwed != null) {
+      p = e.fxPaid!;
+      o = e.fxOwed!;
+    } else {
+      continue;
+    }
+    p.forEach((id, v) {
+      final m = paid.putIfAbsent(id, () => {});
+      m[e.monthKey] = (m[e.monthKey] ?? 0) + v;
+    });
+    o.forEach((id, v) {
+      final m = share.putIfAbsent(id, () => {});
+      m[e.monthKey] = (m[e.monthKey] ?? 0) + v;
+    });
+  }
+  final known = order.toSet();
+  final ids = [
+    ...order,
+    ...({...paid.keys, ...share.keys}.difference(known).toList()..sort()),
+  ];
+  return [
+    for (final id in ids)
+      if ((paid[id]?.values.any((v) => v != 0) ?? false) ||
+          (share[id]?.values.any((v) => v != 0) ?? false))
+        MemberTrend(id, [
+          for (final k in keys) PaidShareMonth(k, paid[id]?[k] ?? 0, share[id]?[k] ?? 0),
+        ]),
+  ];
 }

@@ -7,14 +7,16 @@ import 'package:splitify/features/balances/presentation/balances_tab.dart' show 
 import 'package:splitify/features/groups/presentation/group_visuals.dart';
 import 'package:splitify/features/insights/application/insights_providers.dart';
 import 'package:splitify/features/insights/presentation/insights_charts.dart';
+import 'package:splitify/features/insights/presentation/trend_cards.dart';
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/components/components.dart';
 import 'package:splitify/ui/painters/cover_cache.dart';
 import 'package:splitify/ui/theme/theme.dart';
 
 /// Insights (`/insights`, #33, 07 §2): Group / Me, a group picker, spending by category (donut +
-/// legend chips, all time) and by month (last 12 months), in one main currency. Records in other
-/// currencies count only with their saved conversion; the rest are left out with a note.
+/// legend chips, all time), by month (last 12 months), one category over time and (Group mode) who
+/// paid against their share (D-034 P-6), in one main currency. Records in other currencies count only
+/// with their saved conversion; the rest are left out with a note. The picked month is shared.
 class InsightsScreen extends ConsumerStatefulWidget {
   const InsightsScreen({this.mode = InsightsMode.group, this.groupId, super.key});
 
@@ -34,6 +36,12 @@ class _InsightsScreenState extends ConsumerState<InsightsScreen> {
   String? _category;
   String? _month;
 
+  /// "Category over time" pick (null: the donut's pick, else the biggest category).
+  String? _trendCategory;
+
+  /// "Who paid" pick (null: me, else the first person).
+  String? _person;
+
   InsightsQuery get _query =>
       (mode: _mode, groupId: _mode == InsightsMode.group ? _groupId : _meGroupId);
 
@@ -41,6 +49,8 @@ class _InsightsScreenState extends ConsumerState<InsightsScreen> {
     _mode = m;
     _category = null;
     _month = null;
+    _trendCategory = null;
+    _person = null;
   });
 
   void _setGroup(String? id) => setState(() {
@@ -51,6 +61,8 @@ class _InsightsScreenState extends ConsumerState<InsightsScreen> {
     }
     _category = null;
     _month = null;
+    _trendCategory = null;
+    _person = null;
   });
 
   @override
@@ -217,10 +229,47 @@ class _InsightsScreenState extends ConsumerState<InsightsScreen> {
             ],
           ),
         ),
+        const SizedBox(height: AppSpacing.s5),
+        CategoryTrendCard(
+          view: v,
+          category: _trendPick(v),
+          month: month,
+          onCategory: (k) => setState(() => _trendCategory = k),
+          onMonth: (m) => setState(() => _month = m),
+        ),
+        if (v.whoPaid.isNotEmpty) ...[
+          const SizedBox(height: AppSpacing.s5),
+          WhoPaidCard(
+            view: v,
+            memberId: _personPick(v),
+            month: month,
+            onMember: (id) => setState(() => _person = id),
+            onMonth: (m) => setState(() => _month = m),
+          ),
+        ],
       ],
       const SizedBox(height: AppSpacing.s5),
       Text(l.totFootnote, style: context.text.caption.copyWith(color: c.textSecondary)),
     ];
+  }
+
+  /// The category over time shows: the picked one if it has spending, else the donut's, else the
+  /// biggest.
+  String _trendPick(InsightsView v) {
+    final keys = {for (final s in v.summary.byCategory) s.category};
+    for (final k in [_trendCategory, _category]) {
+      if (k != null && keys.contains(k)) return k;
+    }
+    return v.summary.byCategory.first.category;
+  }
+
+  /// Whose paid / share shows: the picked person, else me, else the first person.
+  String _personPick(InsightsView v) {
+    final ids = {for (final t in v.whoPaid) t.memberId};
+    for (final id in [_person, v.meMemberId]) {
+      if (id != null && ids.contains(id)) return id;
+    }
+    return v.whoPaid.first.memberId;
   }
 
   Future<void> _pickGroup(BuildContext context, InsightsView v) async {
