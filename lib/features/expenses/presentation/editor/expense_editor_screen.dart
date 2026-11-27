@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:splitify/core/money/scaled_input.dart';
 import 'package:splitify/core/time/clock.dart';
 import 'package:splitify/data/data_providers.dart' show clockProvider;
 import 'package:splitify/domain/rules/expense_categories.dart';
@@ -12,15 +13,19 @@ import 'package:splitify/features/currency/presentation/currency_picker_sheet.da
 import 'package:splitify/features/expenses/application/category_providers.dart';
 import 'package:splitify/features/expenses/application/expense_draft.dart';
 import 'package:splitify/features/expenses/application/expense_editor_controller.dart';
+import 'package:splitify/features/expenses/application/two_person.dart';
 import 'package:splitify/features/expenses/presentation/editor/editor_fields.dart';
 import 'package:splitify/features/expenses/presentation/editor/paid_split_sheet.dart';
 import 'package:splitify/features/expenses/presentation/editor/pickers.dart';
 import 'package:splitify/features/expenses/presentation/editor/receipt_field.dart';
+import 'package:splitify/features/expenses/presentation/editor/two_person_sheet.dart';
 import 'package:splitify/features/expenses/presentation/editor/with_picker.dart';
 import 'package:splitify/features/expenses/presentation/expense_copy.dart';
 import 'package:splitify/features/groups/application/groups_providers.dart'
     show syncOfflineProvider;
 import 'package:splitify/features/groups/presentation/group_visuals.dart' show confirmAction;
+import 'package:splitify/features/receipt_scan/application/scan_apply.dart';
+import 'package:splitify/features/receipt_scan/presentation/scan_flow.dart';
 import 'package:splitify/features/recurring/application/recurring_providers.dart'
     show intervalLabel;
 import 'package:splitify/features/recurring/presentation/repeat_picker.dart';
@@ -142,8 +147,17 @@ class _ExpenseEditorScreenState extends ConsumerState<ExpenseEditorScreen> {
     if (picked != null && picked != d.groupId && mounted) await _moveTo(picked);
   }
 
-  Future<void> _moveTo(String groupId) =>
-      ref.read(_provider.notifier).pickGroup(groupId, keepCurrency: _currencyPicked);
+  /// Moves the draft to [groupId], then puts the cursor back where typing goes next (D-034 A5): the
+  /// description while it is empty, else the amount while that is empty.
+  Future<void> _moveTo(String groupId) async {
+    await ref.read(_provider.notifier).pickGroup(groupId, keepCurrency: _currencyPicked);
+    if (!mounted) return;
+    if ((_description?.text ?? '').trim().isEmpty) {
+      _descriptionFocus.requestFocus();
+    } else if ((_amount?.text ?? '').trim().isEmpty) {
+      _amountFocus.requestFocus();
+    }
+  }
 
   Future<void> _pickCategory() async {
     if (_suggest != null) _flushSuggestion();
@@ -177,7 +191,33 @@ class _ExpenseEditorScreenState extends ConsumerState<ExpenseEditorScreen> {
     );
   }
 
+  /// The "Paid by · split" pill. Between me and one other person it opens the four one-tap answers
+  /// first (D-034 A1); a split those answers cannot show (items, shares, several payers) opens the full
+  /// sheet at once.
   Future<void> _openPaidSplit() async {
+    final d = _draft;
+    if (d == null) return;
+    FocusManager.instance.primaryFocus?.unfocus();
+    if (!d.twoPeople || d.twoPersonAnswer == null) return _openFullPaidSplit();
+    final l = AppLocalizations.of(context);
+    final more = await showAppSheet<bool>(
+      context,
+      title: l.expPaidSplitTitle,
+      builder: (sheet) => _live(
+        (context, d) => TwoPersonPanel(
+          draft: d,
+          onAnswer: (a) {
+            _edit((x) => x.withAnswer(a));
+            Navigator.of(sheet).pop(false);
+          },
+          onMore: () => Navigator.of(sheet).pop(true),
+        ),
+      ),
+    );
+    if ((more ?? false) && mounted) await _openFullPaidSplit();
+  }
+
+  Future<void> _openFullPaidSplit() async {
     final l = AppLocalizations.of(context);
     await showAppSheet<void>(
       context,
@@ -191,11 +231,50 @@ class _ExpenseEditorScreenState extends ConsumerState<ExpenseEditorScreen> {
             onMultiple: () => _edit((x) => x.withMultiplePayers()),
             onPayerText: (id, t) => _edit((x) => x.withPayerText(id, t)),
             onSplit: (s) => _edit((x) => x.copyWith(split: s)),
+            onUseTotal: _useTotal,
             onDone: () => Navigator.of(sheet).pop(),
           ),
         ),
       ),
     );
+  }
+
+  /// "Use items total": the amount field takes what the lines come to.
+  void _useTotal(int total) {
+    final d = _draft;
+    if (d == null) return;
+    final text = ScaledInput.format(total, d.exponent);
+    _amount?.text = text;
+    _edit((x) => x.copyWith(amountText: text));
+  }
+
+  /// "Scan receipt" (D-034 A3): reads a photo on the phone, then fills what the person kept ticked. The
+  /// photo becomes the receipt; nothing is saved until Save (S-373).
+  Future<void> _scan() async {
+    final d = _draft;
+    if (d == null) return;
+    if (_suggest != null) _flushSuggestion();
+    FocusManager.instance.primaryFocus?.unfocus();
+    final result = await scanReceipt(
+      context,
+      ref,
+      draft: d,
+      today: ref.read(clockProvider).today(),
+    );
+    if (result == null || !mounted) return;
+    final now = _draft ?? d;
+    final next = applyScan(
+      now,
+      result.outcome.scan,
+      result.decision.choice,
+      photo: result.outcome.photo,
+      itemize: result.decision.itemize,
+    );
+    _edit((_) => next);
+    if (_description?.text != next.description) _description?.text = next.description;
+    if (_amount?.text != next.amountText) _amount?.text = next.amountText;
+    ref.read(_provider.notifier).suggestCategory();
+    if (result.decision.itemize && next.split.isItems && mounted) await _openFullPaidSplit();
   }
 
   Future<void> _pickDate(ExpenseDraft d) async {
@@ -288,6 +367,13 @@ class _ExpenseEditorScreenState extends ConsumerState<ExpenseEditorScreen> {
         (context, d) => Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            ScanReceiptTile(
+              onTap: () {
+                Navigator.of(sheet).pop();
+                unawaited(_scan());
+              },
+            ),
+            const SizedBox(height: AppSpacing.s3),
             ReceiptField(
               receipt: d.receipt,
               onChanged: (r) => _edit((x) => x.copyWith(receipt: r)),

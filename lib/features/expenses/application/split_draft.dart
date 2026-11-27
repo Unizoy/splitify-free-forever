@@ -262,6 +262,18 @@ final class SplitDraft {
   /// equal amounts of [total], percent equal percentages, shares one each, adjust no adjustments.
   SplitDraft switchTo(SplitKind next, {int? total}) {
     if (next == kind && !isItems) return this;
+    // Items → exact amounts: start from what the lines give each person.
+    if (isItems && next == SplitKind.exact) {
+      final shares = this.values;
+      return SplitDraft._(
+        kind: SplitKind.exact,
+        members: members,
+        included: Set.unmodifiable(members),
+        text: const {},
+        shareUnits: const {},
+        exponent: exponent,
+      ).withValues(SplitKind.exact, shares ?? const {});
+    }
     final people = chosen;
     final kept = SplitDraft._(
       kind: kind,

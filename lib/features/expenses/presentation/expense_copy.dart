@@ -128,6 +128,18 @@ SplitFooter splitFooter(
   }
   final invalid = check as SplitInvalid;
   final zero = money(0);
+  // The Items split (D-034 A2) explains its own problems.
+  final items = split.isItems
+      ? switch (invalid.code) {
+          'NO_PARTICIPANTS' => l.entryItemsNoPeople,
+          'NO_SHARES' => l.entryItemsNone,
+          'NEGATIVE_SHARE' ||
+          'AMOUNT_NOT_POSITIVE' when total != null => l.entryItemsDiscountTooBig,
+          SplitInvalid.itemsTooLarge => l.entryItemsTooMany,
+          _ => null,
+        }
+      : null;
+  if (items != null) return (text: items, error: true);
   final text = switch (invalid.code) {
     'AMOUNT_NOT_POSITIVE' => l.expErrNeedAmount,
     'NO_PARTICIPANTS' => l.expErrNoParticipants,

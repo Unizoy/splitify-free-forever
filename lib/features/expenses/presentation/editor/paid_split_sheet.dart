@@ -6,6 +6,10 @@ import 'package:splitify/core/money/money_formatter.dart';
 import 'package:splitify/core/money/split.dart';
 import 'package:splitify/features/expenses/application/expense_draft.dart';
 import 'package:splitify/features/expenses/application/split_draft.dart';
+import 'package:splitify/features/expenses/application/two_person.dart';
+import 'package:splitify/features/expenses/presentation/editor/items_editor.dart';
+import 'package:splitify/features/expenses/presentation/editor/two_person_sheet.dart'
+    show answerLine;
 import 'package:splitify/features/expenses/presentation/editor/step_body.dart';
 import 'package:splitify/features/expenses/presentation/expense_copy.dart';
 import 'package:splitify/features/expenses/presentation/split_editor.dart';
@@ -24,6 +28,7 @@ class PaidSplitPanel extends StatelessWidget {
     required this.onPayerText,
     required this.onSplit,
     required this.onDone,
+    this.onUseTotal,
     super.key,
   });
 
@@ -33,6 +38,9 @@ class PaidSplitPanel extends StatelessWidget {
   final void Function(String memberId, String text) onPayerText;
   final ValueChanged<SplitDraft> onSplit;
   final VoidCallback onDone;
+
+  /// "Use items total": the amount becomes what the lines come to (minor units). Null hides it.
+  final ValueChanged<int>? onUseTotal;
 
   @override
   Widget build(BuildContext context) {
@@ -78,23 +86,56 @@ class PaidSplitPanel extends StatelessWidget {
         SectionLabel(l.expSplitSectionLabel),
         SplitKindPicker(
           value: d.split.kind,
+          items: d.split.isItems,
+          onItems: () => onSplit(d.split.switchToItems()),
           onChanged: (k) => onSplit(d.split.switchTo(k, total: d.total)),
         ),
         const SizedBox(height: AppSpacing.s4),
-        SplitMemberRows(
-          split: d.split,
-          members: d.members,
-          currency: d.currency,
-          total: d.total,
-          onChanged: onSplit,
-        ),
+        if (d.split.isItems)
+          ItemsEditor(
+            split: d.split,
+            members: d.members,
+            currency: d.currency,
+            total: d.total,
+            onChanged: onSplit,
+          )
+        else
+          SplitMemberRows(
+            split: d.split,
+            members: d.members,
+            currency: d.currency,
+            total: d.total,
+            onChanged: onSplit,
+          ),
         const SizedBox(height: AppSpacing.s3),
         SplitFooterLine(footer: splitSheetFooter(l, d, payers: false)),
+        if (_itemsTotal(d) case final int itemsTotal when onUseTotal != null) ...[
+          const SizedBox(height: AppSpacing.s3),
+          Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: PillButton(
+              key: const Key('items-use-total'),
+              label: l.entryItemsUseTotal(MoneyFormatter.detail.format(itemsTotal, d.currency)),
+              variant: PillVariant.outline,
+              size: PillSize.medium,
+              expand: false,
+              onPressed: () => onUseTotal!(itemsTotal),
+            ),
+          ),
+        ],
         const SizedBox(height: AppSpacing.s6),
         PillButton(key: const Key('paid-split-done'), label: l.loanAmountDone, onPressed: onDone),
       ],
     );
   }
+}
+
+/// What the Items lines come to when the amount is missing or differs from it (offers "Use items total").
+int? _itemsTotal(ExpenseDraft d) {
+  final items = d.split.items;
+  final t = items?.total;
+  if (items == null || t == null || t <= 0 || t == d.total) return null;
+  return t;
 }
 
 /// A person to pick as the one payer: avatar and name on a pill (filled ink when chosen).
@@ -324,6 +365,15 @@ String paidSplitSummary(AppLocalizations l, ExpenseDraft d) {
 
   final ids = d.payerIds;
   final paid = ids.length == 1 ? l.expPillPaidBy(name(ids.first)) : l.expPillPeoplePaid(ids.length);
+  final answer = d.twoPersonAnswer;
+  final other = d.otherPerson;
+  if (answer != null && answer.full && other != null) {
+    return l.expPillSummary(
+      paid,
+      answer.iPaid ? l.entryPillTheyOweFull(other.name) : l.entryPillYouOweFull,
+    );
+  }
+  if (d.split.isItems) return l.expPillSummary(paid, l.entryPillSplitItems);
   final how = switch (d.split.kind) {
     SplitKind.equal => l.expPillSplitEqual,
     SplitKind.exact => l.expPillSplitExact,
@@ -339,7 +389,22 @@ String paidSplitSummary(AppLocalizations l, ExpenseDraft d) {
 /// each", "₹200 left"). Without an amount yet it only counts the people, so a fresh screen shows no error.
 SplitFooter splitSheetFooter(AppLocalizations l, ExpenseDraft d, {bool payers = true}) {
   final total = d.total;
-  if (total == null) return (text: l.expFooterPeople(d.split.participants.length), error: false);
+  if (total == null) {
+    if (d.split.isItems) {
+      final t = d.split.items?.total ?? 0;
+      return t > 0
+          ? (text: l.entryItemsComesTo(_money(t, d)), error: false)
+          : (text: l.expErrNeedAmount, error: false);
+    }
+    return (text: l.expFooterPeople(d.split.participants.length), error: false);
+  }
   if (payers && d.multiplePayers && !d.payersOk) return payersFooter(l, d);
+  // Two people (D-034 A1): the answer's own line ("Asha owes you ₹150").
+  final answer = d.twoPersonAnswer;
+  if (answer != null && d.splitCheck is SplitReady) {
+    return (text: answerLine(l, d, answer), error: false);
+  }
   return splitFooter(l, d.split, total, d.currency, nameOf: (id) => d.member(id)?.name ?? '');
 }
+
+String _money(int v, ExpenseDraft d) => MoneyFormatter.list.format(v, d.currency);

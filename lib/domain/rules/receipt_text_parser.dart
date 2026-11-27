@@ -7,18 +7,20 @@
 /// (CGST, SGST, IGST), service charge, round off, "Net Amount" / "Grand Total" / "Amount Payable".
 library;
 
-/// One recognised line of text and where it sits in the picture (pixels, any origin).
+/// One recognised line of text and where it sits in the picture (whole pixels, any origin).
 final class OcrLine {
   const OcrLine(this.text, {this.left = 0, this.top = 0, this.right = 0, this.bottom = 0});
 
   final String text;
-  final double left;
-  final double top;
-  final double right;
-  final double bottom;
+  final int left;
+  final int top;
+  final int right;
+  final int bottom;
 
-  double get height => bottom - top;
-  double get centerY => (top + bottom) / 2;
+  int get height => bottom - top;
+
+  /// Twice the vertical centre (whole numbers only).
+  int get center2 => top + bottom;
 }
 
 /// Receipt rows from OCR lines: lines at the same height (a name on the left, its price on the right)
@@ -31,18 +33,19 @@ List<String> receiptRows(List<OcrLine> lines) {
   if (boxed.every((l) => l.height <= 0)) return [for (final l in boxed) l.text.trim()];
   final heights = [for (final l in boxed) l.height]..sort();
   final typical = heights[heights.length ~/ 2];
-  final sorted = [...boxed]..sort((a, b) => a.centerY.compareTo(b.centerY));
+  final sorted = [...boxed]..sort((a, b) => a.center2.compareTo(b.center2));
   final rows = <List<OcrLine>>[];
+  var sum = 0;
   for (final line in sorted) {
-    final tolerance = 0.55 * (line.height < typical ? line.height : typical);
+    final h = line.height < typical ? line.height : typical;
     final row = rows.isEmpty ? null : rows.last;
-    final center = row == null
-        ? 0.0
-        : row.map((l) => l.centerY).reduce((a, b) => a + b) / row.length;
-    if (row != null && (line.centerY - center).abs() <= tolerance) {
+    // Same row when the centre is within 0.55 of a line height of the row's mean centre.
+    if (row != null && 10 * (line.center2 * row.length - sum).abs() <= 11 * h * row.length) {
       row.add(line);
+      sum += line.center2;
     } else {
       rows.add([line]);
+      sum = line.center2;
     }
   }
   return [
