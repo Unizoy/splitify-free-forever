@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:splitify/data/data_providers.dart';
 import 'package:splitify/data/local/app_database.dart';
+import 'package:splitify/features/expenses/application/expense_draft.dart' show maxNotes;
 import 'package:splitify/features/expenses/application/expense_editor_controller.dart';
 import 'package:splitify/features/expenses/application/loan_draft.dart';
 import 'package:splitify/features/expenses/application/loan_editor_controller.dart';
@@ -101,6 +102,22 @@ void main() {
       );
       expect(e.date, DateTime(2026, 1, 2));
       expect(d.isEdit, isFalse);
+    });
+
+    // D-033: the loan's own notes (toolbar chip) and currency (chip by the amount).
+    test('notes and another currency go into the row; long notes block saving', () {
+      final d = _draft(amount: '12.50').copyWith(currency: 'USD', notes: '  Back by Friday ');
+      expect(d.currency, 'USD');
+      final row = d.toRow(defaultDescription: 'Loan');
+      expect((row['currency'], row['total'], row['notes']), ('USD', 1250, 'Back by Friday'));
+      expect(_draft().copyWith(notes: '   ').toRow(defaultDescription: 'Loan')['notes'], isNull);
+      // Yen has no decimals: the same text is no longer an amount.
+      expect(_draft(amount: '12.50').copyWith(currency: 'JPY').canSave, isFalse);
+      expect(_draft(amount: '1250').copyWith(currency: 'JPY').total, 1250);
+      final long = _draft().copyWith(notes: 'x' * (maxNotes + 1));
+      expect(long.notesTooLong, isTrue);
+      expect(long.canSave, isFalse);
+      expect(_draft().copyWith(notes: 'x' * maxNotes).canSave, isTrue);
     });
   });
 
@@ -299,6 +316,20 @@ void main() {
       expect(again.createdAt, created);
       expect(_json(again.payers), {asha: 8000});
       expect(_json(again.shares), {env.me: 8000});
+    });
+
+    // D-033
+    test('notes and currency are saved and come back when the loan is edited', () async {
+      final asha = env.ids['Asha']!;
+      final args = fresh(withMember: asha);
+      await open(args);
+      final c = env.container.read(loanEditorProvider(args).notifier);
+      c.edit((d) => d.copyWith(amountText: '20', currency: 'USD', notes: 'Airport taxi'));
+      final id = (await c.save(defaultDescription: 'Loan'))!;
+      final row = await expense(id);
+      expect((row.currency.trim(), row.total, row.notes), ('USD', 2000, 'Airport taxi'));
+      final again = await open((groupId: null, expenseId: id, withMember: null));
+      expect((again.currency, again.amountText, again.notes), ('USD', '20', 'Airport taxi'));
     });
 
     // TC-11-02

@@ -447,6 +447,43 @@ void main() {
       );
     });
 
+    // D-033: Splitwise's "pick a balance": per currency, mine first, each biggest first.
+    test('per currency, mine first, biggest first; equal amounts keep the tab order', () {
+      final b = groupBalancesOf(
+        GroupLedger(
+          group: seedGroup(),
+          members: [
+            seedMember('me', userId: 'u1'),
+            seedMember('a', position: 1),
+            seedMember('b', position: 2),
+            seedMember('c', position: 3),
+            seedMember('d', position: 4),
+          ],
+          expenses: [
+            // a owes me 100, b owes me 300, c owes d 500 (not mine), d owes me 100.
+            seedExpense('e1', total: 100, payers: {'me': 100}, shares: {'a': 100}),
+            seedExpense('e2', total: 300, payers: {'me': 300}, shares: {'b': 300}),
+            seedExpense('e3', total: 500, payers: {'d': 500}, shares: {'c': 500}),
+            seedExpense('e4', total: 100, payers: {'me': 100}, shares: {'d': 100}),
+            seedExpense('e5', currency: 'USD', total: 70, payers: {'a': 70}, shares: {'me': 70}),
+          ],
+          payments: const [],
+        ),
+        'u1',
+      );
+      final s = settleSuggestions(b);
+      expect(
+        [for (final x in s) (x.currency, x.transfer.from, x.transfer.to, x.transfer.amount)],
+        [
+          ('INR', 'b', 'me', 300),
+          ('INR', 'a', 'me', 100),
+          ('INR', 'd', 'me', 100),
+          ('INR', 'c', 'd', 500),
+          ('USD', 'me', 'a', 70),
+        ],
+      );
+    });
+
     test('without an account the order is the tab order', () {
       final b = groupBalancesOf(
         GroupLedger(
