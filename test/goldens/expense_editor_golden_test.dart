@@ -12,11 +12,13 @@ import 'package:splitify/features/expenses/application/expense_draft.dart';
 import 'package:splitify/features/expenses/application/expense_editor_controller.dart';
 import 'package:splitify/features/expenses/application/split_draft.dart';
 import 'package:splitify/features/expenses/presentation/editor/expense_editor_screen.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart' show AsyncData;
+import 'package:flutter_riverpod/flutter_riverpod.dart' show AsyncData, ProviderScope;
 import 'package:splitify/features/expenses/presentation/editor/paid_split_sheet.dart';
 import 'package:splitify/features/expenses/presentation/editor/with_picker.dart';
 import 'package:splitify/features/friends/application/friends_providers.dart' show friendsProvider;
 import 'package:splitify/features/friends/application/friends_view.dart' show Friend;
+import 'package:splitify/features/groups/application/groups_providers.dart'
+    show syncOfflineProvider;
 import 'package:splitify/features/recurring/application/repeat_draft.dart';
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/components/components.dart';
@@ -264,6 +266,27 @@ void main() {
           ),
         );
       }
+    }
+  }
+
+  // D-033: offline, the "With you and" row carries the app's "Not synced yet" marker (it was white text).
+  for (final mode in [ThemeMode.light, ThemeMode.dark]) {
+    for (final (suffix, scale) in goldenScales) {
+      goldenTest(
+        'expense editor offline ${mode.name} $suffix',
+        fileName: 'expense_editor_offline_${mode.name}_$suffix',
+        pumpBeforeTest: pumpFixedFrames,
+        builder: () => expenseApp(
+          ProviderScope(
+            overrides: [syncOfflineProvider.overrideWith((ref) => Stream.value(true))],
+            child: const ExpenseEditorScreen(groupId: gid),
+          ),
+          overrides: _editor(() => _new(amount: '250', description: 'Chai')),
+          mode: mode,
+          scale: scale,
+          targets: sampleTargets(),
+        ),
+      );
     }
   }
 

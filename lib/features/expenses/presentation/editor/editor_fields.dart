@@ -29,7 +29,7 @@ class WithRow extends ConsumerWidget {
 
   final ExpenseDraft draft;
 
-  /// Saved on this phone only for now: the chip says so.
+  /// Saved on this phone only for now: the "Not synced yet" marker says so.
   final bool offline;
   final VoidCallback? onPick;
   final ValueChanged<String>? onQuickPick;
@@ -150,12 +150,13 @@ class WithRow extends ConsumerWidget {
                   ),
                 ),
         ),
+        // Saved on this phone first: the app's own "Not synced yet" marker (the hero's flat pill was white
+        // text on this light page, D-033).
         if (offline)
-          StatusPill(
-            key: const Key('expense-offline'),
-            label: l.expOfflinePill(name),
-            icon: AppIcons.unsynced,
-            tone: StatusPillTone.flat,
+          const Padding(
+            key: Key('expense-offline'),
+            padding: EdgeInsets.symmetric(vertical: AppSpacing.s3),
+            child: SyncMarker(),
           ),
       ],
     );

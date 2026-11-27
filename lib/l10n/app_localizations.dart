@@ -3008,12 +3008,6 @@ abstract class AppLocalizations {
   /// **'{label}, current step'**
   String stepCurrent(String label);
 
-  /// No description provided for @expOfflinePill.
-  ///
-  /// In en, this message translates to:
-  /// **'{group} · saved offline'**
-  String expOfflinePill(String group);
-
   /// No description provided for @expDescriptionLabel.
   ///
   /// In en, this message translates to:

@@ -1800,11 +1800,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String expOfflinePill(String group) {
-    return '$group · saved offline';
-  }
-
-  @override
   String get expDescriptionLabel => 'Description';
 
   @override

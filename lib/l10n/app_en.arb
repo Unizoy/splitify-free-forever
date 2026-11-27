@@ -643,8 +643,6 @@
   "@stepDone": {"placeholders": {"label": {"type": "String"}}},
   "stepCurrent": "{label}, current step",
   "@stepCurrent": {"placeholders": {"label": {"type": "String"}}},
-  "expOfflinePill": "{group}\u00A0· saved offline",
-  "@expOfflinePill": {"placeholders": {"group": {"type": "String"}}},
   "expDescriptionLabel": "Description",
   "expDescriptionHint": "Dinner, cab, groceries…",
   "expDescriptionMissing": "Add a description",
