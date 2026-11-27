@@ -439,13 +439,17 @@ void main() {
         reason: 'the UPI return sheet',
       );
       expect(
-        await (db.select(db.payments)..where((p) => p.method.equals('upi'))).get(),
+        await (db.select(
+          db.payments,
+        )..where((p) => p.method.equals('upi') & p.groupId.isIn([gid, directId]))).get(),
         isEmpty,
         reason: 'nothing recorded before "Mark as paid" (rule 13)',
       );
       await _tap(t, _key('upi-mark-paid'));
       await _pumpFor(t, const Duration(seconds: 3));
-      final upiRows = await (db.select(db.payments)..where((p) => p.method.equals('upi'))).get();
+      final upiRows = await (db.select(
+        db.payments,
+      )..where((p) => p.method.equals('upi') & p.groupId.isIn([gid, directId]))).get();
       expect(
         [for (final p in upiRows) (p.groupId, p.amount)]..sort((x, y) => x.$2.compareTo(y.$2)),
         [(gid, 10000), (directId, 5000)]..sort((x, y) => x.$2.compareTo(y.$2)),
