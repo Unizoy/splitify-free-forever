@@ -4503,6 +4503,254 @@ class AppLocalizationsEn extends AppLocalizations {
   String get notifOpenSettings => 'Open phone settings';
 
   @override
+  String get backupRow => 'Your data';
+
+  @override
+  String get backupRowValue => 'Download';
+
+  @override
+  String get backupTitle => 'Your data';
+
+  @override
+  String get backupBody =>
+      'Everything on this phone in one .zip: a full backup (JSON) and a spreadsheet (CSV) for each group. It is made on your phone, so it works offline.';
+
+  @override
+  String backupGroups(int count) {
+    final intl.NumberFormat countNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countString groups',
+      one: '1 group',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String backupExpenses(int count) {
+    final intl.NumberFormat countNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countString expenses',
+      one: '1 expense',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String backupPayments(int count) {
+    final intl.NumberFormat countNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countString payments',
+      one: '1 payment',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String backupPending(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count changes are not synced yet. They are in the file, marked as pending.',
+      one: '1 change is not synced yet. It is in the file, marked as pending.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get backupDownload => 'Download my data';
+
+  @override
+  String get backupShare => 'Share instead';
+
+  @override
+  String get backupWorking => 'Preparing your file…';
+
+  @override
+  String backupSaved(String file) {
+    return 'Saved $file';
+  }
+
+  @override
+  String get backupFailed => 'The file could not be made. Try again.';
+
+  @override
+  String get backupEmpty => 'Nothing to download yet. Create a group first.';
+
+  @override
+  String get backupSubject => 'My Splitify data';
+
+  @override
+  String get backupFormatNote =>
+      'Amounts are whole paise (or cents) with their currency code, so nothing is rounded.';
+
+  @override
+  String get search2FieldHint => 'Search everything';
+
+  @override
+  String search2HintIn(String group) {
+    return 'Search in $group';
+  }
+
+  @override
+  String get search2StartTitle => 'Find anything';
+
+  @override
+  String get search2StartBody =>
+      'Expenses, payments and comments, by description, note, person or amount. It works offline too.';
+
+  @override
+  String search2StartBodyIn(String group) {
+    return 'Expenses, payments and comments in $group, by description, note, person or amount.';
+  }
+
+  @override
+  String get search2KindAll => 'All';
+
+  @override
+  String get search2KindExpenses => 'Expenses';
+
+  @override
+  String get search2KindPayments => 'Payments';
+
+  @override
+  String get search2KindComments => 'Comments';
+
+  @override
+  String search2KindChip(String label, int count) {
+    return '$label · $count';
+  }
+
+  @override
+  String get search2KindLabel => 'Result type';
+
+  @override
+  String search2ResultCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count results',
+      one: '1 result',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String search2ResultCountIn(int count, String group) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count results in $group',
+      one: '1 result in $group',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get search2Recent => 'Recent searches';
+
+  @override
+  String get search2RecentClear => 'Clear';
+
+  @override
+  String get search2RecentClearHint => 'Clear recent searches';
+
+  @override
+  String search2RecentRemove(String text) {
+    return 'Remove $text';
+  }
+
+  @override
+  String get search2RecentHint => 'Search again';
+
+  @override
+  String search2PaymentCaption(String date, String group) {
+    return 'Payment · $date · $group';
+  }
+
+  @override
+  String search2CommentTitle(String body) {
+    return '“$body”';
+  }
+
+  @override
+  String search2CommentCaption(String author, String target, String date) {
+    return '$author on $target · $date';
+  }
+
+  @override
+  String search2CommentCaptionIn(String author, String target, String date, String group) {
+    return '$author on $target · $date · $group';
+  }
+
+  @override
+  String get search2CommentTargetPayment => 'a payment';
+
+  @override
+  String get search2Comment => 'comment';
+
+  @override
+  String get trendMonthTab => 'Month';
+
+  @override
+  String get trendPrevMonth => 'Previous month';
+
+  @override
+  String get trendNextMonth => 'Next month';
+
+  @override
+  String trendEmptyMonth(String month) {
+    return 'Nothing spent in $month';
+  }
+
+  @override
+  String get trendCategoryTitle => 'Category over time';
+
+  @override
+  String trendCategoryTotal(String amount, String category) {
+    return '$amount on $category in the last 12 months';
+  }
+
+  @override
+  String get trendPickCategory => 'Category';
+
+  @override
+  String get trendWhoPaidTitle => 'Who paid';
+
+  @override
+  String get trendPickPerson => 'Person';
+
+  @override
+  String get trendPaid => 'Paid';
+
+  @override
+  String get trendShare => 'Share';
+
+  @override
+  String get trendWhoPaidHint => 'What each person paid against their share, month by month.';
+
+  @override
+  String trendMemberBar(String month, String paid, String share) {
+    return '$month: paid $paid, share $share';
+  }
+
+  @override
+  String trendMemberTotal(String paid, String share) {
+    return 'Last 12 months: paid $paid · share $share';
+  }
+
+  @override
   String settle2Everything(String name) {
     return 'Everything with $name';
   }

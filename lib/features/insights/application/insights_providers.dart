@@ -43,6 +43,10 @@ class InsightsView {
     required this.months,
     required this.currentMonth,
     this.group,
+    this.categoryTrends = const {},
+    this.whoPaid = const [],
+    this.memberNames = const {},
+    this.meMemberId,
   });
 
   final InsightsMode mode;
@@ -64,6 +68,19 @@ class InsightsView {
 
   /// `YYYY-MM` of today.
   final String currentMonth;
+
+  /// Each top-level category's last 12 months in [currency] (D-034 "Category over time"), oldest first.
+  final Map<String, List<MonthSpend>> categoryTrends;
+
+  /// Group mode: each member's paid against share over the last 12 months (D-034 "Who paid"), in fixed
+  /// member order; empty in Me mode.
+  final List<MemberTrend> whoPaid;
+
+  /// Member names of the group shown (removed members too).
+  final Map<String, String> memberNames;
+
+  /// My member id in the group shown, if any.
+  final String? meMemberId;
 
   SpendingSummary get summary => spending.summary;
 
@@ -89,10 +106,12 @@ InsightExpense insightExpenseOf(LocalExpense e) => InsightExpense(
   currency: e.currency.trim(),
   total: e.total,
   owed: decodeMinorMap(e.shares),
+  paid: decodeMinorMap(e.payers),
   deleted: e.deletedAt != null,
   fxCurrency: e.fxCurrency?.trim(),
   fxTotal: e.fxTotal,
   fxOwed: e.fxShares == null ? null : decodeMinorMap(e.fxShares!),
+  fxPaid: e.fxPayers == null ? null : decodeMinorMap(e.fxPayers!),
 );
 
 /// My member id in [ledger] (linked to [userId], not removed), or null.
@@ -186,6 +205,7 @@ InsightsView insightsViewOf(
     currency,
     categoryOf: ExpenseCategories.parentOf,
   );
+  final groupLedger = group == null || query.mode != InsightsMode.group ? null : picked.firstOrNull;
   return InsightsView(
     mode: query.mode,
     group: group,
@@ -194,6 +214,28 @@ InsightsView insightsViewOf(
     spending: spending,
     months: spending.summary.lastMonths(year: today.year, month: today.month),
     currentMonth: monthKey(today.year, today.month),
+    categoryTrends: categoryTrends(
+      inputs,
+      scope,
+      currency,
+      categoryOf: ExpenseCategories.parentOf,
+      year: today.year,
+      month: today.month,
+    ),
+    whoPaid: groupLedger == null
+        ? const []
+        : paidShareMonths(
+            inputs,
+            currency,
+            order: [for (final m in groupLedger.members) m.id],
+            year: today.year,
+            month: today.month,
+          ),
+    memberNames: {
+      for (final l in picked)
+        for (final m in l.members) m.id: m.displayName,
+    },
+    meMemberId: groupLedger == null ? null : myMemberIdIn(groupLedger, userId),
   );
 }
 

@@ -350,6 +350,8 @@ class MonthBars extends StatelessWidget {
     required this.currency,
     required this.selected,
     required this.onSelect,
+    this.keyPrefix = 'insights-bar',
+    this.color,
     super.key,
   });
 
@@ -360,12 +362,19 @@ class MonthBars extends StatelessWidget {
   final String selected;
   final ValueChanged<String> onSelect;
 
+  /// Each bar's tap area is keyed `<keyPrefix>-YYYY-MM` (several charts on one screen).
+  final String keyPrefix;
+
+  /// Bar colour (a category's chart colour); the primary colour by default.
+  final Color? color;
+
   static const double _height = 156;
 
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     final c = context.colors;
+    final bar = color ?? c.primary;
     final locale = Localizations.localeOf(context).toString();
     final top = months.fold(0, (m, s) => s.minor > m ? s.minor : m);
     final maxY = top == 0 ? 1.0 : top.toDouble();
@@ -389,8 +398,8 @@ class MonthBars extends StatelessWidget {
                   toY: months[i].minor.toDouble(),
                   width: 14,
                   color: months[i].month == selected
-                      ? c.primary
-                      : c.primary.withValues(alpha: context.isDark ? 0.45 : 0.32),
+                      ? bar
+                      : bar.withValues(alpha: context.isDark ? 0.45 : 0.32),
                   borderRadius: AppRadii.allPill,
                   backDrawRodData: BackgroundBarChartRodData(
                     show: true,
@@ -427,7 +436,7 @@ class MonthBars extends StatelessWidget {
                           ),
                           excludeSemantics: true,
                           child: Pressable(
-                            key: Key('insights-bar-${m.month}'),
+                            key: Key('$keyPrefix-${m.month}'),
                             onTap: () => onSelect(m.month),
                             borderRadius: AppRadii.all16,
                             child: const SizedBox.expand(),

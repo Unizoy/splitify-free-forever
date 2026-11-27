@@ -5,6 +5,8 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:splitify/core/config/preferences.dart';
 import 'package:splitify/data/data_providers.dart';
 import 'package:splitify/data/local/app_database.dart';
 import 'package:splitify/data/remote/remote_providers.dart';
@@ -69,9 +71,12 @@ Future<void> _expense(
 
 Future<_Env> _seed(WidgetTester t) async {
   final db = testDb();
+  SharedPreferences.setMockInitialValues({});
+  final prefs = (await t.runAsync(SharedPreferences.getInstance))!;
   final container = ProviderContainer(
     retry: (_, _) => null,
     overrides: [
+      sharedPreferencesProvider.overrideWithValue(prefs),
       appDatabaseProvider.overrideWithValue(db),
       remoteApiProvider.overrideWithValue(FakeRemoteApi()),
       clockProvider.overrideWithValue(FakeClock(DateTime(2026, 11, 21, 10))),
@@ -255,7 +260,7 @@ void main() {
   testWidgets('starts on the "find any expense" state with the four filter chips', (t) async {
     await _pump(t);
     expect(find.byKey(const Key('search-start')), findsOneWidget);
-    expect(find.text('Find any expense'), findsOneWidget);
+    expect(find.text('Find anything'), findsOneWidget);
     for (final k in ['group', 'person', 'date', 'category']) {
       expect(find.byKey(Key('search-filter-$k')), findsOneWidget);
     }
@@ -272,7 +277,7 @@ void main() {
     await _pump(t);
     await _type(t, 'dinner');
     expect(find.byKey(const Key('search-results')), findsOneWidget);
-    expect(_count(t), '2 expenses');
+    expect(_count(t), '2 results');
     expect(find.text('Dinner at Thalassa'), findsOneWidget);
     expect(find.text('Dinner party snacks'), findsOneWidget);
     expect(find.text('Cab to airport'), findsNothing);
@@ -292,12 +297,12 @@ void main() {
   testWidgets('finds by a word prefix, by note text and by amount', (t) async {
     await _pump(t);
     await _type(t, 'thal');
-    expect(_count(t), '1 expense');
+    expect(_count(t), '1 result');
     expect(find.text('Dinner at Thalassa'), findsOneWidget);
 
     await _type(t, 'window');
     expect(find.text('Dinner at Thalassa'), findsOneWidget);
-    expect(_count(t), '1 expense');
+    expect(_count(t), '1 result');
 
     await _type(t, '1200');
     expect(find.text('Cab to airport'), findsOneWidget);
@@ -350,13 +355,13 @@ void main() {
     expect(find.byKey(Key('search-group-${env.flat}')), findsOneWidget);
     await _tap(t, 'search-group-${env.flat}', rounds: 6);
     expect(find.text('Flat'), findsWidgets);
-    expect(_count(t), '1 expense');
+    expect(_count(t), '1 result in Flat');
     expect(find.text('Dinner party snacks'), findsOneWidget);
     expect(find.byKey(const Key('search-clear-filters')), findsOneWidget);
 
     await _tap(t, 'search-filter-group');
     await _tap(t, 'search-group-any', rounds: 6);
-    expect(_count(t), '2 expenses');
+    expect(_count(t), '2 results');
     expect(find.byKey(const Key('search-clear-filters')), findsNothing);
   });
 
@@ -365,7 +370,7 @@ void main() {
     await _tap(t, 'search-filter-group');
     await _tap(t, 'search-group-${env.flat}', rounds: 6);
     expect(find.byKey(const Key('search-start')), findsNothing);
-    expect(_count(t), '2 expenses');
+    expect(_count(t), '2 results in Flat');
     expect(find.text('Rent'), findsOneWidget);
   });
 
@@ -373,7 +378,7 @@ void main() {
     await _pump(t, group: 'goa');
     expect(find.byKey(const Key('search-start')), findsNothing);
     expect(find.text('Goa trip'), findsOneWidget);
-    expect(_count(t), '3 expenses');
+    expect(_count(t), '3 results in Goa trip');
     expect(find.text('Rent'), findsNothing);
   });
 
@@ -387,7 +392,7 @@ void main() {
     expect(find.text('Mohit'), findsNothing);
     await _tap(t, 'search-person-m:${env.members['Kiran']}', rounds: 6);
     expect(find.text('Kiran'), findsOneWidget);
-    expect(_count(t), '2 expenses');
+    expect(_count(t), '2 results');
     expect(find.text('Rent'), findsOneWidget);
     expect(find.text('Dinner party snacks'), findsOneWidget);
   });
@@ -402,22 +407,22 @@ void main() {
       }
       await _tap(t, 'search-date-thisMonth', rounds: 6);
       expect(find.text('This month'), findsOneWidget);
-      expect(_count(t), '3 expenses');
+      expect(_count(t), '3 results');
       expect(find.text('Beach shack'), findsNothing);
 
       await _tap(t, 'search-filter-date');
       await _tap(t, 'search-date-lastMonth', rounds: 6);
       expect(find.text('Last month'), findsOneWidget);
-      expect(_count(t), '1 expense');
+      expect(_count(t), '1 result');
       expect(find.text('Beach shack'), findsOneWidget);
 
       await _tap(t, 'search-filter-date');
       await _tap(t, 'search-date-last3Months', rounds: 6);
-      expect(_count(t), '5 expenses');
+      expect(_count(t), '5 results');
 
       await _tap(t, 'search-filter-date');
       await _tap(t, 'search-date-thisYear', rounds: 6);
-      expect(_count(t), '5 expenses');
+      expect(_count(t), '5 results');
 
       await _tap(t, 'search-filter-date');
       await _tap(t, 'search-date-any', rounds: 6);
@@ -439,7 +444,7 @@ void main() {
     await t.tap(find.text('15'));
     await _settleReal(t, 6);
     expect(find.text('5\u00A0Nov – 15\u00A0Nov'), findsOneWidget);
-    expect(_count(t), '1 expense');
+    expect(_count(t), '1 result');
     expect(find.text('Cab to airport'), findsOneWidget);
   });
 
@@ -448,14 +453,14 @@ void main() {
     await _tap(t, 'search-filter-category');
     expect(find.byKey(const Key('search-category-any')), findsOneWidget);
     await _tap(t, 'search-category-food', rounds: 6);
-    expect(_count(t), '2 expenses');
+    expect(_count(t), '2 results');
     expect(find.text('Dinner at Thalassa'), findsOneWidget);
     expect(find.text('Dinner party snacks'), findsOneWidget);
     expect(find.byKey(const Key('search-clear-filters')), findsOneWidget);
 
     await _tap(t, 'search-filter-category');
     await _tap(t, 'search-category-travel', rounds: 6);
-    expect(_count(t), '2 expenses');
+    expect(_count(t), '2 results');
     expect(find.text('Cab to airport'), findsOneWidget);
     expect(find.text('Beach shack'), findsOneWidget);
 
@@ -469,14 +474,14 @@ void main() {
     await _type(t, 'dinner');
     await _tap(t, 'search-filter-category');
     await _tap(t, 'search-category-food', rounds: 6);
-    expect(_count(t), '2 expenses');
+    expect(_count(t), '2 results');
     await _tap(t, 'search-filter-date');
     await _tap(t, 'search-date-thisMonth', rounds: 6);
-    expect(_count(t), '1 expense');
+    expect(_count(t), '1 result');
     expect(find.text('Dinner at Thalassa'), findsOneWidget);
     // Clear filters keeps the typed text.
     await _tap(t, 'search-clear-filters');
-    expect(_count(t), '2 expenses');
+    expect(_count(t), '2 results');
     expect(t.widget<TextField>(find.byKey(const Key('search-field'))).controller!.text, 'dinner');
   });
 

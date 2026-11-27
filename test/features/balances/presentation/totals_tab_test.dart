@@ -1,11 +1,13 @@
-// TC-21-02: the group's Totals tab (This month / All time, spent card, each person).
+// TC-21-02: the group's Totals tab (Month with prev / next, All time, spent card, each person; D-034 F13).
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:splitify/features/balances/application/totals_providers.dart';
 import 'package:splitify/features/balances/presentation/balances_tab.dart' show BalancesSkeleton;
+import 'package:splitify/features/balances/domain/group_totals.dart';
 import 'package:splitify/features/balances/presentation/totals_tab.dart';
+import 'package:splitify/features/insights/application/totals_months.dart';
 import 'package:splitify/ui/components/components.dart';
 
 import '../../expenses/presentation/presentation_harness.dart';
@@ -25,11 +27,17 @@ class _Host extends StatelessWidget {
   );
 }
 
-Future<void> _pump(WidgetTester t, AsyncValue<GroupTotalsView?> v) async {
+Future<void> _pump(WidgetTester t, AsyncValue<GroupTotalsView?> v, {TotalsMonths? months}) async {
   usePhone(t);
   await t.pumpWidget(const SizedBox());
   await t.pumpWidget(
-    expenseApp(const _Host(), overrides: [groupTotalsProvider(gid).overrideWithValue(v)]),
+    expenseApp(
+      const _Host(),
+      overrides: [
+        groupTotalsProvider(gid).overrideWithValue(v),
+        totalsMonthsProvider(gid).overrideWithValue(AsyncData(months)),
+      ],
+    ),
   );
   await settle(t);
 }
@@ -57,8 +65,9 @@ void main() {
       await _pump(t, AsyncData(sampleTotals()));
       final pill = t.widget<SegmentedPill<bool>>(find.byKey(const Key('totals-period')));
       expect(pill.value, isFalse);
-      expect(find.text('This month'), findsOneWidget);
+      expect(find.text('Month'), findsOneWidget);
       expect(find.text('All time'), findsOneWidget);
+      expect(find.byKey(const Key('totals-month')), findsNothing);
 
       expect(_in('totals-card-INR', 'TOTAL SPENT'), findsOneWidget);
       expect(_in('totals-card-INR', '₹4,825'), findsOneWidget);
@@ -84,9 +93,9 @@ void main() {
     });
 
     // TC-21-02
-    testWidgets('This month shows only this month\'s spending', (t) async {
+    testWidgets('Month opens on this month and shows only its spending', (t) async {
       await _pump(t, AsyncData(sampleTotals()));
-      await t.tap(find.text('This month'));
+      await t.tap(find.text('Month'));
       await settle(t);
       final pill = t.widget<SegmentedPill<bool>>(find.byKey(const Key('totals-period')));
       expect(pill.value, isTrue);
@@ -95,6 +104,7 @@ void main() {
       expect(_in('totals-my-share', '₹225'), findsOneWidget);
       expect(_in('totals-my-paid', '₹600'), findsOneWidget);
       expect(_row(t, 'm3').caption, 'paid ₹0\u00A0· share ₹225');
+      expect(find.text('November 2026'), findsOneWidget);
 
       await t.tap(find.text('All time'));
       await settle(t);
@@ -136,7 +146,7 @@ void main() {
           ),
         ),
       );
-      await t.tap(find.text('This month'));
+      await t.tap(find.text('Month'));
       await settle(t);
       expect(find.text('Nothing spent this month'), findsOneWidget);
       expect(find.byKey(const Key('totals-card-INR')), findsNothing);
@@ -176,6 +186,77 @@ void main() {
         (find.byKey(const Key('stub')).evaluate().single.widget as Text).data,
         'at /insights?mode=group&group=$gid',
       );
+    });
+
+    // TC-D34D-04
+    testWidgets('prev / next walk the months with spending; each month has its own numbers', (
+      t,
+    ) async {
+      TotalsExpense e(String date, int total, String payer) => TotalsExpense(
+        currency: 'INR',
+        total: total,
+        date: date,
+        paid: {payer: total},
+        shares: {'m1': total ~/ 2, 'm2': total - total ~/ 2},
+      );
+      final months = TotalsMonths([
+        e('2026-11-20', 90000, 'm1'),
+        e('2026-10-02', 40000, 'm2'),
+        e('2026-10-28', 10000, 'm1'),
+        e('2026-08-15', 30000, 'm2'),
+        const TotalsExpense(currency: 'INR', total: 5000, date: '2026-07-01', kind: 'iou'),
+      ]);
+      await _pump(t, AsyncData(sampleTotals()), months: months);
+      await t.tap(find.text('Month'));
+      await settle(t);
+      bool enabled(String key) => t.widget<AppIconButton>(find.byKey(Key(key))).onPressed != null;
+      expect(find.text('November 2026'), findsOneWidget);
+      expect(enabled('totals-next'), isFalse);
+      expect(enabled('totals-prev'), isTrue);
+
+      await tapKey(t, 'totals-prev');
+      expect(find.text('October 2026'), findsOneWidget);
+      expect(_in('totals-card-INR', '₹500'), findsOneWidget);
+      expect(_in('totals-card-INR', '2 expenses'), findsOneWidget);
+      expect(_in('totals-my-paid', '₹100'), findsOneWidget);
+      expect(_in('totals-my-share', '₹250'), findsOneWidget);
+      expect(_row(t, 'm2').caption, 'paid ₹400\u00A0· share ₹250');
+      expect(enabled('totals-next'), isTrue);
+
+      await tapKey(t, 'totals-prev');
+      expect(find.text('September 2026'), findsOneWidget);
+      expect(find.text('Nothing spent in September 2026'), findsOneWidget);
+      expect(find.byKey(const Key('totals-card-INR')), findsNothing);
+
+      await tapKey(t, 'totals-prev');
+      expect(find.text('August 2026'), findsOneWidget);
+      expect(_in('totals-card-INR', '₹300'), findsOneWidget);
+      // The July loan is not spending, so August is the oldest month.
+      expect(enabled('totals-prev'), isFalse);
+
+      // All time and back keeps the month.
+      await t.tap(find.text('All time'));
+      await settle(t);
+      expect(find.byKey(const Key('totals-month')), findsNothing);
+      await t.tap(find.text('Month'));
+      await settle(t);
+      expect(find.text('August 2026'), findsOneWidget);
+
+      for (var i = 0; i < 3; i++) {
+        await tapKey(t, 'totals-next');
+      }
+      expect(find.text('November 2026'), findsOneWidget);
+      expect(_in('totals-card-INR', '₹900'), findsOneWidget);
+      expect(enabled('totals-next'), isFalse);
+    });
+
+    // TC-D34D-04
+    testWidgets('the month arrows have names for TalkBack', (t) async {
+      await _pump(t, AsyncData(sampleTotals()));
+      await t.tap(find.text('Month'));
+      await settle(t);
+      expect(find.byTooltip('Previous month'), findsOneWidget);
+      expect(find.byTooltip('Next month'), findsOneWidget);
     });
   });
 }

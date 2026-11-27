@@ -8,6 +8,7 @@ import 'package:splitify/data/data_providers.dart';
 import 'package:splitify/data/remote/push_messaging.dart' show PushPermission;
 import 'package:splitify/features/account/application/theme_mode_controller.dart';
 import 'package:splitify/features/account/presentation/appearance_screen.dart';
+import 'package:splitify/features/account/presentation/your_data_sheet.dart';
 import 'package:splitify/features/app_lock/application/app_lock_controller.dart';
 import 'package:splitify/features/app_lock/presentation/security_routes.dart';
 import 'package:splitify/features/auth/application/auth_providers.dart';
@@ -58,8 +59,9 @@ Future<void> confirmSignOut(BuildContext context, WidgetRef ref) async {
 
 /// The settings list right on the Account tab (D-033, Splitwise-like: no gear, no nested accordions): the
 /// profile row (→ account settings), Notifications, Security, Appearance (sheet), Sync & storage,
-/// Home-screen widget (sheet), Import, Deleted groups, About; then Sign out, Delete account and the
-/// version. Each row says its current state; pages open only where there is more than one setting.
+/// Home-screen widget (sheet), Your data (sheet, D-034), Import, Deleted groups, About; then Sign out,
+/// Delete account and the version. Each row says its current state; pages open only where there is
+/// more than one setting.
 class AccountSettingsList extends ConsumerWidget {
   const AccountSettingsList({super.key});
 
@@ -130,6 +132,14 @@ class AccountSettingsList extends ConsumerWidget {
               label: l.widgetRow,
               value: ref.watch(widgetHideAmountsProvider) ? l.widgetHidden : null,
               onTap: () => unawaited(showWidgetSheet(context)),
+            ),
+            // D-034 WP-D: everything on this phone as a .zip (JSON + one CSV per group).
+            DashedListRow(
+              key: const Key('settings-your-data'),
+              icon: AppIcons.archive,
+              label: l.backupRow,
+              value: l.backupRowValue,
+              onTap: () => unawaited(showYourDataSheet(context)),
             ),
             DashedListRow(
               key: const Key('settings-import'),
