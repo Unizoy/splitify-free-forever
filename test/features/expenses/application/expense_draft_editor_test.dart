@@ -73,7 +73,10 @@ void main() {
     test('payers or split that do not add up point at the sheet', () {
       final ok = _draft(amount: '900', description: 'Cab');
       expect(ok.firstProblem, isNull);
-      expect(ok.withMultiplePayers().withPayerText('a', '100').firstProblem, EditorProblem.paidSplit);
+      expect(
+        ok.withMultiplePayers().withPayerText('a', '100').firstProblem,
+        EditorProblem.paidSplit,
+      );
       expect(
         ok.copyWith(split: ok.split.withValues(SplitKind.exact, {'a': 10000})).firstProblem,
         EditorProblem.paidSplit,
@@ -91,7 +94,10 @@ void main() {
         RepeatDraft(interval: RecurrenceInterval.monthly, endsOn: DateTime(2026, 11, 1)),
       );
       expect(early.firstProblem, EditorProblem.repeat);
-      expect(ok.withRepeat(const RepeatDraft(interval: RecurrenceInterval.monthly)).canSave, isTrue);
+      expect(
+        ok.withRepeat(const RepeatDraft(interval: RecurrenceInterval.monthly)).canSave,
+        isTrue,
+      );
     });
   });
 
@@ -185,7 +191,10 @@ void main() {
       expect(paidSplitSummary(l, shares), 'Paid by You\u00A0· split by shares');
       final two = d.withMultiplePayers().withPayerText('a', '700').withPayerText('b', '500');
       expect(paidSplitSummary(l, two), '2 people paid\u00A0· split equally');
-      expect(paidSplitSummary(l, d.withMultiplePayers()), 'Several people paid\u00A0· split equally');
+      expect(
+        paidSplitSummary(l, d.withMultiplePayers()),
+        'Several people paid\u00A0· split equally',
+      );
       final exact = d.copyWith(split: d.split.withValues(SplitKind.exact, {'a': 120000}));
       expect(paidSplitSummary(l, exact), 'Paid by You\u00A0· split exactly');
     });
