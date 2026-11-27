@@ -131,22 +131,10 @@ class _SettleUpScreenState extends ConsumerState<SettleUpScreen> {
     final picked = await showAppSheet<String>(
       context,
       title: l.settleMethodTitle,
-      builder: (sheet) => Column(
-        key: const Key('settle-methods'),
-        children: [
-          for (final m in paymentMethods)
-            // UPI is a method only for rupees (rule 13).
-            if (m != 'upi' || d.currency == 'INR') ...[
-              OptionTile(
-                key: Key('method-$m'),
-                label: methodLabel(l, m),
-                selected: d.method == m,
-                leading: Icon(methodIcon(m), color: sheet.colors.primary),
-                onTap: () => Navigator.of(sheet).pop(m),
-              ),
-              const SizedBox(height: AppSpacing.s3),
-            ],
-        ],
+      builder: (sheet) => PaymentMethodOptions(
+        currency: d.currency,
+        selected: d.method,
+        onPicked: (m) => Navigator.of(sheet).pop(m),
       ),
     );
     if (picked != null && picked != d.method) _edit((c) => c.setMethod(picked));
@@ -420,6 +408,41 @@ IconData methodIcon(String method) => switch (method) {
   'other' => AppIcons.methodOther,
   _ => AppIcons.cash,
 };
+
+/// The method sheet's choices: Cash, UPI (rupees only, rule 13), Bank, Other.
+class PaymentMethodOptions extends StatelessWidget {
+  const PaymentMethodOptions({
+    required this.currency,
+    required this.selected,
+    required this.onPicked,
+    super.key,
+  });
+
+  final String currency;
+  final String selected;
+  final ValueChanged<String> onPicked;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    return Column(
+      key: const Key('settle-methods'),
+      children: [
+        for (final m in paymentMethods)
+          if (m != 'upi' || currency == 'INR') ...[
+            OptionTile(
+              key: Key('method-$m'),
+              label: methodLabel(l, m),
+              selected: selected == m,
+              leading: Icon(methodIcon(m), color: context.colors.primary),
+              onTap: () => onPicked(m),
+            ),
+            const SizedBox(height: AppSpacing.s3),
+          ],
+      ],
+    );
+  }
+}
 
 /// "Record cash payment" / "Record UPI payment" / "Record bank payment" / "Record payment".
 String recordLabel(AppLocalizations l, String method) => switch (method) {

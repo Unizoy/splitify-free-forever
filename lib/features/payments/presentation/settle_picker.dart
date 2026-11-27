@@ -33,7 +33,7 @@ Future<void> showSettlePicker(BuildContext context, String groupId) async {
   await showAppSheet<void>(
     context,
     title: l.settleUp,
-    builder: (sheet) => _GroupPicker(
+    builder: (sheet) => GroupSettlePicker(
       groupId: groupId,
       open: (route) {
         Navigator.of(sheet).pop();
@@ -46,8 +46,9 @@ Future<void> showSettlePicker(BuildContext context, String groupId) async {
 String _route(String groupId, String currency, Transfer t) =>
     PaymentRoutes.settle(groupId, from: t.from, to: t.to, currency: currency);
 
-class _GroupPicker extends ConsumerWidget {
-  const _GroupPicker({required this.groupId, required this.open});
+/// The group sheet's content: the hint, the balances and "Record a different payment".
+class GroupSettlePicker extends ConsumerWidget {
+  const GroupSettlePicker({required this.groupId, required this.open, super.key});
 
   final String groupId;
   final ValueChanged<String> open;

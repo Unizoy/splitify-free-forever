@@ -142,7 +142,7 @@ class _LoanScreenState extends ConsumerState<LoanScreen> {
           builder: (context, ref, _) {
             final d = ref.watch(loanEditorProvider(_args)).value;
             if (d == null) return const SizedBox.shrink();
-            return _WhoPanel(
+            return LoanWhoPanel(
               draft: d,
               showErrors: _showErrors,
               onDirection: (v) => _edit((x) => x.copyWith(direction: v)),
@@ -471,13 +471,14 @@ class _WhoPill extends StatelessWidget {
 }
 
 /// The who-lent-whom sheet: I lent / I borrowed, then the other person (picking one closes the sheet).
-class _WhoPanel extends StatelessWidget {
-  const _WhoPanel({
+class LoanWhoPanel extends StatelessWidget {
+  const LoanWhoPanel({
     required this.draft,
     required this.showErrors,
     required this.onDirection,
     required this.onPerson,
     required this.onDone,
+    super.key,
   });
 
   final LoanDraft draft;
