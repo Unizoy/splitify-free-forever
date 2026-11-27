@@ -347,6 +347,7 @@
   "@addFriendAdded": {"placeholders": {"name": {"type": "String"}}},
   "friendRemindPick": "Remind {name}",
   "@friendRemindPick": {"placeholders": {"name": {"type": "String"}}},
+  "remindAction": "Remind",
   "addFriendNoFriends": "No friends yet. Add someone new below.",
   "simplifyTitle": "Simplify debts",
   "simplifyHelp": "Fewer payments, same totals. Someone may pay a person they didn't share an expense with.",

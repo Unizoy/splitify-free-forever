@@ -321,9 +321,15 @@ class _JoinScreenState extends ConsumerState<JoinScreen> {
         type: p.type,
         name: p.name,
         caption: groupTypeLabel(l, p.type),
+        showName: false,
         height: 136,
       ),
-      const SizedBox(height: AppSpacing.s3),
+      const SizedBox(height: AppSpacing.s4),
+      Semantics(
+        header: true,
+        child: Text(p.name, textAlign: TextAlign.center, style: context.text.title.w(600)),
+      ),
+      const SizedBox(height: AppSpacing.s1),
       Text(
         l.groupMembersCount(p.memberCount),
         textAlign: TextAlign.center,

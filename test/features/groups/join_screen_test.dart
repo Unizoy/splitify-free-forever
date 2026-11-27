@@ -100,11 +100,23 @@ void main() {
     testWidgets('D-033 the Paste chip reads the clipboard and looks the code up', (tester) async {
       final remote = _remoteWith(samplePreview());
       await pumpGroups(tester, '/join', remote: remote, overrides: fixedGroupData());
-      await Clipboard.setData(const ClipboardData(text: 'code is abcd efgh, see you'));
+      var clipboard = 'code is abcd efgh, see you';
+      tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, (
+        call,
+      ) async {
+        if (call.method == 'Clipboard.getData') return {'text': clipboard};
+        return null;
+      });
+      addTearDown(
+        () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+          SystemChannels.platform,
+          null,
+        ),
+      );
       await _tap(tester, 'join-paste');
       expect(remote.calls, isEmpty, reason: 'two 4-letter words are not one code');
       expect(find.text('There is no invite code to paste'), findsOneWidget);
-      await Clipboard.setData(const ClipboardData(text: 'Use ABCD-EFGH to join'));
+      clipboard = 'Use ABCD-EFGH to join';
       await _tap(tester, 'join-paste');
       expect(_fieldText(tester), 'ABCD-EFGH');
       expect(remote.calls, ['preview:ABCDEFGH']);

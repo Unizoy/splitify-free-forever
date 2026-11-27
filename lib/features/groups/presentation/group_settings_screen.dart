@@ -14,6 +14,7 @@ import 'package:splitify/features/groups/presentation/invite_sheet.dart';
 import 'package:splitify/features/groups/presentation/simplify_setting.dart';
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/components/components.dart';
+import 'package:splitify/ui/painters/cover_cache.dart';
 import 'package:splitify/ui/theme/theme.dart';
 import 'package:splitify/core/money/split.dart';
 import 'package:splitify/domain/rules/default_split.dart';
@@ -23,9 +24,11 @@ import 'package:splitify/features/history/presentation/history_routes.dart';
 import 'package:splitify/features/export/presentation/export_action.dart';
 import 'package:splitify/features/import_splitwise/presentation/import_routes.dart';
 
-/// Group settings (`/groups/:id/settings`, 614): edit, invite, members (add name-only with a colour, rename,
-/// unlink a wrong claim, remove / leave when settled), archive and delete (creator). Phase 11/17 add default
-/// split, simplify debts, import and export here.
+/// Group settings (`/groups/:id/settings`, 614), a clean Splitwise-like list (D-033): the group (cover, name,
+/// type · currency; tap = the one-screen edit form), members with "Add people to group" and "Invite via link
+/// or QR" and per-member actions in a sheet (rename, unlink a wrong claim, remove / leave when settled), then
+/// default split and simplify debts, the data rows (export CSV, import from Splitwise, deleted items) and
+/// archive / leave / delete (creator), each confirmed.
 class GroupSettingsScreen extends ConsumerWidget {
   const GroupSettingsScreen({required this.groupId, super.key});
 
@@ -43,6 +46,7 @@ class GroupSettingsScreen extends ConsumerWidget {
         icon: const Icon(AppIcons.back),
         onPressed: () => Navigator.of(context).maybePop(),
       ),
+      title: Text(l.groupSettingsTitle),
     );
     if (group == null || group.deletedAt != null) {
       return Scaffold(
@@ -52,6 +56,7 @@ class GroupSettingsScreen extends ConsumerWidget {
     }
     final archived = group.archivedAt != null;
     final isCreator = me != null && group.createdBy == me;
+    final direct = group.type == 'direct';
     return Scaffold(
       appBar: back,
       body: SafeArea(
@@ -59,25 +64,37 @@ class GroupSettingsScreen extends ConsumerWidget {
         child: ListView(
           padding: const EdgeInsets.fromLTRB(
             AppSpacing.screen,
-            AppSpacing.s2,
+            AppSpacing.s3,
             AppSpacing.screen,
             AppSpacing.s10,
           ),
           children: [
-            PageTitle(title: l.groupSettingsTitle, subtitle: group.name),
+            _GroupHeader(
+              group: group,
+              onTap: direct ? null : () => context.push('/groups/$groupId/edit'),
+            ),
             const SizedBox(height: AppSpacing.s6),
+            SectionLabel('${l.membersSection}\u00A0· ${members.length}'),
             DashedListRow(
-              key: const Key('settings-edit-group'),
-              icon: AppIcons.edit,
-              label: l.editGroup,
-              onTap: () => context.push('/groups/$groupId/edit'),
+              key: const Key('settings-add-member'),
+              icon: AppIcons.userPlus,
+              label: l.settingsAddPeople,
+              onTap: () => unawaited(_addMember(context, ref, members.length)),
             ),
             DashedListRow(
               key: const Key('settings-invite'),
-              icon: AppIcons.userPlus,
-              label: l.invitePeople,
+              icon: AppIcons.qr,
+              label: l.settingsInviteLink,
               onTap: () => unawaited(showInviteSheet(context, groupId)),
             ),
+            for (final m in members)
+              _MemberRow(
+                member: m,
+                me: me,
+                onTap: () => unawaited(_memberActions(context, ref, m, me)),
+              ),
+            const SizedBox(height: AppSpacing.s8),
+            SectionLabel(l.settingsSectionSettings),
             // #35: new expenses start with this split (phase 08).
             DashedListRow(
               key: const Key('settings-default-split'),
@@ -88,35 +105,9 @@ class GroupSettingsScreen extends ConsumerWidget {
               onTap: () => context.push(ExpenseRoutes.defaultSplit(groupId)),
             ),
             // #17: simplify debts (phase 11); friend (direct) groups have only two people.
-            if (group.type != 'direct') SimplifySettingRow(group: group),
+            if (!direct) SimplifySettingRow(group: group),
             const SizedBox(height: AppSpacing.s8),
-            SectionLabel(
-              '${l.membersSection}\u00A0· ${members.length}',
-              trailing: PillButton(
-                key: const Key('settings-add-member'),
-                label: l.addMember,
-                icon: AppIcons.plus,
-                variant: PillVariant.outline,
-                size: PillSize.medium,
-                expand: false,
-                onPressed: () => unawaited(_addMember(context, ref, members.length)),
-              ),
-            ),
-            const SizedBox(height: AppSpacing.s2),
-            for (final m in members)
-              _MemberRow(
-                member: m,
-                me: me,
-                onTap: () => unawaited(_memberActions(context, ref, m, me)),
-              ),
-            const SizedBox(height: AppSpacing.s8),
-            // #20: deleted expenses and payments, restorable by any member (phase 12).
-            DashedListRow(
-              key: const Key('settings-deleted-items'),
-              icon: AppIcons.restore,
-              label: l.delTitle,
-              onTap: () => context.push(HistoryRoutes.deleted(groupId)),
-            ),
+            SectionLabel(l.settingsSectionData),
             // #22: every expense and payment as a CSV file, through the share sheet (phase 17).
             DashedListRow(
               key: const Key('settings-export'),
@@ -132,6 +123,15 @@ class GroupSettingsScreen extends ConsumerWidget {
                 label: l.impTitle,
                 onTap: () => context.push(ImportRoutes.forGroup(groupId)),
               ),
+            // #20: deleted expenses and payments, restorable by any member (phase 12).
+            DashedListRow(
+              key: const Key('settings-deleted-items'),
+              icon: AppIcons.restore,
+              label: l.delTitle,
+              showDivider: false,
+              onTap: () => context.push(HistoryRoutes.deleted(groupId)),
+            ),
+            const SizedBox(height: AppSpacing.s8),
             DashedListRow(
               key: const Key('settings-archive'),
               icon: AppIcons.archive,
@@ -147,6 +147,7 @@ class GroupSettingsScreen extends ConsumerWidget {
               key: const Key('settings-leave'),
               icon: AppIcons.leave,
               label: l.leaveGroup,
+              destructive: true,
               showDivider: isCreator,
               onTap: () => unawaited(_leave(context, ref)),
             ),
@@ -320,6 +321,73 @@ class GroupSettingsScreen extends ConsumerWidget {
 }
 
 enum _MemberAction { rename, unlink, remove, leave }
+
+/// The group at the top of its settings: cover, name and "Trip · INR"; tap opens the edit form.
+class _GroupHeader extends ConsumerWidget {
+  const _GroupHeader({required this.group, required this.onTap});
+
+  final LocalGroup group;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context);
+    final c = context.colors;
+    final photo = groupCoverImage(ref, group, width: 200);
+    final family = coverFamilyFor(group.type);
+    final caption = l.settingsGroupCaption(groupTypeLabel(l, group.type), group.mainCurrency);
+    return Semantics(
+      button: onTap != null,
+      label: onTap == null ? null : l.editGroup,
+      onTap: onTap,
+      child: Pressable(
+        key: const Key('settings-edit-group'),
+        onTap: onTap,
+        scale: AppMotion.rowPressScale,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: AppSpacing.s2),
+          child: Row(
+            children: [
+              ClipRRect(
+                borderRadius: AppRadii.all16,
+                child: SizedBox.square(
+                  dimension: 56,
+                  child: photo == null
+                      ? Stack(
+                          fit: StackFit.expand,
+                          children: [
+                            CoverArt(seed: group.id, family: family),
+                            Center(
+                              child: Icon(
+                                GroupCoverCard.iconFor(family),
+                                size: 20,
+                                color: c.onHero,
+                              ),
+                            ),
+                          ],
+                        )
+                      : Image(image: photo, fit: BoxFit.cover, gaplessPlayback: true),
+                ),
+              ),
+              const SizedBox(width: AppSpacing.s4),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(group.name, style: context.text.title.w(600)),
+                    const SizedBox(height: 2),
+                    Text(caption, style: context.text.bodySmall.copyWith(color: c.textSecondary)),
+                  ],
+                ),
+              ),
+              if (onTap != null) Icon(AppIcons.edit, size: 20, color: c.primary),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
 
 class _MemberRow extends StatelessWidget {
   const _MemberRow({required this.member, required this.me, required this.onTap});

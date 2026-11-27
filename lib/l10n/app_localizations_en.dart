@@ -952,6 +952,9 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get remindAction => 'Remind';
+
+  @override
   String get addFriendNoFriends => 'No friends yet. Add someone new below.';
 
   @override

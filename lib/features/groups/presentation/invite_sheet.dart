@@ -22,8 +22,9 @@ final textSharerProvider = Provider<TextSharer>(
       (text) async => SharePlus.instance.share(ShareParams(text: text)),
 );
 
-/// Invite sheet (08 #3, 455): QR of `splitify://join?code=…` inside a dashed circle, the code `ABCD-EFGH`,
-/// Share invite, Reset code. The code comes from the server, so a group made offline shows a hint instead.
+/// Invite sheet (08 #3, 455; one sheet for everything, D-033): QR of `splitify://join?code=…` inside a dashed
+/// circle, the code `ABCD-EFGH` with Copy, the link with Copy link, Share invite and Reset code. The code comes
+/// from the server, so a group made offline shows a hint until it syncs (the sheet follows the group live).
 Future<void> showInviteSheet(BuildContext context, String groupId) => showAppSheet<void>(
   context,
   title: AppLocalizations.of(context).invitePeople,
@@ -46,6 +47,7 @@ class _InviteSheetBodyState extends ConsumerState<InviteSheetBody> {
 
   /// The copy button shows a check for a moment after copying (S-256).
   bool _copied = false;
+  bool _linkCopied = false;
   Timer? _copiedTimer;
 
   @override
@@ -54,14 +56,23 @@ class _InviteSheetBodyState extends ConsumerState<InviteSheetBody> {
     super.dispose();
   }
 
-  Future<void> _copy(String code) async {
-    await Clipboard.setData(ClipboardData(text: code));
+  Future<void> _copy(String text, {required bool link}) async {
+    await Clipboard.setData(ClipboardData(text: text));
     if (!mounted) return;
-    setState(() => _copied = true);
-    showGroupMessage(context, AppLocalizations.of(context).codeCopied);
+    setState(() {
+      _copied = !link;
+      _linkCopied = link;
+    });
+    final l = AppLocalizations.of(context);
+    showGroupMessage(context, link ? l.linkCopied : l.codeCopied);
     _copiedTimer?.cancel();
     _copiedTimer = Timer(const Duration(seconds: 2), () {
-      if (mounted) setState(() => _copied = false);
+      if (mounted) {
+        setState(() {
+          _copied = false;
+          _linkCopied = false;
+        });
+      }
     });
   }
 
@@ -150,9 +161,15 @@ class _InviteSheetBodyState extends ConsumerState<InviteSheetBody> {
               key: const Key('invite-copy'),
               tooltip: _copied ? l.codeCopied : l.copyCode,
               icon: Icon(_copied ? AppIcons.check : AppIcons.copy, color: c.primary),
-              onPressed: () => unawaited(_copy(code)),
+              onPressed: () => unawaited(_copy(code, link: false)),
             ),
           ],
+        ),
+        const SizedBox(height: AppSpacing.s4),
+        _LinkRow(
+          link: InviteCode.link(raw),
+          copied: _linkCopied,
+          onCopy: () => unawaited(_copy(InviteCode.link(raw), link: true)),
         ),
         const SizedBox(height: AppSpacing.s6),
         PillButton(
@@ -172,6 +189,51 @@ class _InviteSheetBodyState extends ConsumerState<InviteSheetBody> {
           onPressed: () => unawaited(_reset()),
         ),
       ],
+    );
+  }
+}
+
+/// The invite link on a muted pill with "Copy link" (the join screen takes a pasted link too).
+class _LinkRow extends StatelessWidget {
+  const _LinkRow({required this.link, required this.copied, required this.onCopy});
+
+  final String link;
+  final bool copied;
+  final VoidCallback onCopy;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final c = context.colors;
+    return Container(
+      key: const Key('invite-link'),
+      padding: const EdgeInsetsDirectional.only(start: AppSpacing.s4, end: AppSpacing.s1),
+      decoration: BoxDecoration(color: c.surfaceMuted, borderRadius: AppRadii.allPill),
+      child: Row(
+        children: [
+          Icon(AppIcons.link, size: 18, color: c.textSecondary),
+          const SizedBox(width: AppSpacing.s2),
+          Expanded(
+            child: Semantics(
+              label: l.inviteLinkLabel,
+              child: Text(
+                link,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: context.text.bodySmall.copyWith(color: c.textPrimary),
+              ),
+            ),
+          ),
+          TextButton(
+            key: const Key('invite-copy-link'),
+            onPressed: onCopy,
+            child: Text(
+              copied ? l.linkCopied : l.copyLink,
+              style: context.text.bodySmall.w(700).copyWith(color: c.primary),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

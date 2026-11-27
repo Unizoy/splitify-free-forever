@@ -17,7 +17,8 @@ import 'package:splitify/features/import_splitwise/domain/import_plan.dart';
 import 'package:splitify/features/import_splitwise/domain/splitwise_csv_parser.dart';
 import 'package:splitify/features/import_splitwise/domain/splitwise_reconstruction.dart';
 
-/// Steps of the import flow (08 X1). [group] only when started from Account.
+/// Steps of the import flow (08 X1). Since D-033 the file, the target group (Account entry) and the people
+/// share one screen: [file] before a file is read, [people] after; [group] is no longer used.
 enum ImportStep { file, group, people, preview, running, done }
 
 /// Largest file the importer reads (a Splitwise export of several thousand rows is ~1 MB).
@@ -92,6 +93,12 @@ final class ImportState {
   int get recordCount =>
       (preview?.result?.expenses.length ?? 0) + (preview?.result?.payments.length ?? 0);
 
+  /// The one setup screen is complete: a file, every person matched, and a name for a new group.
+  bool get canPreview =>
+      parsed != null &&
+      mappingProblem == null &&
+      (!creatingGroup || GroupRules.name(newGroupName!) == null);
+
   bool get canImport =>
       preview?.result != null &&
       mappingProblem == null &&
@@ -159,18 +166,21 @@ class ImportController extends Notifier<ImportState> {
     }
   }
 
-  /// [categoryKeys]: lower-case category label → key, for Splitify's own export (S-184).
-  Future<void> pickFile({Map<String, String> categoryKeys = const {}}) async {
+  /// [categoryKeys]: lower-case category label → key, for Splitify's own export (S-184). [myName]: how
+  /// "you" shows in a new group (Account entry).
+  Future<void> pickFile({Map<String, String> categoryKeys = const {}, String myName = ''}) async {
     final file = await ref.read(importFilePickerProvider).pick();
     if (file == null) return;
-    await loadFile(file.name, file.bytes, categoryKeys: categoryKeys);
+    await loadFile(file.name, file.bytes, categoryKeys: categoryKeys, myName: myName);
   }
 
-  /// Reads [bytes] (UTF-8, BOM allowed) as an import file.
+  /// Reads [bytes] (UTF-8, BOM allowed) as an import file. From Account it goes to a new group named
+  /// after the file (D-033: changeable on the same screen); from a group, into that group.
   Future<void> loadFile(
     String name,
     Uint8List bytes, {
     Map<String, String> categoryKeys = const {},
+    String myName = '',
   }) async {
     ImportProblem? problem;
     ImportCsv? parsed;
@@ -193,14 +203,22 @@ class ImportController extends Notifier<ImportState> {
       }
     }
     if (problem != null || parsed == null) {
-      state = state.copyWith(fileName: name, problem: () => problem);
+      state = state.copyWith(step: ImportStep.file, fileName: name, problem: () => problem);
       return;
     }
     state = state.copyWith(fileName: name, parsed: parsed, problem: () => null);
-    if (state.groupId == null) {
-      state = state.copyWith(step: ImportStep.group, newGroupName: () => groupNameFromFile(name));
+    final target = state.creatingGroup ? null : state.groupId;
+    if (target == null) {
+      chooseNewGroup(groupNameFromFile(name), myName: myName);
     } else {
-      await _useGroup(state.groupId!);
+      await _useGroup(target);
+    }
+  }
+
+  /// Account entry: the name typed for the new group.
+  void renameNewGroup(String name) {
+    if (state.creatingGroup && state.newGroupName != name) {
+      state = state.copyWith(newGroupName: () => name);
     }
   }
 
@@ -217,7 +235,7 @@ class ImportController extends Notifier<ImportState> {
       step: ImportStep.people,
       fileName: state.fileName,
       parsed: state.parsed,
-      newGroupName: name.trim(),
+      newGroupName: name,
       members: members,
     );
     _remap(suggestMapping(state.parsed!.file.members, members));
@@ -230,7 +248,7 @@ class ImportController extends Notifier<ImportState> {
   /// Moves to [step] (back navigation or the step header); forward only when allowed.
   void goTo(ImportStep step) {
     if (state.step == ImportStep.running || state.step == ImportStep.done) return;
-    if (step == ImportStep.preview && state.mappingProblem != null) return;
+    if (step == ImportStep.preview && !state.canPreview) return;
     if (step.index > ImportStep.file.index && state.parsed == null) return;
     state = state.copyWith(step: step);
   }
@@ -249,7 +267,7 @@ class ImportController extends Notifier<ImportState> {
       groupId = await ref
           .read(groupActionsProvider)
           .create(
-            name: s.newGroupName!,
+            name: s.newGroupName!.trim(),
             type: 'other',
             currency: file.currencies.length == 1 ? file.currencies.single : 'INR',
             ownerName: ownerName,

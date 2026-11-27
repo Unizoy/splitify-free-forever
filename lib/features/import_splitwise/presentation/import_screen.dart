@@ -5,7 +5,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:splitify/domain/rules/expense_categories.dart';
-import 'package:splitify/domain/rules/group_rules.dart';
 import 'package:splitify/features/auth/application/auth_providers.dart';
 import 'package:splitify/features/expenses/presentation/expense_copy.dart';
 import 'package:splitify/features/groups/application/groups_providers.dart';
@@ -19,12 +18,13 @@ import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/components/components.dart';
 import 'package:splitify/ui/theme/theme.dart';
 
-/// Import from Splitwise (`/groups/:id/import`, `/account/import`; 08 X1): StepHeader with
-/// File · (Group) · People · Preview · Done.
+/// Import from Splitwise (`/groups/:id/import`, `/account/import`; 08 X1), in three short steps (D-033):
+/// pick the file, then on the same screen the group (Account entry: a new group named after the file, or one
+/// of mine) and who is who → preview with the totals check → import → done ("Delete this import").
 class ImportScreen extends ConsumerStatefulWidget {
   const ImportScreen({this.groupId, super.key});
 
-  /// Target group; null when started from Account (the flow asks).
+  /// Target group; null when started from Account (picked on the setup screen).
   final String? groupId;
 
   @override
@@ -33,17 +33,14 @@ class ImportScreen extends ConsumerStatefulWidget {
 
 class _ImportScreenState extends ConsumerState<ImportScreen> {
   final _groupName = TextEditingController();
-  bool _newSelected = true;
 
   ImportController get _c => ref.read(importControllerProvider(widget.groupId).notifier);
 
-  List<ImportStep> get _steps => [
-    ImportStep.file,
-    if (widget.groupId == null) ImportStep.group,
-    ImportStep.people,
-    ImportStep.preview,
-    ImportStep.done,
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _groupName.addListener(() => _c.renameNewGroup(_groupName.text));
+  }
 
   @override
   void dispose() {
@@ -51,23 +48,33 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
     super.dispose();
   }
 
-  int _headerIndex(ImportStep s) =>
-      _steps.indexOf(s == ImportStep.running ? ImportStep.preview : s);
+  Future<void> _pick() => _c.pickFile(
+    categoryKeys: importCategoryKeys(AppLocalizations.of(context)),
+    myName: _myName(AppLocalizations.of(context)),
+  );
+
+  void _leave() {
+    final nav = Navigator.of(context);
+    if (nav.canPop()) {
+      nav.pop();
+    } else {
+      context.go('/groups');
+    }
+  }
 
   void _back(ImportState s) {
-    final i = _steps.indexOf(s.step);
-    if (s.step == ImportStep.running) return;
-    if (i <= 0 || s.step == ImportStep.done) {
-      final nav = Navigator.of(context);
-      if (nav.canPop()) {
-        nav.pop();
-      } else {
-        context.go('/groups');
-      }
-      return;
+    switch (s.step) {
+      case ImportStep.running:
+        return;
+      case ImportStep.preview:
+        HapticFeedback.selectionClick();
+        _c.goTo(ImportStep.people);
+      case ImportStep.file:
+      case ImportStep.group:
+      case ImportStep.people:
+      case ImportStep.done:
+        _leave();
     }
-    HapticFeedback.selectionClick();
-    _c.goTo(_steps[i - 1]);
   }
 
   @override
@@ -75,23 +82,27 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
     final l = AppLocalizations.of(context);
     final s = ref.watch(importControllerProvider(widget.groupId));
     ref.listen(importControllerProvider(widget.groupId).select((s) => s.newGroupName), (_, name) {
-      if (name != null && _groupName.text.isEmpty) _groupName.text = name;
+      if (name != null && name != _groupName.text) _groupName.text = name;
     });
     final targetId = s.result?.groupId ?? s.groupId;
     final group = targetId == null ? null : ref.watch(groupProvider(targetId)).value;
     final groupName = group?.name ?? s.newGroupName ?? '';
     final body = switch (s.step) {
-      ImportStep.file => ImportFileStep(
+      ImportStep.file => ImportFileStep(state: s, onPick: () => unawaited(_pick())),
+      ImportStep.group || ImportStep.people => ImportSetupStep(
         state: s,
-        onPick: () => unawaited(_c.pickFile(categoryKeys: importCategoryKeys(l))),
-      ),
-      ImportStep.group => ImportGroupStep(
+        groupName: groupName,
+        accountEntry: widget.groupId == null,
         nameController: _groupName,
-        newSelected: _newSelected,
-        onNew: () => setState(() => _newSelected = true),
+        onChangeFile: () => unawaited(_pick()),
+        onNewGroup: () {
+          if (!s.creatingGroup) {
+            _c.chooseNewGroup(groupNameFromFile(s.fileName ?? ''), myName: _myName(l));
+          }
+        },
         onGroup: (id) => unawaited(_c.chooseGroup(id)),
+        onChoice: _c.setChoice,
       ),
-      ImportStep.people => ImportPeopleStep(state: s, groupName: groupName, onChoice: _c.setChoice),
       ImportStep.preview => ImportPreviewStep(
         state: s,
         onAcceptMismatch: (v) => _c.setAcceptMismatch(value: v),
@@ -103,44 +114,40 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
         onDelete: () => unawaited(_delete()),
       ),
     };
+    final bar = _bar(l, s);
     return PopScope(
-      canPop: s.step == ImportStep.file || s.step == ImportStep.done,
+      canPop: s.step != ImportStep.preview && s.step != ImportStep.running,
       onPopInvokedWithResult: (didPop, _) {
         if (!didPop) _back(s);
       },
       child: Scaffold(
+        appBar: AppBar(
+          leading: s.step == ImportStep.running
+              ? null
+              : AppIconButton(
+                  tooltip: l.back,
+                  icon: const Icon(AppIcons.back),
+                  onPressed: () => _back(s),
+                ),
+          automaticallyImplyLeading: false,
+          title: Text(s.step == ImportStep.preview ? l.impStepPreview : l.impTitle),
+        ),
         body: Column(
           children: [
-            StepHeader(
-              steps: [
-                for (final step in _steps)
-                  switch (step) {
-                    ImportStep.file => StepItem(label: l.impStepFile, icon: AppIcons.fileCsv),
-                    ImportStep.group => StepItem(label: l.impStepGroup, icon: AppIcons.groups),
-                    ImportStep.people => StepItem(label: l.impStepPeople, icon: AppIcons.friends),
-                    ImportStep.preview => StepItem(
-                      label: l.impStepPreview,
-                      icon: AppIcons.stepReview,
-                    ),
-                    _ => StepItem(label: l.impStepDone, icon: AppIcons.fileImport),
-                  },
-              ],
-              current: _headerIndex(s.step),
-              statusText: groupName.isEmpty ? l.impTitle : groupName,
-              statusIcon: AppIcons.fileImport,
-              onBack: () => _back(s),
-              onHome: s.step == ImportStep.running ? null : () => context.go('/groups'),
-            ),
             Expanded(
               child: AnimatedSwitcher(
                 duration: context.motion.base,
                 switchInCurve: AppMotion.standard,
-                child: KeyedSubtree(key: ValueKey(s.step), child: body),
+                child: KeyedSubtree(
+                  key: ValueKey(s.step == ImportStep.group ? ImportStep.people : s.step),
+                  child: body,
+                ),
               ),
             ),
+            // In the body: the Scaffold lifts it above the keyboard (the group name field, D-032).
+            ?bar,
           ],
         ),
-        bottomNavigationBar: _bar(l, s),
       ),
     );
   }
@@ -151,24 +158,17 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
       case ImportStep.running:
         return null;
       case ImportStep.group:
-        return ListenableBuilder(
-          listenable: _groupName,
-          builder: (context, _) => StickyActionBar(
-            primary: PillButton(
-              key: const Key('import-continue'),
-              label: l.impContinue,
-              onPressed: _newSelected && GroupRules.name(_groupName.text) == null
-                  ? () => _c.chooseNewGroup(_groupName.text, myName: _myName(l))
-                  : null,
-            ),
-          ),
-        );
       case ImportStep.people:
         return StickyActionBar(
           primary: PillButton(
             key: const Key('import-continue'),
-            label: l.impContinue,
-            onPressed: s.mappingProblem == null ? () => _c.goTo(ImportStep.preview) : null,
+            label: l.impPreviewButton,
+            onPressed: s.canPreview
+                ? () {
+                    FocusManager.instance.primaryFocus?.unfocus();
+                    _c.goTo(ImportStep.preview);
+                  }
+                : null,
           ),
         );
       case ImportStep.preview:

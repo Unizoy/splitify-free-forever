@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:splitify/data/local/app_database.dart';
-import 'package:splitify/features/expenses/presentation/editor/step_body.dart' show StepBody;
+import 'package:splitify/domain/rules/group_rules.dart';
 import 'package:splitify/features/groups/application/groups_providers.dart';
 import 'package:splitify/features/groups/presentation/group_visuals.dart';
 import 'package:splitify/features/import_splitwise/application/import_controller.dart';
@@ -13,92 +13,137 @@ import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/components/components.dart';
 import 'package:splitify/ui/theme/theme.dart';
 
-/// Account entry only: import into one of my groups or a new one (named from the file).
-class ImportGroupStep extends ConsumerWidget {
-  const ImportGroupStep({
-    required this.nameController,
-    required this.newSelected,
-    required this.onNew,
-    required this.onGroup,
-    super.key,
-  });
-
-  final TextEditingController nameController;
-  final bool newSelected;
-  final VoidCallback onNew;
-  final ValueChanged<String> onGroup;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l = AppLocalizations.of(context);
-    final groups = [
-      for (final g in ref.watch(groupsListProvider).value ?? const <LocalGroup>[])
-        if (g.archivedAt == null) g,
-    ];
-    return StepBody(
-      question: l.impGroupQuestion,
-      children: [
-        OptionTile(
-          key: const Key('import-new-group'),
-          label: l.impNewGroup,
-          selected: newSelected,
-          leading: Icon(AppIcons.plus, color: context.colors.primary),
-          onTap: onNew,
-        ),
-        if (newSelected) ...[
-          const SizedBox(height: AppSpacing.s4),
-          UnderlineField(
-            key: const Key('import-group-name'),
-            label: l.impGroupName,
-            hint: l.impGroupNameHint,
-            controller: nameController,
-            required: true,
-            textCapitalization: TextCapitalization.words,
-          ),
-        ],
-        if (groups.isNotEmpty) ...[
-          const SizedBox(height: AppSpacing.s8),
-          SectionLabel(l.impYourGroups),
-          const SizedBox(height: AppSpacing.s3),
-          for (final g in groups) ...[
-            OptionTile(key: Key('import-group-${g.id}'), label: g.name, onTap: () => onGroup(g.id)),
-            const SizedBox(height: AppSpacing.s3),
-          ],
-        ],
-      ],
-    );
-  }
-}
-
-/// Matching people: one row per person of the file with their net in the file and what they become
-/// (a member, a new name-only member or skipped); tap opens the choice sheet.
-class ImportPeopleStep extends StatelessWidget {
-  const ImportPeopleStep({
+/// The one setup screen of the import (D-033), after a file is read: the file (with Change), from Account
+/// "Import into" (a new group named after the file, or one of my groups), then who is who — one row per
+/// person of the file with their net and what they become (a member, a new name-only member or skipped).
+class ImportSetupStep extends ConsumerWidget {
+  const ImportSetupStep({
     required this.state,
     required this.groupName,
+    required this.accountEntry,
+    required this.nameController,
+    required this.onChangeFile,
+    required this.onNewGroup,
+    required this.onGroup,
     required this.onChoice,
     super.key,
   });
 
   final ImportState state;
+
+  /// The target group's name (for the hint).
   final String groupName;
+
+  /// Started from Account: the target group is picked here.
+  final bool accountEntry;
+  final TextEditingController nameController;
+  final VoidCallback onChangeFile;
+  final VoidCallback onNewGroup;
+  final ValueChanged<String> onGroup;
   final void Function(String name, MemberChoice choice) onChoice;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context);
     final c = context.colors;
     final file = state.parsed!.file;
     final problem = state.mappingProblem;
-    return StepBody(
-      question: l.impPeopleQuestion,
+    final groups = !accountEntry
+        ? const <LocalGroup>[]
+        : [
+            for (final g in ref.watch(groupsListProvider).value ?? const <LocalGroup>[])
+              if (g.archivedAt == null && g.deletedAt == null) g,
+          ];
+    return ListView(
+      key: const Key('import-setup'),
+      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.screen,
+        AppSpacing.s3,
+        AppSpacing.screen,
+        AppSpacing.s8,
+      ),
       children: [
+        ImportCard(
+          key: const Key('import-file'),
+          padding: AppSpacing.s4,
+          child: Row(
+            children: [
+              ImportIconBadge(icon: AppIcons.fileCsv, color: c.primary),
+              const SizedBox(width: AppSpacing.s3),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      state.fileName ?? l.impTitle,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: context.text.body.w(600),
+                    ),
+                    Text(
+                      l.impFileRows(file.rows.length, file.currencies.join(', ')),
+                      style: context.text.bodySmall.copyWith(color: c.textSecondary),
+                    ),
+                  ],
+                ),
+              ),
+              TextButton(
+                key: const Key('import-change-file'),
+                onPressed: onChangeFile,
+                child: Text(
+                  l.impChangeFile,
+                  style: context.text.body.w(700).copyWith(color: c.primary),
+                ),
+              ),
+            ],
+          ),
+        ),
+        if (accountEntry) ...[
+          const SizedBox(height: AppSpacing.s6),
+          SectionLabel(l.impIntoGroup),
+          Wrap(
+            spacing: AppSpacing.s2,
+            runSpacing: AppSpacing.s2,
+            children: [
+              IconChip(
+                key: const Key('import-new-group'),
+                label: l.impNewGroup,
+                icon: AppIcons.plus,
+                selected: state.creatingGroup,
+                onTap: onNewGroup,
+              ),
+              for (final g in groups)
+                IconChip(
+                  key: Key('import-group-${g.id}'),
+                  label: g.name,
+                  selected: !state.creatingGroup && state.groupId == g.id,
+                  onTap: () => onGroup(g.id),
+                ),
+            ],
+          ),
+          if (state.creatingGroup) ...[
+            const SizedBox(height: AppSpacing.s4),
+            UnderlineField(
+              key: const Key('import-group-name'),
+              label: l.impGroupName,
+              hint: l.impGroupNameHint,
+              controller: nameController,
+              required: true,
+              textCapitalization: TextCapitalization.words,
+              errorText: GroupRules.name(nameController.text) == GroupFieldError.tooLong
+                  ? l.groupNameTooLong
+                  : null,
+            ),
+          ],
+        ],
+        const SizedBox(height: AppSpacing.s6),
+        SectionLabel(l.impPeopleQuestion),
         Text(
           state.creatingGroup ? l.impPeopleHintNew : l.impPeopleHint(groupName),
-          textAlign: TextAlign.center,
-          style: context.text.body.copyWith(color: c.textSecondary),
+          style: context.text.bodySmall.copyWith(color: c.textSecondary),
         ),
-        const SizedBox(height: AppSpacing.s5),
+        const SizedBox(height: AppSpacing.s2),
         for (final (i, name) in file.members.indexed)
           _PersonRow(
             name: name,

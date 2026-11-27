@@ -1712,6 +1712,12 @@ abstract class AppLocalizations {
   /// **'Remind {name}'**
   String friendRemindPick(String name);
 
+  /// No description provided for @remindAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Remind'**
+  String get remindAction;
+
   /// No description provided for @addFriendNoFriends.
   ///
   /// In en, this message translates to:

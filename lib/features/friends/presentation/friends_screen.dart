@@ -14,8 +14,8 @@ import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/components/components.dart';
 import 'package:splitify/ui/theme/theme.dart';
 
-/// Friends tab (`/friends`, 438 list + 646 rows, #2/#16): a search pill in the hero, amber "Add friend
-/// expense", and everyone I share a group with, each with the total with them per currency (positive =
+/// Friends tab (`/friends`, 438 list + 646 rows, #2/#16): a search pill in the hero with "Add friend" at the
+/// top right (one sheet, D-033), amber "Add friend expense", and everyone I share a group with, each with the total with them per currency (positive =
 /// they owe me). Local and instant; "not synced yet" while anything is pending (rule 3).
 class FriendsScreen extends ConsumerStatefulWidget {
   const FriendsScreen({super.key});
@@ -54,6 +54,15 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen> {
         icon: AppIcons.friends,
         title: l.emptyFriendsTitle,
         message: l.emptyFriendsBody,
+        actions: [
+          PillButton(
+            key: const Key('friends-empty-add'),
+            label: l.addFriend,
+            icon: AppIcons.userPlus,
+            variant: PillVariant.outline,
+            onPressed: () => unawaited(showAddFriendSheet(context, ref)),
+          ),
+        ],
       );
     } else if (shown.isEmpty) {
       content = Padding(
@@ -93,6 +102,14 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen> {
           child: OverlapColumn(
             top: HeroHeader(
               title: l.friendsHero,
+              actions: [
+                HeroIconButton(
+                  key: const Key('friends-add'),
+                  icon: AppIcons.userPlus,
+                  tooltip: l.addFriend,
+                  onPressed: () => unawaited(showAddFriendSheet(context, ref)),
+                ),
+              ],
               art: (seed: 'friends-home', family: CoverFamily.couple),
               child: _SearchPill(controller: _search, onChanged: (_) => setState(() {})),
             ),
