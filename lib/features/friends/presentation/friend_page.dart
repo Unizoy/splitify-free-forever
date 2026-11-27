@@ -31,15 +31,33 @@ import 'package:splitify/ui/theme/theme.dart';
 /// Friend page (`/friends/:key`, 542 header, #2/#16), compact like Splitwise (D-033): avatar and name on a
 /// short hero with the total per currency, then Settle up and Remind (when they owe me and have the app),
 /// what each shared group shows between us, every shared expense and payment across groups (group named on
-/// each row), and Add expense at the bottom.
-class FriendPage extends ConsumerWidget {
+/// each row), and Add expense at the bottom. Once we are settled in every currency, the history up to the last
+/// full settle-up hides behind "Show settled items (N)" (D-034 B5, like Splitwise).
+class FriendPage extends ConsumerStatefulWidget {
   const FriendPage({required this.friendKey, super.key});
 
   final String friendKey;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<FriendPage> createState() => _FriendPageState();
+
+  static void _close(BuildContext context) {
+    if (context.canPop()) {
+      context.pop();
+    } else {
+      context.go('/friends');
+    }
+  }
+}
+
+class _FriendPageState extends ConsumerState<FriendPage> {
+  /// The settled history is open.
+  bool _showSettled = false;
+
+  @override
+  Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
+    final friendKey = widget.friendKey;
     final async = ref.watch(friendProvider(friendKey));
     final friend = async.value;
     if (friend == null) {
@@ -48,7 +66,7 @@ class FriendPage extends ConsumerWidget {
           leading: AppIconButton(
             tooltip: l.back,
             icon: const Icon(AppIcons.back),
-            onPressed: () => _close(context),
+            onPressed: () => FriendPage._close(context),
           ),
         ),
         body: Center(
@@ -62,7 +80,28 @@ class FriendPage extends ConsumerWidget {
     final first = ref.watch(profileProvider).value?.defaultCurrency ?? 'INR';
     final items = friendItems(friend);
     final groups = friend.links.where((g) => !g.isDirect || g.amounts.isNotEmpty).toList();
-    final rows = items.isEmpty ? const <Widget>[] : _itemRows(context, friend, items);
+    final settled = settledHistoryCount(friend, items);
+    final open = items.sublist(0, items.length - settled);
+    final rows = [
+      ..._itemRows(context, friend, open),
+      if (settled > 0)
+        Padding(
+          padding: EdgeInsets.only(top: open.isEmpty ? AppSpacing.s3 : AppSpacing.s6),
+          child: Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: PillButton(
+              key: const Key('friend-show-settled'),
+              label: _showSettled ? l.settle2HideSettled : l.settle2ShowSettled(settled),
+              icon: AppIcons.history,
+              variant: PillVariant.outline,
+              size: PillSize.medium,
+              expand: false,
+              onPressed: () => setState(() => _showSettled = !_showSettled),
+            ),
+          ),
+        ),
+      if (settled > 0 && _showSettled) ..._itemRows(context, friend, items.sublist(open.length)),
+    ];
     // Shared items can run to hundreds: they follow the sheet as a lazy sliver (S-267).
     return Scaffold(
       body: CustomScrollView(
@@ -137,6 +176,7 @@ class FriendPage extends ConsumerWidget {
 
   List<Widget> _itemRows(BuildContext context, Friend friend, List<FriendItem> items) {
     final out = <Widget>[];
+    if (items.isEmpty) return out;
     String? month;
     for (var i = 0; i < items.length; i++) {
       final header = monthHeader(context, parseIsoDate(items[i].date));
@@ -160,14 +200,6 @@ class FriendPage extends ConsumerWidget {
       out.add(FriendItemRow(item: items[i], friendName: friend.name, showDivider: nextSame));
     }
     return out;
-  }
-
-  static void _close(BuildContext context) {
-    if (context.canPop()) {
-      context.pop();
-    } else {
-      context.go('/friends');
-    }
   }
 }
 

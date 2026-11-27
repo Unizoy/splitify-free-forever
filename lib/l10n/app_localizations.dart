@@ -7597,6 +7597,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'You and {name} are already friends'**
   String friendCodeAlready(String name);
+
+  /// No description provided for @friendCodeRateLimited.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many wrong codes. Try again in an hour.'**
+  String get friendCodeRateLimited;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

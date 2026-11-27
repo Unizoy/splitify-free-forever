@@ -4731,4 +4731,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String friendCodeAlready(String name) {
     return 'You and $name are already friends';
   }
+
+  @override
+  String get friendCodeRateLimited => 'Too many wrong codes. Try again in an hour.';
 }

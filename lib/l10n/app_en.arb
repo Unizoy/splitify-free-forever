@@ -1612,5 +1612,6 @@
   "friendCodeAdded": "{name} is now your friend",
   "@friendCodeAdded": {"placeholders": {"name": {"type": "String"}}},
   "friendCodeAlready": "You and {name} are already friends",
-  "@friendCodeAlready": {"placeholders": {"name": {"type": "String"}}}
+  "@friendCodeAlready": {"placeholders": {"name": {"type": "String"}}},
+  "friendCodeRateLimited": "Too many wrong codes. Try again in an hour."
 }
