@@ -615,7 +615,9 @@ void main() {
       await actions.delete(await expense(id));
       var row = await expense(id);
       expect(row.deletedAt, _now());
-      expect(await _data<ExpenseView?>(env.container, expenseViewProvider(id)), isNull);
+      // D-034 A4: the detail page still gets the deleted expense (read-only, with Restore).
+      final deleted = await _data<ExpenseView?>(env.container, expenseViewProvider(id));
+      expect(deleted?.deleted, isTrue);
       var out = await env.db.select(env.db.outbox).get();
       expect(out.last.op, SyncOp.delete.name);
 
@@ -625,8 +627,12 @@ void main() {
       out = await env.db.select(env.db.outbox).get();
       expect(out.last.op, SyncOp.restore.name);
       expect(
-        await _data<ExpenseView?>(env.container, expenseViewProvider(id), until: (v) => v != null),
-        isNotNull,
+        (await _data<ExpenseView?>(
+          env.container,
+          expenseViewProvider(id),
+          until: (v) => v != null && !v.deleted,
+        ))?.deleted,
+        isFalse,
       );
     });
 

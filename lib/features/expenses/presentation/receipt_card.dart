@@ -18,9 +18,12 @@ import 'package:splitify/ui/theme/theme.dart';
 /// (and "Uploads when you're online" while it waits); opens the full-screen viewer with Replace and
 /// Remove.
 class ReceiptCard extends ConsumerWidget {
-  const ReceiptCard({required this.expense, super.key});
+  const ReceiptCard({required this.expense, this.readOnly = false, super.key});
 
   final LocalExpense expense;
+
+  /// A deleted expense (D-034 A4) or an archived group: the photo opens without Replace / Remove.
+  final bool readOnly;
 
   Future<void> _open(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context);
@@ -34,26 +37,30 @@ class ReceiptCard extends ConsumerWidget {
       title: l.receiptPhoto,
       bucket: MediaBuckets.receipts,
       path: expense.receiptPath,
-      onReplace: () async {
-        final image = await pickPhoto(context, ref);
-        if (image == null) return false;
-        await actions.replaceReceipt(expense, image);
-        say(l.receiptReplaced);
-        return true;
-      },
-      onRemove: () async {
-        final yes = await confirmAction(
-          context,
-          title: l.receiptRemoveTitle,
-          body: l.receiptRemoveBody,
-          confirm: l.photoRemove,
-          icon: AppIcons.trash,
-        );
-        if (!yes) return false;
-        await actions.removeReceipt(expense);
-        say(l.receiptRemoved);
-        return true;
-      },
+      onReplace: readOnly
+          ? null
+          : () async {
+              final image = await pickPhoto(context, ref);
+              if (image == null) return false;
+              await actions.replaceReceipt(expense, image);
+              say(l.receiptReplaced);
+              return true;
+            },
+      onRemove: readOnly
+          ? null
+          : () async {
+              final yes = await confirmAction(
+                context,
+                title: l.receiptRemoveTitle,
+                body: l.receiptRemoveBody,
+                confirm: l.photoRemove,
+                icon: AppIcons.trash,
+              );
+              if (!yes) return false;
+              await actions.removeReceipt(expense);
+              say(l.receiptRemoved);
+              return true;
+            },
     );
   }
 
