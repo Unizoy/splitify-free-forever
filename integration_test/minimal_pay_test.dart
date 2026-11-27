@@ -117,13 +117,6 @@ void main() {
       await engine.sync();
       await engine.sync();
     });
-    Future<Map<String, int>> serverNets() async {
-      final b = (await t.runAsync(
-        () => client.rpc<Map<String, dynamic>>('group_balances', params: {'group_id': gid}),
-      ))!;
-      return _ints((b['currencies'] as Map)['INR']['nets']);
-    }
-
     // A separate test group (never the owner's groups): me, Asha and Rahul (name-only).
     final groups = container.read(groupsRepositoryProvider);
     final members = container.read(membersRepositoryProvider);
@@ -136,6 +129,13 @@ void main() {
     final asha = await members.addNameOnly(gid, 'Asha');
     final rahul = await members.addNameOnly(gid, 'Rahul');
     final me = (await members.watchForGroup(gid).first).firstWhere((m) => m.userId == uid).id;
+    Future<Map<String, int>> serverNets() async {
+      final b = (await t.runAsync(
+        () => client.rpc<Map<String, dynamic>>('group_balances', params: {'group_id': gid}),
+      ))!;
+      return _ints((b['currencies'] as Map)['INR']['nets']);
+    }
+
     // Asha paid ₹1,200 for the three of us: I owe her ₹400, so does Rahul.
     await container.read(expensesRepositoryProvider).save(gid, {
       'kind': 'expense',
@@ -312,9 +312,11 @@ void main() {
     await _capture(t, 'loan-filled-dark');
     await _tap(t, find.byKey(const Key('loan-save')));
     await _waitFor(t, find.byKey(const Key('group-settle')), reason: 'back on the group');
-    final loan = await (db.select(
-      db.expenses,
-    )..where((e) => e.groupId.equals(gid) & e.kind.equals('iou'))).getSingle();
+    final loan =
+        await (db.select(db.expenses)
+              ..where((e) => e.groupId.equals(gid))
+              ..where((e) => e.kind.equals('iou')))
+            .getSingle();
     expect((loan.total, loan.description), (50000, 'Cab money'));
     expect(_ints(loan.payers), {me: 50000});
     expect(_ints(loan.shares), {rahul: 50000});
