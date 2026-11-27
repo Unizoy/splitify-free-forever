@@ -77,6 +77,14 @@ Future<void> _pump(
 
 String _text(WidgetTester t, String key) => t.widget<Text>(find.byKey(Key(key))).data!;
 
+String _amount(WidgetTester t, String key) => t
+    .widgetList<Text>(find.descendant(of: find.byKey(Key(key)), matching: find.byType(Text)))
+    .last
+    .data!;
+
+(String, String) _who(WidgetTester t) =>
+    (_amount(t, 'trend-who-paid'), _amount(t, 'trend-who-share'));
+
 bool _selected(WidgetTester t, String key) => t.widget<IconChip>(find.byKey(Key(key))).selected;
 
 void main() {
@@ -122,15 +130,15 @@ void main() {
       findsOneWidget,
     );
     // November: Asha paid the dinner; my share ₹1,000.
-    expect(_text(t, 'trend-who-month'), 'paid ₹0 · share ₹1,000');
+    expect(_who(t), ('₹0', '₹1,000'));
     expect(_text(t, 'trend-who-total'), 'Last 12 months: paid ₹9,000 · share ₹4,300');
 
     await t.tap(find.byKey(const Key('trend-person-m2')));
     await settle(t);
-    expect(_text(t, 'trend-who-month'), 'paid ₹3,000 · share ₹1,000');
+    expect(_who(t), ('₹3,000', '₹1,000'));
     await t.tap(find.byKey(const Key('trend-who-bar-2026-10')));
     await settle(t);
-    expect(_text(t, 'trend-who-month'), 'paid ₹0 · share ₹3,000');
+    expect(_who(t), ('₹0', '₹3,000'));
     expect(_text(t, 'insights-month-title'), 'October 2026');
     expect(_text(t, 'trend-who-total'), 'Last 12 months: paid ₹3,000 · share ₹4,000');
   });

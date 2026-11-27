@@ -156,13 +156,22 @@ class WhoPaidCard extends StatelessWidget {
             monthTitle(context, month),
             style: context.text.body.copyWith(color: c.textSecondary),
           ),
-          Text(
-            l.totPaidShare(
-              listMoney(picked?.paid ?? 0, view.currency),
-              listMoney(picked?.share ?? 0, view.currency),
-            ),
-            key: const Key('trend-who-month'),
-            style: context.text.title.w(700).copyWith(color: c.textPrimary),
+          const SizedBox(height: AppSpacing.s1),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _Stat(
+                key: const Key('trend-who-paid'),
+                label: l.trendPaid,
+                amount: listMoney(picked?.paid ?? 0, view.currency),
+              ),
+              const SizedBox(width: AppSpacing.s4),
+              _Stat(
+                key: const Key('trend-who-share'),
+                label: l.trendShare,
+                amount: listMoney(picked?.share ?? 0, view.currency),
+              ),
+            ],
           ),
           const SizedBox(height: AppSpacing.s4),
           PaidShareBars(
@@ -185,6 +194,37 @@ class WhoPaidCard extends StatelessWidget {
           const SizedBox(height: AppSpacing.s1),
           Text(l.trendWhoPaidHint, style: context.text.bodySmall.copyWith(color: c.textSecondary)),
         ],
+      ),
+    );
+  }
+}
+
+/// "PAID" over "₹3,000": one number of the picked month.
+class _Stat extends StatelessWidget {
+  const _Stat({required this.label, required this.amount, super.key});
+
+  final String label;
+  final String amount;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    return Expanded(
+      child: Semantics(
+        container: true,
+        label: '$label $amount',
+        excludeSemantics: true,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(label, style: context.text.bodySmall.copyWith(color: c.textSecondary)),
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: AlignmentDirectional.centerStart,
+              child: Text(amount, maxLines: 1, style: context.text.title.w(700)),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -282,6 +322,7 @@ class PaidShareBars extends StatelessWidget {
     DateTime date(String key) =>
         DateTime(int.parse(key.substring(0, 4)), int.parse(key.substring(5, 7)));
     final soft = c.primary.withValues(alpha: context.isDark ? 0.45 : 0.3);
+    final track = BackgroundBarChartRodData(show: true, toY: maxY, color: c.surfaceMuted);
     final chart = BarChart(
       BarChartData(
         alignment: BarChartAlignment.spaceAround,
@@ -302,14 +343,16 @@ class PaidShareBars extends StatelessWidget {
                   width: 6,
                   color: months[i].month == selected
                       ? c.primary
-                      : c.primary.withValues(alpha: 0.75),
+                      : c.primary.withValues(alpha: context.isDark ? 0.7 : 0.6),
                   borderRadius: AppRadii.allPill,
+                  backDrawRodData: track,
                 ),
                 BarChartRodData(
                   toY: months[i].share.toDouble(),
                   width: 6,
                   color: soft,
                   borderRadius: AppRadii.allPill,
+                  backDrawRodData: track,
                 ),
               ],
             ),

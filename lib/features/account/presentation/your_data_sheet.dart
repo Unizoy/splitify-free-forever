@@ -138,7 +138,6 @@ class _YourDataPanelState extends ConsumerState<YourDataPanel> {
         PillButton(
           key: const Key('your-data-download'),
           label: l.backupDownload,
-          icon: AppIcons.fileCsv,
           loading: _busy == _Busy.save,
           onPressed: busy ? null : () => _run(_Busy.save),
         ),

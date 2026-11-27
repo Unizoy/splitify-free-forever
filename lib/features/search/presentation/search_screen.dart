@@ -560,36 +560,27 @@ class _Results extends ConsumerWidget {
       keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       child: child,
     );
-    if (state.idle) {
-      final recent = ref.watch(recentSearchesProvider);
-      return padded(
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            if (recent.isNotEmpty) ...[
-              _RecentSearches(recent: recent, onPick: onRecent),
-              const SizedBox(height: AppSpacing.s6),
-            ],
-            ClipRRect(
-              key: const Key('search-start'),
-              borderRadius: AppRadii.all28,
-              child: BlobBackground(
-                child: SizedBox(
-                  width: double.infinity,
-                  child: EmptyState(
-                    icon: AppIcons.search,
-                    title: l.search2StartTitle,
-                    message: groupName == null
-                        ? l.search2StartBody
-                        : l.search2StartBodyIn(groupName!),
-                  ),
-                ),
-              ),
-            ),
-          ],
+    // Until something is typed, the last searches come first (S-362).
+    final recent = state.query.isEmpty ? ref.watch(recentSearchesProvider) : const <String>[];
+    final recentBlock = <Widget>[
+      if (recent.isNotEmpty) ...[
+        _RecentSearches(recent: recent, onPick: onRecent),
+        const SizedBox(height: AppSpacing.s6),
+      ],
+    ];
+    Widget start(String message) => ClipRRect(
+      key: const Key('search-start'),
+      borderRadius: AppRadii.all28,
+      child: BlobBackground(
+        child: SizedBox(
+          width: double.infinity,
+          child: EmptyState(icon: AppIcons.search, title: l.search2StartTitle, message: message),
         ),
-      );
-    }
+      ),
+    );
+    Widget column(List<Widget> children) =>
+        Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: children);
+    if (state.idle) return padded(column([...recentBlock, start(l.search2StartBody)]));
     final found = results.value;
     if (found == null) {
       return results.hasError
@@ -597,6 +588,16 @@ class _Results extends ConsumerWidget {
           : Center(
               child: DotsPulse(color: c.primary, semanticLabel: l.loading),
             );
+    }
+    final onlyGroup =
+        state.groupId != null &&
+        state.person == null &&
+        state.from == null &&
+        state.to == null &&
+        state.category == null;
+    if (found.count(SearchKind.all) == 0 && state.query.isEmpty && onlyGroup) {
+      // Opened from a group that has nothing yet: say what can be found, not "no matches".
+      return padded(column([...recentBlock, start(l.search2StartBodyIn(groupName ?? ''))]));
     }
     if (found.count(SearchKind.all) == 0) {
       return padded(
@@ -627,6 +628,7 @@ class _Results extends ConsumerWidget {
     ];
     final count = hits.length;
     final rows = <Widget>[
+      ...recentBlock,
       if (kinds.length > 1 || kind != SearchKind.all)
         _KindChips(found: found, kinds: kinds, selected: kind, onPick: onKind),
       Padding(
@@ -728,20 +730,25 @@ class _KindChips extends StatelessWidget {
       label: l.search2KindLabel,
       child: Padding(
         padding: const EdgeInsets.only(bottom: AppSpacing.s3),
-        child: Wrap(
+        // Bleeds to the screen edges while scrolling sideways, lined up with the list.
+        child: SingleChildScrollView(
           key: const Key('search-kinds'),
-          spacing: AppSpacing.s2,
-          runSpacing: AppSpacing.s2,
-          children: [
-            for (final k in [SearchKind.all, ...kinds])
-              IconChip(
-                key: Key('search-kind-${k.name}'),
-                label: l.search2KindChip(label(k), found.count(k)),
-                icon: icon(k),
-                selected: selected == k,
-                onTap: () => onPick(k),
-              ),
-          ],
+          scrollDirection: Axis.horizontal,
+          clipBehavior: Clip.none,
+          child: Row(
+            children: [
+              for (final k in [SearchKind.all, ...kinds]) ...[
+                if (k != SearchKind.all) const SizedBox(width: AppSpacing.s2),
+                IconChip(
+                  key: Key('search-kind-${k.name}'),
+                  label: l.search2KindChip(label(k), found.count(k)),
+                  icon: icon(k),
+                  selected: selected == k,
+                  onTap: () => onPick(k),
+                ),
+              ],
+            ],
+          ),
         ),
       ),
     );
@@ -858,7 +865,7 @@ class _PaymentHitRow extends StatelessWidget {
       key: ValueKey('search-payment-${p.id}'),
       title: paymentSentence(l, v),
       caption: showGroup && hit.groupName.isNotEmpty
-          ? l.search2PaymentCaption(date, hit.groupName)
+          ? l.search2PaymentCaption(date, unbroken(hit.groupName))
           : l.payRowCaption(date),
       amountText: listMoney(p.amount, p.currency.trim()),
       amountCaption: v.iPaid
@@ -909,7 +916,7 @@ class _CommentHitRow extends StatelessWidget {
       key: ValueKey('search-comment-${cm.id}'),
       title: l.search2CommentTitle(snippet),
       caption: showGroup && hit.groupName.isNotEmpty
-          ? l.search2CommentCaptionIn(author, target, date, hit.groupName)
+          ? l.search2CommentCaptionIn(author, target, date, unbroken(hit.groupName))
           : l.search2CommentCaption(author, target, date),
       amountText: '',
       unsynced: result.unsynced,
