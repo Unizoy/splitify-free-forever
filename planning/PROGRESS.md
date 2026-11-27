@@ -46,3 +46,9 @@ Current phase: _none in progress_ (05 + 06 leftovers finished 2026-11-22 on `pha
   restore from the deleted expense page, focus after "With you and", category trend card, share to Splitify.
   S-370..S-379. Gates: format/analyze/guards clean, 3,640 tests, coverage floors met, device e2e PASS (OCR 8/8).
   arm64 split APK +~5.9 MB. [report](reports/d034-a.md)
+- 2026-11-28, D-034 WP-C groups (`feat/d034-c-groups`, off `feat/simple-add-expense`, WP-A + WP-B merged in, no PR):
+  who owes whom under the group's status pill, settled history folded, Groups filter, trip dates + settle-up
+  reminders (cron nudges), group notes (whiteboard), search from the group page. Migration 0026 applied on DEV,
+  Drift v10. S-390..S-398. Gates: format/analyze/guards clean, 3,979 tests (1 flake, WP-D's search test, green
+  alone), coverage floors met, pgTAP 260 + 040/041/050/110/130/190 green. Device e2e written but stopped for low
+  memory after install (done-with-blockers). [report](reports/d034-c.md)
