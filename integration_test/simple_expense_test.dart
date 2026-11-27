@@ -118,6 +118,11 @@ void main() {
     final rahul = await members.addNameOnly(gid, 'Rahul');
     final me = (await members.watchForGroup(gid).first).firstWhere((m) => m.userId == uid).id;
     await sync();
+    // Tidy up the dev project even when a check fails: soft-delete the test group (restorable).
+    addTearDown(() async {
+      await groups.delete(gid, gid);
+      await sync();
+    });
 
     final router = buildRouter(initialLocation: Routes.group(gid));
     addTearDown(router.dispose);
@@ -190,7 +195,7 @@ void main() {
       t,
       find.descendant(of: find.byKey(ValueKey('shares-$me')), matching: find.byIcon(AppIcons.plus)),
     );
-    expect(find.text('4 shares in total'), findsOneWidget);
+    expect(t.widget<Text>(find.byKey(const Key('split-footer'))).data, '4 shares in total');
     await _capture(t, 'paid-split-sheet');
     await _tap(t, find.byKey(const Key('paid-split-done')));
     expect(find.text('Paid by You · split by shares'), findsOneWidget);
@@ -242,9 +247,6 @@ void main() {
     expect(find.textContaining('1,250.50'), findsWidgets);
     await _capture(t, 'saved-detail');
 
-    // Tidy up the dev project: soft-delete the test group (restorable).
-    await groups.delete(gid, gid);
-    await sync();
     debugPrint('D-032-SIMPLE-EXPENSE OK net=$net');
   });
 }
