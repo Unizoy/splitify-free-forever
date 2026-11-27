@@ -415,7 +415,8 @@ class _GroupFormScreenState extends ConsumerState<GroupFormScreen> {
                   else
                     _PersonRow(
                       key: const Key('group-member-me'),
-                      name: myName.isEmpty ? l.you : l.memberYouSuffix(myName),
+                      name: myName.isEmpty ? l.you : myName,
+                      label: myName.isEmpty ? l.you : l.memberYouSuffix(myName),
                       seed: me ?? 'me',
                       caption: l.memberOwner,
                     ),
@@ -579,6 +580,7 @@ class _PersonRow extends StatelessWidget {
   const _PersonRow({
     required this.name,
     required this.seed,
+    this.label,
     this.tint,
     this.caption,
     this.onRemove,
@@ -588,6 +590,9 @@ class _PersonRow extends StatelessWidget {
 
   final String name;
   final String seed;
+
+  /// Shown instead of [name] ("Asha (you)"); the avatar keeps the plain name's initials.
+  final String? label;
   final int? tint;
   final String? caption;
   final VoidCallback? onRemove;
@@ -608,7 +613,7 @@ class _PersonRow extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(name, style: context.text.body.w(600)),
+                  Text(label ?? name, style: context.text.body.w(600)),
                   if (caption != null)
                     Text(caption!, style: context.text.bodySmall.copyWith(color: c.textSecondary)),
                 ],

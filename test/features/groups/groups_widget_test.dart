@@ -423,7 +423,9 @@ void main() {
       Navigator.of(tester.element(_key('member-rename'))).pop();
       await settle(tester);
 
-      // Me: no unlink, Leave instead of Remove.
+      // Me: no unlink, Leave instead of Remove (my row is above: scroll back up first).
+      await tester.drag(find.byType(Scrollable).first, const Offset(0, 1500));
+      await settle(tester);
       await _tap(tester, 'member-m1');
       expect(_key('member-unlink'), findsNothing);
       expect(_key('member-remove'), findsNothing);

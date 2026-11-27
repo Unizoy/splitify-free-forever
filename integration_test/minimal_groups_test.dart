@@ -63,8 +63,16 @@ Future<void> _pumpFor(WidgetTester t, Duration d) async {
   }
 }
 
-Future<void> _tap(WidgetTester t, Finder f) async {
+/// Lazy lists build only what is near the screen: scroll the page to [f] first.
+Future<void> _reveal(WidgetTester t, Finder f) async {
+  if (f.evaluate().isEmpty) {
+    await t.scrollUntilVisible(f, 200, scrollable: find.byType(Scrollable).first);
+  }
   await t.ensureVisible(f);
+}
+
+Future<void> _tap(WidgetTester t, Finder f) async {
+  await _reveal(t, f);
   await t.pump();
   await t.tap(f);
   await _pumpFor(t, const Duration(milliseconds: 600));
@@ -77,7 +85,7 @@ Finder _field(String key) =>
     find.descendant(of: find.byKey(Key(key)), matching: find.byType(TextField));
 
 Future<void> _type(WidgetTester t, String key, String text) async {
-  await t.ensureVisible(_field(key));
+  await _reveal(t, find.byKey(Key(key)));
   await t.enterText(_field(key), text);
   await _pumpFor(t, const Duration(milliseconds: 300));
 }
@@ -196,9 +204,7 @@ void main() {
     await sync();
     await _waitFor(t, find.byKey(const Key('invite-code')), reason: 'code after sync');
     await _shot(t, 'invite-sheet');
-    final code = InviteCode.normalize(
-      t.widget<Text>(find.byKey(const Key('invite-code'))).data!,
-    );
+    final code = InviteCode.normalize(t.widget<Text>(find.byKey(const Key('invite-code'))).data!);
     expect(find.text(InviteCode.link(code)), findsOneWidget);
     final serverGroup = await t.runAsync(
       () => client.from('groups').select('type, name').eq('id', gid).single(),
@@ -213,10 +219,7 @@ void main() {
             as Map;
     expect((preview['unclaimed']! as List).map((m) => (m as Map)['id']), contains(ashaId));
     await t.runAsync(
-      () => b.client.rpc<Object?>(
-        'join_group',
-        params: {'code': code, 'claim_member_id': ashaId},
-      ),
+      () => b.client.rpc<Object?>('join_group', params: {'code': code, 'claim_member_id': ashaId}),
     );
     await sync();
     final asha = await (db.select(db.groupMembers)..where((m) => m.id.equals(ashaId))).getSingle();
