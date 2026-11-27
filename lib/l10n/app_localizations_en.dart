@@ -4517,10 +4517,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String backupGroups(int count) {
+    final intl.NumberFormat countNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count groups',
+      other: '$countString groups',
       one: '1 group',
     );
     return '$_temp0';
@@ -4528,10 +4531,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String backupExpenses(int count) {
+    final intl.NumberFormat countNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count expenses',
+      other: '$countString expenses',
       one: '1 expense',
     );
     return '$_temp0';
@@ -4539,10 +4545,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String backupPayments(int count) {
+    final intl.NumberFormat countNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count payments',
+      other: '$countString payments',
       one: '1 payment',
     );
     return '$_temp0';
