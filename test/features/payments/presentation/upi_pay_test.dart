@@ -17,7 +17,7 @@ import 'package:splitify/features/payments/presentation/settled_celebration.dart
 import '../../../support/group_harness.dart';
 import '../../../support/ledger_seed.dart';
 import '../../balances/balance_fixtures.dart'
-    show goaMembers, gid, goaInr, goaOwed, sampleSettleDraft;
+    show goaMembers, gid, goaInr, goaMixed, goaOwe, goaOwed, sampleSettleDraft;
 
 class _FakeUpiLauncher implements UpiLauncher {
   _FakeUpiLauncher({this.result = true});
@@ -34,6 +34,9 @@ class _FakeUpiLauncher implements UpiLauncher {
 
 Finder _key(String k) => find.byKey(Key(k));
 
+Finder _amountField() =>
+    find.descendant(of: find.byKey(const Key('settle-amount')), matching: find.byType(TextField));
+
 const _group = 'g1';
 
 /// Me (u1, m1), Asha (u2, m2) and Ravi (name-only, m3). Asha paid ₹1,000 for both of us: I owe her ₹500.
@@ -43,6 +46,7 @@ Future<AppDatabase> _seed(
   String? upiId = 'asha@okaxis',
   bool profile = true,
   bool payment = false,
+  bool dollars = true,
 }) async {
   final db = openTestDb(t);
   await t.runAsync(() async {
@@ -61,13 +65,14 @@ Future<AppDatabase> _seed(
           shares: {'m1': 50000, 'm2': 50000},
         ),
         seedExpense('e2', total: 60000, payers: {'m3': 60000}, shares: {'m1': 30000, 'm3': 30000}),
-        seedExpense(
-          'e3',
-          currency: 'USD',
-          total: 10000,
-          payers: {'m2': 10000},
-          shares: {'m1': 5000, 'm2': 5000},
-        ),
+        if (dollars)
+          seedExpense(
+            'e3',
+            currency: 'USD',
+            total: 10000,
+            payers: {'m2': 10000},
+            shares: {'m1': 5000, 'm2': 5000},
+          ),
       ],
       payments: [if (payment) seedPayment('p1', from: 'm1', to: 'm2', amount: 5000)],
     );
@@ -139,20 +144,18 @@ void main() {
   group('Pay via UPI is offered only when it can work', () {
     // TC-26-04
     testWidgets(
-      'rupees to someone with a UPI ID: "Pay ₹500 via UPI", Record without UPI under it',
+      'rupees to someone with a UPI ID: "Pay ₹500 via UPI", Record cash payment under it',
       (t) async {
         final db = await _seed(t);
         await _open(t, db, _settleUrl());
         expect(_key('settle-upi'), findsOneWidget);
         expect(find.text('Pay ₹500 via UPI'), findsOneWidget);
-        // The manual way stays: a quiet "Record without UPI" under it.
+        // The manual way stays: a quiet "Record cash payment" under it.
         expect(_key('settle-save'), findsOneWidget);
-        expect(find.text('Record without UPI'), findsOneWidget);
-        // The fallbacks sit in the form.
-        expect(find.text('PAY FROM ANOTHER APP'), findsOneWidget);
-        expect(_key('upi-copy-id'), findsOneWidget);
-        expect(_key('upi-copy-amount'), findsOneWidget);
-        expect(_key('upi-qr'), findsOneWidget);
+        expect(find.text('Record cash payment'), findsOneWidget);
+        // Minimal form (D-033): the copy / QR fallbacks live in the UPI sheets, not on the form.
+        expect(_key('upi-copy-id'), findsNothing);
+        expect(_key('upi-qr'), findsNothing);
       },
     );
 
@@ -160,7 +163,7 @@ void main() {
     testWidgets('the label follows the amount that is typed', (t) async {
       final db = await _seed(t);
       await _open(t, db, _settleUrl());
-      await t.enterText(_key('settle-amount'), '200');
+      await t.enterText(_amountField(), '200');
       await settle(t, db: true, frames: 4);
       expect(find.text('Pay ₹200 via UPI'), findsOneWidget);
     });
@@ -172,31 +175,35 @@ void main() {
       expect(find.text('USD'), findsOneWidget);
       expect(_key('settle-upi'), findsNothing);
       expect(find.textContaining('via UPI'), findsNothing);
-      expect(_key('upi-copy-id'), findsNothing);
-      expect(find.text('Record payment'), findsOneWidget);
+      expect(find.text('Record cash payment'), findsOneWidget);
     });
 
-    // Final QA (rule 13): no UPI method chip for another currency.
+    // Final QA (rule 13): no UPI method for another currency.
     testWidgets('dollars: UPI is not offered as a method', (t) async {
       final db = await _seed(t);
       await _open(t, db, _settleUrl(currency: 'USD'));
+      await _tap(t, 'settle-method', frames: 6);
       expect(_key('method-cash'), findsOneWidget);
       expect(_key('method-upi'), findsNothing);
     });
 
     // Final QA: with Cash picked the main button no longer says "Pay ₹500 via UPI".
-    testWidgets('picking Cash shows Record payment; picking UPI brings the UPI button back', (
-      t,
-    ) async {
-      final db = await _seed(t);
-      await _open(t, db, _settleUrl());
-      expect(_key('settle-upi'), findsOneWidget);
-      await _tap(t, 'method-cash', frames: 4);
-      expect(_key('settle-upi'), findsNothing);
-      expect(find.text('Record payment'), findsOneWidget);
-      await _tap(t, 'method-upi', frames: 4);
-      expect(_key('settle-upi'), findsOneWidget);
-    });
+    testWidgets(
+      'picking Cash leaves only Record cash payment; picking UPI brings Pay via UPI back',
+      (t) async {
+        final db = await _seed(t);
+        await _open(t, db, _settleUrl());
+        expect(_key('settle-upi'), findsOneWidget);
+        await _tap(t, 'settle-method', frames: 6);
+        await _tap(t, 'method-cash', frames: 6);
+        expect(_key('settle-upi'), findsNothing);
+        expect(find.text('Record cash payment'), findsOneWidget);
+        await _tap(t, 'settle-method', frames: 6);
+        await _tap(t, 'method-upi', frames: 6);
+        expect(_key('settle-upi'), findsOneWidget);
+        expect(find.text('Record UPI payment'), findsOneWidget);
+      },
+    );
 
     // TC-26-04
     testWidgets('not for a payee who has no profile on this phone', (t) async {
@@ -204,7 +211,7 @@ void main() {
       await _open(t, db, _settleUrl());
       expect(_key('settle-upi'), findsNothing);
       expect(_key('upi-qr'), findsNothing);
-      expect(find.text('Record payment'), findsOneWidget);
+      expect(find.text('Record cash payment'), findsOneWidget);
     });
 
     // TC-26-04
@@ -217,7 +224,7 @@ void main() {
       final bad = await _seed(t, upiId: 'not a upi id');
       await _open(t, bad, _settleUrl());
       expect(_key('settle-upi'), findsNothing);
-      expect(find.text('Record payment'), findsOneWidget);
+      expect(find.text('Record cash payment'), findsOneWidget);
     });
 
     // TC-26-04
@@ -226,7 +233,7 @@ void main() {
       await _open(t, db, _settleUrl(to: 'm3'));
       expect(find.text('Ravi'), findsWidgets);
       expect(_key('settle-upi'), findsNothing);
-      expect(find.text('Record payment'), findsOneWidget);
+      expect(find.text('Record cash payment'), findsOneWidget);
     });
 
     // TC-26-04
@@ -234,7 +241,7 @@ void main() {
       final db = await _seed(t);
       await _open(t, db, _settleUrl(from: 'm2', to: 'm1'));
       expect(_key('settle-upi'), findsNothing);
-      expect(find.text('Record payment'), findsOneWidget);
+      expect(find.text('Record cash payment'), findsOneWidget);
     });
 
     // TC-26-04
@@ -286,7 +293,7 @@ void main() {
     testWidgets('Mark as paid saves a UPI payment through the outbox', (t) async {
       final db = await _seed(t);
       await _open(t, db, _settleUrl());
-      await t.enterText(_key('settle-amount'), '200');
+      await t.enterText(_amountField(), '200');
       await settle(t, db: true, frames: 4);
       await _tap(t, 'settle-upi', frames: 6);
       await _tap(t, 'upi-mark-paid', frames: 8);
@@ -335,7 +342,7 @@ void main() {
         ),
         findsOneWidget,
       );
-      // The same three fallbacks in the sheet (and on the form behind it).
+      // The three fallbacks in the sheet.
       for (final k in ['upi-copy-id', 'upi-copy-amount', 'upi-qr']) {
         expect(
           find.descendant(of: _key('upi-no-app'), matching: _key(k)),
@@ -359,7 +366,7 @@ void main() {
     ) async {
       final db = await _seed(t);
       await _open(t, db, _settleUrl(), launches: false);
-      await t.enterText(_key('settle-amount'), '100');
+      await t.enterText(_amountField(), '100');
       await settle(t, db: true, frames: 4);
       await _tap(t, 'settle-upi', frames: 6);
       await _tap(t, 'upi-mark-paid', frames: 8);
@@ -386,7 +393,8 @@ void main() {
     testWidgets('Copy UPI ID puts the ID on the clipboard and the chip says "Copied"', (t) async {
       final db = await _seed(t);
       final copied = _copied(t);
-      await _open(t, db, _settleUrl());
+      await _open(t, db, _settleUrl(), launches: false);
+      await _tap(t, 'settle-upi', frames: 8);
       expect(find.text('Copy UPI ID'), findsOneWidget);
       await _tap(t, 'upi-copy-id', frames: 3);
       expect(copied, ['asha@okaxis']);
@@ -402,7 +410,8 @@ void main() {
     testWidgets('Copy amount copies the amount as plain text with two decimals', (t) async {
       final db = await _seed(t);
       final copied = _copied(t);
-      await _open(t, db, _settleUrl());
+      await _open(t, db, _settleUrl(), launches: false);
+      await _tap(t, 'settle-upi', frames: 8);
       await _tap(t, 'upi-copy-amount', frames: 3);
       expect(copied, ['500.00']);
       expect(find.text('Copied'), findsOneWidget);
@@ -414,11 +423,16 @@ void main() {
     testWidgets('UPI QR opens a sheet with the code and who it pays', (t) async {
       final db = await _seed(t);
       await _open(t, db, _settleUrl());
+      // After the UPI app came back: "Did the payment go through?" carries the QR too.
+      await _tap(t, 'settle-upi', frames: 8);
       await _tap(t, 'upi-qr', frames: 8);
       expect(_key('upi-qr-sheet'), findsOneWidget);
       expect(find.text('Scan to pay Asha'), findsWidgets);
       expect(find.text('Scan with a UPI app on another phone. Amount ₹500.'), findsOneWidget);
-      expect(find.text('UPI ID asha@okaxis'), findsOneWidget);
+      expect(
+        find.descendant(of: _key('upi-qr-sheet'), matching: find.text('UPI ID asha@okaxis')),
+        findsOneWidget,
+      );
     });
   });
 
@@ -427,7 +441,7 @@ void main() {
     testWidgets('a payment equal to what is owed shows the celebration, then closes itself', (
       t,
     ) async {
-      final db = await _seed(t);
+      final db = await _seed(t, dollars: false);
       await _open(t, db, _settleUrl());
       // No amount change: the field holds exactly what I owe Asha.
       await _tap(t, 'settle-save', frames: 6);
@@ -435,16 +449,26 @@ void main() {
       expect(find.text('You and Asha are square.'), findsOneWidget);
       expect((await _payments(t, db)).single.method, 'cash');
 
-      // It closes by itself after celebrationHold (2.4 s).
+      // It closes by itself after celebrationHold (1.4 s), over the page the form returned to.
       await t.pump(celebrationHold);
       await settle(t, db: true, frames: 6);
       expect(_key('settled-celebration'), findsNothing);
       expect(find.text('Payment recorded'), findsOneWidget);
     });
 
+    // T6 (D-033): only when everything between us is settled — here I still owe Asha $50.
+    testWidgets('still owing in dollars: paying all the rupees does not celebrate', (t) async {
+      final db = await _seed(t);
+      await _open(t, db, _settleUrl());
+      await _tap(t, 'settle-save', frames: 6);
+      expect((await _payments(t, db)).single.amount, 50000);
+      expect(_key('settled-celebration'), findsNothing);
+      expect(find.text('Payment recorded'), findsOneWidget);
+    });
+
     // T6
     testWidgets('a tap closes the celebration early', (t) async {
-      final db = await _seed(t);
+      final db = await _seed(t, dollars: false);
       await _open(t, db, _settleUrl());
       await _tap(t, 'settle-save', frames: 6);
       expect(_key('settled-celebration'), findsOneWidget);
@@ -455,9 +479,9 @@ void main() {
 
     // T6
     testWidgets('a partial payment does not celebrate', (t) async {
-      final db = await _seed(t);
+      final db = await _seed(t, dollars: false);
       await _open(t, db, _settleUrl());
-      await t.enterText(_key('settle-amount'), '200');
+      await t.enterText(_amountField(), '200');
       await settle(t, db: true, frames: 4);
       await _tap(t, 'settle-save', frames: 6);
       expect(_key('settled-celebration'), findsNothing);
@@ -467,9 +491,9 @@ void main() {
 
     // T6
     testWidgets('paying more than is owed does not celebrate either', (t) async {
-      final db = await _seed(t);
+      final db = await _seed(t, dollars: false);
       await _open(t, db, _settleUrl());
-      await t.enterText(_key('settle-amount'), '600');
+      await t.enterText(_amountField(), '600');
       await settle(t, db: true, frames: 4);
       await _tap(t, 'settle-save', frames: 6);
       expect(_key('settled-celebration'), findsNothing);
@@ -477,7 +501,7 @@ void main() {
 
     // T6
     testWidgets('paying the whole debt by UPI celebrates after Mark as paid', (t) async {
-      final db = await _seed(t);
+      final db = await _seed(t, dollars: false);
       await _open(t, db, _settleUrl());
       await _tap(t, 'settle-upi', frames: 6);
       await _tap(t, 'upi-mark-paid', frames: 6);
@@ -567,6 +591,14 @@ void main() {
       );
       expect(d.owed, 30000);
       expect(settledWith(d), isNull);
+    });
+
+    // T6 (D-033): "everything is settled" — nothing left between us in another currency either.
+    test('still owing in another currency: nobody is settled yet', () {
+      final d = draft(balances: goaMixed()); // I owe Rahul ₹300 and $20
+      expect(d.owed, 30000);
+      expect(settledWith(d), isNull);
+      expect(settledWith(draft(balances: goaOwe())), 'm3');
     });
 
     // T6

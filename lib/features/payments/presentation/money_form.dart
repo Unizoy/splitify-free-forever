@@ -10,8 +10,8 @@ import 'package:splitify/ui/theme/theme.dart';
 /// Pieces the one-screen payment and loan forms share with the one-screen add expense (D-032, D-033):
 /// the first "In [group]" row, a summary pill, the date and text sheets the toolbar chips open.
 
-/// "In" + the group chip (the editor's "With you and" row): where the payment or loan goes. Saved on this
-/// phone only for now: the offline pill says so.
+/// "In" + the group chip (the editor's "With you and" row): where the payment or loan goes. Offline, a
+/// "Not synced yet" marker sits next to it.
 class GroupLine extends StatelessWidget {
   const GroupLine({required this.name, required this.type, required this.offline, super.key});
 
@@ -56,13 +56,8 @@ class GroupLine extends StatelessWidget {
             ),
           ),
         ),
-        if (offline)
-          StatusPill(
-            key: const Key('money-offline'),
-            label: l.expOfflinePill(name),
-            icon: AppIcons.unsynced,
-            tone: StatusPillTone.flat,
-          ),
+        // Offline: what is saved now stays on this phone until it syncs (rule 3).
+        if (offline) const SyncMarker(key: Key('money-offline')),
       ],
     );
   }

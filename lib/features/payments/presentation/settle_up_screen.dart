@@ -70,6 +70,9 @@ class _SettleUpScreenState extends ConsumerState<SettleUpScreen> {
   /// Show "required" problems (after a Save attempt).
   bool _showErrors = false;
 
+  /// A method was picked in the sheet: Cash / Bank / Other then mean "record", not "pay via UPI" (final QA).
+  bool _methodPicked = false;
+
   @override
   void dispose() {
     _amount.dispose();
@@ -137,7 +140,9 @@ class _SettleUpScreenState extends ConsumerState<SettleUpScreen> {
         onPicked: (m) => Navigator.of(sheet).pop(m),
       ),
     );
-    if (picked != null && picked != d.method) _edit((c) => c.setMethod(picked));
+    if (picked == null) return;
+    setState(() => _methodPicked = true);
+    if (picked != d.method) _edit((c) => c.setMethod(picked));
   }
 
   /// Leaving with changes asks first (an app sheet, never a system alert).
@@ -206,11 +211,14 @@ class _SettleUpScreenState extends ConsumerState<SettleUpScreen> {
     messenger
       ..hideCurrentSnackBar()
       ..showSnackBar(SnackBar(content: Text(d.isEdit ? l.settleSaved : l.settleRecorded)));
-    // Over the page below (the form is already closed): short, and a tap or Back skips it.
-    if (other != null && root.mounted) {
-      unawaited(
-        showSettledCelebration(root.context, name: personName(l, d.balances, other, start: false)),
-      );
+    // Over the page below (the form is already closed): short, and a tap or Back skips it. After the
+    // next frame, so it sits on the page the router shows then (a dialog pushed on top of a page that is
+    // being replaced would go with it).
+    if (other != null) {
+      final name = personName(l, d.balances, other, start: false);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (root.mounted) unawaited(showSettledCelebration(root.context, name: name));
+      });
     }
   }
 
@@ -268,7 +276,8 @@ class _SettleUpScreenState extends ConsumerState<SettleUpScreen> {
     final payee = d.members.firstWhere((m) => m.id == d.to);
     final vpa = payee.userId == null ? null : ref.watch(upiIdProvider(payee.userId!)).value;
     final payeeName = personName(l, d.balances, d.to, start: false);
-    final upi = canPayByUpi(d, vpa);
+    // Pay via UPI comes first until another method is picked (rule 13: rupees, a payee with a UPI ID).
+    final upi = canPayByUpi(d, vpa) && (!_methodPicked || d.method == 'upi');
     final amountError =
         l.amountError(d.amountResult, d.currency) ??
         (_showErrors && d.amount == null ? l.expAmountMissing : null);
