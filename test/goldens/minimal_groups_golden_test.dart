@@ -220,6 +220,12 @@ void main() {
       'group_form_people',
       '/groups/g-goa/edit',
       act: (t) async {
+        // Large text / small phone: the field sits below the fold of the lazy list.
+        await t.scrollUntilVisible(
+          find.byKey(const Key('group-add-person')),
+          200,
+          scrollable: find.byType(Scrollable).first,
+        );
         await t.enterText(_field('group-add-person'), 'Kiran');
         await t.testTextInput.receiveAction(TextInputAction.done);
         await t.pump();

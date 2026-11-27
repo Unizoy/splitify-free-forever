@@ -4,10 +4,11 @@
 // A joins B's group by pasting the shared message; add a friend in one sheet; profile edit with inline UPI
 // validation (restored afterwards); import a Splitwise fixture on the one setup screen → preview → done →
 // the rows reach the server. Test groups are soft-deleted at the end.
-//   flutter test integration_test/minimal_groups_test.dart -d emulator-5554 \
+//   flutter test integration_test/minimal_groups_test.dart -d emulator-5554 --no-uninstall \
 //     --dart-define-from-file=secrets/env.dev.json --dart-define=PIN_HOST_IP=<ip resolved on the PC>
 // With --dart-define=UI_HOLD=6 it prints `UI-CAPTURE <name>` (+ `<name>-dark`) and holds each state for
-// tool/e2e/capture_minimal_groups.ps1. Build side by side with the store build: SPLITIFY_APP_ID_SUFFIX=.qa.
+// tool/e2e/capture_minimal_groups.ps1. Build side by side with the store build: SPLITIFY_APP_ID_SUFFIX=.qa,
+// and always pass --no-uninstall (else the tool uninstalls com.unizoy.splitify, the store build, at the end).
 import 'dart:convert';
 import 'dart:typed_data';
 
