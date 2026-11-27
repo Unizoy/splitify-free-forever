@@ -3,9 +3,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:splitify/core/money/balances.dart' show Transfer;
 import 'package:splitify/features/balances/application/balance_views.dart';
 import 'package:splitify/features/balances/application/balances_providers.dart';
-import 'package:splitify/features/balances/presentation/balances_tab.dart' show TransferRow;
+import 'package:splitify/features/balances/presentation/balance_copy.dart';
 import 'package:splitify/features/groups/presentation/group_visuals.dart' show SectionLabel;
 import 'package:splitify/features/payments/application/settle_controller.dart';
 import 'package:splitify/features/payments/presentation/payment_routes.dart';
@@ -13,12 +14,23 @@ import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/components/components.dart';
 import 'package:splitify/ui/theme/theme.dart';
 
-/// Group "Settle up": a sheet with the transfers the Balances tab shows (mine first), each opening
-/// Settle up prefilled, plus "Record a different payment".
-Future<void> showSettlePicker(BuildContext context, String groupId) {
+/// Group "Settle up" (Splitwise-minimal, D-033): with exactly one balance in the group, Record a payment
+/// opens at once, prefilled; otherwise a sheet lists the balances (per currency, mine first, biggest first)
+/// and each opens Record a payment prefilled, plus "Record a different payment".
+Future<void> showSettlePicker(BuildContext context, String groupId) async {
   final l = AppLocalizations.of(context);
   final router = GoRouter.of(context);
-  return showAppSheet<void>(
+  final loaded = ProviderScope.containerOf(
+    context,
+    listen: false,
+  ).read(groupBalancesProvider(groupId)).value;
+  final only = loaded == null ? null : settleSuggestions(loaded);
+  if (only != null && only.length == 1) {
+    final x = only.single;
+    unawaited(router.push(_route(groupId, x.currency, x.transfer)));
+    return;
+  }
+  await showAppSheet<void>(
     context,
     title: l.settleUp,
     builder: (sheet) => _GroupPicker(
@@ -31,6 +43,9 @@ Future<void> showSettlePicker(BuildContext context, String groupId) {
   );
 }
 
+String _route(String groupId, String currency, Transfer t) =>
+    PaymentRoutes.settle(groupId, from: t.from, to: t.to, currency: currency);
+
 class _GroupPicker extends ConsumerWidget {
   const _GroupPicker({required this.groupId, required this.open});
 
@@ -40,50 +55,44 @@ class _GroupPicker extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context);
+    final c = context.colors;
     final b = ref.watch(groupBalancesProvider(groupId)).value;
     if (b == null) {
       return Padding(
         padding: const EdgeInsets.all(AppSpacing.s6),
         child: Center(
-          child: DotsPulse(color: context.colors.primary, semanticLabel: l.loading),
+          child: DotsPulse(color: c.primary, semanticLabel: l.loading),
         ),
       );
     }
     final all = settleSuggestions(b);
+    final sections = all.map((x) => x.currency).toSet().length > 1;
     return Column(
       key: const Key('settle-picker'),
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        if (all.isEmpty)
-          Padding(
-            padding: const EdgeInsets.only(bottom: AppSpacing.s4),
-            child: Text(
-              l.settleGroupSettled,
-              style: context.text.body.copyWith(color: context.colors.textSecondary),
-            ),
-          )
-        else ...[
-          SectionLabel(l.settleSuggested),
-          for (var i = 0; i < all.length; i++)
-            TransferRow(
-              balances: b,
-              currency: all[i].currency,
-              transfer: all[i].transfer,
-              showDivider: i < all.length - 1,
-              onSettle: () => open(
-                PaymentRoutes.settle(
-                  groupId,
-                  from: all[i].transfer.from,
-                  to: all[i].transfer.to,
-                  currency: all[i].currency,
-                ),
-              ),
-            ),
-          const SizedBox(height: AppSpacing.s4),
+        Text(
+          all.isEmpty ? l.settleGroupSettled : l.settlePickHint,
+          style: context.text.body.copyWith(color: c.textSecondary),
+        ),
+        const SizedBox(height: AppSpacing.s3),
+        for (var i = 0; i < all.length; i++) ...[
+          if (sections && (i == 0 || all[i - 1].currency != all[i].currency)) ...[
+            if (i > 0) const SizedBox(height: AppSpacing.s3),
+            SectionLabel(l.balCurrencySection(all[i].currency)),
+          ],
+          SettleBalanceRow(
+            balances: b,
+            currency: all[i].currency,
+            transfer: all[i].transfer,
+            showDivider: i < all.length - 1 && all[i + 1].currency == all[i].currency,
+            onTap: () => open(_route(groupId, all[i].currency, all[i].transfer)),
+          ),
         ],
+        const SizedBox(height: AppSpacing.s5),
         PillButton(
           key: const Key('settle-other'),
-          label: l.settleOther,
+          label: all.isEmpty ? l.settleRecordTitle : l.settleOther,
           variant: PillVariant.outline,
           onPressed: () => open(PaymentRoutes.settle(groupId)),
         ),
@@ -92,8 +101,8 @@ class _GroupPicker extends ConsumerWidget {
   }
 }
 
-/// Groups home "Settle up": my transfers in every group (what each Balances tab shows between me and
-/// someone else); a snackbar when there is nothing to settle.
+/// Groups home "Settle up": my balances in every group (what each Balances tab shows between me and
+/// someone else). Exactly one opens Record a payment at once; none says so in a snackbar.
 Future<void> showSettleEverywhere(BuildContext context, List<GroupBalances> groups) async {
   final l = AppLocalizations.of(context);
   final router = GoRouter.of(context);
@@ -114,6 +123,13 @@ Future<void> showSettleEverywhere(BuildContext context, List<GroupBalances> grou
       ..showSnackBar(SnackBar(content: Text(l.allSettledSnack)));
     return;
   }
+  if (mine.length == 1 && mine.single.items.length == 1) {
+    final x = mine.single;
+    unawaited(
+      router.push(_route(x.group.groupId, x.items.single.currency, x.items.single.transfer)),
+    );
+    return;
+  }
   await showAppSheet<void>(
     context,
     title: l.settleWithTitle,
@@ -124,22 +140,15 @@ Future<void> showSettleEverywhere(BuildContext context, List<GroupBalances> grou
         for (final x in mine) ...[
           SectionLabel(x.group.groupName),
           for (var i = 0; i < x.items.length; i++)
-            TransferRow(
+            SettleBalanceRow(
               balances: x.group,
               currency: x.items[i].currency,
               transfer: x.items[i].transfer,
               showDivider: i < x.items.length - 1,
-              onSettle: () {
+              onTap: () {
                 Navigator.of(sheet).pop();
                 unawaited(
-                  router.push(
-                    PaymentRoutes.settle(
-                      x.group.groupId,
-                      from: x.items[i].transfer.from,
-                      to: x.items[i].transfer.to,
-                      currency: x.items[i].currency,
-                    ),
-                  ),
+                  router.push(_route(x.group.groupId, x.items[i].currency, x.items[i].transfer)),
                 );
               },
             ),
@@ -148,4 +157,88 @@ Future<void> showSettleEverywhere(BuildContext context, List<GroupBalances> grou
       ],
     ),
   );
+}
+
+/// One balance to settle: the other person's avatar, their name and "you owe ₹400" / "owes you ₹400" /
+/// "owes Rahul ₹400" (a pair without me), and a chevron. The whole row opens Record a payment.
+class SettleBalanceRow extends StatelessWidget {
+  const SettleBalanceRow({
+    required this.balances,
+    required this.currency,
+    required this.transfer,
+    required this.onTap,
+    this.showDivider = true,
+    super.key,
+  });
+
+  final GroupBalances balances;
+  final String currency;
+  final Transfer transfer;
+  final VoidCallback onTap;
+  final bool showDivider;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final c = context.colors;
+    final b = balances;
+    final t = transfer;
+    final me = b.meId;
+    final amount = listMoney(t.amount, currency);
+    final (String who, String line, Color color) = t.from == me
+        ? (t.to, l.settlePickYouOwe(amount), c.oweText)
+        : t.to == me
+        ? (t.from, l.settlePickOwesYou(amount), c.owedText)
+        : (t.from, l.settlePickOwes(personName(l, b, t.to, start: false), amount), c.textSecondary);
+    final name = personName(l, b, who);
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Semantics(
+          button: true,
+          label: '$name, $line',
+          excludeSemantics: true,
+          onTap: onTap,
+          child: Pressable(
+            key: Key('settle-pick-$currency-${t.from}-${t.to}'),
+            onTap: onTap,
+            scale: AppMotion.rowPressScale,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: AppSpacing.minTouch + AppSpacing.s4),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: AppSpacing.s3),
+                child: Row(
+                  children: [
+                    Avatar(name: b.nameOf(who), seed: who, tint: b.member(who)?.tint),
+                    const SizedBox(width: AppSpacing.s3),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(name, style: context.text.body.w(600)),
+                          const SizedBox(height: 2),
+                          Text(
+                            line,
+                            style: context.text.bodySmall
+                                .w(600)
+                                .copyWith(
+                                  color: color,
+                                  fontFeatures: const [FontFeature.tabularFigures()],
+                                ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: AppSpacing.s2),
+                    Icon(AppIcons.chevronRight, size: 18, color: c.textTertiary),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+        if (showDivider) const DashedDivider(),
+      ],
+    );
+  }
 }

@@ -1426,6 +1426,131 @@ class AppLocalizationsEn extends AppLocalizations {
   String get payYouReceived => 'you received';
 
   @override
+  String get moneyInLabel => 'In';
+
+  @override
+  String get settleRecordTitle => 'Record a payment';
+
+  @override
+  String get settleRecordCash => 'Record cash payment';
+
+  @override
+  String get settleRecordUpi => 'Record UPI payment';
+
+  @override
+  String get settleRecordBank => 'Record bank payment';
+
+  @override
+  String get settlePayUpi => 'Pay via UPI';
+
+  @override
+  String get settleMethodTitle => 'How was it paid?';
+
+  @override
+  String settleToolMethod(String method) {
+    return 'Method: $method';
+  }
+
+  @override
+  String get settleToolNoteAdded => 'Note added';
+
+  @override
+  String settleSummaryOwed(String owed) {
+    return '$owed owed';
+  }
+
+  @override
+  String settleSummaryAll(String owed) {
+    return 'Settles all of $owed';
+  }
+
+  @override
+  String settleSummaryPart(String owed) {
+    return 'Part of the $owed owed';
+  }
+
+  @override
+  String settleSummaryLeft(String left) {
+    return '$left left after this';
+  }
+
+  @override
+  String settleSummaryOver(String owed) {
+    return 'More than the $owed owed';
+  }
+
+  @override
+  String settleSummaryExtra(String extra) {
+    return '$extra more than owed';
+  }
+
+  @override
+  String get settleNothingOwed => 'Nothing owed right now';
+
+  @override
+  String get settleNothingOwedSub => 'You can still record a payment.';
+
+  @override
+  String get settleDiscardTitle => 'Discard this payment?';
+
+  @override
+  String get settleDiscardBody => 'The amount and note you typed will be lost.';
+
+  @override
+  String get settleDiscardEditBody => 'The payment stays as it was last saved.';
+
+  @override
+  String get settlePickHint => 'Pick a balance to settle.';
+
+  @override
+  String settlePickYouOwe(String amount) {
+    return 'you owe $amount';
+  }
+
+  @override
+  String settlePickOwesYou(String amount) {
+    return 'owes you $amount';
+  }
+
+  @override
+  String settlePickOwes(String name, String amount) {
+    return 'owes $name $amount';
+  }
+
+  @override
+  String get loanDiscardTitle => 'Discard this loan?';
+
+  @override
+  String get loanDiscardBody => 'The amount you typed will be lost.';
+
+  @override
+  String get loanDiscardEditBody => 'The loan stays as it was last saved.';
+
+  @override
+  String get loanWhoTitle => 'Who lent whom?';
+
+  @override
+  String get loanWhoHint => 'Change who lent and who borrowed';
+
+  @override
+  String loanPillLent(String name) {
+    return 'You lent $name';
+  }
+
+  @override
+  String loanPillBorrowed(String name) {
+    return '$name lent you';
+  }
+
+  @override
+  String loanPillOthers(String lender, String borrower) {
+    return '$lender lent $borrower';
+  }
+
+  @override
+  String get loanPillNoAmount => 'Type the amount';
+
+  @override
   String get actFilterAll => 'All';
 
   @override

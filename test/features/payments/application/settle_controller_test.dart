@@ -153,6 +153,35 @@ void main() {
       final d = await open(args());
       expect([for (final m in d.members) m.id], [me, asha]);
     });
+
+    // D-033 bug: the Balances tab still lists what someone who left owes; its Settle opened a form whose
+    // payer was not among the form's people, and the screen threw (`firstWhere`, no element).
+    test('a person who left but still owes can be settled from their balance row', () async {
+      await dinner();
+      await env.db.customStatement("UPDATE group_members SET status = 'left' WHERE id = '$ravi'");
+      final d = await open(args(from: ravi, to: me, currency: 'INR'));
+      expect((d.from, d.to), (ravi, me));
+      expect(d.members.map((m) => m.id), containsAll([ravi, me]));
+      expect(d.owed, 10000);
+      expect(d.amountText, '100');
+      expect(d.canSave, isTrue);
+    });
+
+    test('people that are not in the group fall back to a suggested pair', () async {
+      await dinner();
+      final d = await open(args(from: 'ghost', to: me));
+      final ids = d.members.map((m) => m.id);
+      expect(ids, contains(d.from));
+      expect(ids, contains(d.to));
+      expect(d.from, isNot(d.to));
+      expect((d.from, d.to), (asha, me));
+    });
+
+    test('the same person on both sides falls back to a suggested pair', () async {
+      await dinner();
+      final d = await open(args(from: me, to: me));
+      expect(d.from, isNot(d.to));
+    });
   });
 
   group('changing the form', () {

@@ -4,33 +4,35 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 import 'package:splitify/core/time/clock.dart';
-import 'package:splitify/core/money/currencies.dart';
-import 'package:splitify/core/upi/upi_link.dart' show UpiLink;
 import 'package:splitify/data/data_providers.dart';
 import 'package:splitify/data/local/app_database.dart';
 import 'package:splitify/features/balances/presentation/balance_copy.dart';
 import 'package:splitify/features/currency/presentation/currency_picker_sheet.dart'
     show CurrencyChip, pickGroupCurrency;
-import 'package:splitify/features/expenses/presentation/editor/pickers.dart' show DateChips;
+import 'package:splitify/features/expenses/presentation/editor/editor_fields.dart'
+    show AmountField, ToolChip;
 import 'package:splitify/features/expenses/presentation/expense_copy.dart';
-import 'package:splitify/features/groups/presentation/group_visuals.dart'
-    show PageTitle, SectionLabel;
+import 'package:splitify/features/groups/application/groups_providers.dart'
+    show syncOfflineProvider;
+import 'package:splitify/features/groups/presentation/group_visuals.dart' show confirmAction;
 import 'package:splitify/features/payments/application/payment_providers.dart';
 import 'package:splitify/features/payments/application/settle_controller.dart';
 import 'package:splitify/features/payments/application/upi_providers.dart';
+import 'package:splitify/features/payments/presentation/money_form.dart';
 import 'package:splitify/features/payments/presentation/settled_celebration.dart';
 import 'package:splitify/features/payments/presentation/upi_pay.dart';
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/components/components.dart';
 import 'package:splitify/ui/theme/theme.dart';
 
-/// Settle up (`/settle`, #25, 712 + 646): who paid whom (avatars with a swap button), the amount
-/// prefilled with what is owed, an [ArcGauge] of how much of the debt it settles, method chips, date
-/// and note; amber "Record payment" in the sticky bar. Also edits a saved payment (`/payment/:id/edit`).
-/// When I pay someone with a UPI ID in rupees, the bar offers amber "Pay ₹x via UPI" (phase 11, #26) with the
-/// copy / QR fallbacks in the form; a payment that settles a person shows the Celebration (T6).
+/// Record a payment (`/settle`, #25; Splitwise-minimal, D-033): one screen in the add-expense layout —
+/// "In [group]", payer → receiver avatars (tap to change, the arrow swaps), the amount prefilled with
+/// what is owed on the phone's number keyboard with its currency chip, a pill saying how much of the debt
+/// it settles, and a toolbar (date, note, method) with the action above the keyboard. When I pay someone
+/// with a UPI ID in rupees (#26, rule 13) amber "Pay ₹x via UPI" comes first and the payment is recorded only
+/// after "Mark as paid"; otherwise "Record cash payment". Also edits a saved payment (`/payment/:id/edit`).
+/// A payment that settles a person completely plays a short Celebration (T6) over the page below.
 class SettleUpScreen extends ConsumerStatefulWidget {
   const SettleUpScreen({
     this.groupId = '',
@@ -57,75 +59,198 @@ class SettleUpScreen extends ConsumerStatefulWidget {
 class _SettleUpScreenState extends ConsumerState<SettleUpScreen> {
   final _amount = TextEditingController();
   final _note = TextEditingController();
+  final _amountFocus = FocusNode(debugLabel: 'payment amount');
   bool _filled = false;
   bool _saving = false;
+  bool _saved = false;
 
-  /// The person picked a method chip: Cash / Bank / Other then mean "record", not "pay via UPI" (final QA).
-  bool _methodPicked = false;
+  /// The person changed something: leaving asks first.
+  bool _dirty = false;
+
+  /// Show "required" problems (after a Save attempt).
+  bool _showErrors = false;
 
   @override
   void dispose() {
     _amount.dispose();
     _note.dispose();
+    _amountFocus.dispose();
     super.dispose();
   }
 
   SettleController get _ctrl => ref.read(settleProvider(widget.args).notifier);
+
+  SettleDraft? get _draft => ref.read(settleProvider(widget.args)).value;
+
+  /// A change the person made (marks the form as changed).
+  void _edit(void Function(SettleController c) change) {
+    _dirty = true;
+    change(_ctrl);
+  }
 
   void _fill(SettleDraft d) {
     if (_filled) return;
     _filled = true;
     _amount.text = d.amountText;
     _note.text = d.note;
+    if (!d.isEdit && d.amountText.isEmpty) {
+      // Nothing owed to prefill: the amount gets the focus (number keyboard up).
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _amountFocus.requestFocus();
+      });
+    }
   }
 
   Future<void> _pickCurrency(SettleDraft d) async {
     final code = await pickGroupCurrency(context, ref, groupId: d.groupId, selected: d.currency);
-    if (code != null && code != d.currency) _ctrl.setCurrency(code);
+    if (code != null && code != d.currency) _edit((c) => c.setCurrency(code));
   }
 
-  Future<void> _save(SettleDraft d) async {
+  Future<void> _pickDate(SettleDraft d) async {
+    final picked = await pickDay(context, value: d.date, today: ref.read(clockProvider).today());
+    if (picked != null && !DateUtils.isSameDay(picked, d.date)) _edit((c) => c.setDate(picked));
+  }
+
+  Future<void> _openNote() {
     final l = AppLocalizations.of(context);
-    final messenger = ScaffoldMessenger.of(context);
-    final router = GoRouter.of(context);
-    final navigator = Navigator.of(context);
-    setState(() => _saving = true);
-    final id = await _ctrl.save();
-    if (!mounted) return;
-    setState(() => _saving = false);
-    if (id == null) return;
-    unawaited(HapticFeedback.mediumImpact());
-    final other = settledWith(d);
-    if (other != null) {
-      await showSettledCelebration(context, name: personName(l, d.balances, other, start: false));
-      if (!mounted) return;
+    return showTextSheet(
+      context,
+      title: l.settleNote,
+      fieldKey: const Key('settle-note'),
+      label: l.settleNote,
+      hint: l.settleNoteHint,
+      controller: _note,
+      max: maxPaymentNote,
+      tooLong: l.settleNoteTooLong(maxPaymentNote),
+      onChanged: (t) => _edit((c) => c.setNote(t)),
+    );
+  }
+
+  Future<void> _pickMethod(SettleDraft d) async {
+    final l = AppLocalizations.of(context);
+    final picked = await showAppSheet<String>(
+      context,
+      title: l.settleMethodTitle,
+      builder: (sheet) => Column(
+        key: const Key('settle-methods'),
+        children: [
+          for (final m in paymentMethods)
+            // UPI is a method only for rupees (rule 13).
+            if (m != 'upi' || d.currency == 'INR') ...[
+              OptionTile(
+                key: Key('method-$m'),
+                label: methodLabel(l, m),
+                selected: d.method == m,
+                leading: Icon(methodIcon(m), color: sheet.colors.primary),
+                onTap: () => Navigator.of(sheet).pop(m),
+              ),
+              const SizedBox(height: AppSpacing.s3),
+            ],
+        ],
+      ),
+    );
+    if (picked != null && picked != d.method) _edit((c) => c.setMethod(picked));
+  }
+
+  /// Leaving with changes asks first (an app sheet, never a system alert).
+  Future<void> _back() async {
+    final d = _draft;
+    if (_dirty && !_saved && d != null) {
+      final l = AppLocalizations.of(context);
+      FocusManager.instance.primaryFocus?.unfocus();
+      final discard = await confirmAction(
+        context,
+        title: d.isEdit ? l.expDiscardEditTitle : l.settleDiscardTitle,
+        body: d.isEdit ? l.settleDiscardEditBody : l.settleDiscardBody,
+        confirm: l.discardLabel,
+        icon: AppIcons.trash,
+      );
+      if (!discard || !mounted) return;
     }
+    _close(d?.groupId ?? widget.groupId);
+  }
+
+  /// Leaves the form. `pop` ignores the PopScope that asks before discarding.
+  void _close(String groupId) {
+    final navigator = Navigator.of(context);
     if (navigator.canPop()) {
       navigator.pop();
     } else {
-      router.go('/groups/${d.groupId}');
+      context.go(groupId.isEmpty ? '/groups' : '/groups/$groupId');
     }
+  }
+
+  /// What stops saving, shown inline: the amount field gets the focus, a long note opens its sheet.
+  bool _check(SettleDraft d) {
+    if (d.canSave) return true;
+    setState(() => _showErrors = true);
+    unawaited(HapticFeedback.lightImpact());
+    if (d.amount == null) {
+      _amountFocus.requestFocus();
+    } else if (d.noteTooLong) {
+      unawaited(_openNote());
+    }
+    return false;
+  }
+
+  Future<void> _save() async {
+    if (_saving || _saved) return;
+    final d = _draft;
+    if (d == null || !_check(d)) return;
+    final l = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    final root = Navigator.of(context, rootNavigator: true);
+    FocusManager.instance.primaryFocus?.unfocus();
+    setState(() => _saving = true);
+    final id = await _ctrl.save();
+    if (!mounted) return;
+    if (id == null) {
+      setState(() => _saving = false);
+      return;
+    }
+    unawaited(HapticFeedback.mediumImpact());
+    setState(() {
+      _saving = false;
+      _saved = true;
+    });
+    final other = settledWith(d);
+    _close(d.groupId);
     messenger
       ..hideCurrentSnackBar()
       ..showSnackBar(SnackBar(content: Text(d.isEdit ? l.settleSaved : l.settleRecorded)));
+    // Over the page below (the form is already closed): short, and a tap or Back skips it.
+    if (other != null && root.mounted) {
+      unawaited(
+        showSettledCelebration(root.context, name: personName(l, d.balances, other, start: false)),
+      );
+    }
   }
 
-  Future<void> _payByUpi(SettleDraft d, UpiLink link, String payeeName) async {
+  Future<void> _payByUpi(String vpa, String payeeName) async {
+    if (_saving || _saved) return;
+    final d = _draft;
+    if (d == null || !_check(d)) return;
+    final l = AppLocalizations.of(context);
+    final link = upiLinkFor(d, vpa: vpa, name: payeeName, note: l.upiNote(d.groupName));
+    if (link == null) return;
+    FocusManager.instance.primaryFocus?.unfocus();
     final paid = await payViaUpi(context, ref, link, payeeName: payeeName, amountMinor: d.amount!);
     if (!paid || !mounted) return;
-    _ctrl.setMethod('upi');
-    await _save(ref.read(settleProvider(widget.args)).value ?? d);
+    // Recorded only after "Mark as paid" (rule 13).
+    _edit((c) => c.setMethod('upi'));
+    await _save();
   }
 
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    // Changing the people re-derives the amount from what is owed: keep the visible field in step.
+    // Changing the people or the currency re-derives the amount from what is owed: keep the field in step.
     ref.listen(settleProvider(widget.args), (_, next) {
       final text = next.value?.amountText;
       if (_filled && text != null && _amount.text != text) _amount.text = text;
     });
     final async = ref.watch(settleProvider(widget.args));
+    final offline = ref.watch(syncOfflineProvider).value ?? false;
     final d = async.value;
     if (d == null) {
       return Scaffold(
@@ -135,6 +260,7 @@ class _SettleUpScreenState extends ConsumerState<SettleUpScreen> {
             icon: const Icon(AppIcons.back),
             onPressed: () => Navigator.of(context).maybePop(),
           ),
+          title: Text(widget.paymentId == null ? l.settleRecordTitle : l.settleEditTitle),
         ),
         body: Center(
           child: Padding(
@@ -154,155 +280,130 @@ class _SettleUpScreenState extends ConsumerState<SettleUpScreen> {
     final payee = d.members.firstWhere((m) => m.id == d.to);
     final vpa = payee.userId == null ? null : ref.watch(upiIdProvider(payee.userId!)).value;
     final payeeName = personName(l, d.balances, d.to, start: false);
-    final upi = canPayByUpi(d, vpa)
-        ? upiLinkFor(d, vpa: vpa!, name: payeeName, note: l.upiNote(d.groupName))
-        : null;
-    // The amber "Pay via UPI" bar stays until another method is picked (final QA: with Cash picked it still
-    // said "Pay ₹500 via UPI"). UPI is a method only for rupees (rule 13).
-    final upiBar = upi != null && (!_methodPicked || d.method == 'upi');
-    final methods = [
-      for (final m in paymentMethods)
-        if (m != 'upi' || d.currency == 'INR') m,
-    ];
-    return Scaffold(
-      body: SafeArea(
-        bottom: false,
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(
-            AppSpacing.screen,
-            AppSpacing.s2,
-            AppSpacing.screen,
-            AppSpacing.s8,
+    final upi = canPayByUpi(d, vpa);
+    final amountError =
+        l.amountError(d.amountResult, d.currency) ??
+        (_showErrors && d.amount == null ? l.expAmountMissing : null);
+    final today = ref.read(clockProvider).today();
+    final record = PillButton(
+      key: const Key('settle-save'),
+      label: d.isEdit ? l.settleSave : recordLabel(l, d.method),
+      icon: upi ? null : AppIcons.check,
+      variant: upi ? PillVariant.ghost : PillVariant.money,
+      size: upi ? PillSize.medium : PillSize.large,
+      loading: _saving && !upi,
+      onPressed: () => unawaited(_save()),
+    );
+    return PopScope(
+      canPop: _saved || !_dirty,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) unawaited(_back());
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          leading: AppIconButton(
+            tooltip: l.back,
+            icon: const Icon(AppIcons.back),
+            onPressed: () => unawaited(_back()),
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Align(
-                alignment: AlignmentDirectional.centerStart,
-                child: AppIconButton(
-                  tooltip: l.back,
-                  icon: const Icon(AppIcons.back),
-                  onPressed: () => Navigator.of(context).maybePop(),
-                ),
-              ),
-              const SizedBox(height: AppSpacing.s2),
-              PageTitle(title: d.isEdit ? l.settleEditTitle : l.settleUp, subtitle: d.groupName),
-              const SizedBox(height: AppSpacing.s6),
-              _People(draft: d, controller: _ctrl),
-              const SizedBox(height: AppSpacing.s8),
-              SectionLabel(l.settleAmount),
-              const SizedBox(height: AppSpacing.s2),
-              _AmountField(
-                draft: d,
-                controller: _amount,
-                onChanged: _ctrl.setAmountText,
-                onPickCurrency: () => unawaited(_pickCurrency(d)),
-              ),
-              if (d.owed > 0 && d.amount != d.owed) ...[
-                const SizedBox(height: AppSpacing.s3),
-                Align(
-                  alignment: AlignmentDirectional.centerStart,
-                  child: IconChip(
-                    key: const Key('settle-use-owed'),
-                    label: l.settleUseOwed(listMoney(d.owed, d.currency)),
-                    icon: AppIcons.checkCircle,
-                    onTap: () {
-                      _ctrl.useOwed();
-                      _amount.text = ref.read(settleProvider(widget.args)).value!.amountText;
-                    },
-                  ),
-                ),
-              ],
-              const SizedBox(height: AppSpacing.s6),
-              _Gauge(draft: d),
-              const SizedBox(height: AppSpacing.s8),
-              SectionLabel(l.settleMethod),
-              const SizedBox(height: AppSpacing.s3),
-              Wrap(
-                spacing: AppSpacing.s2,
-                runSpacing: AppSpacing.s2,
-                children: [
-                  for (final m in methods)
-                    IconChip(
-                      key: Key('method-$m'),
-                      label: methodLabel(l, m),
-                      icon: methodIcon(m),
-                      selected: d.method == m,
-                      onTap: () {
-                        setState(() => _methodPicked = true);
-                        _ctrl.setMethod(m);
-                      },
-                    ),
-                ],
-              ),
-              if (upi != null) ...[
-                const SizedBox(height: AppSpacing.s8),
-                SectionLabel(l.upiOtherWays),
-                const SizedBox(height: AppSpacing.s3),
-                UpiFallbacks(link: upi, payeeName: payeeName, amountMinor: d.amount!),
-              ],
-              const SizedBox(height: AppSpacing.s8),
-              SectionLabel(l.settleDate),
-              const SizedBox(height: AppSpacing.s3),
-              DateChips(value: d.date, today: _today(), onChanged: _ctrl.setDate),
-              const SizedBox(height: AppSpacing.s8),
-              UnderlineField(
-                key: const Key('settle-note'),
-                label: l.settleNote,
-                hint: l.settleNoteHint,
-                controller: _note,
-                maxLines: 3,
-                textCapitalization: TextCapitalization.sentences,
-                errorText: d.noteTooLong ? l.settleNoteTooLong(maxPaymentNote) : null,
-                onChanged: _ctrl.setNote,
-              ),
-            ],
-          ),
+          title: Text(d.isEdit ? l.settleEditTitle : l.settleRecordTitle),
         ),
-      ),
-      bottomNavigationBar: !upiBar
-          ? StickyActionBar(
-              primary: PillButton(
-                key: const Key('settle-save'),
-                label: d.isEdit ? l.settleSave : l.settleRecord,
-                icon: AppIcons.check,
-                variant: PillVariant.money,
-                loading: _saving,
-                onPressed: d.canSave && !_saving ? () => unawaited(_save(d)) : null,
-              ),
-            )
-          : StickyActionBar(
-              // Amber "Pay ₹x via UPI" with a quiet "Record payment" text button under it (07 §2).
-              primary: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+        body: Column(
+          children: [
+            Expanded(
+              child: ListView(
+                key: const Key('settle-form'),
+                keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                padding: const EdgeInsets.fromLTRB(
+                  AppSpacing.screen,
+                  AppSpacing.s3,
+                  AppSpacing.screen,
+                  AppSpacing.s6,
+                ),
                 children: [
-                  PillButton(
-                    key: const Key('settle-upi'),
-                    label: l.upiPay(listMoney(d.amount!, d.currency)),
-                    icon: AppIcons.qr,
-                    variant: PillVariant.money,
-                    loading: _saving,
-                    onPressed: d.canSave && !_saving
-                        ? () => unawaited(_payByUpi(d, upi, payeeName))
-                        : null,
+                  GroupLine(name: d.groupName, type: d.groupType, offline: offline),
+                  const SizedBox(height: AppSpacing.s6),
+                  _People(draft: d, onEdit: _edit),
+                  const SizedBox(height: AppSpacing.s6),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsetsDirectional.only(
+                          top: AppSpacing.s4,
+                          end: AppSpacing.s3,
+                        ),
+                        child: CurrencyChip(
+                          key: const Key('settle-currency'),
+                          code: d.currency,
+                          onTap: () => unawaited(_pickCurrency(d)),
+                        ),
+                      ),
+                      Expanded(
+                        child: AmountField(
+                          key: const Key('settle-amount'),
+                          controller: _amount,
+                          focusNode: _amountFocus,
+                          currency: d.currency,
+                          errorText: amountError,
+                          onChanged: (t) => _edit((c) => c.setAmountText(t)),
+                          onSubmitted: (_) => _amountFocus.unfocus(),
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: AppSpacing.s1),
-                  PillButton(
-                    key: const Key('settle-save'),
-                    label: l.upiRecordInstead,
-                    variant: PillVariant.ghost,
-                    size: PillSize.medium,
-                    onPressed: d.canSave && !_saving ? () => unawaited(_save(d)) : null,
-                  ),
+                  const SizedBox(height: AppSpacing.s6),
+                  _OwedPill(draft: d),
+                  if (d.owed > 0 && d.amount != d.owed) ...[
+                    const SizedBox(height: AppSpacing.s3),
+                    Align(
+                      alignment: AlignmentDirectional.centerStart,
+                      child: IconChip(
+                        key: const Key('settle-use-owed'),
+                        label: l.settleUseOwed(listMoney(d.owed, d.currency)),
+                        icon: AppIcons.checkCircle,
+                        onTap: () => _edit((c) => c.useOwed()),
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),
+            // In the body (not bottomNavigationBar): the Scaffold lifts it above the keyboard.
+            if (!_saved)
+              StickyActionBar(
+                summary: _Toolbar(
+                  draft: d,
+                  today: today,
+                  onDate: () => unawaited(_pickDate(d)),
+                  onNote: () => unawaited(_openNote()),
+                  onMethod: () => unawaited(_pickMethod(d)),
+                ),
+                primary: !upi
+                    ? record
+                    : Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          PillButton(
+                            key: const Key('settle-upi'),
+                            label: d.amount == null
+                                ? l.settlePayUpi
+                                : l.upiPay(listMoney(d.amount!, d.currency)),
+                            icon: AppIcons.qr,
+                            variant: PillVariant.money,
+                            loading: _saving,
+                            onPressed: () => unawaited(_payByUpi(vpa!, payeeName)),
+                          ),
+                          const SizedBox(height: AppSpacing.s1),
+                          record,
+                        ],
+                      ),
+              ),
+          ],
+        ),
+      ),
     );
-  }
-
-  DateTime _today() {
-    return ref.read(clockProvider).today();
   }
 }
 
@@ -320,13 +421,21 @@ IconData methodIcon(String method) => switch (method) {
   _ => AppIcons.cash,
 };
 
-/// Payer → receiver: two big avatars with names, a swap button between them, and the sentence
+/// "Record cash payment" / "Record UPI payment" / "Record bank payment" / "Record payment".
+String recordLabel(AppLocalizations l, String method) => switch (method) {
+  'cash' => l.settleRecordCash,
+  'upi' => l.settleRecordUpi,
+  'bank' => l.settleRecordBank,
+  _ => l.settleRecord,
+};
+
+/// Payer → receiver: two avatars with names and the arrow between them (it swaps who paid), the sentence
 /// "You paid Asha" underneath. Tapping a person picks someone else.
 class _People extends StatelessWidget {
-  const _People({required this.draft, required this.controller});
+  const _People({required this.draft, required this.onEdit});
 
   final SettleDraft draft;
-  final SettleController controller;
+  final void Function(void Function(SettleController c) change) onEdit;
 
   @override
   Widget build(BuildContext context) {
@@ -334,64 +443,57 @@ class _People extends StatelessWidget {
     final c = context.colors;
     final d = draft;
     String name(String id, {bool start = true}) => personName(l, d.balances, id, start: start);
-    return Container(
-      padding: const EdgeInsets.fromLTRB(
-        AppSpacing.s4,
-        AppSpacing.s5,
-        AppSpacing.s4,
-        AppSpacing.s5,
-      ),
-      decoration: BoxDecoration(color: c.surfaceMuted, borderRadius: AppRadii.all28),
-      child: Column(
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: _Person(
-                  key: const Key('settle-from'),
-                  member: d.members.firstWhere((m) => m.id == d.from),
-                  name: name(d.from),
-                  tooltip: l.settleChangePerson(name(d.from)),
-                  onTap: () =>
-                      unawaited(_pick(context, l.settleWhoPaid, d.from, controller.setFrom)),
+    return Column(
+      children: [
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: _Person(
+                key: const Key('settle-from'),
+                member: d.members.firstWhere((m) => m.id == d.from),
+                name: name(d.from),
+                tooltip: l.settleChangePerson(name(d.from)),
+                onTap: () => unawaited(
+                  _pick(context, l.settleWhoPaid, d.from, (id) => onEdit((x) => x.setFrom(id))),
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.only(top: AppSpacing.s2),
-                child: IconButton.filled(
-                  key: const Key('settle-swap'),
-                  tooltip: l.settleSwap,
-                  style: IconButton.styleFrom(
-                    backgroundColor: c.ink,
-                    foregroundColor: c.onInk,
-                    minimumSize: const Size.square(AppSpacing.minTouch),
-                  ),
-                  onPressed: controller.swap,
-                  icon: const Icon(AppIcons.arrowRight, size: 20),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: AppSpacing.s4),
+              child: IconButton.filled(
+                key: const Key('settle-swap'),
+                tooltip: l.settleSwap,
+                style: IconButton.styleFrom(
+                  backgroundColor: c.ink,
+                  foregroundColor: c.onInk,
+                  minimumSize: const Size.square(AppSpacing.minTouch),
+                ),
+                onPressed: () => onEdit((x) => x.swap()),
+                icon: const Icon(AppIcons.arrowRight, size: 20),
+              ),
+            ),
+            Expanded(
+              child: _Person(
+                key: const Key('settle-to'),
+                member: d.members.firstWhere((m) => m.id == d.to),
+                name: name(d.to),
+                tooltip: l.settleChangePerson(name(d.to)),
+                onTap: () => unawaited(
+                  _pick(context, l.settleWhoReceived, d.to, (id) => onEdit((x) => x.setTo(id))),
                 ),
               ),
-              Expanded(
-                child: _Person(
-                  key: const Key('settle-to'),
-                  member: d.members.firstWhere((m) => m.id == d.to),
-                  name: name(d.to),
-                  tooltip: l.settleChangePerson(name(d.to)),
-                  onTap: () =>
-                      unawaited(_pick(context, l.settleWhoReceived, d.to, controller.setTo)),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.s4),
-          Text(
-            l.settlePaidSentence(name(d.from), name(d.to, start: false)),
-            key: const Key('settle-sentence'),
-            textAlign: TextAlign.center,
-            style: context.text.title.w(600),
-          ),
-        ],
-      ),
+            ),
+          ],
+        ),
+        const SizedBox(height: AppSpacing.s3),
+        Text(
+          l.settlePaidSentence(name(d.from), name(d.to, start: false)),
+          key: const Key('settle-sentence'),
+          textAlign: TextAlign.center,
+          style: context.text.title.w(600),
+        ),
+      ],
     );
   }
 
@@ -420,7 +522,7 @@ class _People extends StatelessWidget {
         ],
       ),
     );
-    if (picked != null) onPicked(picked);
+    if (picked != null && picked != current) onPicked(picked);
   }
 }
 
@@ -473,123 +575,108 @@ class _Person extends StatelessWidget {
   );
 }
 
-/// Big centred amount input with the currency symbol and code.
-class _AmountField extends StatelessWidget {
-  const _AmountField({
-    required this.draft,
-    required this.controller,
-    required this.onChanged,
-    this.onPickCurrency,
-  });
+/// How much of the debt this payment settles: "Settles all of ₹300", "Part of the ₹300 owed · ₹150 left
+/// after this", "More than the ₹300 owed · ₹200 more than owed", or "Nothing owed right now".
+class _OwedPill extends StatelessWidget {
+  const _OwedPill({required this.draft});
 
   final SettleDraft draft;
-  final TextEditingController controller;
-  final ValueChanged<String> onChanged;
-
-  /// Opens the currency picker (phase 14).
-  final VoidCallback? onPickCurrency;
 
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    final c = context.colors;
-    final currency = Currencies.of(draft.currency);
-    final error = l.amountError(draft.amountResult, draft.currency);
-    final style = context.text.amountHero.copyWith(color: c.textPrimary);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Text(currency.symbol, style: style.copyWith(color: c.textSecondary)),
-            const SizedBox(width: AppSpacing.s2),
-            Expanded(
-              child: TextField(
-                key: const Key('settle-amount'),
-                controller: controller,
-                onChanged: onChanged,
-                style: style,
-                keyboardType: TextInputType.numberWithOptions(decimal: currency.exponent > 0),
-                inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]'))],
-                // ≥ 48 dp touch target with the smaller type scale (S-268).
-                decoration: const InputDecoration(
-                  isDense: true,
-                  border: InputBorder.none,
-                  constraints: BoxConstraints(minHeight: AppSpacing.minTouch),
-                ),
-              ),
-            ),
-            CurrencyChip(
-              key: const Key('settle-currency'),
-              code: draft.currency,
-              onTap: onPickCurrency,
-            ),
-          ],
-        ),
-        const DashedDivider(),
-        if (error != null) ...[
-          const SizedBox(height: AppSpacing.s2),
-          Text(error, style: context.text.bodySmall.copyWith(color: c.oweText)),
-        ],
-      ],
-    );
+    final d = draft;
+    final owed = d.owed;
+    final amount = d.amount;
+    String money(int v) => listMoney(v, d.currency);
+    final (IconData icon, String title, String? sub) = switch (amount) {
+      _ when owed <= 0 => (AppIcons.info, l.settleNothingOwed, l.settleNothingOwedSub),
+      null => (AppIcons.settle, l.settleSummaryOwed(money(owed)), null),
+      final a when a == owed => (AppIcons.checkCircle, l.settleSummaryAll(money(owed)), null),
+      final a when a < owed => (
+        AppIcons.settle,
+        l.settleSummaryPart(money(owed)),
+        l.settleSummaryLeft(money(owed - a)),
+      ),
+      final a => (
+        AppIcons.warning,
+        l.settleSummaryOver(money(owed)),
+        l.settleSummaryExtra(money(a - owed)),
+      ),
+    };
+    return FormPill(key: const Key('settle-summary'), icon: icon, title: title, subtitle: sub);
   }
 }
 
-/// How much of the debt this payment settles (646 gauge).
-class _Gauge extends StatelessWidget {
-  const _Gauge({required this.draft});
+/// The bottom toolbar: date, note and method chips; a chip is filled once it differs from the default.
+class _Toolbar extends StatelessWidget {
+  const _Toolbar({
+    required this.draft,
+    required this.today,
+    required this.onDate,
+    required this.onNote,
+    required this.onMethod,
+  });
 
   final SettleDraft draft;
+  final DateTime today;
+  final VoidCallback onDate;
+  final VoidCallback onNote;
+  final VoidCallback onMethod;
 
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    final c = context.colors;
-    final owed = draft.owed;
-    if (owed <= 0) {
-      return Container(
-        key: const Key('settle-gauge-none'),
-        padding: const EdgeInsets.all(AppSpacing.s4),
-        decoration: BoxDecoration(color: c.infoContainer, borderRadius: AppRadii.all16),
-        child: Row(
-          children: [
-            Icon(AppIcons.info, size: 20, color: c.info),
-            const SizedBox(width: AppSpacing.s3),
-            Expanded(child: Text(l.settleGaugeNone, style: context.text.bodySmall)),
-          ],
-        ),
-      );
-    }
-    final amount = draft.amount ?? 0;
-    final ratio = amount / owed;
-    final owedText = listMoney(owed, draft.currency);
-    final caption = amount == owed
-        ? l.settleGaugeAll(owedText)
-        : amount > owed
-        ? l.settleGaugeOver(owedText)
-        : l.settleGaugeOf(owedText);
-    final percent = NumberFormat.percentPattern(Localizations.localeOf(context).toLanguageTag())
-        .format(ratio > 1 ? 1 : ratio);
-    return Center(
-      child: ArcGauge(
-        key: const Key('settle-gauge'),
-        progress: ratio > 1 ? 1 : ratio,
-        valueText: amount > owed ? '$percent+' : percent,
-        caption: caption,
-        size: 220,
+    final d = draft;
+    final hasNote = d.note.trim().isNotEmpty;
+    return SingleChildScrollView(
+      key: const Key('settle-toolbar'),
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: [
+          ToolChip(
+            key: const Key('settle-date'),
+            icon: AppIcons.calendar,
+            label: dayLabel(context, d.date, today),
+            semanticLabel: l.expToolDate(shortDate(context, d.date)),
+            active: !DateUtils.isSameDay(d.date, today),
+            onTap: onDate,
+          ),
+          const SizedBox(width: AppSpacing.s2),
+          ToolChip(
+            key: const Key('settle-note-chip'),
+            icon: AppIcons.notes,
+            label: l.settleNote,
+            semanticLabel: hasNote ? l.settleToolNoteAdded : l.settleNote,
+            active: hasNote,
+            onTap: onNote,
+          ),
+          const SizedBox(width: AppSpacing.s2),
+          ToolChip(
+            key: const Key('settle-method'),
+            icon: methodIcon(d.method),
+            label: methodLabel(l, d.method),
+            semanticLabel: l.settleToolMethod(methodLabel(l, d.method)),
+            active: d.method != 'cash',
+            onTap: onMethod,
+          ),
+        ],
       ),
     );
   }
 }
 
-/// The person a new payment by or to me settles completely (what one of us owed the other in this
-/// currency becomes zero), or null (T6: only then the Celebration plays).
+/// The person a new payment by or to me settles completely — nothing is owed either way between us in
+/// any currency of the group afterwards — or null (T6: only then the Celebration plays).
 String? settledWith(SettleDraft d) {
   final me = d.meId;
   if (me == null || d.isEdit || d.owed <= 0 || d.amount != d.owed) return null;
-  if (d.from == me) return d.to;
-  if (d.to == me) return d.from;
-  return null;
+  final other = d.from == me ? d.to : (d.to == me ? d.from : null);
+  if (other == null) return null;
+  final b = d.balances;
+  for (final c in b.currencies) {
+    if (c == d.currency) continue;
+    if (b.owed(me, other, c) != 0 || b.owed(other, me, c) != 0) return null;
+  }
+  return other;
 }

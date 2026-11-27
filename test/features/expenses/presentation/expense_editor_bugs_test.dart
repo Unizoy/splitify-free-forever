@@ -8,7 +8,6 @@
 //    saw the keyboard.
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:splitify/features/expenses/presentation/amount_keypad.dart';
 
 import '../expense_fixtures.dart';
 import 'presentation_harness.dart';
@@ -34,7 +33,7 @@ void main() {
       t,
     ) async {
       await pumpEditor(t, blank, args: newArgs);
-      expect(find.byType(AmountKeypad), findsNothing, reason: 'no custom number pad at all');
+      expect(find.byKey(const Key('key-d1')), findsNothing, reason: 'no custom number pad at all');
 
       await t.tap(_descriptionField());
       await t.pump();
@@ -44,14 +43,13 @@ void main() {
       t.view.viewInsets = const FakeViewPadding(bottom: 300);
       addTearDown(t.view.resetViewInsets);
       await settle(t);
-      expect(find.byType(AmountKeypad), findsNothing);
       expect(find.byKey(const Key('key-d1')), findsNothing);
 
       await t.tap(_amountField());
       await t.pump();
       expect(_keyboard(t)['name'], 'TextInputType.number');
       expect(_keyboard(t)['decimal'], isTrue);
-      expect(find.byType(AmountKeypad), findsNothing);
+      expect(find.byKey(const Key('key-d1')), findsNothing);
     });
 
     testWidgets('Save and the toolbar stay above the keyboard', (t) async {

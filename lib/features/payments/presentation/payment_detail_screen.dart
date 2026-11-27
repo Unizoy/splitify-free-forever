@@ -25,9 +25,10 @@ import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/components/components.dart';
 import 'package:splitify/ui/theme/theme.dart';
 
-/// Payment detail (`/payment/:id`, #25): the group's cover hero with both people, the serif amount
-/// and "You paid Asha"; method, date and note; edit and delete (soft, with undo); history and the
-/// comment thread with its composer pinned at the bottom (phase 12).
+/// Payment detail (`/payment/:id`, #25), compact like Splitwise's (D-033): the group's cover hero with both
+/// people, "You paid Asha" and the serif amount; one "Cash · 21 Nov 2026" line, the note, history and
+/// "Added by …"; edit and delete (soft, with undo) on top, like the expense detail; then the comment thread
+/// with its composer pinned at the bottom (phase 12).
 class PaymentDetailScreen extends ConsumerWidget {
   const PaymentDetailScreen({required this.paymentId, super.key});
 
@@ -146,31 +147,22 @@ class _Hero extends ConsumerWidget {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Avatar(
-                  name: view.nameOf(p.fromMember),
-                  seed: p.fromMember,
-                  size: AvatarSize.s56,
-                  ring: true,
-                ),
+                Avatar(name: view.nameOf(p.fromMember), seed: p.fromMember, ring: true),
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s3),
-                  child: Icon(AppIcons.arrowRight, size: 22, color: c.onHero),
+                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s2),
+                  child: Icon(AppIcons.arrowRight, size: 18, color: c.onHero),
                 ),
-                Avatar(
-                  name: view.nameOf(p.toMember),
-                  seed: p.toMember,
-                  size: AvatarSize.s56,
-                  ring: true,
-                ),
+                Avatar(name: view.nameOf(p.toMember), seed: p.toMember, ring: true),
               ],
             ),
           ),
-          const SizedBox(height: AppSpacing.s4),
+          const SizedBox(height: AppSpacing.s3),
           Text(
             l.settlePaidSentence(
               _name(l, view, p.fromMember),
               _name(l, view, p.toMember, start: false),
             ),
+            key: const Key('payment-detail-sentence'),
             textAlign: TextAlign.center,
             style: context.text.sheetTitle.copyWith(color: c.onHero),
           ),
@@ -184,8 +176,6 @@ class _Hero extends ConsumerWidget {
               style: context.text.amountHero.copyWith(color: c.onHero),
             ),
           ),
-          const SizedBox(height: AppSpacing.s4),
-          StatusPill(label: l.payTitle, icon: AppIcons.settle, tone: StatusPillTone.glass),
         ],
       ),
     );
@@ -211,15 +201,11 @@ class _Body extends StatelessWidget {
           const Center(child: SyncMarker()),
           const SizedBox(height: AppSpacing.s4),
         ],
-        SectionLabel(l.payDetailsLabel),
+        // One line for how and when (Splitwise-compact, D-033): "Cash · 21 Nov 2026".
         DashedListRow(
+          key: const Key('payment-method-date'),
           icon: methodIcon(p.method),
-          label: l.payMethodLabel,
-          value: methodLabel(l, p.method),
-        ),
-        DashedListRow(
-          icon: AppIcons.calendar,
-          label: l.expDateLabel,
+          label: methodLabel(l, p.method),
           value: shortDate(context, parseIsoDate(p.date)),
         ),
         ConversionTile(
@@ -240,7 +226,7 @@ class _Body extends StatelessWidget {
                 Expanded(
                   child: Semantics(
                     label: l.payNoteLabel,
-                    child: Text(note, style: context.text.body),
+                    child: Text(note, key: const Key('payment-note'), style: context.text.body),
                   ),
                 ),
               ],
@@ -257,11 +243,12 @@ class _Body extends StatelessWidget {
           const SizedBox(height: AppSpacing.s2),
           Text(
             added,
+            key: const Key('payment-added'),
             textAlign: TextAlign.center,
             style: context.text.caption.copyWith(color: c.textSecondary),
           ),
         ],
-        const SizedBox(height: AppSpacing.s8),
+        const SizedBox(height: AppSpacing.s6),
         SectionLabel(l.expComments),
         const SizedBox(height: AppSpacing.s3),
         CommentThread(target: _commentTarget(view)),

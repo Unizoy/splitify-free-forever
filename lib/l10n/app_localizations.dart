@@ -2474,6 +2474,204 @@ abstract class AppLocalizations {
   /// **'you received'**
   String get payYouReceived;
 
+  /// No description provided for @moneyInLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'In'**
+  String get moneyInLabel;
+
+  /// No description provided for @settleRecordTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Record a payment'**
+  String get settleRecordTitle;
+
+  /// No description provided for @settleRecordCash.
+  ///
+  /// In en, this message translates to:
+  /// **'Record cash payment'**
+  String get settleRecordCash;
+
+  /// No description provided for @settleRecordUpi.
+  ///
+  /// In en, this message translates to:
+  /// **'Record UPI payment'**
+  String get settleRecordUpi;
+
+  /// No description provided for @settleRecordBank.
+  ///
+  /// In en, this message translates to:
+  /// **'Record bank payment'**
+  String get settleRecordBank;
+
+  /// No description provided for @settlePayUpi.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay via UPI'**
+  String get settlePayUpi;
+
+  /// No description provided for @settleMethodTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How was it paid?'**
+  String get settleMethodTitle;
+
+  /// No description provided for @settleToolMethod.
+  ///
+  /// In en, this message translates to:
+  /// **'Method: {method}'**
+  String settleToolMethod(String method);
+
+  /// No description provided for @settleToolNoteAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Note added'**
+  String get settleToolNoteAdded;
+
+  /// No description provided for @settleSummaryOwed.
+  ///
+  /// In en, this message translates to:
+  /// **'{owed} owed'**
+  String settleSummaryOwed(String owed);
+
+  /// No description provided for @settleSummaryAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Settles all of {owed}'**
+  String settleSummaryAll(String owed);
+
+  /// No description provided for @settleSummaryPart.
+  ///
+  /// In en, this message translates to:
+  /// **'Part of the {owed} owed'**
+  String settleSummaryPart(String owed);
+
+  /// No description provided for @settleSummaryLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'{left} left after this'**
+  String settleSummaryLeft(String left);
+
+  /// No description provided for @settleSummaryOver.
+  ///
+  /// In en, this message translates to:
+  /// **'More than the {owed} owed'**
+  String settleSummaryOver(String owed);
+
+  /// No description provided for @settleSummaryExtra.
+  ///
+  /// In en, this message translates to:
+  /// **'{extra} more than owed'**
+  String settleSummaryExtra(String extra);
+
+  /// No description provided for @settleNothingOwed.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing owed right now'**
+  String get settleNothingOwed;
+
+  /// No description provided for @settleNothingOwedSub.
+  ///
+  /// In en, this message translates to:
+  /// **'You can still record a payment.'**
+  String get settleNothingOwedSub;
+
+  /// No description provided for @settleDiscardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard this payment?'**
+  String get settleDiscardTitle;
+
+  /// No description provided for @settleDiscardBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The amount and note you typed will be lost.'**
+  String get settleDiscardBody;
+
+  /// No description provided for @settleDiscardEditBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The payment stays as it was last saved.'**
+  String get settleDiscardEditBody;
+
+  /// No description provided for @settlePickHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a balance to settle.'**
+  String get settlePickHint;
+
+  /// No description provided for @settlePickYouOwe.
+  ///
+  /// In en, this message translates to:
+  /// **'you owe {amount}'**
+  String settlePickYouOwe(String amount);
+
+  /// No description provided for @settlePickOwesYou.
+  ///
+  /// In en, this message translates to:
+  /// **'owes you {amount}'**
+  String settlePickOwesYou(String amount);
+
+  /// No description provided for @settlePickOwes.
+  ///
+  /// In en, this message translates to:
+  /// **'owes {name} {amount}'**
+  String settlePickOwes(String name, String amount);
+
+  /// No description provided for @loanDiscardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard this loan?'**
+  String get loanDiscardTitle;
+
+  /// No description provided for @loanDiscardBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The amount you typed will be lost.'**
+  String get loanDiscardBody;
+
+  /// No description provided for @loanDiscardEditBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The loan stays as it was last saved.'**
+  String get loanDiscardEditBody;
+
+  /// No description provided for @loanWhoTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Who lent whom?'**
+  String get loanWhoTitle;
+
+  /// No description provided for @loanWhoHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Change who lent and who borrowed'**
+  String get loanWhoHint;
+
+  /// No description provided for @loanPillLent.
+  ///
+  /// In en, this message translates to:
+  /// **'You lent {name}'**
+  String loanPillLent(String name);
+
+  /// No description provided for @loanPillBorrowed.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} lent you'**
+  String loanPillBorrowed(String name);
+
+  /// No description provided for @loanPillOthers.
+  ///
+  /// In en, this message translates to:
+  /// **'{lender} lent {borrower}'**
+  String loanPillOthers(String lender, String borrower);
+
+  /// No description provided for @loanPillNoAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Type the amount'**
+  String get loanPillNoAmount;
+
   /// No description provided for @actFilterAll.
   ///
   /// In en, this message translates to:

@@ -68,6 +68,7 @@ class LoanEditorController extends AsyncNotifier<LoanDraft> {
       return LoanDraft(
         groupId: groupId,
         groupName: group.name,
+        groupType: group.type,
         currency: group.mainCurrency,
         members: members,
         selfId: meId,
@@ -83,7 +84,8 @@ class LoanEditorController extends AsyncNotifier<LoanDraft> {
     return LoanDraft(
       groupId: groupId,
       groupName: group.name,
-      currency: saved.currency,
+      groupType: group.type,
+      currency: saved.currency.trim(),
       members: members,
       selfId: self,
       selfIsMe: self == meId,
@@ -92,6 +94,7 @@ class LoanEditorController extends AsyncNotifier<LoanDraft> {
       personId: iBorrowed ? lender : borrower,
       amountText: ScaledInput.format(saved.total, Currencies.exponentOf(saved.currency)),
       note: saved.description,
+      notes: saved.notes ?? '',
       date: parseIsoDate(saved.date),
     );
   }
