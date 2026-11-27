@@ -5,10 +5,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:splitify/data/data_providers.dart';
 import 'package:splitify/data/remote/notifications_remote.dart';
 import 'package:splitify/features/auth/application/auth_providers.dart' show profileProvider;
-import 'package:splitify/features/balances/application/balance_views.dart' show GroupBalances;
+import 'package:splitify/features/balances/application/balance_views.dart'
+    show GroupBalances, groupBalancesOf;
 import 'package:splitify/features/balances/application/balances_providers.dart'
-    show groupBalancesProvider;
-import 'package:splitify/features/groups/application/groups_providers.dart' show groupProvider;
+    show ledgerRepositoryProvider;
+import 'package:splitify/features/groups/application/groups_providers.dart'
+    show currentUserIdProvider;
 import 'package:splitify/features/groups/presentation/invite_sheet.dart' show textSharerProvider;
 import 'package:splitify/features/notifications/application/reminders.dart';
 import 'package:splitify/l10n/app_localizations.dart';
@@ -68,14 +70,15 @@ class _RemindButtonState extends ConsumerState<RemindButton> {
       );
   }
 
+  /// Reads the group once from this phone (nothing is kept open while the button just sits in a list).
   Future<void> _share() async {
-    final b = ref.read(groupBalancesProvider(widget.groupId)).value;
-    if (b == null || !mounted) return;
+    final ledger = await ref.read(ledgerRepositoryProvider).loadGroup(widget.groupId);
+    if (ledger == null || !mounted) return;
     await showShareReminder(
       context,
       ref,
-      balances: b,
-      direct: ref.read(groupProvider(widget.groupId)).value?.type == 'direct',
+      balances: groupBalancesOf(ledger, ref.read(currentUserIdProvider)),
+      direct: ledger.group.type == 'direct',
       me: widget.fromMember,
       them: widget.toMember,
       name: widget.name,
@@ -111,10 +114,6 @@ class _RemindButtonState extends ConsumerState<RemindButton> {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     if (!widget.linked) {
-      // Kept alive so the text is ready when tapped.
-      ref
-        ..watch(groupBalancesProvider(widget.groupId))
-        ..watch(groupProvider(widget.groupId));
       return _Bell(
         key: Key('remind-${widget.toMember}'),
         label: l.remindShareTooltip(widget.name),
