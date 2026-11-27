@@ -257,8 +257,8 @@ class _GroupFormScreenState extends ConsumerState<GroupFormScreen> {
 
   Future<void> _back() async {
     final l = AppLocalizations.of(context);
-    final navigator = Navigator.of(context);
     if (_dirty && !_saved) {
+      FocusManager.instance.primaryFocus?.unfocus();
       final ok = await confirmAction(
         context,
         title: _isEdit ? l.expDiscardEditTitle : l.groupFormDiscardTitle,
@@ -266,12 +266,16 @@ class _GroupFormScreenState extends ConsumerState<GroupFormScreen> {
         confirm: l.discardLabel,
         icon: AppIcons.trash,
       );
-      if (!ok) return;
-      _dirty = false;
+      if (!ok || !mounted) return;
     }
-    if (mounted) {
-      setState(() => _saved = true);
-      await navigator.maybePop();
+    if (!mounted) return;
+    // `pop` ignores the PopScope that asks first; `maybePop` would ask the (not yet rebuilt) PopScope
+    // again and loop forever without a frame.
+    final navigator = Navigator.of(context);
+    if (navigator.canPop()) {
+      navigator.pop();
+    } else {
+      context.go('/groups');
     }
   }
 
