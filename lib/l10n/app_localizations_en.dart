@@ -1820,6 +1820,47 @@ class AppLocalizationsEn extends AppLocalizations {
   String get expWithLabel => 'With you and';
 
   @override
+  String get expWithChoose => 'Choose group or friend';
+
+  @override
+  String get expWithChange => 'Change group or friend';
+
+  @override
+  String get expWithMissing => 'Choose who this is with';
+
+  @override
+  String get expWithChooseFirst => 'Choose a group or friend first';
+
+  @override
+  String get expWithPickTitle => 'With you and…';
+
+  @override
+  String get expWithSearchHint => 'Search groups and friends';
+
+  @override
+  String get expWithRecent => 'Recent';
+
+  @override
+  String get expWithGroups => 'Groups and friends';
+
+  @override
+  String get expWithFriends => 'More friends';
+
+  @override
+  String get expWithFriendLabel => 'Friend';
+
+  @override
+  String expWithAddFriend(String name) {
+    return 'Add “$name” as a friend';
+  }
+
+  @override
+  String get expWithAddFriendHint => 'No account needed; they can join later';
+
+  @override
+  String get expWithNothingYet => 'No groups or friends yet. Type a name to add a friend.';
+
+  @override
   String get expAmountMissing => 'Enter an amount';
 
   @override

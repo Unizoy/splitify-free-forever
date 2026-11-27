@@ -3044,6 +3044,84 @@ abstract class AppLocalizations {
   /// **'With you and'**
   String get expWithLabel;
 
+  /// No description provided for @expWithChoose.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose group or friend'**
+  String get expWithChoose;
+
+  /// No description provided for @expWithChange.
+  ///
+  /// In en, this message translates to:
+  /// **'Change group or friend'**
+  String get expWithChange;
+
+  /// No description provided for @expWithMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose who this is with'**
+  String get expWithMissing;
+
+  /// No description provided for @expWithChooseFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a group or friend first'**
+  String get expWithChooseFirst;
+
+  /// No description provided for @expWithPickTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'With you and…'**
+  String get expWithPickTitle;
+
+  /// No description provided for @expWithSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search groups and friends'**
+  String get expWithSearchHint;
+
+  /// No description provided for @expWithRecent.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent'**
+  String get expWithRecent;
+
+  /// No description provided for @expWithGroups.
+  ///
+  /// In en, this message translates to:
+  /// **'Groups and friends'**
+  String get expWithGroups;
+
+  /// No description provided for @expWithFriends.
+  ///
+  /// In en, this message translates to:
+  /// **'More friends'**
+  String get expWithFriends;
+
+  /// No description provided for @expWithFriendLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Friend'**
+  String get expWithFriendLabel;
+
+  /// No description provided for @expWithAddFriend.
+  ///
+  /// In en, this message translates to:
+  /// **'Add “{name}” as a friend'**
+  String expWithAddFriend(String name);
+
+  /// No description provided for @expWithAddFriendHint.
+  ///
+  /// In en, this message translates to:
+  /// **'No account needed; they can join later'**
+  String get expWithAddFriendHint;
+
+  /// No description provided for @expWithNothingYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No groups or friends yet. Type a name to add a friend.'**
+  String get expWithNothingYet;
+
   /// No description provided for @expAmountMissing.
   ///
   /// In en, this message translates to:

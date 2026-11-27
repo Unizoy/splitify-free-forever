@@ -18,6 +18,8 @@ import 'package:splitify/features/payments/application/payment_providers.dart';
 import 'package:splitify/features/recurring/application/recurring_providers.dart'
     show expenseRecurringProvider;
 import 'package:splitify/features/recurring/application/repeat_draft.dart';
+import 'package:splitify/features/expenses/presentation/editor/with_picker.dart'
+    show WithTarget, withTargetsProvider;
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/theme/theme.dart';
 import 'package:splitify/features/groups/application/groups_providers.dart'
@@ -237,13 +239,16 @@ List<ExpenseView> sampleViews() => [
   ),
 ];
 
-/// Overrides that keep the screens off the database and network.
-List<Override> baseOverrides() => [
+/// Overrides that keep the screens off the database and network. [targets]: the "With you and" groups
+/// and friends (D-033).
+List<Override> baseOverrides({List<WithTarget> targets = const []}) => [
   clockProvider.overrideWithValue(FakeClock(DateTime(2026, 11, 21, 10))),
   syncOfflineProvider.overrideWith((ref) => Stream.value(false)),
   currentUserIdProvider.overrideWithValue('u1'),
   // Phase 09: the Expenses tab also lists payments; none in these fixtures.
   groupPaymentViewsProvider(gid).overrideWithValue(const AsyncData([])),
+  // D-033 "With you and": recent groups and friends come from every group's ledger; none here.
+  withTargetsProvider.overrideWithValue(targets),
 ];
 
 /// Themed app around [child] (no router).
@@ -253,11 +258,15 @@ Widget expenseApp(
   ThemeMode mode = ThemeMode.light,
   double scale = 1,
   Size size = const Size(412, 915),
+  List<WithTarget> targets = const [],
 }) {
   return SizedBox.fromSize(
     size: size,
     child: ProviderScope(
-      overrides: [...baseOverrides(), ...overrides],
+      overrides: [
+        ...baseOverrides(targets: targets),
+        ...overrides,
+      ],
       // The test view's keyboard inset passes through (D-032 keyboard tests); goldens have none.
       child: Builder(
         builder: (context) => MediaQuery(
@@ -285,6 +294,31 @@ Widget expenseApp(
       ),
     ),
   );
+}
+
+/// "With you and" samples (D-033): the trip (newest), our friend group with Asha, a flat and the office.
+List<WithTarget> sampleTargets() {
+  LocalGroup g(String id, String name, String type) =>
+      sampleGroup().copyWith(id: id, name: name, type: type);
+  return [
+    WithTarget(group: sampleGroup(), name: 'Goa trip', lastUsed: DateTime(2026, 11, 21)),
+    WithTarget(
+      group: g('g-asha', 'Mohit & Asha', 'direct'),
+      name: 'Asha Rao',
+      lastUsed: DateTime(2026, 11, 20),
+      friendSeed: 'm2',
+    ),
+    WithTarget(
+      group: g('g-flat', 'Flat 4B', 'home'),
+      name: 'Flat 4B',
+      lastUsed: DateTime(2026, 11, 2),
+    ),
+    WithTarget(
+      group: g('g-office', 'Office lunches', 'other'),
+      name: 'Office lunches',
+      lastUsed: DateTime(2026, 10, 9),
+    ),
+  ];
 }
 
 /// The detail screen reads the expense's repeat rule (#12) from the database; goldens have none.

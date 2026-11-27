@@ -17,9 +17,10 @@ const maxNotes = 1000;
 /// Why the description cannot be saved.
 enum DescriptionProblem { missing, tooLong }
 
-/// What still stops Save, in the order the one-screen editor (D-032) points at it: the description and
-/// amount fields (top to bottom), then the "Paid by · split" sheet, notes and repeat.
-enum EditorProblem { description, amount, paidSplit, notes, repeat }
+/// What still stops Save, in the order the one-screen editor (D-032) points at it: who it is with (D-033,
+/// opened from the + without a group), the description and amount fields (top to bottom), then the
+/// "Paid by · split" sheet, notes and repeat.
+enum EditorProblem { group, description, amount, paidSplit, notes, repeat }
 
 /// Where the draft's category came from (auto-category, D-028).
 enum CategoryOrigin {
@@ -138,6 +139,10 @@ final class ExpenseDraft {
 
   bool get isEdit => expenseId != null;
 
+  /// A group (or friend) is chosen. A new expense started from the + without one has none yet (D-033):
+  /// no people, so nothing can be split until "With you and" picks one.
+  bool get hasGroup => groupId.isNotEmpty;
+
   /// A friend expense: the editor names the friend instead of the group.
   bool get isDirect => groupType == 'direct';
 
@@ -240,6 +245,7 @@ final class ExpenseDraft {
 
   /// The first thing that stops Save, or null when the draft can be saved.
   EditorProblem? get firstProblem {
+    if (!hasGroup) return EditorProblem.group;
     if (descriptionProblem != null) return EditorProblem.description;
     if (total == null) return EditorProblem.amount;
     if (!payersOk || splitCheck is! SplitReady) return EditorProblem.paidSplit;
@@ -316,6 +322,35 @@ final class ExpenseDraft {
     canRepeat: canRepeat,
     templateId: templateId,
   );
+
+  /// This new draft for another group (D-033 "With you and" picker), keeping what was typed in [old]:
+  /// description, amount, date, notes, receipt, repeat and a picked or suggested category. People, payer
+  /// and split come from this group; the currency too, unless [keepCurrency] (the user chose one).
+  ExpenseDraft carriedFrom(ExpenseDraft old, {required bool keepCurrency}) {
+    final base = keepCurrency && old.currency != currency ? withCurrency(old.currency) : this;
+    final keepCategory =
+        old.categoryOrigin == CategoryOrigin.manual || old.categoryOrigin == CategoryOrigin.auto;
+    return ExpenseDraft(
+      groupId: base.groupId,
+      groupName: base.groupName,
+      groupType: base.groupType,
+      currency: base.currency,
+      members: base.members,
+      split: base.split,
+      date: old.date,
+      payerId: base.payerId,
+      payers: base.payers,
+      amountText: old.amountText,
+      description: old.description,
+      category: keepCategory ? old.category : base.category,
+      categoryOrigin: keepCategory ? old.categoryOrigin : base.categoryOrigin,
+      baseCategory: base.baseCategory,
+      notes: old.notes,
+      receipt: old.receipt,
+      repeat: old.repeat,
+      canRepeat: base.canRepeat,
+    );
+  }
 
   /// The user picked [key] in the category picker: it sticks for this edit (and is learned on save).
   ExpenseDraft pickCategory(String key) =>

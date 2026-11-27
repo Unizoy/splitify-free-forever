@@ -13,7 +13,8 @@ import 'package:splitify/domain/entities/prepared_image.dart';
 import 'package:splitify/domain/rules/category_suggester.dart';
 import 'package:splitify/domain/rules/default_split.dart';
 import 'package:splitify/domain/rules/expense_categories.dart';
-import 'package:splitify/features/auth/application/auth_providers.dart' show authRepositoryProvider;
+import 'package:splitify/features/auth/application/auth_providers.dart'
+    show authRepositoryProvider, profileProvider;
 import 'package:splitify/features/currency/application/conversion_actions.dart'
     show savedFxOfExpense;
 import 'package:splitify/features/currency/domain/conversion.dart' show expenseFxAfterEdit;
@@ -73,8 +74,10 @@ class ExpenseEditorController extends AsyncNotifier<ExpenseDraft> {
     if (args.expenseId != null && (saved == null || saved.deletedAt != null)) {
       throw const ExpenseNotFound();
     }
-    final groupId = saved?.groupId ?? args.groupId;
-    if (groupId == null) throw const ExpenseNotFound();
+    // The + opened the editor without a group (D-033): "With you and" picks it on this screen.
+    if (saved == null && args.groupId == null) return _unpicked();
+    final groupId = saved?.groupId ?? args.groupId!;
+    if (saved == null) return _newDraft(groupId);
     final group = await ref.read(groupsRepositoryProvider).watchOne(groupId).first;
     if (group == null) throw const ExpenseNotFound();
     final all = await expenses.watchAllMembers(groupId).first;
@@ -85,28 +88,6 @@ class ExpenseEditorController extends AsyncNotifier<ExpenseDraft> {
     final uid = ref.read(currentUserIdProvider);
     final meId = active.where((m) => uid != null && m.userId == uid).map((m) => m.id).firstOrNull;
     final activeIds = [for (final m in active) m.id];
-
-    if (saved == null) {
-      final currency = group.mainCurrency;
-      final preset = DefaultSplit.decode(group.defaultSplit)?.resolve(activeIds);
-      return ExpenseDraft(
-        groupId: groupId,
-        groupName: group.name,
-        groupType: group.type,
-        currency: currency,
-        members: _people(active, meId),
-        split: SplitDraft.initial(activeIds, Currencies.exponentOf(currency), preset: preset),
-        date: ref.read(clockProvider).today(),
-        payerId: meId ?? activeIds.firstOrNull,
-        payers: const {},
-        category: ExpenseCategories.normalize(
-          await expenses.lastCategory(groupId) ?? ExpenseCategories.defaultKey,
-        ),
-        // Auto-category (D-028): typing the description may replace the group's last category.
-        categoryOrigin: CategoryOrigin.initial,
-        canRepeat: true,
-      );
-    }
 
     final shares = _ints(saved.shares);
     final payers = _ints(saved.payers);
@@ -142,6 +123,70 @@ class ExpenseEditorController extends AsyncNotifier<ExpenseDraft> {
           : ReceiptDraft.saved(saved.receiptPath!),
       canRepeat: saved.source != 'recurring' && saved.kind == 'expense' && await _noTemplate(saved),
     );
+  }
+
+  /// A new expense in [groupId]: its people, you paid, the group's default split and last category.
+  Future<ExpenseDraft> _newDraft(String groupId) async {
+    final expenses = ref.read(expensesRepositoryProvider);
+    final group = await ref.read(groupsRepositoryProvider).watchOne(groupId).first;
+    if (group == null) throw const ExpenseNotFound();
+    final all = await expenses.watchAllMembers(groupId).first;
+    final active = [
+      for (final m in all)
+        if (m.deletedAt == null) m,
+    ];
+    final uid = ref.read(currentUserIdProvider);
+    final meId = active.where((m) => uid != null && m.userId == uid).map((m) => m.id).firstOrNull;
+    final activeIds = [for (final m in active) m.id];
+    final currency = group.mainCurrency.trim();
+    final preset = DefaultSplit.decode(group.defaultSplit)?.resolve(activeIds);
+    return ExpenseDraft(
+      groupId: groupId,
+      groupName: group.name,
+      groupType: group.type,
+      currency: currency,
+      members: _people(active, meId),
+      split: SplitDraft.initial(activeIds, Currencies.exponentOf(currency), preset: preset),
+      date: ref.read(clockProvider).today(),
+      payerId: meId ?? activeIds.firstOrNull,
+      payers: const {},
+      category: ExpenseCategories.normalize(
+        await expenses.lastCategory(groupId) ?? ExpenseCategories.defaultKey,
+      ),
+      // Auto-category (D-028): typing the description may replace the group's last category.
+      categoryOrigin: CategoryOrigin.initial,
+      canRepeat: true,
+    );
+  }
+
+  /// A new expense with nobody picked yet (D-033): no people, the profile's currency; the description and
+  /// amount can be typed first, and Save points at "With you and".
+  ExpenseDraft _unpicked() {
+    final currency = (ref.read(profileProvider).value?.defaultCurrency ?? 'INR').trim();
+    return ExpenseDraft(
+      groupId: '',
+      groupName: '',
+      currency: currency,
+      members: const [],
+      split: SplitDraft.initial(const [], Currencies.exponentOf(currency)),
+      date: ref.read(clockProvider).today(),
+      payers: const {},
+      category: ExpenseCategories.defaultKey,
+      categoryOrigin: CategoryOrigin.initial,
+      canRepeat: true,
+    );
+  }
+
+  /// "With you and" picked [groupId] (D-033): the draft moves there and keeps what was typed (people,
+  /// payer and split are the new group's; the currency too unless [keepCurrency]). Only new expenses;
+  /// a saved expense or a template stays in its group.
+  Future<void> pickGroup(String groupId, {bool keepCurrency = false}) async {
+    final old = state.value;
+    if (old == null || old.isEdit || old.isTemplate || old.groupId == groupId) return;
+    final fresh = await _newDraft(groupId);
+    // Typing went on while the group loaded: carry the latest draft.
+    final now = state.value ?? old;
+    state = AsyncData(fresh.carriedFrom(now, keepCurrency: keepCurrency));
   }
 
   Future<bool> _noTemplate(LocalExpense e) async =>
