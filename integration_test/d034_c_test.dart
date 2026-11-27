@@ -35,6 +35,7 @@ import 'package:splitify/features/auth/application/auth_providers.dart';
 import 'package:splitify/features/groups/application/group_extras_providers.dart';
 import 'package:splitify/features/groups/application/groups_providers.dart';
 import 'package:splitify/features/groups/domain/group_extras.dart';
+import 'package:splitify/features/search/presentation/search_screen.dart' show SearchScreen;
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/theme/theme.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -380,13 +381,18 @@ void main() {
       await _capture(t, 'settled');
       await _tap(t, settled);
       expect(find.text('Hide settled expenses'), findsOneWidget);
-      await t.scrollUntilVisible(
-        find.byKey(const Key('group-search')),
-        -300,
-        scrollable: find.byType(Scrollable).first,
+      // Back to the top of the page: the hero's search icon must be on screen, not just built inside the
+      // cache extent above it (final QA: the tap missed while the icon sat under the status-bar band).
+      t.state<ScrollableState>(find.byType(Scrollable).first).position.jumpTo(0);
+      await _pumpFor(t, const Duration(milliseconds: 800));
+      await t.tap(find.byKey(const Key('group-search')));
+      await _pumpFor(t, const Duration(milliseconds: 1500));
+      // A pushed page: the router's base location stays the group, so read the search page's own state.
+      expect(find.byType(SearchScreen), findsOneWidget);
+      expect(
+        GoRouterState.of(t.element(find.byType(SearchScreen))).uri.toString(),
+        '/search?group=$gid',
       );
-      await _tap(t, find.byKey(const Key('group-search')));
-      expect(r.location, '/search?group=$gid');
     },
   );
 }
