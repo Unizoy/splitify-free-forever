@@ -197,6 +197,8 @@ List<_Case> _cases(File photo) {
       [
         profileProvider.overrideWith(_FixedProfile.new),
         groupProvider.overrideWith((ref, id) => Stream.value(goa)),
+        // The one-screen form lists the members too (D-033).
+        groupMembersProvider.overrideWith((ref, id) => Stream.value(const <LocalMember>[])),
         storedGroupCover(_coverPath, photo, ready: _ready),
       ],
     ),
