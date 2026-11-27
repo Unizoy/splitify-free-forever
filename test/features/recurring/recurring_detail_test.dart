@@ -18,7 +18,7 @@ import 'package:splitify/features/groups/application/groups_providers.dart' as g
 import 'package:splitify/ui/components/components.dart';
 import 'package:splitify/ui/theme/theme.dart';
 
-import '../../data/sync/sync_fakes.dart' show FakeRemoteApi;
+import '../../data/sync/sync_fakes.dart' show FakeRemoteApi, quietSyncEngine;
 import '../../support/fakes.dart' show testDb;
 import '../expenses/expense_fixtures.dart';
 import '../expenses/presentation/presentation_harness.dart';
@@ -79,6 +79,9 @@ Future<_Screen> _pump(
   final List<Override> overrides = [
     appDatabaseProvider.overrideWithValue(db),
     remoteApiProvider.overrideWithValue(FakeRemoteApi()),
+    // Final QA (S-408): the seeding write's debounced sync used to run mid-test (pending marker gone, the
+    // database read after close) under full-suite load.
+    quietSyncEngine(),
     groups.currentUserIdProvider.overrideWithValue('u1'),
     expenseViewProvider(expense.id).overrideWithValue(AsyncData(sampleView(expense))),
     expenseGroupProvider(gid).overrideWith((ref) => Stream.value(group)),

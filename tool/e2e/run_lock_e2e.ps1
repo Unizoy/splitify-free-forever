@@ -7,11 +7,14 @@ param([string]$Phase = '18')
 . "$PSScriptRoot\..\..\.claude\skills\ui-review\scripts\ui.ps1" -Phase $Phase
 $adb = $script:adb
 $log = Join-Path $script:out 'lock-e2e.log'
-$pkg = 'com.unizoy.splitify'
+# Side by side (final QA, S-409): the test copy is com.unizoy.splitify.qa (SPLITIFY_APP_ID_SUFFIX, S-310) and the
+# flutter tool must not uninstall at the end (it would remove the BASE id, the owner's store build).
+if (-not $env:SPLITIFY_APP_ID_SUFFIX) { $env:SPLITIFY_APP_ID_SUFFIX = '.qa' }
+$pkg = "com.unizoy.splitify$env:SPLITIFY_APP_ID_SUFFIX"
 & $adb shell locksettings set-pin 1234 | Out-Null
 try {
   $p = Start-Process -FilePath 'flutter.bat' -NoNewWindow -PassThru -RedirectStandardOutput $log `
-    -ArgumentList @('test', 'integration_test/app_lock_test.dart', '-d', 'emulator-5554',
+    -ArgumentList @('test', 'integration_test/app_lock_test.dart', '-d', 'emulator-5554', '--no-uninstall',
       '--dart-define=LOCK_E2E=true')
   $null = $p.Handle
   $done = @{}

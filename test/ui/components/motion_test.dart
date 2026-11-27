@@ -341,9 +341,14 @@ void main() {
       ),
     );
     BackdropFilter filter(WidgetTester t) => t.widget<BackdropFilter>(find.byType(BackdropFilter));
-    // The snapshot and the blur are two engine round trips (real time, not the test clock).
-    Future<void> engine(WidgetTester t) async {
-      for (var i = 0; i < 6 && filter(t).enabled; i++) {
+    // The snapshot and the blur are two engine round trips (real time, not the test clock). [off]: the
+    // snapshot is expected, so wait on the real clock until it lands (up to 10 s: under full-suite load the
+    // round trips took longer than the 600 ms that is enough on a quiet PC, final QA S-408).
+    Future<void> engine(WidgetTester t, {bool off = false}) async {
+      final end = DateTime.now().add(
+        off ? const Duration(seconds: 10) : const Duration(milliseconds: 600),
+      );
+      while (filter(t).enabled && DateTime.now().isBefore(end)) {
         await t.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 100)));
         await t.pump();
       }
@@ -364,7 +369,7 @@ void main() {
       await engine(t);
       expect(filter(t).enabled, isTrue);
       await t.pump(GlassBackdropHost.settle);
-      await engine(t);
+      await engine(t, off: true);
       expect(filter(t).enabled, isFalse);
       expect(find.text('glass'), findsOneWidget);
       // A new size retakes the snapshot once it settles.
@@ -375,6 +380,7 @@ void main() {
         await t.pump(GlassBackdropHost.settle);
         await engine(t);
       }
+      await engine(t, off: true);
       expect(filter(t).enabled, isFalse);
     });
 
@@ -417,6 +423,7 @@ void main() {
         await t.pump(GlassBackdropHost.settle);
         await engine(t);
       }
+      await engine(t, off: true);
       expect(filter(t).enabled, isFalse);
     });
 
@@ -427,7 +434,7 @@ void main() {
       await engine(t);
       expect(filter(t).enabled, isTrue);
       await t.pump(GlassBackdropHost.settle * GlassBackdropHost.maxWaits);
-      await engine(t);
+      await engine(t, off: true);
       expect(filter(t).enabled, isFalse);
     });
   });

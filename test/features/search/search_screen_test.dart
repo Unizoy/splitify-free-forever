@@ -16,7 +16,7 @@ import 'package:splitify/features/search/presentation/search_screen.dart';
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/theme/theme.dart';
 
-import '../../data/sync/sync_fakes.dart' show FakeRemoteApi;
+import '../../data/sync/sync_fakes.dart' show FakeRemoteApi, quietSyncEngine;
 import '../../support/fakes.dart' show FakeClock, testDb;
 import '../expenses/presentation/presentation_harness.dart' show settle, stubRoute, usePhone;
 
@@ -79,6 +79,8 @@ Future<_Env> _seed(WidgetTester t) async {
       sharedPreferencesProvider.overrideWithValue(prefs),
       appDatabaseProvider.overrideWithValue(db),
       remoteApiProvider.overrideWithValue(FakeRemoteApi()),
+      // Final QA (S-408): no debounced sync may still read the database when the test closes it.
+      quietSyncEngine(),
       clockProvider.overrideWithValue(FakeClock(DateTime(2026, 11, 21, 10))),
       editor.currentUserIdProvider.overrideWithValue('u1'),
       groups.currentUserIdProvider.overrideWithValue('u1'),

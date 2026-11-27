@@ -36,7 +36,8 @@ val releaseKey = Properties().apply { releaseKeyFile?.inputStream()?.use { load(
 // libraries but not the plugins' (ML Kit text recognition + barcode ship armeabi-v7a, arm64-v8a, x86 and
 // x86_64), so the universal phone APK (android-arm,android-arm64) also held ~7 MB of x86_64 libraries.
 // `--split-per-abi` builds keep AGP's ABI splits instead (abiFilters and splits must not be combined), so
-// the x86_64 split for the emulator stays.
+// the x86_64 split for the emulator stays. The Flutter Gradle plugin sets abiFilters to all its platforms when
+// it is applied (`plugins {}`, before this block), so they are replaced here, not added to.
 val flutterAbis = mapOf(
     "android-arm" to "armeabi-v7a",
     "android-arm64" to "arm64-v8a",
@@ -71,7 +72,10 @@ android {
         versionCode = flutter.versionCode
         versionName = flutter.versionName
         if (!splitPerAbi && targetAbis != null) {
-            ndk { abiFilters += targetAbis }
+            ndk {
+                abiFilters.clear()
+                abiFilters.addAll(targetAbis)
+            }
         }
     }
 

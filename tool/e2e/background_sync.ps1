@@ -9,7 +9,10 @@ $repo = (Resolve-Path "$PSScriptRoot\..\..").Path
 Set-Location $repo
 . "$repo\tool\env.ps1"
 $adb = "$env:LOCALAPPDATA\Android\Sdk\platform-tools\adb.exe"
-$app = 'com.unizoy.splitify'
+# Side by side (final QA, S-409): the test copy is com.unizoy.splitify.qa (SPLITIFY_APP_ID_SUFFIX, S-310) and the
+# flutter tool must not uninstall at the end (it would remove the BASE id, the owner's store build).
+if (-not $env:SPLITIFY_APP_ID_SUFFIX) { $env:SPLITIFY_APP_ID_SUFFIX = '.qa' }
+$app = "com.unizoy.splitify$env:SPLITIFY_APP_ID_SUFFIX"
 $artifacts = 'C:\Users\mohit\OneDrive\Desktop\theCode\splitify-artifacts'
 $out = Join-Path $artifacts "phase-$Phase"
 $lock = Join-Path $artifacts 'emulator.lock'
@@ -50,7 +53,7 @@ try {
   $ip = (Resolve-DnsName $supabaseHost -Type A | Where-Object IPAddress | Select-Object -First 1).IPAddress
   $log = Join-Path $out 'background-sync.log'
   Remove-Item $log -ErrorAction SilentlyContinue
-  $argv = @('test', 'integration_test/background_sync_test.dart', '-d', 'emulator-5554',
+  $argv = @('test', 'integration_test/background_sync_test.dart', '-d', 'emulator-5554', '--no-uninstall',
     '--dart-define-from-file=secrets/env.dev.json', "--dart-define=PIN_HOST_IP=$ip", '--dart-define=E2E_WORKER=true')
   $p = Start-Process -FilePath 'flutter.bat' -NoNewWindow -PassThru -RedirectStandardOutput $log -ArgumentList $argv
   $null = $p.Handle

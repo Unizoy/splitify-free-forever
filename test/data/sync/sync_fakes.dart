@@ -1,9 +1,14 @@
 import 'dart:async';
 
 import 'package:drift/native.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:splitify/core/time/clock.dart';
+import 'package:splitify/data/data_providers.dart'
+    show appDatabaseProvider, clockProvider, syncEngineProvider;
 import 'package:splitify/data/local/app_database.dart';
 import 'package:splitify/data/remote/remote_api.dart';
+import 'package:splitify/data/remote/remote_providers.dart' show remoteApiProvider;
+import 'package:splitify/data/sync/sync_engine.dart';
 
 AppDatabase memoryDb() => AppDatabase(NativeDatabase.memory());
 
@@ -69,6 +74,20 @@ class ManualTimers {
     return _NoopTimer();
   }
 }
+
+/// The real sync engine with write nudges that never fire (final QA, S-408). Widget tests that need no sync
+/// use it: a seeding write's real 1 s debounce could otherwise start a sync that still reads the database
+/// when the test closes it ("Can't re-open a database", flaky under load) or flips rows to synced mid-test.
+Override quietSyncEngine() => syncEngineProvider.overrideWith((ref) {
+  final e = SyncEngine(
+    db: ref.watch(appDatabaseProvider),
+    remote: ref.watch(remoteApiProvider),
+    clock: ref.watch(clockProvider),
+    timer: ManualTimers().call,
+  );
+  ref.onDispose(e.dispose);
+  return e;
+});
 
 class _NoopTimer implements Timer {
   @override
