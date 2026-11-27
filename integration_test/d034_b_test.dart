@@ -38,6 +38,7 @@ import 'package:splitify/data/remote/supabase_client.dart';
 import 'package:splitify/data/remote/supabase_remote_api.dart';
 import 'package:splitify/features/auth/application/auth_providers.dart';
 import 'package:splitify/features/friend_code/presentation/friend_code_screen.dart';
+import 'package:splitify/features/friends/presentation/friend_page.dart';
 import 'package:splitify/features/friends/presentation/friend_routes.dart';
 import 'package:splitify/features/payments/application/payment_providers.dart';
 import 'package:splitify/features/payments/presentation/payment_routes.dart';
@@ -104,17 +105,16 @@ Future<void> _tap(WidgetTester t, Finder f) async {
 
 Finder _key(String k) => find.byKey(Key(k));
 
+/// The top-most copy (a page under the current one can stay in the tree after `go`).
+Finder _top(String k) => find.byKey(Key(k)).last;
+
 /// Holds the screen for the host screenshot (light, then `-dark` with the emulator in dark mode).
 Future<void> _capture(WidgetTester t, String name) async {
   await _pumpFor(t, const Duration(milliseconds: 800));
   if (_hold == 0) return;
   for (final n in [name, '$name-dark']) {
     debugPrint('UI-CAPTURE $n');
-    final end = DateTime.now().add(const Duration(seconds: _hold));
-    while (DateTime.now().isBefore(end)) {
-      await Future<void>.delayed(const Duration(milliseconds: 200));
-      await t.pump();
-    }
+    await _pumpFor(t, const Duration(seconds: _hold));
   }
 }
 
@@ -199,6 +199,12 @@ void main() {
       );
       await sync();
       await _waitFor(t, _key('friends-add'));
+      // The host brings the window to the front once (on this emulator a freshly installed test app's surface can
+      // stay hidden, so screenshots come out black: HOME + `am start` shows it).
+      if (_hold > 0) {
+        debugPrint('UI-READY');
+        await _pumpFor(t, const Duration(seconds: 6));
+      }
 
       // ---- 1. Friend code: the Add friend sheet, my code, then F's code through the deep link.
       await _tap(t, _key('friends-add'));
@@ -224,12 +230,9 @@ void main() {
       expect(find.text('${codeF.substring(0, 4)}-${codeF.substring(4)}'), findsOneWidget);
       await _capture(t, 'add-by-code');
       await _tap(t, _key('friend-code-add'));
-      await _waitFor(t, _key('friend-settle'), seconds: 40);
+      await _waitFor(t, _top('friend-settle'), seconds: 40);
       final friendKey = 'u:${f.id}';
-      expect(
-        router.routerDelegate.currentConfiguration.uri.toString(),
-        FriendRoutes.page(friendKey),
-      );
+      expect(t.widget<FriendPage>(find.byType(FriendPage).last).friendKey, friendKey);
       // One direct group with both accounts linked; F sees it too.
       final directs = (await t.runAsync(
         () => f.client
@@ -292,7 +295,7 @@ void main() {
         'data': {
           'kind': 'expense',
           'description': description,
-          'category': 'food.dining',
+          'category': 'other.general',
           'date': '2026-11-27',
           'currency': 'INR',
           'total': total,
@@ -319,8 +322,8 @@ void main() {
       // Offline from here: the batch is written on the phone only.
       remote.offline = true;
       router.go(FriendRoutes.page(friendKey));
-      await _waitFor(t, _key('friend-status-owed'));
-      await _tap(t, _key('friend-settle'));
+      await _waitFor(t, _top('friend-status-owed'));
+      await _tap(t, _top('friend-settle'));
       await _waitFor(t, _key('settle-all-INR'));
       expect(find.text('owes you ₹455 · 2 groups'), findsOneWidget);
       await _capture(t, 'settle-sheet');
@@ -377,7 +380,7 @@ void main() {
 
       // The friend page: everything settled → the history collapses.
       router.go(FriendRoutes.page(friendKey));
-      await _waitFor(t, _key('friend-show-settled'));
+      await _waitFor(t, _top('friend-show-settled'));
       await _capture(t, 'friend-settled');
 
       // ---- 3. Restore from the payment page.
@@ -412,8 +415,8 @@ void main() {
       ]);
       await sync();
       router.go(FriendRoutes.page(friendKey));
-      await _waitFor(t, _key('friend-status-owe'));
-      await _tap(t, _key('friend-settle'));
+      await _waitFor(t, _top('friend-status-owe'));
+      await _tap(t, _top('friend-settle'));
       await _waitFor(t, _key('settle-all-INR'));
       await _tap(t, _key('settle-all-INR'));
       await _waitFor(t, _key('settle-upi'));
@@ -460,8 +463,8 @@ void main() {
 
       // ---- 5. Share a reminder for Ravi (name-only, owes A ₹7): the in-app sheet with the text.
       router.go(FriendRoutes.page('m:$ravi'));
-      await _waitFor(t, _key('friend-remind'));
-      await _tap(t, _key('friend-remind'));
+      await _waitFor(t, _top('friend-remind'));
+      await _tap(t, _top('friend-remind'));
       await _waitFor(t, _key('remind-share-sheet'));
       expect(
         find.textContaining('Hi Ravi, a reminder about ₹7 for “E2E Settle all $stamp”'),

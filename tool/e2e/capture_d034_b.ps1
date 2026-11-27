@@ -38,6 +38,11 @@ if (-not $NoUpi) {
 function Save-Shot([string]$name) {
   & $adb -s $Device shell screencap -p /sdcard/d034b.png
   & $adb -s $Device pull /sdcard/d034b.png (Join-Path $Out "d034-b-$name.png") 2>$null | Out-Null
+  # A black capture is usually a secure or not-yet-drawn window: keep the window state next to it.
+  if ((Get-Item (Join-Path $Out "d034-b-$name.png")).Length -lt 40000) {
+    & $adb -s $Device shell dumpsys window windows | Select-String -Pattern 'splitify.qa|fl=|mDrawState' |
+      Select-Object -First 12 | Out-File -Append (Join-Path $Out 'd034-b-black.txt')
+  }
 }
 
 $flutterArgs = @('test', 'integration_test/d034_b_test.dart', '-d', $Device, '--no-uninstall',
@@ -49,6 +54,14 @@ while (-not $p.HasExited) {
   Start-Sleep -Milliseconds 500
   $text = Get-Content $log -Raw -ErrorAction SilentlyContinue
   if (-not $text) { continue }
+  if ($text -match 'UI-READY' -and -not $done.ContainsKey('ready')) {
+    $done['ready'] = $true
+    # A freshly installed test app's surface can stay hidden here (black screenshots): HOME + start shows it.
+    & $adb -s $Device shell input keyevent KEYCODE_HOME
+    Start-Sleep -Milliseconds 800
+    & $adb -s $Device shell am start -n com.unizoy.splitify.qa/com.unizoy.splitify.MainActivity | Out-Null
+    Write-Output 'window brought to the front'
+  }
   foreach ($m in [regex]::Matches($text, 'UI-DEEPLINK (\S+)')) {
     $uri = $m.Groups[1].Value
     if ($done.ContainsKey("link $uri")) { continue }
