@@ -290,22 +290,25 @@ void main() {
     expect(h.router.state.uri.path, Routes.welcome);
   });
 
-  testWidgets('settings sheet: profile rows, sign out confirm wipes and redirects', (tester) async {
-    final h = await _pump(tester, Routes.account, user: const AuthUser(id: 'u1'), gate: true);
-    await _settle(tester);
-    expect(find.text('Asha Rao'), findsOneWidget);
-    await tester.tap(find.byTooltip('Account settings'));
-    await _settle(tester);
-    expect(find.text('asha.rao@okaxis'), findsOneWidget);
-    await tester.ensureVisible(find.byKey(const Key('settings-sign-out')));
-    await tester.tap(find.byKey(const Key('settings-sign-out')));
-    await _settle(tester);
-    expect(find.text('Sign out?'), findsOneWidget);
-    await tester.tap(find.byKey(const Key('sign-out-confirm')));
-    await _settle(tester);
-    expect(h.auth.calls, contains('signOut'));
-    expect(h.router.state.uri.path, Routes.welcome);
-  });
+  testWidgets(
+    'settings list on Account (D-033): profile row, sign out confirm wipes and redirects',
+    (tester) async {
+      final h = await _pump(tester, Routes.account, user: const AuthUser(id: 'u1'), gate: true);
+      await _settle(tester);
+      expect(find.text('Asha Rao'), findsWidgets);
+      expect(find.byTooltip('Account settings'), findsNothing);
+      await tester.ensureVisible(find.byKey(const Key('settings-profile')));
+      expect(find.textContaining('asha.rao@okaxis'), findsOneWidget);
+      await tester.ensureVisible(find.byKey(const Key('settings-sign-out')));
+      await tester.tap(find.byKey(const Key('settings-sign-out')));
+      await _settle(tester);
+      expect(find.text('Sign out?'), findsOneWidget);
+      await tester.tap(find.byKey(const Key('sign-out-confirm')));
+      await _settle(tester);
+      expect(h.auth.calls, contains('signOut'));
+      expect(h.router.state.uri.path, Routes.welcome);
+    },
+  );
 
   group('authRedirect (T3)', () {
     Uri u(String s) => Uri.parse(s);

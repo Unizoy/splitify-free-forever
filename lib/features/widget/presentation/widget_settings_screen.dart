@@ -8,10 +8,21 @@ import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/components/components.dart';
 import 'package:splitify/ui/theme/theme.dart';
 
-/// Home-screen widget (`/account/widget`, X3): how to add it, a live preview of what it shows,
-/// and "Hide amounts".
-class WidgetSettingsScreen extends ConsumerWidget {
-  const WidgetSettingsScreen({super.key});
+/// Home-screen widget (X3) as a sheet from the Account list (D-033: one switch, no page of its own): how to
+/// add it, a live preview of what it shows, and "Hide amounts".
+Future<void> showWidgetSheet(BuildContext context) {
+  final container = ProviderScope.containerOf(context);
+  return showAppSheet<void>(
+    context,
+    title: AppLocalizations.of(context).widgetTitle,
+    builder: (sheet) =>
+        UncontrolledProviderScope(container: container, child: const WidgetSettingsBody()),
+  );
+}
+
+/// The sheet's content.
+class WidgetSettingsBody extends ConsumerWidget {
+  const WidgetSettingsBody({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -19,45 +30,22 @@ class WidgetSettingsScreen extends ConsumerWidget {
     final c = context.colors;
     final hide = ref.watch(widgetHideAmountsProvider);
     final data = ref.watch(homeWidgetDataProvider);
-    return Scaffold(
-      appBar: AppBar(
-        leading: AppIconButton(
-          tooltip: l.back,
-          icon: const Icon(AppIcons.back),
-          onPressed: () => Navigator.of(context).maybePop(),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(l.widgetHowTo, style: context.text.body.copyWith(color: c.textSecondary)),
+        const SizedBox(height: AppSpacing.s5),
+        if (data != null) ...[WidgetPreview(data: data), const SizedBox(height: AppSpacing.s5)],
+        ToggleRow(
+          key: const Key('widget-hide-amounts'),
+          icon: AppIcons.eyeSlash,
+          title: l.widgetHideAmounts,
+          subtitle: l.widgetHideAmountsSub,
+          value: hide,
+          showDivider: false,
+          onChanged: (v) => unawaited(ref.read(widgetHideAmountsProvider.notifier).set(hide: v)),
         ),
-      ),
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(
-          AppSpacing.screen,
-          AppSpacing.s2,
-          AppSpacing.screen,
-          AppSpacing.s8,
-        ),
-        children: [
-          Semantics(
-            header: true,
-            child: MediaQuery.withClampedTextScaling(
-              maxScaleFactor: AppText.maxSerifScale,
-              child: Text(l.widgetTitle, style: context.text.sheetTitle),
-            ),
-          ),
-          const SizedBox(height: AppSpacing.s2),
-          Text(l.widgetHowTo, style: context.text.body.copyWith(color: c.textSecondary)),
-          const SizedBox(height: AppSpacing.s6),
-          if (data != null) WidgetPreview(data: data),
-          const SizedBox(height: AppSpacing.s6),
-          ToggleRow(
-            key: const Key('widget-hide-amounts'),
-            icon: AppIcons.eyeSlash,
-            title: l.widgetHideAmounts,
-            subtitle: l.widgetHideAmountsSub,
-            value: hide,
-            showDivider: false,
-            onChanged: (v) => unawaited(ref.read(widgetHideAmountsProvider.notifier).set(hide: v)),
-          ),
-        ],
-      ),
+      ],
     );
   }
 }

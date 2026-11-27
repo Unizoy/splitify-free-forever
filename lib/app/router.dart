@@ -9,7 +9,6 @@ import 'package:splitify/app/not_found_screen.dart';
 import 'package:splitify/app/shell/app_shell.dart';
 import 'package:splitify/features/account/presentation/about_screen.dart';
 import 'package:splitify/features/account/presentation/account_screen.dart';
-import 'package:splitify/features/account/presentation/appearance_screen.dart';
 import 'package:splitify/features/account/presentation/delete_account_screen.dart';
 import 'package:splitify/features/account/presentation/profile_edit_screen.dart';
 import 'package:splitify/features/auth/application/auth_providers.dart';
@@ -253,11 +252,8 @@ GoRouter buildRouter({
               path: Routes.account,
               builder: (context, state) => const AccountScreen(),
               routes: [
-                AppRoute(
-                  path: 'appearance',
-                  parentNavigatorKey: _rootKey,
-                  builder: (context, state) => const AppearanceScreen(),
-                ),
+                // A sheet on the Account list since D-033; the old page link lands on Account.
+                AppRoute(path: 'appearance', redirect: (context, state) => Routes.account),
                 AppRoute(
                   path: 'profile',
                   parentNavigatorKey: _rootKey,

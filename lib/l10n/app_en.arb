@@ -596,6 +596,8 @@
   "you": "You",
   "yourAccount": "Your account",
   "accountSettings": "Account settings",
+  "settingsNoUpi": "No UPI ID yet",
+  "settingsEdit": "Edit",
   "walletBrand": "SPLITIFY",
   "overallBalance": "Overall balance",
   "acrossGroups": "{count, plural, =0{No groups yet} =1{Across 1 group} other{Across {count} groups}}",

@@ -43,21 +43,6 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen> {
     _ => 0,
   };
 
-  /// The page scrolled the sheet under the status bar: the rows below the sheet header are not inside the
-  /// [OverlapColumn], so its own scrim is gone once it scrolls away (S-255) — this one stays.
-  final _heroKey = GlobalKey();
-  bool _underBar = false;
-
-  bool _onScroll(ScrollUpdateNotification n) {
-    if (n.depth != 0) return false;
-    final hero = _heroKey.currentContext?.size?.height;
-    if (hero == null) return false;
-    final under =
-        n.metrics.pixels >= hero - AppSpacing.sheetOverlap - MediaQuery.paddingOf(context).top;
-    if (under != _underBar) setState(() => _underBar = under);
-    return false;
-  }
-
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
@@ -98,10 +83,7 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen> {
         slivers: [
           SliverToBoxAdapter(
             child: OverlapColumn(
-              top: KeyedSubtree(
-                key: _heroKey,
-                child: _Hero(group: group, members: members, me: me, balances: balances),
-              ),
+              top: _Hero(group: group, members: members, me: me, balances: balances),
               bottom: OverlapSheet(
                 padding: const EdgeInsets.fromLTRB(
                   AppSpacing.screen,
@@ -165,23 +147,8 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen> {
       ),
     );
     return Scaffold(
-      body: Stack(
-        children: [
-          NotificationListener<ScrollUpdateNotification>(
-            onNotification: _onScroll,
-            child: scrolled,
-          ),
-          if (_underBar)
-            Positioned(
-              key: const Key('group-status-scrim'),
-              top: 0,
-              left: 0,
-              right: 0,
-              height: MediaQuery.paddingOf(context).top,
-              child: ColoredBox(color: context.colors.bg),
-            ),
-        ],
-      ),
+      // The rows are slivers after the hero: the scrim stays under the status bar however far it scrolls.
+      body: HeroScrim(child: scrolled),
       bottomNavigationBar: archived ? null : _ActionBar(groupId: widget.groupId),
     );
   }

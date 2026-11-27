@@ -75,6 +75,7 @@ Future<GroupHarness> pumpGroups(
   List<Override> overrides = const [],
   DateTime? now,
   double textScale = 1.0,
+  EdgeInsets padding = EdgeInsets.zero,
 }) async {
   driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
   SharedPreferences.setMockInitialValues({});
@@ -114,6 +115,8 @@ Future<GroupHarness> pumpGroups(
         data: MediaQueryData(
           size: const Size(412, 915),
           devicePixelRatio: 3,
+          padding: padding,
+          viewPadding: padding,
           textScaler: TextScaler.linear(textScale),
         ),
         child: MaterialApp.router(
@@ -177,6 +180,7 @@ List<Override> fixedGroupData({
   Map<String, List<ExpenseView>> expenses = const {},
   Map<String, GroupBalances> balances = const {},
   MyBalances my = noBalances,
+  List<ActivityItem> activity = const [],
   AccountStats stats = const AccountStats(
     currency: 'INR',
     spentThisMonth: 0,
@@ -213,7 +217,7 @@ List<Override> fixedGroupData({
     ),
     activityItemsProvider(g.id).overrideWithValue(const AsyncData([])),
   ],
-  ...emptyBalanceOverrides(my: my, all: balances.values.toList(), stats: stats),
+  ...emptyBalanceOverrides(my: my, all: balances.values.toList(), stats: stats, activity: activity),
   // Phase 08 Expenses tab: fixed rows per group (empty unless given).
   for (final g in groups)
     groupExpenseViewsProvider(g.id).overrideWithValue(AsyncData(expenses[g.id] ?? const [])),

@@ -1665,6 +1665,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get accountSettings => 'Account settings';
 
   @override
+  String get settingsNoUpi => 'No UPI ID yet';
+
+  @override
+  String get settingsEdit => 'Edit';
+
+  @override
   String get walletBrand => 'SPLITIFY';
 
   @override

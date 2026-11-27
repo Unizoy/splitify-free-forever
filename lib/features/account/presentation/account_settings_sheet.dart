@@ -7,6 +7,7 @@ import 'package:splitify/core/config/app_info.dart';
 import 'package:splitify/data/data_providers.dart';
 import 'package:splitify/data/remote/push_messaging.dart' show PushPermission;
 import 'package:splitify/features/account/application/theme_mode_controller.dart';
+import 'package:splitify/features/account/presentation/appearance_screen.dart';
 import 'package:splitify/features/app_lock/application/app_lock_controller.dart';
 import 'package:splitify/features/app_lock/presentation/security_routes.dart';
 import 'package:splitify/features/auth/application/auth_providers.dart';
@@ -14,16 +15,10 @@ import 'package:splitify/features/import_splitwise/presentation/import_routes.da
 import 'package:splitify/features/notifications/application/notifications_providers.dart';
 import 'package:splitify/features/sync/application/sync_texts.dart';
 import 'package:splitify/features/widget/application/home_widget_sync.dart';
+import 'package:splitify/features/widget/presentation/widget_settings_screen.dart';
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/components/components.dart';
 import 'package:splitify/ui/theme/theme.dart';
-
-/// Opens the "Account settings" sheet (614/623).
-Future<void> showAccountSettings(BuildContext context) => showAppSheet<void>(
-  context,
-  title: AppLocalizations.of(context).accountSettings,
-  builder: (context) => const AccountSettingsBody(),
-);
 
 /// Label for a theme mode in the current language.
 String themeModeLabel(AppLocalizations l, ThemeMode mode) => switch (mode) {
@@ -61,11 +56,12 @@ Future<void> confirmSignOut(BuildContext context, WidgetRef ref) async {
   if (yes ?? false) await ref.read(accountActionsProvider).signOut();
 }
 
-/// Settings sheet content (07 §2): Profile and Preferences accordions, then
-/// Sync & storage, Deleted groups, About & licences, Sign out, Delete account and the version.
-/// Security (app lock, widget) and Import from Splitwise came with phase 18.
-class AccountSettingsBody extends ConsumerWidget {
-  const AccountSettingsBody({super.key});
+/// The settings list right on the Account tab (D-033, Splitwise-like: no gear, no nested accordions): the
+/// profile row (→ account settings), Notifications, Security, Appearance (sheet), Sync & storage,
+/// Home-screen widget (sheet), Import, Deleted groups, About; then Sign out, Delete account and the
+/// version. Each row says its current state; pages open only where there is more than one setting.
+class AccountSettingsList extends ConsumerWidget {
+  const AccountSettingsList({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -75,151 +71,185 @@ class AccountSettingsBody extends ConsumerWidget {
     final profile = ref.watch(profileProvider).value;
     final sync = ref.watch(syncStatusProvider).value;
     final uploads = ref.watch(syncUploadsProvider).value ?? const [];
-    void openProfile() {
-      Navigator.of(context).pop();
-      unawaited(context.push('/account/profile'));
-    }
+    final pushOn =
+        ref.watch(pushMessagingProvider).available &&
+        ref.watch(pushStateProvider).value?.permission == PushPermission.granted;
+    void open(String route) => unawaited(context.push(route));
 
     return Column(
+      key: const Key('account-settings'),
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        AccordionCard(
-          icon: AppIcons.user,
-          iconColor: c.primary,
-          title: l.profileTitle,
-          subtitle: l.profileSubtitle,
-          initiallyExpanded: true,
-          rows: [
-            AccordionRow(
-              label: l.nameLabel,
-              value: profile?.displayName ?? l.notSet,
-              onTap: openProfile,
+        SettingsSection(
+          title: l.settings,
+          children: [
+            _ProfileRow(
+              name: profile?.displayName ?? l.yourAccount,
+              seed: profile?.id ?? 'me',
+              caption: [
+                if ((profile?.upiId ?? '').isNotEmpty) profile!.upiId! else l.settingsNoUpi,
+                profile?.defaultCurrency ?? 'INR',
+              ].join(' · '),
+              onTap: () => open('/account/profile'),
             ),
-            AccordionRow(label: l.upiLabel, value: profile?.upiId ?? l.notSet, onTap: openProfile),
-            AccordionRow(
-              label: l.defaultCurrency,
-              value: profile?.defaultCurrency ?? 'INR',
-              onTap: openProfile,
-            ),
-          ],
-        ),
-        const SizedBox(height: AppSpacing.s3),
-        AccordionCard(
-          icon: AppIcons.palette,
-          iconColor: c.primary,
-          title: l.preferences,
-          subtitle: l.preferencesSubtitle,
-          rows: [
-            AccordionRow(
-              label: l.appearance,
-              value: themeModeLabel(l, mode),
-              onTap: () {
-                Navigator.of(context).pop();
-                context.push('/account/appearance');
-              },
-            ),
-            AccordionRow(
+            DashedListRow(
+              key: const Key('settings-notifications'),
+              icon: AppIcons.bell,
               label: l.notifications,
               // "On" only when Android lets pushes through (final QA: it said On while not allowed).
-              value:
-                  ref.watch(pushMessagingProvider).available &&
-                      ref.watch(pushStateProvider).value?.permission == PushPermission.granted
-                  ? l.notifRowOn
-                  : l.notifRowBellOnly,
-              onTap: () {
-                Navigator.of(context).pop();
-                unawaited(context.push('/account/notifications'));
-              },
+              value: pushOn ? l.notifRowOn : l.notifRowBellOnly,
+              onTap: () => open('/account/notifications'),
             ),
-          ],
-        ),
-        const SizedBox(height: AppSpacing.s3),
-        // X2 app lock, X3 home-screen widget (phase 18).
-        AccordionCard(
-          key: const Key('settings-security'),
-          icon: AppIcons.lock,
-          iconColor: c.primary,
-          title: l.lockSecurity,
-          subtitle: l.lockSecuritySubtitle,
-          rows: [
-            AccordionRow(
-              label: l.lockAppLock,
+            DashedListRow(
+              key: const Key('settings-security'),
+              icon: AppIcons.lock,
+              label: l.lockSecurity,
               value: ref.watch(appLockProvider).enabled ? l.lockOn : l.lockOff,
-              onTap: () {
-                Navigator.of(context).pop();
-                unawaited(context.push(SecurityRoutes.security));
-              },
+              onTap: () => open(SecurityRoutes.security),
             ),
-            AccordionRow(
+            DashedListRow(
+              key: const Key('settings-appearance'),
+              icon: AppIcons.palette,
+              label: l.appearance,
+              value: themeModeLabel(l, mode),
+              onTap: () => unawaited(showAppearanceSheet(context)),
+            ),
+            DashedListRow(
+              key: const Key('settings-sync'),
+              icon: AppIcons.sync,
+              label: l.syncStorage,
+              value: syncRowValue(l, sync, uploads: uploads),
+              valueColor: sync == null || (sync.allSynced && uploads.every((u) => !u.skipped))
+                  ? c.textSecondary
+                  : c.unsynced,
+              onTap: () => open('/account/sync'),
+            ),
+            DashedListRow(
+              key: const Key('settings-widget'),
+              icon: AppIcons.device,
               label: l.widgetRow,
               value: ref.watch(widgetHideAmountsProvider) ? l.widgetHidden : null,
-              onTap: () {
-                Navigator.of(context).pop();
-                unawaited(context.push(SecurityRoutes.widget));
-              },
+              onTap: () => unawaited(showWidgetSheet(context)),
+            ),
+            DashedListRow(
+              key: const Key('settings-import'),
+              icon: AppIcons.fileImport,
+              label: l.impTitle,
+              onTap: () => open(ImportRoutes.fromAccount),
+            ),
+            DashedListRow(
+              key: const Key('settings-deleted-groups'),
+              icon: AppIcons.restore,
+              label: l.deletedGroups,
+              onTap: () => open('/account/deleted-groups'),
+            ),
+            DashedListRow(
+              key: const Key('settings-about'),
+              icon: AppIcons.licence,
+              label: l.aboutLicences,
+              showDivider: false,
+              onTap: () => open('/account/about'),
             ),
           ],
         ),
         const SizedBox(height: AppSpacing.s4),
-        DashedListRow(
-          key: const Key('settings-sync'),
-          icon: AppIcons.sync,
-          label: l.syncStorage,
-          value: syncRowValue(l, sync, uploads: uploads),
-          valueColor: sync == null || (sync.allSynced && uploads.every((u) => !u.skipped))
-              ? c.textSecondary
-              : c.unsynced,
-          onTap: () {
-            Navigator.of(context).pop();
-            unawaited(context.push('/account/sync'));
-          },
+        SettingsSection(
+          children: [
+            DashedListRow(
+              key: const Key('settings-sign-out'),
+              icon: AppIcons.signOut,
+              label: l.signOut,
+              onTap: () => unawaited(confirmSignOut(context, ref)),
+            ),
+            DashedListRow(
+              key: const Key('settings-delete-account'),
+              icon: AppIcons.trash,
+              label: l.deleteAccount,
+              destructive: true,
+              showDivider: false,
+              onTap: () => open('/account/delete'),
+            ),
+          ],
         ),
-        DashedListRow(
-          key: const Key('settings-deleted-groups'),
-          icon: AppIcons.restore,
-          label: l.deletedGroups,
-          onTap: () {
-            Navigator.of(context).pop();
-            unawaited(context.push('/account/deleted-groups'));
-          },
+        const SizedBox(height: AppSpacing.s5),
+        Text(
+          l.version(appVersion),
+          textAlign: TextAlign.center,
+          style: context.text.bodySmall.copyWith(color: c.textSecondary),
         ),
-        DashedListRow(
-          key: const Key('settings-import'),
-          icon: AppIcons.fileImport,
-          label: l.impTitle,
-          onTap: () {
-            Navigator.of(context).pop();
-            unawaited(context.push(ImportRoutes.fromAccount));
-          },
-        ),
-        DashedListRow(
-          key: const Key('settings-about'),
-          icon: AppIcons.licence,
-          label: l.aboutLicences,
-          onTap: () {
-            Navigator.of(context).pop();
-            unawaited(context.push('/account/about'));
-          },
-        ),
-        DashedListRow(
-          key: const Key('settings-sign-out'),
-          icon: AppIcons.signOut,
-          label: l.signOut,
-          onTap: () => unawaited(confirmSignOut(context, ref)),
-        ),
-        DashedListRow(
-          key: const Key('settings-delete-account'),
-          icon: AppIcons.trash,
-          label: l.deleteAccount,
-          destructive: true,
-          showDivider: false,
-          onTap: () {
-            Navigator.of(context).pop();
-            unawaited(context.push('/account/delete'));
-          },
-        ),
-        const SizedBox(height: AppSpacing.s6),
-        Text(l.version(appVersion), style: context.text.bodySmall.copyWith(color: c.textSecondary)),
       ],
+    );
+  }
+}
+
+/// "Mohit Bindal · mohit@okaxis · INR" → profile and account settings (name, photo, UPI ID, currency).
+class _ProfileRow extends StatelessWidget {
+  const _ProfileRow({
+    required this.name,
+    required this.seed,
+    required this.caption,
+    required this.onTap,
+  });
+
+  final String name;
+  final String seed;
+  final String caption;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final c = context.colors;
+    return Semantics(
+      key: const Key('settings-profile'),
+      button: true,
+      label: '$name, $caption',
+      hint: l.accountSettings,
+      excludeSemantics: true,
+      onTap: onTap,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Pressable(
+            onTap: onTap,
+            borderRadius: AppRadii.all16,
+            scale: AppMotion.rowPressScale,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: 72),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: AppSpacing.s3),
+                child: Row(
+                  children: [
+                    Avatar(name: name, seed: seed),
+                    const SizedBox(width: AppSpacing.s3),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(name, style: context.text.body.w(700)),
+                          const SizedBox(height: 2),
+                          Text(
+                            caption,
+                            style: context.text.bodySmall.copyWith(color: c.textSecondary),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: AppSpacing.s2),
+                    Text(
+                      l.settingsEdit,
+                      style: context.text.bodySmall.w(600).copyWith(color: c.primary),
+                    ),
+                    Icon(AppIcons.chevronRight, size: 18, color: c.textTertiary),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          const DashedDivider(),
+        ],
+      ),
     );
   }
 }

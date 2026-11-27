@@ -280,6 +280,7 @@ const noBalances = MyBalances(totals: {}, byGroup: {}, people: []);
 List<Override> emptyBalanceOverrides({
   MyBalances my = noBalances,
   List<GroupBalances> all = const [],
+  List<ActivityItem> activity = const [],
   AccountStats stats = const AccountStats(
     currency: 'INR',
     spentThisMonth: 0,
@@ -291,7 +292,7 @@ List<Override> emptyBalanceOverrides({
   myBalancesProvider.overrideWithValue(AsyncData(my)),
   allGroupBalancesProvider.overrideWithValue(AsyncData(all)),
   accountStatsProvider.overrideWithValue(AsyncData(stats)),
-  activityItemsProvider(null).overrideWithValue(const AsyncData([])),
+  activityItemsProvider(null).overrideWithValue(AsyncData(activity)),
   // Phase 11: the Friends tab reads every ledger.
   friendsProvider.overrideWithValue(const AsyncData([])),
   fxAutoRefreshProvider.overrideWith((ref) {}),

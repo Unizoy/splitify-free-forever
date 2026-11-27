@@ -199,6 +199,7 @@ class _AddButton extends StatelessWidget {
         excludeSemantics: true,
         onTap: tap,
         child: Pressable(
+          key: const Key('nav-add'),
           onTap: onTap,
           circle: true,
           scale: 0.9,

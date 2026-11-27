@@ -2774,6 +2774,18 @@ abstract class AppLocalizations {
   /// **'Account settings'**
   String get accountSettings;
 
+  /// No description provided for @settingsNoUpi.
+  ///
+  /// In en, this message translates to:
+  /// **'No UPI ID yet'**
+  String get settingsNoUpi;
+
+  /// No description provided for @settingsEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get settingsEdit;
+
   /// No description provided for @walletBrand.
   ///
   /// In en, this message translates to:

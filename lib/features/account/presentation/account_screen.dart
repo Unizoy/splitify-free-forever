@@ -17,9 +17,9 @@ import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/components/components.dart';
 import 'package:splitify/ui/theme/theme.dart';
 
-/// Account tab (`/account`, 542): gear for the settings sheet, big avatar,
-/// "YOU", the wallet showpiece with my overall balance per currency (phase 09, rule 3; tap = by
-/// group) and the stats cards from the phone's database.
+/// Account tab (`/account`, 542): big avatar, "YOU", the wallet showpiece with my overall balance per
+/// currency (phase 09, rule 3; tap = by group), the spending card (→ insights) and, since D-033, the
+/// settings list itself (Splitwise-like) instead of a gear and a sheet of accordions.
 class AccountScreen extends ConsumerWidget {
   const AccountScreen({super.key});
 
@@ -56,14 +56,7 @@ class AccountScreen extends ConsumerWidget {
             ),
             child: Column(
               children: [
-                Align(
-                  alignment: AlignmentDirectional.centerEnd,
-                  child: AppIconButton(
-                    tooltip: l.accountSettings,
-                    onPressed: () => showAccountSettings(context),
-                    icon: Icon(AppIcons.settings, size: 30, color: c.textPrimary),
-                  ),
-                ),
+                const SizedBox(height: AppSpacing.s6),
                 if (profile == null)
                   Container(
                     width: 96,
@@ -156,14 +149,9 @@ class AccountScreen extends ConsumerWidget {
                   ],
                   onTap: () => context.push(InsightsRoutes.me),
                 ),
-                const SizedBox(height: AppSpacing.s5),
-                MetalCard(
-                  title: l.yourStats,
-                  stats: [
-                    (value: '${stats?.expenses ?? 0}', label: l.statExpenses),
-                    (value: '${stats?.groups ?? 0}', label: l.statGroups),
-                  ],
-                ),
+                const SizedBox(height: AppSpacing.s8),
+                // Settings right here, like Splitwise (D-033): no gear, no settings sheet.
+                const AccountSettingsList(),
               ],
             ),
           ),

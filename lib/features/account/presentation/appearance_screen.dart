@@ -5,57 +5,55 @@ import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/components/components.dart';
 import 'package:splitify/ui/theme/theme.dart';
 
-/// Appearance (`/account/appearance`, B3): System / Light / Dark.
-class AppearanceScreen extends ConsumerWidget {
-  const AppearanceScreen({super.key});
+/// Appearance (B3) as a sheet from the Account list (D-033: one choice, no page of its own): System /
+/// Light / Dark. A pick applies at once and closes the sheet.
+Future<void> showAppearanceSheet(BuildContext context) {
+  final container = ProviderScope.containerOf(context);
+  return showAppSheet<void>(
+    context,
+    title: AppLocalizations.of(context).appearance,
+    builder: (sheet) => UncontrolledProviderScope(
+      container: container,
+      child: AppearancePicker(onPicked: () => Navigator.of(sheet).pop()),
+    ),
+  );
+}
+
+/// The sheet's content: a short hint and the three-way pill.
+class AppearancePicker extends ConsumerWidget {
+  const AppearancePicker({this.onPicked, super.key});
+
+  /// After a mode was picked (the sheet closes).
+  final VoidCallback? onPicked;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context);
-    final c = context.colors;
     final mode = ref.watch(themeModeControllerProvider);
-    return Scaffold(
-      appBar: AppBar(
-        leading: AppIconButton(
-          tooltip: l.back,
-          icon: const Icon(AppIcons.back),
-          onPressed: () => Navigator.of(context).maybePop(),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          l.appearanceHint,
+          textAlign: TextAlign.center,
+          style: context.text.body.copyWith(color: context.colors.textSecondary),
         ),
-      ),
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(
-          AppSpacing.screen,
-          AppSpacing.s2,
-          AppSpacing.screen,
-          AppSpacing.s8,
+        const SizedBox(height: AppSpacing.s6),
+        SegmentedPill<ThemeMode>(
+          key: const Key('appearance-mode'),
+          value: mode,
+          onChanged: (m) {
+            ref.read(themeModeControllerProvider.notifier).select(m);
+            onPicked?.call();
+          },
+          items: [
+            SegmentedPillItem(value: ThemeMode.system, label: l.themeSystem, icon: AppIcons.device),
+            SegmentedPillItem(value: ThemeMode.light, label: l.themeLight, icon: AppIcons.sun),
+            SegmentedPillItem(value: ThemeMode.dark, label: l.themeDark, icon: AppIcons.moon),
+          ],
         ),
-        children: [
-          Semantics(
-            header: true,
-            child: MediaQuery.withClampedTextScaling(
-              maxScaleFactor: AppText.maxSerifScale,
-              child: Text(l.appearance, style: context.text.sheetTitle),
-            ),
-          ),
-          const SizedBox(height: AppSpacing.s2),
-          Text(l.appearanceHint, style: context.text.body.copyWith(color: c.textSecondary)),
-          const SizedBox(height: AppSpacing.s8),
-          SegmentedPill<ThemeMode>(
-            key: const Key('appearance-mode'),
-            value: mode,
-            onChanged: (m) => ref.read(themeModeControllerProvider.notifier).select(m),
-            items: [
-              SegmentedPillItem(
-                value: ThemeMode.system,
-                label: l.themeSystem,
-                icon: AppIcons.device,
-              ),
-              SegmentedPillItem(value: ThemeMode.light, label: l.themeLight, icon: AppIcons.sun),
-              SegmentedPillItem(value: ThemeMode.dark, label: l.themeDark, icon: AppIcons.moon),
-            ],
-          ),
-        ],
-      ),
+        const SizedBox(height: AppSpacing.s2),
+      ],
     );
   }
 }
