@@ -10,8 +10,7 @@ import 'package:splitify/data/local/app_database.dart';
 import 'package:splitify/data/repositories/search_repository.dart';
 import 'package:splitify/domain/rules/expense_categories.dart';
 import 'package:splitify/features/expenses/application/expense_draft.dart' show parseIsoDate;
-import 'package:splitify/features/expenses/presentation/editor/pickers.dart'
-    show MonthCalendar;
+import 'package:splitify/features/expenses/presentation/editor/pickers.dart' show MonthCalendar;
 import 'package:splitify/features/expenses/presentation/expense_copy.dart';
 import 'package:splitify/features/expenses/presentation/expense_list.dart' show ExpenseRow;
 import 'package:splitify/features/search/application/search_controller.dart';

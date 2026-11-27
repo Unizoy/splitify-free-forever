@@ -88,7 +88,7 @@ void main() {
     await _wait(t, const Duration(milliseconds: 600));
     expect(draft().category, 'food.takeaway');
     expect(draft().categoryIsAuto, isTrue);
-    expect(find.text('Takeaway'), findsOneWidget);
+    expect(find.byKey(const Key('category-auto')), findsOneWidget);
     FocusManager.instance.primaryFocus?.unfocus();
     await _wait(t, const Duration(seconds: 1));
     await _capture(t, 'x5-editor-auto');
@@ -100,20 +100,16 @@ void main() {
     expect(draft().category, 'travel.cab_auto');
     FocusManager.instance.primaryFocus?.unfocus();
     await _wait(t, const Duration(seconds: 1));
-    await t.tap(
-      find.descendant(
-        of: find.byKey(const Key('category-hint')),
-        matching: find.text('Cab & auto'),
-      ),
-    );
+    // One screen (D-032): the category icon beside the description opens the picker.
+    await t.tap(find.byKey(const Key('category-button')));
     await _wait(t, const Duration(seconds: 1));
     expect(find.byKey(const Key('category-travel.cab_auto')), findsOneWidget);
     await _capture(t, 'x5-details-auto');
 
     await t.tap(find.byKey(const Key('category-travel.hotel')));
-    await _wait(t, const Duration(milliseconds: 500));
+    await _wait(t, const Duration(milliseconds: 800));
     expect(draft().categoryOrigin, CategoryOrigin.manual);
-    expect(find.byKey(const Key('category-auto')), findsNothing);
+    expect(find.byKey(const Key('category-travel.hotel')), findsNothing, reason: 'sheet closed');
     await _capture(t, 'x5-details-manual');
     debugPrint('X5-AUTO-CATEGORY OK');
   });

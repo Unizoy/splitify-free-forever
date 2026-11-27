@@ -474,6 +474,8 @@ class _ExpenseEditorScreenState extends ConsumerState<ExpenseEditorScreen> {
                 onPressed: draft.canSave && !_saving && !_saved ? () => unawaited(_save()) : null,
                 child: Text(
                   l.expSave,
+                  // In step with the app bar title at large text sizes.
+                  textScaler: MediaQuery.textScalerOf(context).clamp(maxScaleFactor: 1.3),
                   style: context.text.body
                       .w(700)
                       .copyWith(color: draft.canSave ? c.primary : c.textTertiary),
@@ -523,7 +525,8 @@ class _ExpenseEditorScreenState extends ConsumerState<ExpenseEditorScreen> {
                                 required: true,
                                 controller: description,
                                 focusNode: _descriptionFocus,
-                                autofocus: !draft.isEdit && !draft.isTemplate,
+                                autofocus:
+                                    !draft.isEdit && !draft.isTemplate && draft.description.isEmpty,
                                 errorText: descriptionError,
                                 textInputAction: TextInputAction.next,
                                 textCapitalization: TextCapitalization.sentences,
@@ -667,7 +670,7 @@ class _Toolbar extends StatelessWidget {
             ToolChip(
               key: const Key('template-start'),
               icon: AppIcons.calendar,
-              label: dateText,
+              label: l.expToolFirstDate(dateText),
               semanticLabel: l.expToolFirstDate(shortDate(context, d.date)),
             )
           else

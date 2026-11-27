@@ -2990,36 +2990,6 @@ abstract class AppLocalizations {
   /// **'Syncing…'**
   String get syncing;
 
-  /// No description provided for @stepAmount.
-  ///
-  /// In en, this message translates to:
-  /// **'Amount'**
-  String get stepAmount;
-
-  /// No description provided for @stepPaidBy.
-  ///
-  /// In en, this message translates to:
-  /// **'Paid by'**
-  String get stepPaidBy;
-
-  /// No description provided for @stepSplit.
-  ///
-  /// In en, this message translates to:
-  /// **'Split'**
-  String get stepSplit;
-
-  /// No description provided for @stepDetails.
-  ///
-  /// In en, this message translates to:
-  /// **'Details'**
-  String get stepDetails;
-
-  /// No description provided for @stepReview.
-  ///
-  /// In en, this message translates to:
-  /// **'Review'**
-  String get stepReview;
-
   /// No description provided for @stepDone.
   ///
   /// In en, this message translates to:
@@ -3032,23 +3002,11 @@ abstract class AppLocalizations {
   /// **'{label}, current step'**
   String stepCurrent(String label);
 
-  /// No description provided for @expEditPill.
-  ///
-  /// In en, this message translates to:
-  /// **'Editing · {group}'**
-  String expEditPill(String group);
-
   /// No description provided for @expOfflinePill.
   ///
   /// In en, this message translates to:
   /// **'{group} · saved offline'**
   String expOfflinePill(String group);
-
-  /// No description provided for @expAmountQuestion.
-  ///
-  /// In en, this message translates to:
-  /// **'How much was it?'**
-  String get expAmountQuestion;
 
   /// No description provided for @expDescriptionLabel.
   ///
@@ -3506,12 +3464,6 @@ abstract class AppLocalizations {
   /// **'Check the amount'**
   String get expAmountErrorInvalid;
 
-  /// No description provided for @expAmountEquals.
-  ///
-  /// In en, this message translates to:
-  /// **'= {amount}'**
-  String expAmountEquals(String amount);
-
   /// No description provided for @expKeyDelete.
   ///
   /// In en, this message translates to:
@@ -3548,12 +3500,6 @@ abstract class AppLocalizations {
   /// **'Decimal point'**
   String get expKeyDot;
 
-  /// No description provided for @expNext.
-  ///
-  /// In en, this message translates to:
-  /// **'Next'**
-  String get expNext;
-
   /// No description provided for @expSave.
   ///
   /// In en, this message translates to:
@@ -3572,23 +3518,11 @@ abstract class AppLocalizations {
   /// **'Expense saved'**
   String get expSaved;
 
-  /// No description provided for @expPaidByQuestion.
-  ///
-  /// In en, this message translates to:
-  /// **'Who paid?'**
-  String get expPaidByQuestion;
-
   /// No description provided for @expMultiplePeople.
   ///
   /// In en, this message translates to:
   /// **'Multiple people'**
   String get expMultiplePeople;
-
-  /// No description provided for @expSplitQuestion.
-  ///
-  /// In en, this message translates to:
-  /// **'How should it be split?'**
-  String get expSplitQuestion;
 
   /// No description provided for @expSplitEqual.
   ///
@@ -3800,12 +3734,6 @@ abstract class AppLocalizations {
   /// **'This split doesn\'t add up yet'**
   String get expErrGeneric;
 
-  /// No description provided for @expDetailsQuestion.
-  ///
-  /// In en, this message translates to:
-  /// **'A few details'**
-  String get expDetailsQuestion;
-
   /// No description provided for @expCategoryLabel.
   ///
   /// In en, this message translates to:
@@ -3884,60 +3812,6 @@ abstract class AppLocalizations {
   /// **'Next month'**
   String get expNextMonth;
 
-  /// No description provided for @expReviewQuestion.
-  ///
-  /// In en, this message translates to:
-  /// **'All good?'**
-  String get expReviewQuestion;
-
-  /// No description provided for @expReviewPaidBy.
-  ///
-  /// In en, this message translates to:
-  /// **'Paid by '**
-  String get expReviewPaidBy;
-
-  /// No description provided for @expReviewAndSplit.
-  ///
-  /// In en, this message translates to:
-  /// **' and split '**
-  String get expReviewAndSplit;
-
-  /// No description provided for @expHowEqual.
-  ///
-  /// In en, this message translates to:
-  /// **'equally between {count, plural, =1{1 person} other{{count} people}}'**
-  String expHowEqual(int count);
-
-  /// No description provided for @expHowExact.
-  ///
-  /// In en, this message translates to:
-  /// **'by exact amounts'**
-  String get expHowExact;
-
-  /// No description provided for @expHowPercent.
-  ///
-  /// In en, this message translates to:
-  /// **'by percentages'**
-  String get expHowPercent;
-
-  /// No description provided for @expHowShares.
-  ///
-  /// In en, this message translates to:
-  /// **'by shares'**
-  String get expHowShares;
-
-  /// No description provided for @expHowAdjust.
-  ///
-  /// In en, this message translates to:
-  /// **'with adjustments'**
-  String get expHowAdjust;
-
-  /// No description provided for @expSeveralPeople.
-  ///
-  /// In en, this message translates to:
-  /// **'several people'**
-  String get expSeveralPeople;
-
   /// No description provided for @expYouLower.
   ///
   /// In en, this message translates to:
@@ -3950,23 +3824,11 @@ abstract class AppLocalizations {
   /// **'share {amount}'**
   String expOwes(String amount);
 
-  /// No description provided for @expPaidAmount.
-  ///
-  /// In en, this message translates to:
-  /// **'paid {amount}'**
-  String expPaidAmount(String amount);
-
   /// No description provided for @expOwesNothing.
   ///
   /// In en, this message translates to:
   /// **'no share'**
   String get expOwesNothing;
-
-  /// No description provided for @expReviewSummary.
-  ///
-  /// In en, this message translates to:
-  /// **'{amount} · {count, plural, =1{1 person} other{{count} people}}'**
-  String expReviewSummary(String amount, int count);
 
   /// No description provided for @expNoExpensesTitle.
   ///
@@ -5462,12 +5324,6 @@ abstract class AppLocalizations {
   /// **'{first} and {second}'**
   String payersTwo(String first, String second);
 
-  /// No description provided for @payersMany.
-  ///
-  /// In en, this message translates to:
-  /// **'{first} and {count, plural, =1{1 other} other{{count} others}}'**
-  String payersMany(String first, int count);
-
   /// No description provided for @payersCaption.
   ///
   /// In en, this message translates to:
@@ -5851,12 +5707,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Ends'**
   String get repeatEndsLabel;
-
-  /// No description provided for @repeatStartsLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'First date'**
-  String get repeatStartsLabel;
 
   /// No description provided for @repeatNoEnd.
   ///

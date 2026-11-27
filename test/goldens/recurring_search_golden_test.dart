@@ -16,6 +16,7 @@ import 'package:splitify/features/expenses/presentation/expense_detail_screen.da
 import 'package:splitify/features/recurring/application/recurring_providers.dart';
 import 'package:splitify/features/recurring/application/repeat_draft.dart';
 import 'package:splitify/features/recurring/presentation/recurring_tile.dart';
+import 'package:splitify/features/recurring/presentation/repeat_picker.dart';
 import 'package:splitify/features/search/application/search_controller.dart';
 import 'package:splitify/features/search/presentation/search_screen.dart';
 import 'package:splitify/l10n/app_localizations.dart';
@@ -32,7 +33,6 @@ typedef _Case = (
   double h,
 );
 
-const ExpenseEditorArgs _newArgs = (groupId: gid, expenseId: null);
 const _tid = 't1';
 
 LocalRecurring _template({
@@ -132,46 +132,35 @@ List<Override> _detail(LocalExpense e, LocalRecurring t) => [
 List<_Case> _cases() => [
   (
     'repeat_editor_details',
-    () => const ExpenseEditorScreen(groupId: gid, initialStep: EditorStep.details),
-    () => [
-      expenseEditorProvider(_newArgs).overrideWith(
-        () => FixedEditorController(
-          _newArgs,
-          sampleDraft(
-            expenseId: null,
-            description: 'Villa rent',
-            category: 'rent.rent',
-            canRepeat: true,
-            repeat: RepeatDraft(
-              interval: RecurrenceInterval.monthly,
-              endsOn: DateTime(2027, 3, 31),
-            ),
-          ),
-        ),
+    () => _SheetHost(
+      title: (l) => l.repeatLabel,
+      child: RepeatPicker(
+        value: RepeatDraft(interval: RecurrenceInterval.monthly, endsOn: DateTime(2027, 3, 31)),
+        start: fixedToday,
+        today: fixedToday,
+        onChanged: (_) {},
       ),
-    ],
-    1250,
+    ),
+    () => const <Override>[],
+    700,
   ),
   (
     'repeat_editor_end_error',
-    () => const ExpenseEditorScreen(groupId: gid, initialStep: EditorStep.details),
-    () => [
-      expenseEditorProvider(_newArgs).overrideWith(
-        () => FixedEditorController(
-          _newArgs,
-          sampleDraft(
-            expenseId: null,
-            canRepeat: true,
-            repeat: RepeatDraft(interval: RecurrenceInterval.weekly, endsOn: DateTime(2026, 11, 1)),
-          ),
-        ),
+    () => _SheetHost(
+      title: (l) => l.repeatLabel,
+      child: RepeatPicker(
+        value: RepeatDraft(interval: RecurrenceInterval.weekly, endsOn: DateTime(2026, 11, 1)),
+        start: fixedToday,
+        today: fixedToday,
+        onChanged: (_) {},
       ),
-    ],
-    1250,
+    ),
+    () => const <Override>[],
+    700,
   ),
   (
     'repeat_future_copies',
-    () => const ExpenseEditorScreen(templateId: _tid, initialStep: EditorStep.details),
+    () => const ExpenseEditorScreen(templateId: _tid),
     () => [
       templateEditorProvider(_tid).overrideWith(
         () => FixedEditorController(

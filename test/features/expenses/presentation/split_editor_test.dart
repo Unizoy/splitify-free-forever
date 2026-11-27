@@ -1,9 +1,9 @@
-// TC-5-03, TC-6-03, TC-7-03, TC-8-03, TC-9-03: split editors (live footer, Save gating, kinds).
+// TC-5-03, TC-6-03, TC-7-03, TC-8-03, TC-9-03: split editors in the editor's Paid by · split sheet (D-032):
+// live footer, Save gating, kinds.
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:splitify/core/money/split.dart';
 import 'package:splitify/features/expenses/application/split_draft.dart';
-import 'package:splitify/features/expenses/presentation/editor/expense_editor_screen.dart';
 import 'package:splitify/features/expenses/presentation/split_editor.dart';
 
 import '../expense_fixtures.dart';
@@ -12,11 +12,11 @@ import 'presentation_harness.dart';
 void main() {
   SplitDraft base() => SplitDraft.initial(ids, 2);
 
-  Future<EditorHandle> split(WidgetTester t, SplitKind kind, {SplitDraft? draft}) => pumpEditor(
-    t,
-    sampleDraft(kind: kind, split: draft),
-    step: EditorStep.split,
-  );
+  Future<EditorHandle> split(WidgetTester t, SplitKind kind, {SplitDraft? draft}) async {
+    final h = await pumpEditor(t, sampleDraft(kind: kind, split: draft));
+    await openPaidSplit(t);
+    return h;
+  }
 
   Future<void> tapSharesButton(WidgetTester t, String id, String tooltip) async {
     await t.tap(
@@ -30,7 +30,7 @@ void main() {
     testWidgets('footer shows the per-person amount and updates with the ticks', (t) async {
       final h = await split(t, SplitKind.equal);
       expect(footerText(t), '3 people\u00A0· ₹400 each');
-      expect(buttonEnabled(t, 'expense-save'), isTrue);
+      expect(topSaveEnabled(t), isTrue);
       await tapKey(t, 'tick-m4');
       expect(footerText(t), '4 people\u00A0· ₹300 each');
       expect(h.draft.split.included, hasLength(4));
@@ -43,17 +43,23 @@ void main() {
         await tapKey(t, 'tick-$id');
       }
       expect(footerText(t), 'Pick at least one person');
-      expect(buttonEnabled(t, 'expense-save'), isFalse);
+      expect(topSaveEnabled(t), isFalse);
       await tapKey(t, 'tick-m2');
       expect(footerText(t), '1 person\u00A0· ₹1,200 each');
-      expect(buttonEnabled(t, 'expense-save'), isTrue);
+      expect(topSaveEnabled(t), isTrue);
     });
 
     // TC-5-03
     testWidgets('tapping the row toggles the person; unticked rows say Not included', (t) async {
       final h = await split(t, SplitKind.equal);
       expect(find.text('Not included'), findsOneWidget);
-      await t.tap(find.text('Rahul Mehta'));
+      // The split row (the payer chips above name him too).
+      await t.tap(
+        find.descendant(
+          of: find.byKey(const ValueKey('split-row-m3')),
+          matching: find.text('Rahul Mehta'),
+        ),
+      );
       await settle(t);
       expect(h.draft.split.included, isNot(contains('m3')));
       expect(find.text('Not included'), findsNWidgets(2));
@@ -65,7 +71,7 @@ void main() {
     testWidgets('exact amounts that add up show "done" and Save is enabled', (t) async {
       await split(t, SplitKind.exact);
       expect(footerText(t), '₹1,200\u00A0· done');
-      expect(buttonEnabled(t, 'expense-save'), isTrue);
+      expect(topSaveEnabled(t), isTrue);
     });
 
     // TC-6-03
@@ -78,11 +84,11 @@ void main() {
         draft: base().withValues(SplitKind.exact, {'m1': 50000, 'm2': 30000}),
       );
       expect(footerText(t), '₹800 of ₹1,200\u00A0· ₹400 left');
-      expect(buttonEnabled(t, 'expense-save'), isFalse);
+      expect(topSaveEnabled(t), isFalse);
       await t.enterText(fieldIn('exact-m3'), '400');
       await settle(t);
       expect(footerText(t), '₹1,200\u00A0· done');
-      expect(buttonEnabled(t, 'expense-save'), isTrue);
+      expect(topSaveEnabled(t), isTrue);
       expect(h.draft.split.text['m3'], '400');
     });
 
@@ -94,7 +100,7 @@ void main() {
         draft: base().withValues(SplitKind.exact, {'m1': 90000, 'm2': 40000}),
       );
       expect(footerText(t), '₹1,300 of ₹1,200\u00A0· ₹100 over');
-      expect(buttonEnabled(t, 'expense-save'), isFalse);
+      expect(topSaveEnabled(t), isFalse);
     });
 
     // TC-6-03
@@ -103,7 +109,7 @@ void main() {
       await t.enterText(fieldIn('exact-m1'), '.');
       await settle(t);
       expect(footerText(t), 'Check the numbers you typed');
-      expect(buttonEnabled(t, 'expense-save'), isFalse);
+      expect(topSaveEnabled(t), isFalse);
     });
   });
 
@@ -112,7 +118,7 @@ void main() {
     testWidgets('100 % shows done', (t) async {
       await split(t, SplitKind.percent);
       expect(footerText(t), '100%\u00A0· done');
-      expect(buttonEnabled(t, 'expense-save'), isTrue);
+      expect(topSaveEnabled(t), isTrue);
     });
 
     // TC-7-03
@@ -121,15 +127,15 @@ void main() {
       await t.enterText(fieldIn('percent-m4'), '5');
       await settle(t);
       expect(footerText(t), '95% of 100%\u00A0· 5% left');
-      expect(buttonEnabled(t, 'expense-save'), isFalse);
+      expect(topSaveEnabled(t), isFalse);
       await t.enterText(fieldIn('percent-m4'), '15');
       await settle(t);
       expect(footerText(t), '105% of 100%\u00A0· 5% over');
-      expect(buttonEnabled(t, 'expense-save'), isFalse);
+      expect(topSaveEnabled(t), isFalse);
       await t.enterText(fieldIn('percent-m4'), '10');
       await settle(t);
       expect(footerText(t), '100%\u00A0· done');
-      expect(buttonEnabled(t, 'expense-save'), isTrue);
+      expect(topSaveEnabled(t), isTrue);
     });
   });
 
@@ -151,9 +157,9 @@ void main() {
         draft: base().withValues(SplitKind.shares, {for (final i in ids) i: 0}),
       );
       expect(footerText(t), 'Give someone at least one share');
-      expect(buttonEnabled(t, 'expense-save'), isFalse);
+      expect(topSaveEnabled(t), isFalse);
       await tapSharesButton(t, 'm2', 'Increase');
-      expect(buttonEnabled(t, 'expense-save'), isTrue);
+      expect(topSaveEnabled(t), isTrue);
     });
 
     // TC-8-03
@@ -170,21 +176,21 @@ void main() {
       await split(t, SplitKind.adjust);
       // 1,200 minus the adjustments (100 - 50) = 1,150 split between the 2 ticked people.
       expect(footerText(t), '₹1,150 split equally after adjustments');
-      expect(buttonEnabled(t, 'expense-save'), isTrue);
+      expect(topSaveEnabled(t), isTrue);
     });
 
     // TC-9-03
     testWidgets('adjustments above the total are an error', (t) async {
       await split(t, SplitKind.adjust, draft: base().withValues(SplitKind.adjust, {'m1': 150000}));
       expect(footerText(t), 'Adjustments are ₹300 more than the total');
-      expect(buttonEnabled(t, 'expense-save'), isFalse);
+      expect(topSaveEnabled(t), isFalse);
     });
 
     // TC-9-03
     testWidgets('a share that would go below zero names the person', (t) async {
       await split(t, SplitKind.adjust, draft: base().withValues(SplitKind.adjust, {'m2': -50000}));
       expect(footerText(t), "Asha Rao's share can't go below ₹0");
-      expect(buttonEnabled(t, 'expense-save'), isFalse);
+      expect(topSaveEnabled(t), isFalse);
     });
 
     // TC-9-03

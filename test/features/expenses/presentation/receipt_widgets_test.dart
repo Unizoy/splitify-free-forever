@@ -1,4 +1,4 @@
-// TC-29 UI: receipt photo field in the editor Details step and the receipt card on the expense detail.
+// TC-29 UI: receipt photo field in the editor's receipt sheet (D-032) and the receipt card on the expense detail.
 import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -8,7 +8,6 @@ import 'package:splitify/data/local/app_database.dart';
 import 'package:splitify/domain/entities/prepared_image.dart';
 import 'package:splitify/features/expenses/application/expense_providers.dart';
 import 'package:splitify/features/expenses/application/receipt_draft.dart';
-import 'package:splitify/features/expenses/presentation/editor/expense_editor_screen.dart';
 import 'package:splitify/features/expenses/presentation/expense_detail_screen.dart';
 import 'package:splitify/features/photos/presentation/photo_viewer_screen.dart';
 import 'package:splitify/features/photos/presentation/stored_photo.dart';
@@ -21,18 +20,15 @@ const _path = 'g-goa/e1/r1.jpg';
 
 Finder _key(String k) => find.byKey(Key(k));
 
-/// Opens the editor on the Details step with [draftReceipt]; [extra] overrides apply to the editor route.
+/// Opens the editor with [receipt] and its receipt sheet; [extra] overrides apply to the editor route.
 Future<EditorHandle> _pumpDetails(
   WidgetTester t, {
   ReceiptDraft receipt = const ReceiptDraft.none(),
   List<Override> extra = const [],
-}) {
-  return pumpEditor(
-    t,
-    sampleDraft().copyWith(receipt: receipt),
-    step: EditorStep.details,
-    overrides: extra,
-  );
+}) async {
+  final h = await pumpEditor(t, sampleDraft().copyWith(receipt: receipt), overrides: extra);
+  await tapKey(t, 'expense-receipt-chip');
+  return h;
 }
 
 /// Records receipt changes instead of touching the database.
@@ -52,7 +48,7 @@ class _RecordingActions extends ExpenseActions {
 LocalExpense _withReceipt() => sampleExpense().copyWith(receiptPath: const Value(_path));
 
 void main() {
-  group('Receipt field (editor Details step)', () {
+  group('Receipt field (editor receipt sheet)', () {
     // TC-29 UI
     testWidgets('empty: shows the dashed add tile and no photo row', (t) async {
       await _pumpDetails(t);

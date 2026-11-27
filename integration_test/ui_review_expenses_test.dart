@@ -51,40 +51,31 @@ class _ListHost extends StatelessWidget {
 List<(String, Widget, List<Override>)> _screens() {
   final views = sampleViews();
   return [
+    // The one-screen editor (D-032): new, filled, editing, and the summary pill per split kind.
     (
-      'editor-amount',
+      'editor-new',
       const ExpenseEditorScreen(groupId: gid),
-      _editor(sampleDraft(amount: '1200+450.5', expenseId: null)),
+      _editor(sampleDraft(amount: '', description: '', expenseId: null)),
     ),
     (
-      'editor-paid-by',
-      const ExpenseEditorScreen(expenseId: 'e1', initialStep: EditorStep.paidBy),
-      _editor(sampleDraft()),
+      'editor-filled',
+      const ExpenseEditorScreen(groupId: gid),
+      _editor(sampleDraft(amount: '1250.50', expenseId: null)),
     ),
     for (final k in SplitKind.values)
       (
         'editor-split-${k.name}',
-        const ExpenseEditorScreen(expenseId: 'e1', initialStep: EditorStep.split),
+        const ExpenseEditorScreen(expenseId: 'e1'),
         _editor(sampleDraft(kind: k)),
       ),
     (
       'editor-split-error',
-      const ExpenseEditorScreen(expenseId: 'e1', initialStep: EditorStep.split),
+      const ExpenseEditorScreen(expenseId: 'e1'),
       _editor(
         sampleDraft(
           split: SplitDraft.initial(ids, 2).withValues(SplitKind.exact, {'m1': 50000, 'm2': 30000}),
         ),
       ),
-    ),
-    (
-      'editor-details',
-      const ExpenseEditorScreen(expenseId: 'e1', initialStep: EditorStep.details),
-      _editor(sampleDraft(notes: 'Table by the window, paid by card.')),
-    ),
-    (
-      'editor-review',
-      const ExpenseEditorScreen(expenseId: 'e1', initialStep: EditorStep.review),
-      _editor(sampleDraft()),
     ),
     (
       'expense-list',

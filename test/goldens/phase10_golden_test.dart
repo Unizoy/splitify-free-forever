@@ -11,19 +11,19 @@ import 'package:splitify/data/local/app_database.dart';
 import 'package:splitify/domain/entities/profile.dart';
 import 'package:splitify/features/auth/application/auth_providers.dart';
 import 'package:splitify/features/comments/application/comments_providers.dart';
-import 'package:splitify/features/expenses/application/expense_draft.dart';
-import 'package:splitify/features/expenses/application/expense_editor_controller.dart';
 import 'package:splitify/features/expenses/application/expense_providers.dart';
 import 'package:splitify/features/expenses/application/loan_draft.dart';
 import 'package:splitify/features/expenses/application/loan_editor_controller.dart';
 import 'package:splitify/features/expenses/application/receipt_draft.dart';
-import 'package:splitify/features/expenses/presentation/editor/expense_editor_screen.dart';
+import 'package:splitify/features/expenses/presentation/editor/receipt_field.dart';
 import 'package:splitify/features/expenses/presentation/expense_detail_screen.dart';
 import 'package:splitify/features/expenses/presentation/expense_list.dart';
 import 'package:splitify/features/expenses/presentation/loan_screen.dart';
 import 'package:splitify/features/groups/application/groups_providers.dart';
 import 'package:splitify/features/groups/presentation/group_form_screen.dart';
 import 'package:splitify/features/photos/presentation/photo_viewer_screen.dart';
+import 'package:splitify/l10n/app_localizations.dart';
+import 'package:splitify/ui/components/components.dart';
 import 'package:splitify/ui/theme/theme.dart';
 
 import '../features/expenses/expense_fixtures.dart';
@@ -36,14 +36,9 @@ import 'golden_support.dart';
 /// One golden scenario: the screen and the overrides that feed it.
 typedef _Case = (String name, Widget screen, List<Override> overrides);
 
-const ExpenseEditorArgs _newArgs = (groupId: gid, expenseId: null);
 const LoanEditorArgs _loanArgs = (groupId: gid, expenseId: null, withMember: null);
 const _receiptPath = 'g-goa/e1/r1.jpg';
 const _coverPath = 'g-goa/c1.jpg';
-
-List<Override> _editor(ExpenseDraft Function() draft) => [
-  expenseEditorProvider(_newArgs).overrideWith(() => FixedEditorController(_newArgs, draft())),
-];
 
 List<Override> _loan(LoanDraft draft) => [
   loanEditorProvider(_loanArgs).overrideWith(() => FixedLoanController(_loanArgs, draft)),
@@ -58,6 +53,25 @@ class _ListHost extends StatelessWidget {
       child: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
         child: const ExpenseList(groupId: gid),
+      ),
+    ),
+  );
+}
+
+/// The editor's receipt sheet at the bottom of a dimmed screen, like the real modal sheet.
+class _ReceiptSheet extends StatelessWidget {
+  const _ReceiptSheet(this.receipt);
+
+  final ReceiptDraft receipt;
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+    backgroundColor: context.colors.scrim,
+    body: Align(
+      alignment: Alignment.bottomCenter,
+      child: AppSheet(
+        title: AppLocalizations.of(context).receiptLabel,
+        child: ReceiptField(receipt: receipt, onChanged: (_) {}),
       ),
     ),
   );
@@ -78,10 +92,6 @@ LocalExpense _loanRow() => sampleExpense(
 ).copyWith(kind: 'iou', category: 'other.general');
 
 List<_Case> _cases(File photo) {
-  ExpenseEditorScreen editor(EditorStep step) =>
-      ExpenseEditorScreen(groupId: gid, initialStep: step);
-  ExpenseDraft multi(String a, String b) =>
-      sampleDraft(expenseId: null).withPayerText('m1', a).withPayerText('m2', b);
   final withReceipt = sampleExpense(notes: 'Table by the window, paid by card.')
       .copyWith(receiptPath: const Value(_receiptPath));
   final listViews = [
@@ -119,21 +129,12 @@ List<_Case> _cases(File photo) {
   ];
   final goa = sampleGroup().copyWith(coverKind: 'photo', coverPath: const Value(_coverPath));
   return [
-    ('editor_paid_by_multiple', editor(EditorStep.paidBy), _editor(() => multi('700', '500'))),
-    ('editor_paid_by_multiple_left', editor(EditorStep.paidBy), _editor(() => multi('700', '300'))),
+    // The editor's receipt sheet (D-032): add tile, then the picked photo.
+    ('editor_receipt_sheet_empty', const _ReceiptSheet(ReceiptDraft.none()), const []),
     (
-      'editor_details_receipt_empty',
-      editor(EditorStep.details),
-      _editor(() => sampleDraft(expenseId: null)),
-    ),
-    (
-      'editor_details_receipt_photo',
-      editor(EditorStep.details),
-      _editor(
-        () =>
-            sampleDraft(expenseId: null)
-                .copyWith(receipt: const ReceiptDraft.none().pick(samplePrepared)),
-      ),
+      'editor_receipt_sheet_photo',
+      _ReceiptSheet(const ReceiptDraft.none().pick(samplePrepared)),
+      const [],
     ),
     (
       'loan_new_lent',

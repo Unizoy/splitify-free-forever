@@ -131,10 +131,14 @@ class CategoryButton extends StatelessWidget {
                 child: AnimatedOpacity(
                   opacity: auto ? 1 : 0,
                   duration: motion.fast,
-                  child: TagChip(
-                    key: const Key('category-auto'),
-                    label: l.expCategoryAuto,
-                    icon: AppIcons.sparkle,
+                  // A badge on the icon: kept small so it never covers it at large text sizes.
+                  child: MediaQuery.withClampedTextScaling(
+                    maxScaleFactor: 1.2,
+                    child: TagChip(
+                      key: const Key('category-auto'),
+                      label: l.expCategoryAuto,
+                      icon: AppIcons.sparkle,
+                    ),
                   ),
                 ),
               ),
@@ -207,6 +211,7 @@ class _AmountFieldState extends State<AmountField> {
     final lineColor = error != null ? c.oweText : (focused ? c.primary : c.divider);
     final style = context.text.amountHero;
     final hint = exponent == 0 ? '0' : '0.${'0' * exponent}';
+    final spoken = [l.expAmountLabel, l.required].join(', ');
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
@@ -226,7 +231,8 @@ class _AmountFieldState extends State<AmountField> {
                     ),
                   ],
                 ),
-                semanticsLabel: '${l.expAmountLabel}, ${l.required}',
+                // Spoken like UnderlineField's required label: "Amount, required".
+                semanticsLabel: spoken,
                 style: context.text.labelCaps.copyWith(color: c.textSecondary),
               ),
               // Big digits, but not so big at 200 % text that a lakh no longer fits.

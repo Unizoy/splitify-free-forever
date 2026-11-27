@@ -1,5 +1,5 @@
-// #12 recurring bills: the Repeat section of the expense editor, saving a template next to a new
-// expense, and "Edit future copies" (template mode).
+// #12 recurring bills: the Repeat chip and sheet of the one-screen expense editor (D-032), saving a
+// template next to a new expense, and "Edit future copies" (template mode).
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -54,7 +54,7 @@ Future<FixedEditorController> _pumpTemplate(WidgetTester tester, ExpenseDraft dr
   late FixedEditorController controller;
   await tester.pumpWidget(
     expenseApp(
-      const PushHost(ExpenseEditorScreen(templateId: 't1', initialStep: EditorStep.details)),
+      const PushHost(ExpenseEditorScreen(templateId: 't1')),
       overrides: [
         templateEditorProvider('t1').overrideWith(
           () => controller = FixedEditorController((groupId: null, expenseId: null), draft),
@@ -67,17 +67,15 @@ Future<FixedEditorController> _pumpTemplate(WidgetTester tester, ExpenseDraft dr
   return controller;
 }
 
+/// Opens the Repeat sheet from the toolbar chip.
+Future<void> _openRepeat(WidgetTester tester) => tapKey(tester, 'expense-repeat-chip');
+
 void main() {
-  group('Repeat section (widget)', () {
+  group('Repeat chip and sheet (widget)', () {
     testWidgets('a new expense offers Repeat; choosing Every month sets the draft', (tester) async {
-      final h = await pumpEditor(
-        tester,
-        _draft(canRepeat: true, expenseId: null),
-        step: EditorStep.details,
-        args: newArgs,
-      );
-      await reveal(tester, find.byKey(const Key('repeat-monthly')));
-      expect(find.text('REPEAT'), findsOneWidget);
+      final h = await pumpEditor(tester, _draft(canRepeat: true, expenseId: null), args: newArgs);
+      await _openRepeat(tester);
+      expect(find.text('Repeat'), findsWidgets);
       await tapKey(tester, 'repeat-monthly');
       expect(h.draft.repeat, _monthly);
       expect(find.byKey(const Key('repeat-hint')), findsOneWidget);
@@ -86,8 +84,9 @@ void main() {
       expect(h.draft.repeat.repeats, isFalse);
     });
 
-    testWidgets('a copy or an expense that already repeats has no Repeat section', (tester) async {
-      await pumpEditor(tester, _draft(), step: EditorStep.details);
+    testWidgets('a copy or an expense that already repeats has no Repeat chip', (tester) async {
+      await pumpEditor(tester, _draft());
+      expect(find.byKey(const Key('expense-repeat-chip')), findsNothing);
       expect(find.byKey(const Key('repeat-monthly')), findsNothing);
       expect(find.byKey(const Key('repeat-never')), findsNothing);
     });
@@ -102,30 +101,33 @@ void main() {
           expenseId: null,
           repeat: RepeatDraft(interval: RecurrenceInterval.monthly, endsOn: DateTime(2026, 11, 10)),
         ),
-        step: EditorStep.details,
         args: newArgs,
       );
-      await reveal(tester, find.byKey(const Key('repeat-hint')));
-      expect(find.text("The end date can't be before 21\u00A0Nov\u00A02026"), findsOneWidget);
-      expect(buttonEnabled(tester, 'expense-save'), isFalse);
+      expect(topSaveEnabled(tester), isFalse);
       expect(h.draft.canSave, isFalse);
+      await _openRepeat(tester);
+      expect(find.text("The end date can't be before 21\u00A0Nov\u00A02026"), findsOneWidget);
       await tapKey(tester, 'repeat-no-end');
-      expect(buttonEnabled(tester, 'expense-save'), isTrue);
+      expect(topSaveEnabled(tester), isTrue);
       expect(h.draft.canSave, isTrue);
     });
   });
 
   group('Edit future copies (template mode, widget)', () {
-    testWidgets('shows the start date read-only, no Never, no receipt, the header pill', (
+    testWidgets('shows the first date read-only, no Never, no receipt, the title and note', (
       tester,
     ) async {
       await _pumpTemplate(tester, _draft(templateId: 't1', repeat: _monthly));
-      expect(find.text('Future copies\u00A0· Goa trip'), findsOneWidget);
-      await reveal(tester, find.byKey(const Key('template-start')));
+      expect(find.text('Edit future copies'), findsOneWidget);
+      expect(find.byKey(const Key('template-note')), findsOneWidget);
       expect(find.byKey(const Key('template-start')), findsOneWidget);
-      expect(find.text('21\u00A0Nov\u00A02026'), findsWidgets);
+      expect(find.byKey(const Key('expense-date')), findsNothing);
+      expect(find.byKey(const Key('expense-receipt-chip')), findsNothing);
+      // The read-only date chip does nothing.
+      await tester.tap(find.byKey(const Key('template-start')));
+      await settle(tester);
       expect(find.byKey(const Key('date-today')), findsNothing);
-      await reveal(tester, find.byKey(const Key('repeat-monthly')));
+      await _openRepeat(tester);
       expect(find.byKey(const Key('repeat-never')), findsNothing);
       expect(find.byKey(const Key('repeat-monthly')), findsOneWidget);
       expect(find.byType(ReceiptField), findsNothing);
@@ -133,8 +135,10 @@ void main() {
 
     testWidgets('Save edits the template and says so', (tester) async {
       final c = await _pumpTemplate(tester, _draft(templateId: 't1', repeat: _monthly));
+      await _openRepeat(tester);
       await tapKey(tester, 'repeat-yearly');
       expect(c.state.value!.repeat.interval, RecurrenceInterval.yearly);
+      await tapKey(tester, 'repeat-done');
       await tester.tap(find.byKey(const Key('expense-save')));
       await settle(tester, 20);
       expect(c.saves, 1);
@@ -149,10 +153,11 @@ void main() {
           repeat: RepeatDraft(interval: RecurrenceInterval.weekly, endsOn: DateTime(2026, 11, 1)),
         ),
       );
-      expect(buttonEnabled(tester, 'expense-save'), isFalse);
+      expect(topSaveEnabled(tester), isFalse);
       expect(c.state.value!.canSave, isFalse);
+      await _openRepeat(tester);
       await tapKey(tester, 'repeat-no-end');
-      expect(buttonEnabled(tester, 'expense-save'), isTrue);
+      expect(topSaveEnabled(tester), isTrue);
     });
 
     testWidgets('an unknown template shows "Not on this phone"', (tester) async {

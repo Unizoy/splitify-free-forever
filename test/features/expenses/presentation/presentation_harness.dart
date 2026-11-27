@@ -109,6 +109,10 @@ Future<void> tapText(WidgetTester tester, String text) async {
 String footerText(WidgetTester tester) =>
     tester.widget<Text>(find.byKey(const Key('split-footer'))).data!;
 
+/// The editor's app bar Save is enabled only while the draft can be saved (D-032).
+bool topSaveEnabled(WidgetTester tester) =>
+    tester.widget<TextButton>(find.byKey(const Key('expense-save-top'))).onPressed != null;
+
 bool buttonEnabled(WidgetTester tester, String key) =>
     tester.widget<PillButton>(find.byKey(Key(key))).onPressed != null;
 

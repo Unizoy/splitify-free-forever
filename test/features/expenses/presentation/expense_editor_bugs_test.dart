@@ -87,7 +87,7 @@ void main() {
       await tapKey(t, 'split-summary');
       await tapKey(t, 'paid-split-done');
       expect(_amountText(t), '500');
-      expect(find.text('Paid by You · split equally'), findsOneWidget);
+      expect(find.text('Paid by You\u00A0· split equally'), findsOneWidget);
 
       await t.enterText(_descriptionField(), 'Lunch');
       await settle(t);

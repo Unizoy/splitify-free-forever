@@ -190,7 +190,6 @@ void main() {
       await _pumpFor(t, const Duration(seconds: 2));
 
       // Expense: ₹1,200 paid by me (₹700) and Asha (₹500), split equally, with a receipt photo.
-      await _keys(t, '1200');
       await t.enterText(
         find.descendant(
           of: find.byKey(const Key('expense-description')),
@@ -198,9 +197,17 @@ void main() {
         ),
         'Receipt dinner',
       );
+      await t.enterText(
+        find.descendant(
+          of: find.byKey(const Key('expense-amount')),
+          matching: find.byType(TextField),
+        ),
+        '1200',
+      );
       FocusManager.instance.primaryFocus?.unfocus();
       await _pumpFor(t, const Duration(milliseconds: 400));
-      await _tap(t, find.byKey(const Key('expense-next'))); // → Paid by
+      await _tap(t, find.byKey(const Key('split-summary'))); // → Paid by · split sheet
+      await _pumpFor(t, const Duration(milliseconds: 800));
       await _tap(t, find.byKey(const Key('payer-multiple')));
       for (final (id, amount) in [(me, '700'), (asha, '500')]) {
         final field = find.descendant(
@@ -214,21 +221,18 @@ void main() {
       FocusManager.instance.primaryFocus?.unfocus();
       await _pumpFor(t, const Duration(milliseconds: 400));
       expect(find.textContaining('covered'), findsOneWidget);
-      await _tap(t, find.byKey(const Key('expense-next'))); // → Split
-      await _tap(t, find.byKey(const Key('expense-next'))); // → Details
-      // The receipt tile is at the bottom of a lazy list: scroll until it is built.
-      await t.scrollUntilVisible(
-        find.byKey(const Key('receipt-add')),
-        300,
-        scrollable: find.byType(Scrollable).last,
-      );
+      await _tap(t, find.byKey(const Key('paid-split-done')));
+      await _pumpFor(t, const Duration(milliseconds: 600));
+      await _tap(t, find.byKey(const Key('expense-receipt-chip'))); // → the receipt sheet
+      await _pumpFor(t, const Duration(milliseconds: 1000));
       await _tap(t, find.byKey(const Key('receipt-add')));
       await _pumpFor(t, const Duration(milliseconds: 1500)); // the sheet slides up
       await _tap(t, find.byKey(const Key('photo-gallery')));
       await _pumpFor(t, const Duration(seconds: 1));
       expect(find.byKey(const Key('receipt-photo')), findsOneWidget);
-      await _tap(t, find.byKey(const Key('expense-next'))); // → Review
-      expect(find.textContaining('Paid by you and Asha'), findsOneWidget);
+      await _tap(t, find.byKey(const Key('receipt-done')));
+      await _pumpFor(t, const Duration(milliseconds: 600));
+      expect(find.text('2 people paid\u00A0· split equally'), findsOneWidget);
       await _tap(t, find.byKey(const Key('expense-save')));
       await _pumpFor(t, const Duration(seconds: 2));
 

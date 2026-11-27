@@ -89,7 +89,7 @@ class PaidSplitPanel extends StatelessWidget {
           onChanged: onSplit,
         ),
         const SizedBox(height: AppSpacing.s3),
-        SplitFooterLine(footer: splitSheetFooter(l, d)),
+        SplitFooterLine(footer: splitSheetFooter(l, d, payers: false)),
         const SizedBox(height: AppSpacing.s6),
         PillButton(key: const Key('paid-split-done'), label: l.loanAmountDone, onPressed: onDone),
       ],
@@ -334,12 +334,12 @@ String paidSplitSummary(AppLocalizations l, ExpenseDraft d) {
   return l.expPillSummary(paid, how);
 }
 
-/// The line under the summary pill and at the foot of the sheet: a payers problem first ("₹400 left"),
-/// then the split's footer ("3 people · ₹400 each", "₹200 left"). Without an amount yet it only counts
-/// the people, so a fresh screen shows no error.
-SplitFooter splitSheetFooter(AppLocalizations l, ExpenseDraft d) {
+/// The line under the summary pill (a payers problem first, "₹400 left") and at the foot of the sheet
+/// ([payers] false: the sheet shows that problem under the amounts): the split's footer ("3 people · ₹400
+/// each", "₹200 left"). Without an amount yet it only counts the people, so a fresh screen shows no error.
+SplitFooter splitSheetFooter(AppLocalizations l, ExpenseDraft d, {bool payers = true}) {
   final total = d.total;
   if (total == null) return (text: l.expFooterPeople(d.split.participants.length), error: false);
-  if (d.multiplePayers && !d.payersOk) return payersFooter(l, d);
+  if (payers && d.multiplePayers && !d.payersOk) return payersFooter(l, d);
   return splitFooter(l, d.split, total, d.currency, nameOf: (id) => d.member(id)?.name ?? '');
 }

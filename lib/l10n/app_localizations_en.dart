@@ -1787,21 +1787,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get syncing => 'Syncing…';
 
   @override
-  String get stepAmount => 'Amount';
-
-  @override
-  String get stepPaidBy => 'Paid by';
-
-  @override
-  String get stepSplit => 'Split';
-
-  @override
-  String get stepDetails => 'Details';
-
-  @override
-  String get stepReview => 'Review';
-
-  @override
   String stepDone(String label) {
     return '$label, done';
   }
@@ -1812,17 +1797,9 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String expEditPill(String group) {
-    return 'Editing · $group';
-  }
-
-  @override
   String expOfflinePill(String group) {
     return '$group · saved offline';
   }
-
-  @override
-  String get expAmountQuestion => 'How much was it?';
 
   @override
   String get expDescriptionLabel => 'Description';
@@ -2138,11 +2115,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get expAmountErrorInvalid => 'Check the amount';
 
   @override
-  String expAmountEquals(String amount) {
-    return '= $amount';
-  }
-
-  @override
   String get expKeyDelete => 'Delete';
 
   @override
@@ -2161,9 +2133,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get expKeyDot => 'Decimal point';
 
   @override
-  String get expNext => 'Next';
-
-  @override
   String get expSave => 'Save';
 
   @override
@@ -2173,13 +2142,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get expSaved => 'Expense saved';
 
   @override
-  String get expPaidByQuestion => 'Who paid?';
-
-  @override
   String get expMultiplePeople => 'Multiple people';
-
-  @override
-  String get expSplitQuestion => 'How should it be split?';
 
   @override
   String get expSplitEqual => 'Equally';
@@ -2333,9 +2296,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get expErrGeneric => 'This split doesn\'t add up yet';
 
   @override
-  String get expDetailsQuestion => 'A few details';
-
-  @override
   String get expCategoryLabel => 'Category';
 
   @override
@@ -2379,41 +2339,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get expNextMonth => 'Next month';
 
   @override
-  String get expReviewQuestion => 'All good?';
-
-  @override
-  String get expReviewPaidBy => 'Paid by ';
-
-  @override
-  String get expReviewAndSplit => ' and split ';
-
-  @override
-  String expHowEqual(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count people',
-      one: '1 person',
-    );
-    return 'equally between $_temp0';
-  }
-
-  @override
-  String get expHowExact => 'by exact amounts';
-
-  @override
-  String get expHowPercent => 'by percentages';
-
-  @override
-  String get expHowShares => 'by shares';
-
-  @override
-  String get expHowAdjust => 'with adjustments';
-
-  @override
-  String get expSeveralPeople => 'several people';
-
-  @override
   String get expYouLower => 'you';
 
   @override
@@ -2422,23 +2347,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String expPaidAmount(String amount) {
-    return 'paid $amount';
-  }
-
-  @override
   String get expOwesNothing => 'no share';
-
-  @override
-  String expReviewSummary(String amount, int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count people',
-      one: '1 person',
-    );
-    return '$amount · $_temp0';
-  }
 
   @override
   String get expNoExpensesTitle => 'No expenses yet';
@@ -3365,17 +3274,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String payersMany(String first, int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count others',
-      one: '1 other',
-    );
-    return '$first and $_temp0';
-  }
-
-  @override
   String payersCaption(String names, String amount) {
     return '$names paid $amount';
   }
@@ -3585,9 +3483,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get repeatEndsLabel => 'Ends';
-
-  @override
-  String get repeatStartsLabel => 'First date';
 
   @override
   String get repeatNoEnd => 'No end date';

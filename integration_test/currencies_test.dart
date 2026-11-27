@@ -215,17 +215,27 @@ void main() {
     );
     await _pumpFor(t, const Duration(seconds: 2));
     router.go(ExpenseRoutes.add(gid));
-    await _waitFor(t, find.byKey(const Key('key-d1')));
+    await _waitFor(t, find.byKey(const Key('expense-amount')));
     await _tap(t, find.text('INR'));
     await _waitFor(t, find.byKey(const Key('currency-search')));
     await _capture(t, 'currency-picker');
     await t.enterText(find.byKey(const Key('currency-search')), 'USD');
     await _pumpFor(t, const Duration(milliseconds: 500));
     await _tap(t, find.byKey(const Key('currency-found-USD')));
-    for (final k in ['d1', 'd2', 'd0']) {
-      await _tap(t, find.byKey(Key('key-$k')));
-    }
-    await t.enterText(find.byKey(const Key('expense-description')), 'Surf lessons');
+    await t.enterText(
+      find.descendant(
+        of: find.byKey(const Key('expense-amount')),
+        matching: find.byType(TextField),
+      ),
+      '120',
+    );
+    await t.enterText(
+      find.descendant(
+        of: find.byKey(const Key('expense-description')),
+        matching: find.byType(TextField),
+      ),
+      'Surf lessons',
+    );
     FocusManager.instance.primaryFocus?.unfocus();
     await _pumpFor(t, const Duration(milliseconds: 500));
     await _capture(t, 'expense-amount-usd');

@@ -71,8 +71,7 @@ class _ListHost extends StatelessWidget {
 }
 
 List<(String, Widget, List<Override>)> _screens(File photo) {
-  ExpenseEditorScreen editor(EditorStep step) =>
-      ExpenseEditorScreen(groupId: gid, initialStep: step);
+  const editor = ExpenseEditorScreen(groupId: gid);
   final withReceipt = sampleExpense(notes: 'Table by the window, paid by card.')
       .copyWith(receiptPath: const Value(_receiptPath));
   final listViews = [
@@ -101,12 +100,12 @@ List<(String, Widget, List<Override>)> _screens(File photo) {
   return [
     (
       'paid-by-multiple',
-      editor(EditorStep.paidBy),
+      editor,
       _editor(sampleDraft(expenseId: null).withPayerText('m1', '700').withPayerText('m2', '300')),
     ),
     (
       'details-receipt',
-      editor(EditorStep.details),
+      editor,
       _editor(
         sampleDraft(expenseId: null)
             .copyWith(receipt: const ReceiptDraft.none().pick(samplePrepared)),
@@ -114,7 +113,7 @@ List<(String, Widget, List<Override>)> _screens(File photo) {
     ),
     (
       'review-multiple',
-      editor(EditorStep.review),
+      editor,
       _editor(sampleDraft(expenseId: null).withPayerText('m1', '700').withPayerText('m2', '500')),
     ),
     (

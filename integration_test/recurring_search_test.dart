@@ -171,9 +171,6 @@ void main() {
     await _pumpFor(t, const Duration(seconds: 2));
 
     // b) The editor: ₹1,200 "Flat rent", split equally, Every month, a note.
-    for (final ch in '1200'.split('')) {
-      await _tap(t, find.byKey(Key('key-d$ch')));
-    }
     await t.enterText(
       find.descendant(
         of: find.byKey(const Key('expense-description')),
@@ -181,15 +178,26 @@ void main() {
       ),
       'Flat rent',
     );
+    await t.enterText(
+      find.descendant(
+        of: find.byKey(const Key('expense-amount')),
+        matching: find.byType(TextField),
+      ),
+      '1200',
+    );
     FocusManager.instance.primaryFocus?.unfocus();
     await _pumpFor(t, const Duration(milliseconds: 400));
-    for (var i = 0; i < 3; i++) {
-      await _tap(t, find.byKey(const Key('expense-next'))); // → Paid by → Split → Details
-    }
-    await _reveal(t, find.byKey(const Key('repeat-monthly')));
+    // One screen (D-032): Repeat and Notes are toolbar chips that open sheets.
+    await _tap(t, find.byKey(const Key('expense-repeat-chip')));
+    await _pumpFor(t, const Duration(milliseconds: 800));
     await _tap(t, find.byKey(const Key('repeat-monthly')));
     await _reveal(t, find.byKey(const Key('repeat-hint')));
     expect(find.byKey(const Key('repeat-hint')), findsOneWidget);
+    await _capture(t, 'repeat-picker');
+    await _tap(t, find.byKey(const Key('repeat-done')));
+    await _pumpFor(t, const Duration(milliseconds: 600));
+    await _tap(t, find.byKey(const Key('expense-notes-chip')));
+    await _pumpFor(t, const Duration(milliseconds: 800));
     final notes = find.descendant(
       of: find.byKey(const Key('expense-notes')),
       matching: find.byType(TextField),
@@ -198,8 +206,8 @@ void main() {
     await t.enterText(notes, 'maintenance included');
     FocusManager.instance.primaryFocus?.unfocus();
     await _pumpFor(t, const Duration(milliseconds: 400));
-    await _reveal(t, find.byKey(const Key('repeat-monthly')));
-    await _capture(t, 'repeat-picker');
+    await _tap(t, find.byKey(const Key('notes-done')));
+    await _pumpFor(t, const Duration(milliseconds: 600));
     await _tap(t, find.byKey(const Key('expense-save')));
     await _pumpFor(t, const Duration(seconds: 2));
 

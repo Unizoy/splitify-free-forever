@@ -151,9 +151,7 @@ void main() {
     ) async {
       router.go(ExpenseRoutes.add(gid));
       await _pumpFor(t, const Duration(seconds: 1));
-      for (final ch in amount.split('')) {
-        await _tap(t, find.byKey(Key('key-${ch == '.' ? 'dot' : 'd$ch'}')));
-      }
+      // One screen (D-032): description, amount on the number keyboard, then the Paid by · split sheet.
       await t.enterText(
         find.descendant(
           of: find.byKey(const Key('expense-description')),
@@ -161,10 +159,17 @@ void main() {
         ),
         description,
       );
+      await t.enterText(
+        find.descendant(
+          of: find.byKey(const Key('expense-amount')),
+          matching: find.byType(TextField),
+        ),
+        amount,
+      );
       FocusManager.instance.primaryFocus?.unfocus();
       await _pumpFor(t, const Duration(milliseconds: 400));
-      await _tap(t, find.byKey(const Key('expense-next'))); // → Paid by (you)
-      await _tap(t, find.byKey(const Key('expense-next'))); // → Split
+      await _tap(t, find.byKey(const Key('split-summary'))); // → the sheet (paid by you)
+      await _pumpFor(t, const Duration(milliseconds: 800));
       if (kindSymbol != null) {
         await _tap(
           t,
@@ -174,6 +179,8 @@ void main() {
       await configure();
       FocusManager.instance.primaryFocus?.unfocus();
       await _pumpFor(t, const Duration(milliseconds: 400));
+      await _tap(t, find.byKey(const Key('paid-split-done')));
+      await _pumpFor(t, const Duration(milliseconds: 600));
       await _tap(t, find.byKey(const Key('expense-save')));
       await _pumpFor(t, const Duration(seconds: 2));
     }
