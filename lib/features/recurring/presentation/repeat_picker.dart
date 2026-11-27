@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:splitify/domain/rules/recurrence.dart';
-import 'package:splitify/features/expenses/presentation/editor/details_step.dart'
+import 'package:splitify/features/expenses/presentation/editor/pickers.dart'
     show MonthCalendar;
 import 'package:splitify/features/expenses/presentation/editor/step_body.dart' show SectionLabel;
 import 'package:splitify/features/expenses/presentation/expense_copy.dart' show shortDate;

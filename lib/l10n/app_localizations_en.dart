@@ -1831,10 +1831,96 @@ class AppLocalizationsEn extends AppLocalizations {
   String get expDescriptionHint => 'Dinner, cab, groceries…';
 
   @override
-  String get expDescriptionMissing => 'Add a short description';
+  String get expDescriptionMissing => 'Add a description';
 
   @override
   String get expDescriptionTooLong => 'Use up to 120 characters';
+
+  @override
+  String get expAddTitle => 'Add expense';
+
+  @override
+  String get expWithLabel => 'With you and';
+
+  @override
+  String get expAmountMissing => 'Enter an amount';
+
+  @override
+  String get expPaidSplitTitle => 'Paid by and split';
+
+  @override
+  String get expPaidSplitHint => 'Change who paid and how it\'s split';
+
+  @override
+  String expPillPaidBy(String name) {
+    return 'Paid by $name';
+  }
+
+  @override
+  String expPillPeoplePaid(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count people paid',
+      one: '1 person paid',
+      zero: 'Several people paid',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String expPillSummary(String paid, String how) {
+    return '$paid · $how';
+  }
+
+  @override
+  String get expPillSplitEqual => 'split equally';
+
+  @override
+  String get expPillSplitExact => 'split exactly';
+
+  @override
+  String get expPillSplitPercent => 'split by percentages';
+
+  @override
+  String get expPillSplitShares => 'split by shares';
+
+  @override
+  String get expPillSplitAdjust => 'split with adjustments';
+
+  @override
+  String get expSplitSectionLabel => 'Split';
+
+  @override
+  String get expDiscardTitle => 'Discard this expense?';
+
+  @override
+  String get expDiscardBody => 'The amount and details you typed will be lost.';
+
+  @override
+  String get expDiscardEditTitle => 'Discard your changes?';
+
+  @override
+  String get expDiscardEditBody => 'The expense stays as it was last saved.';
+
+  @override
+  String expToolDate(String date) {
+    return 'Date: $date';
+  }
+
+  @override
+  String expToolFirstDate(String date) {
+    return 'First date: $date';
+  }
+
+  @override
+  String get expToolNotesAdded => 'Notes added';
+
+  @override
+  String get expToolReceiptAdded => 'Receipt added';
+
+  @override
+  String get expCategoryPick => 'Pick a category';
 
   @override
   String expCurrencyLabel(String code) {

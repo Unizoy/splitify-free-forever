@@ -3,23 +3,27 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:splitify/core/money/currencies.dart';
 import 'package:splitify/core/money/money_formatter.dart';
+import 'package:splitify/core/money/split.dart';
 import 'package:splitify/features/expenses/application/expense_draft.dart';
 import 'package:splitify/features/expenses/application/split_draft.dart';
 import 'package:splitify/features/expenses/presentation/editor/step_body.dart';
+import 'package:splitify/features/expenses/presentation/expense_copy.dart';
 import 'package:splitify/features/expenses/presentation/split_editor.dart';
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/components/components.dart';
 import 'package:splitify/ui/theme/theme.dart';
 
-/// Step 2 "Who paid?": one OptionTile per person (you first) + "Multiple people", which opens an
-/// amount per person with the live "left / over" footer in the sticky bar (#10). Payers need not be
-/// in the split.
-class PaidByStep extends StatelessWidget {
-  const PaidByStep({
+/// The one "Paid by · split" sheet of the expense editor (D-032): who paid (one person, or several with
+/// an amount each, #10; payers need not be in the split), then how it is split (#5–9) with the live
+/// footers. Every change goes straight into the draft, so closing the sheet keeps it.
+class PaidSplitPanel extends StatelessWidget {
+  const PaidSplitPanel({
     required this.draft,
     required this.onPayer,
     required this.onMultiple,
     required this.onPayerText,
+    required this.onSplit,
+    required this.onDone,
     super.key,
   });
 
@@ -27,37 +31,127 @@ class PaidByStep extends StatelessWidget {
   final ValueChanged<String> onPayer;
   final VoidCallback onMultiple;
   final void Function(String memberId, String text) onPayerText;
+  final ValueChanged<SplitDraft> onSplit;
+  final VoidCallback onDone;
 
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    final people = [...draft.members.where((m) => m.isMe), ...draft.members.where((m) => !m.isMe)];
-    final several = draft.multiplePayers;
-    return StepBody(
-      question: l.expPaidByQuestion,
+    final d = draft;
+    final people = [...d.members.where((m) => m.isMe), ...d.members.where((m) => !m.isMe)];
+    final several = d.multiplePayers;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        for (final m in people) ...[
-          OptionTile(
-            key: Key('payer-${m.id}'),
-            label: m.isMe ? l.you : m.name,
-            selected: draft.payerId == m.id,
-            leading: Avatar(name: m.name, seed: m.id, size: AvatarSize.s32),
-            onTap: () => onPayer(m.id),
-          ),
-          const SizedBox(height: AppSpacing.s3),
-        ],
-        OptionTile(
-          key: const Key('payer-multiple'),
-          label: l.expMultiplePeople,
-          selected: several,
-          leading: Icon(AppIcons.groups, size: 20, color: context.colors.primary),
-          onTap: onMultiple,
+        SectionLabel(l.expPaidByLabel),
+        Wrap(
+          spacing: AppSpacing.s2,
+          runSpacing: AppSpacing.s2,
+          children: [
+            for (final m in people)
+              _PayerChip(
+                key: Key('payer-${m.id}'),
+                member: m,
+                selected: d.payerId == m.id,
+                onTap: () => onPayer(m.id),
+              ),
+            IconChip(
+              key: const Key('payer-multiple'),
+              label: l.expMultiplePeople,
+              icon: AppIcons.groups,
+              selected: several,
+              onTap: onMultiple,
+            ),
+          ],
         ),
         if (several) ...[
-          const SizedBox(height: AppSpacing.s5),
-          PayerAmounts(draft: draft, people: people, onChanged: onPayerText),
+          const SizedBox(height: AppSpacing.s4),
+          PayerAmounts(draft: d, people: people, onChanged: onPayerText),
+          const SizedBox(height: AppSpacing.s3),
+          SplitFooterLine(
+            key: const Key('payers-footer'),
+            textKey: const Key('payers-footer-text'),
+            footer: payersFooter(l, d),
+          ),
         ],
+        const SizedBox(height: AppSpacing.s8),
+        SectionLabel(l.expSplitSectionLabel),
+        SplitKindPicker(
+          value: d.split.kind,
+          onChanged: (k) => onSplit(d.split.switchTo(k, total: d.total)),
+        ),
+        const SizedBox(height: AppSpacing.s4),
+        SplitMemberRows(
+          split: d.split,
+          members: d.members,
+          currency: d.currency,
+          total: d.total,
+          onChanged: onSplit,
+        ),
+        const SizedBox(height: AppSpacing.s3),
+        SplitFooterLine(footer: splitSheetFooter(l, d)),
+        const SizedBox(height: AppSpacing.s6),
+        PillButton(key: const Key('paid-split-done'), label: l.loanAmountDone, onPressed: onDone),
       ],
+    );
+  }
+}
+
+/// A person to pick as the one payer: avatar and name on a pill (filled ink when chosen).
+class _PayerChip extends StatelessWidget {
+  const _PayerChip({required this.member, required this.selected, required this.onTap, super.key});
+
+  final EditorMember member;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final c = context.colors;
+    final name = member.isMe ? l.you : member.name;
+    return Semantics(
+      button: true,
+      selected: selected,
+      label: name,
+      excludeSemantics: true,
+      onTap: onTap,
+      child: Pressable(
+        onTap: onTap,
+        borderRadius: AppRadii.allPill,
+        scale: 0.95,
+        haptic: PressHaptic.selection,
+        child: Material(
+          color: selected ? c.ink : c.surface,
+          shape: StadiumBorder(side: BorderSide(color: selected ? c.ink : c.border, width: 1.2)),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: AppSpacing.minTouch),
+            child: Padding(
+              padding: const EdgeInsetsDirectional.fromSTEB(
+                AppSpacing.s2,
+                AppSpacing.s1,
+                AppSpacing.s4,
+                AppSpacing.s1,
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Avatar(name: member.name, seed: member.id, size: AvatarSize.s32),
+                  const SizedBox(width: AppSpacing.s2),
+                  Flexible(
+                    child: Text(
+                      name,
+                      style: context.text.body
+                          .w(600)
+                          .copyWith(color: selected ? c.onInk : c.textPrimary),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
@@ -83,7 +177,7 @@ class _PayerAmountsState extends State<PayerAmounts> {
   @override
   void initState() {
     super.initState();
-    // The card opens below the person list: bring it into view once.
+    // The card opens below the person chips: bring it into view once.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       unawaited(Scrollable.ensureVisible(context, duration: context.motion.base, alignment: 0.1));
@@ -219,56 +313,33 @@ class _PayerRow extends StatelessWidget {
   };
 }
 
-/// Names of the payers for sentences: "you", "you and Asha", "you and 2 others".
-String payerNames(AppLocalizations l, ExpenseDraft d, {bool capital = false}) {
-  final ids = d.payerIds;
+/// The editor's one-line summary of who paid and how it is split (D-032): "Paid by You · split equally",
+/// "2 people paid · split by shares".
+String paidSplitSummary(AppLocalizations l, ExpenseDraft d) {
   String name(String id) {
     final m = d.member(id);
     if (m == null) return '';
-    if (m.isMe) return capital ? l.you : l.expYouLower;
-    return m.name;
+    return m.isMe ? l.you : m.name;
   }
 
-  final ordered = [
-    ...ids.where((id) => d.member(id)?.isMe ?? false),
-    ...ids.where((id) => !(d.member(id)?.isMe ?? false)),
-  ];
-  if (ordered.isEmpty) return l.expSeveralPeople;
-  final first = name(ordered.first);
-  return switch (ordered.length) {
-    1 => first,
-    2 => l.payersTwo(first, name(ordered[1])),
-    _ => l.payersMany(first, ordered.length - 1),
+  final ids = d.payerIds;
+  final paid = ids.length == 1 ? l.expPillPaidBy(name(ids.first)) : l.expPillPeoplePaid(ids.length);
+  final how = switch (d.split.kind) {
+    SplitKind.equal => l.expPillSplitEqual,
+    SplitKind.exact => l.expPillSplitExact,
+    SplitKind.percent => l.expPillSplitPercent,
+    SplitKind.shares => l.expPillSplitShares,
+    SplitKind.adjust => l.expPillSplitAdjust,
   };
+  return l.expPillSummary(paid, how);
 }
 
-/// Step 3 "How should it be split?": kind row + one row per person; the live footer sits in the
-/// sticky bar.
-class SplitStep extends StatelessWidget {
-  const SplitStep({required this.draft, required this.onSplit, super.key});
-
-  final ExpenseDraft draft;
-  final ValueChanged<SplitDraft> onSplit;
-
-  @override
-  Widget build(BuildContext context) {
-    final l = AppLocalizations.of(context);
-    return StepBody(
-      question: l.expSplitQuestion,
-      children: [
-        SplitKindPicker(
-          value: draft.split.kind,
-          onChanged: (k) => onSplit(draft.split.switchTo(k, total: draft.total)),
-        ),
-        const SizedBox(height: AppSpacing.s4),
-        SplitMemberRows(
-          split: draft.split,
-          members: draft.members,
-          currency: draft.currency,
-          total: draft.total,
-          onChanged: onSplit,
-        ),
-      ],
-    );
-  }
+/// The line under the summary pill and at the foot of the sheet: a payers problem first ("₹400 left"),
+/// then the split's footer ("3 people · ₹400 each", "₹200 left"). Without an amount yet it only counts
+/// the people, so a fresh screen shows no error.
+SplitFooter splitSheetFooter(AppLocalizations l, ExpenseDraft d) {
+  final total = d.total;
+  if (total == null) return (text: l.expFooterPeople(d.split.participants.length), error: false);
+  if (d.multiplePayers && !d.payersOk) return payersFooter(l, d);
+  return splitFooter(l, d.split, total, d.currency, nameOf: (id) => d.member(id)?.name ?? '');
 }

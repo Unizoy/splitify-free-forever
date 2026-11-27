@@ -1,129 +1,12 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:splitify/domain/rules/expense_categories.dart';
-import 'package:splitify/features/expenses/application/expense_draft.dart';
-import 'package:splitify/features/expenses/application/receipt_draft.dart';
-import 'package:splitify/features/expenses/presentation/editor/receipt_field.dart';
-import 'package:splitify/features/expenses/presentation/editor/step_body.dart';
 import 'package:splitify/features/expenses/presentation/expense_copy.dart';
-import 'package:splitify/features/recurring/application/repeat_draft.dart';
-import 'package:splitify/features/recurring/presentation/repeat_picker.dart';
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/components/components.dart';
 import 'package:splitify/ui/theme/theme.dart';
-
-/// Step 4 "A few details": category (parent → sub IconChips), date (today / yesterday / calendar
-/// sheet like 534), repeat (#12), notes and the receipt photo (#29). Editing future copies of a
-/// repeating expense shows its first date read-only and no receipt.
-class DetailsStep extends StatelessWidget {
-  const DetailsStep({
-    required this.draft,
-    required this.today,
-    required this.notes,
-    required this.onCategory,
-    required this.onDate,
-    required this.onNotes,
-    this.onReceipt,
-    this.onRepeat,
-    super.key,
-  });
-
-  final ExpenseDraft draft;
-
-  /// The device's local calendar day.
-  final DateTime today;
-  final TextEditingController notes;
-  final ValueChanged<String> onCategory;
-  final ValueChanged<DateTime> onDate;
-  final ValueChanged<String> onNotes;
-
-  /// Receipt changes; null hides the receipt section.
-  final ValueChanged<ReceiptDraft>? onReceipt;
-
-  /// Repeat changes; null hides the repeat section.
-  final ValueChanged<RepeatDraft>? onRepeat;
-
-  @override
-  Widget build(BuildContext context) {
-    final l = AppLocalizations.of(context);
-    final tooLong = draft.notes.trim().length > maxNotes;
-    return StepBody(
-      question: l.expDetailsQuestion,
-      children: [
-        SectionLabel(
-          l.expCategoryLabel,
-          trailing: draft.categoryIsAuto
-              ? TagChip(
-                  key: const Key('category-auto'),
-                  label: l.expCategoryAuto,
-                  icon: AppIcons.sparkle,
-                )
-              : null,
-        ),
-        CategoryPicker(value: draft.category, onChanged: onCategory),
-        const SizedBox(height: AppSpacing.s8),
-        if (draft.isTemplate) ...[
-          DashedListRow(
-            key: const Key('template-start'),
-            icon: AppIcons.calendar,
-            label: l.repeatStartsLabel,
-            value: shortDate(context, draft.date),
-            showDivider: false,
-          ),
-          const SizedBox(height: AppSpacing.s2),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Icon(AppIcons.info, size: 18, color: context.colors.textSecondary),
-              const SizedBox(width: AppSpacing.s2),
-              Expanded(
-                child: Text(
-                  l.recurringEditNote,
-                  key: const Key('template-note'),
-                  style: context.text.bodySmall.copyWith(color: context.colors.textSecondary),
-                ),
-              ),
-            ],
-          ),
-        ] else ...[
-          SectionLabel(l.expDateLabel),
-          DateChips(value: draft.date, today: today, onChanged: onDate),
-        ],
-        if (onRepeat != null) ...[
-          const SizedBox(height: AppSpacing.s8),
-          SectionLabel(l.repeatLabel),
-          RepeatPicker(
-            value: draft.repeat,
-            start: draft.date,
-            today: today,
-            allowNever: !draft.isTemplate,
-            onChanged: onRepeat!,
-          ),
-        ],
-        const SizedBox(height: AppSpacing.s8),
-        UnderlineField(
-          key: const Key('expense-notes'),
-          label: l.expNotesLabel,
-          hint: l.expNotesHint,
-          controller: notes,
-          maxLines: null,
-          keyboardType: TextInputType.multiline,
-          errorText: tooLong ? l.expNotesTooLong : null,
-          inputFormatters: [LengthLimitingTextInputFormatter(maxNotes + 50)],
-          onChanged: onNotes,
-        ),
-        if (onReceipt != null) ...[
-          const SizedBox(height: AppSpacing.s8),
-          SectionLabel(l.receiptLabel),
-          ReceiptField(receipt: draft.receipt, onChanged: onReceipt!),
-        ],
-      ],
-    );
-  }
-}
 
 /// Category picker (#13, TC-13-02): the 8 parents as coloured IconChips, then the chosen parent's
 /// sub categories.

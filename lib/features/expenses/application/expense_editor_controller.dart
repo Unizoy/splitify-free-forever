@@ -92,6 +92,7 @@ class ExpenseEditorController extends AsyncNotifier<ExpenseDraft> {
       return ExpenseDraft(
         groupId: groupId,
         groupName: group.name,
+        groupType: group.type,
         currency: currency,
         members: _people(active, meId),
         split: SplitDraft.initial(activeIds, Currencies.exponentOf(currency), preset: preset),
@@ -118,6 +119,7 @@ class ExpenseEditorController extends AsyncNotifier<ExpenseDraft> {
     return ExpenseDraft(
       groupId: groupId,
       groupName: group.name,
+      groupType: group.type,
       expenseId: saved.id,
       currency: saved.currency,
       members: _people([...active, ...extra], meId),
@@ -177,6 +179,7 @@ class ExpenseEditorController extends AsyncNotifier<ExpenseDraft> {
     return ExpenseDraft(
       groupId: t.groupId,
       groupName: group.name,
+      groupType: group.type,
       currency: currency,
       members: _people([...active, ...extra], meId),
       split: SplitDraft.stored(
@@ -207,7 +210,7 @@ class ExpenseEditorController extends AsyncNotifier<ExpenseDraft> {
   }
 
   /// Auto-category (D-028): the description's suggested category, while the user has not picked one in this
-  /// edit of a new expense. The editor calls it ~250 ms after typing stops and before leaving step 1.
+  /// edit of a new expense. The editor calls it ~250 ms after typing stops and before Save.
   void suggestCategory() {
     final d = state.value;
     if (d == null || !d.categoryFollowsDescription) return;

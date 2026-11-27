@@ -51,11 +51,10 @@ class PushHost extends StatelessWidget {
   );
 }
 
-/// Opens the editor on [step] with [draft]; returns the controller handle.
+/// Opens the editor with [draft]; returns the controller handle.
 Future<EditorHandle> pumpEditor(
   WidgetTester tester,
   ExpenseDraft draft, {
-  EditorStep step = EditorStep.amount,
   ExpenseEditorArgs args = editArgs,
   List<Override> overrides = const [],
   FixedEditorController Function(ExpenseEditorArgs args, ExpenseDraft draft)? make,
@@ -64,8 +63,8 @@ Future<EditorHandle> pumpEditor(
   await tester.pumpWidget(const SizedBox());
   final handle = EditorHandle();
   final editor = args.expenseId == null
-      ? ExpenseEditorScreen(groupId: args.groupId, initialStep: step)
-      : ExpenseEditorScreen(expenseId: args.expenseId, initialStep: step);
+      ? ExpenseEditorScreen(groupId: args.groupId)
+      : ExpenseEditorScreen(expenseId: args.expenseId);
   // [overrides] apply to the editor route only (the app scope already has the base overrides).
   final screen = overrides.isEmpty ? editor : ProviderScope(overrides: overrides, child: editor);
   await tester.pumpWidget(
@@ -118,10 +117,6 @@ Finder fieldIn(String key) =>
 
 String? textOf(Finder f) => (f.evaluate().single.widget as Text).data;
 
-/// The StepHeader label of step [name].
-Finder stepLabel(String name) =>
-    find.descendant(of: find.byType(StepHeader), matching: find.text(name));
-
 /// Scrolls the first scrollable until [finder] is built and visible.
 Future<void> reveal(WidgetTester tester, Finder finder) async {
   if (finder.evaluate().isEmpty) {
@@ -156,6 +151,15 @@ GoRoute stubRoute(String path) => GoRoute(
     body: Center(child: Text('at ${state.uri}', key: const Key('stub'))),
   ),
 );
+
+/// Opens the editor's one "Paid by · split" sheet (D-032).
+Future<void> openPaidSplit(WidgetTester tester) => tapKey(tester, 'split-summary');
+
+/// The text of the summary pill and its live line.
+String pillText(WidgetTester tester) =>
+    tester.widget<Text>(find.byKey(const Key('split-summary-text'))).data!;
+String pillFooter(WidgetTester tester) =>
+    tester.widget<Text>(find.byKey(const Key('split-summary-footer'))).data!;
 
 /// Taps a segment of the split-kind pill by its symbol (`=`, `1.23`, `%`, `1:2`, `±`).
 Future<void> tapKind(WidgetTester tester, String symbol) async {

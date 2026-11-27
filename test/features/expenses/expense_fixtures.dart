@@ -258,25 +258,29 @@ Widget expenseApp(
     size: size,
     child: ProviderScope(
       overrides: [...baseOverrides(), ...overrides],
-      child: MediaQuery(
-        data: MediaQueryData(
-          size: size,
-          padding: const EdgeInsets.only(top: 24, bottom: 16),
-          textScaler: TextScaler.linear(scale),
-        ),
-        child: MaterialApp(
-          localizationsDelegates: const [
-            AppLocalizations.delegate,
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-          ],
-          supportedLocales: AppLocalizations.supportedLocales,
-          theme: AppTheme.light(),
-          darkTheme: AppTheme.dark(),
-          themeMode: mode,
-          debugShowCheckedModeBanner: false,
-          home: child,
+      // The test view's keyboard inset passes through (D-032 keyboard tests); goldens have none.
+      child: Builder(
+        builder: (context) => MediaQuery(
+          data: MediaQueryData(
+            size: size,
+            padding: const EdgeInsets.only(top: 24, bottom: 16),
+            viewInsets: MediaQuery.maybeViewInsetsOf(context) ?? EdgeInsets.zero,
+            textScaler: TextScaler.linear(scale),
+          ),
+          child: MaterialApp(
+            localizationsDelegates: const [
+              AppLocalizations.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: AppLocalizations.supportedLocales,
+            theme: AppTheme.light(),
+            darkTheme: AppTheme.dark(),
+            themeMode: mode,
+            debugShowCheckedModeBanner: false,
+            home: child,
+          ),
         ),
       ),
     ),

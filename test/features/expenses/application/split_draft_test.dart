@@ -166,7 +166,7 @@ void main() {
       expect(d.descriptionProblem, DescriptionProblem.missing);
       expect(d.copyWith(description: 'x' * 121).descriptionProblem, DescriptionProblem.tooLong);
       final ok = d.copyWith(amountText: '450+50', description: ' Dinner ');
-      expect(ok.fastPathReady, isTrue);
+      expect(ok.firstProblem, isNull);
       expect(ok.canSave, isTrue);
       expect(ok.copyWith(notes: 'n' * 1001).canSave, isFalse);
       expect(() => d.toRow(), throwsStateError);

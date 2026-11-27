@@ -13,7 +13,7 @@ import 'package:splitify/data/local/app_database.dart';
 import 'package:splitify/features/balances/presentation/balance_copy.dart';
 import 'package:splitify/features/currency/presentation/currency_picker_sheet.dart'
     show CurrencyChip, pickGroupCurrency;
-import 'package:splitify/features/expenses/presentation/editor/details_step.dart' show DateChips;
+import 'package:splitify/features/expenses/presentation/editor/pickers.dart' show DateChips;
 import 'package:splitify/features/expenses/presentation/expense_copy.dart';
 import 'package:splitify/features/groups/presentation/group_visuals.dart'
     show PageTitle, SectionLabel;

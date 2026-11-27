@@ -5,43 +5,37 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:splitify/core/time/clock.dart';
-import 'package:splitify/core/money/money_formatter.dart';
-import 'package:splitify/data/data_providers.dart';
+import 'package:splitify/data/data_providers.dart' show clockProvider;
+import 'package:splitify/domain/rules/expense_categories.dart';
 import 'package:splitify/features/currency/presentation/currency_picker_sheet.dart'
-    show pickGroupCurrency;
+    show CurrencyChip, pickGroupCurrency;
 import 'package:splitify/features/expenses/application/category_providers.dart';
 import 'package:splitify/features/expenses/application/expense_draft.dart';
 import 'package:splitify/features/expenses/application/expense_editor_controller.dart';
-import 'package:splitify/features/expenses/application/split_draft.dart';
-import 'package:splitify/features/expenses/presentation/editor/amount_step.dart';
-import 'package:splitify/features/expenses/presentation/editor/details_step.dart';
-import 'package:splitify/features/expenses/presentation/editor/paid_split_steps.dart';
-import 'package:splitify/features/expenses/presentation/editor/review_step.dart';
+import 'package:splitify/features/expenses/presentation/editor/editor_fields.dart';
+import 'package:splitify/features/expenses/presentation/editor/paid_split_sheet.dart';
+import 'package:splitify/features/expenses/presentation/editor/pickers.dart';
+import 'package:splitify/features/expenses/presentation/editor/receipt_field.dart';
 import 'package:splitify/features/expenses/presentation/expense_copy.dart';
-import 'package:splitify/features/expenses/presentation/split_editor.dart';
+import 'package:splitify/features/groups/application/groups_providers.dart'
+    show syncOfflineProvider;
+import 'package:splitify/features/groups/presentation/group_visuals.dart' show confirmAction;
+import 'package:splitify/features/recurring/application/recurring_providers.dart'
+    show intervalLabel;
+import 'package:splitify/features/recurring/presentation/repeat_picker.dart';
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/components/components.dart';
 import 'package:splitify/ui/theme/theme.dart';
-import 'package:splitify/features/groups/application/groups_providers.dart'
-    show syncOfflineProvider;
 
 /// How long typing must pause before the category follows the description (D-028).
 const suggestDelay = Duration(milliseconds: 250);
 
-/// The stepper's steps (07 §2 Add expense).
-enum EditorStep { amount, paidBy, split, details, review }
-
-/// Add / edit expense (`/expense/new?group=`, `/expense/:id/edit`): StepHeader with Amount · Paid by
-/// · Split · Details · Review. "Save" is offered from step 1 once amount and description are set
-/// (defaults: you paid, the group's default split), so most expenses take one screen.
+/// Add / edit expense (`/expense/new?group=`, `/expense/:id/edit`, `/recurring/:id/edit`) on one screen
+/// like Splitwise (D-032): "With you and" + the group, category + description, currency + amount on the
+/// phone's own keyboards, one "Paid by · split" pill that opens a sheet, and a bottom toolbar (date, notes,
+/// receipt, repeat) with Save that stays above the keyboard. Defaults: you paid, the group's default split.
 class ExpenseEditorScreen extends ConsumerStatefulWidget {
-  const ExpenseEditorScreen({
-    this.groupId,
-    this.expenseId,
-    this.templateId,
-    this.initialStep,
-    super.key,
-  });
+  const ExpenseEditorScreen({this.groupId, this.expenseId, this.templateId, super.key});
 
   final String? groupId;
   final String? expenseId;
@@ -49,21 +43,25 @@ class ExpenseEditorScreen extends ConsumerStatefulWidget {
   /// "Edit future copies" of this repeating-expense template (#12) instead of one expense.
   final String? templateId;
 
-  /// Opens on this step (tests, deep links); default amount.
-  final EditorStep? initialStep;
-
   @override
   ConsumerState<ExpenseEditorScreen> createState() => _ExpenseEditorScreenState();
 }
 
 class _ExpenseEditorScreenState extends ConsumerState<ExpenseEditorScreen> {
-  late EditorStep _step = widget.initialStep ?? EditorStep.amount;
   TextEditingController? _description;
+  TextEditingController? _amount;
   TextEditingController? _notes;
+  final _descriptionFocus = FocusNode(debugLabel: 'expense description');
+  final _amountFocus = FocusNode(debugLabel: 'expense amount');
   Timer? _suggest;
+
+  /// Show "required" problems (after a Save attempt).
   bool _showErrors = false;
   bool _saving = false;
   bool _saved = false;
+
+  /// The user changed something: leaving asks first.
+  bool _dirty = false;
 
   ExpenseEditorArgs get _args => (groupId: widget.groupId, expenseId: widget.expenseId);
 
@@ -72,16 +70,24 @@ class _ExpenseEditorScreenState extends ConsumerState<ExpenseEditorScreen> {
       ? templateEditorProvider(widget.templateId!)
       : expenseEditorProvider(_args);
 
+  ExpenseDraft? get _draft => ref.read(_provider).value;
+
   @override
   void dispose() {
     _suggest?.cancel();
     _description?.dispose();
+    _amount?.dispose();
     _notes?.dispose();
+    _descriptionFocus.dispose();
+    _amountFocus.dispose();
     super.dispose();
   }
 
-  void _edit(ExpenseDraft Function(ExpenseDraft d) change) =>
-      ref.read(_provider.notifier).edit(change);
+  /// A change the user made (marks the editor as changed).
+  void _edit(ExpenseDraft Function(ExpenseDraft d) change) {
+    _dirty = true;
+    ref.read(_provider.notifier).edit(change);
+  }
 
   /// Auto-category (D-028): the category follows the description ~250 ms after typing stops.
   void _described(String text) {
@@ -90,36 +96,241 @@ class _ExpenseEditorScreenState extends ConsumerState<ExpenseEditorScreen> {
     _suggest = Timer(suggestDelay, _flushSuggestion);
   }
 
-  /// Applies a pending suggestion now (leaving step 1, saving).
+  /// Applies a pending suggestion now (opening the category picker, saving).
   void _flushSuggestion() {
     _suggest?.cancel();
     _suggest = null;
     if (mounted) ref.read(_provider.notifier).suggestCategory();
   }
 
+  /// The sheets read and change the same draft as the screen (also when a test scopes the editor).
+  Widget _scoped(Widget child) =>
+      UncontrolledProviderScope(container: ProviderScope.containerOf(context), child: child);
+
+  /// A sheet that shows the live draft.
+  Widget _live(Widget Function(BuildContext context, ExpenseDraft d) build) => _scoped(
+    Consumer(
+      builder: (context, ref, _) {
+        final d = ref.watch(_provider).value;
+        return d == null ? const SizedBox.shrink() : build(context, d);
+      },
+    ),
+  );
+
   Future<void> _pickCurrency(ExpenseDraft d) async {
     final code = await pickGroupCurrency(context, ref, groupId: d.groupId, selected: d.currency);
     if (code != null && code != d.currency) _edit((x) => x.withCurrency(code));
   }
 
-  void _go(EditorStep step) {
-    if (step == _step) return;
+  Future<void> _pickCategory() async {
     if (_suggest != null) _flushSuggestion();
-    HapticFeedback.selectionClick();
-    FocusManager.instance.primaryFocus?.unfocus();
-    setState(() => _step = step);
+    final l = AppLocalizations.of(context);
+    await showAppSheet<void>(
+      context,
+      title: l.expCategoryLabel,
+      builder: (sheet) => _live(
+        (context, d) => Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            CategoryPicker(
+              value: d.category,
+              onChanged: (key) {
+                final sub =
+                    ExpenseCategories.parentOf(key) == ExpenseCategories.parentOf(d.category);
+                _edit((x) => x.pickCategory(key));
+                // A sub category finishes the choice; a new parent first shows its subs.
+                if (sub) Navigator.of(sheet).pop();
+              },
+            ),
+            const SizedBox(height: AppSpacing.s6),
+            PillButton(
+              key: const Key('category-done'),
+              label: l.loanAmountDone,
+              onPressed: () => Navigator.of(sheet).pop(),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
-  void _back() {
-    if (_step.index > 0) {
-      _go(EditorStep.values[_step.index - 1]);
-    } else {
-      unawaited(_close());
+  Future<void> _openPaidSplit() async {
+    final l = AppLocalizations.of(context);
+    await showAppSheet<void>(
+      context,
+      title: l.expPaidSplitTitle,
+      builder: (sheet) => _live(
+        (context, d) => Padding(
+          padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
+          child: PaidSplitPanel(
+            draft: d,
+            onPayer: (id) => _edit((x) => x.withSinglePayer(id)),
+            onMultiple: () => _edit((x) => x.withMultiplePayers()),
+            onPayerText: (id, t) => _edit((x) => x.withPayerText(id, t)),
+            onSplit: (s) => _edit((x) => x.copyWith(split: s)),
+            onDone: () => Navigator.of(sheet).pop(),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _pickDate(ExpenseDraft d) async {
+    final l = AppLocalizations.of(context);
+    final today = ref.read(clockProvider).today();
+    final yesterday = DateTime(today.year, today.month, today.day - 1);
+    final picked = await showAppSheet<DateTime>(
+      context,
+      title: l.expPickDate,
+      builder: (sheet) => Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Wrap(
+            spacing: AppSpacing.s2,
+            runSpacing: AppSpacing.s2,
+            children: [
+              IconChip(
+                key: const Key('date-today'),
+                label: l.expToday,
+                selected: DateUtils.isSameDay(d.date, today),
+                onTap: () => Navigator.of(sheet).pop(today),
+              ),
+              IconChip(
+                key: const Key('date-yesterday'),
+                label: l.expYesterday,
+                selected: DateUtils.isSameDay(d.date, yesterday),
+                onTap: () => Navigator.of(sheet).pop(yesterday),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.s5),
+          MonthCalendar(
+            initial: d.date,
+            today: today,
+            onPicked: (day) => Navigator.of(sheet).pop(day),
+          ),
+        ],
+      ),
+    );
+    if (picked != null && !DateUtils.isSameDay(picked, d.date)) {
+      _edit((x) => x.copyWith(date: picked));
     }
   }
 
-  /// Leaves the editor (after Save or Back on step 1). `pop` ignores the step-back PopScope.
-  Future<void> _close() async {
+  Future<void> _openNotes() async {
+    final l = AppLocalizations.of(context);
+    final notes = _notes;
+    if (notes == null) return;
+    await showAppSheet<void>(
+      context,
+      title: l.expNotesLabel,
+      builder: (sheet) => Padding(
+        padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(sheet).bottom),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            ValueListenableBuilder<TextEditingValue>(
+              valueListenable: notes,
+              builder: (context, value, _) => UnderlineField(
+                key: const Key('expense-notes'),
+                label: l.expNotesLabel,
+                hint: l.expNotesHint,
+                controller: notes,
+                autofocus: true,
+                maxLines: null,
+                keyboardType: TextInputType.multiline,
+                errorText: value.text.trim().length > maxNotes ? l.expNotesTooLong : null,
+                inputFormatters: [LengthLimitingTextInputFormatter(maxNotes + 50)],
+                onChanged: (t) => _edit((d) => d.copyWith(notes: t)),
+              ),
+            ),
+            const SizedBox(height: AppSpacing.s6),
+            PillButton(
+              key: const Key('notes-done'),
+              label: l.loanAmountDone,
+              onPressed: () => Navigator.of(sheet).pop(),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _openReceipt() async {
+    final l = AppLocalizations.of(context);
+    await showAppSheet<void>(
+      context,
+      title: l.receiptLabel,
+      builder: (sheet) => _live(
+        (context, d) => Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            ReceiptField(
+              receipt: d.receipt,
+              onChanged: (r) => _edit((x) => x.copyWith(receipt: r)),
+            ),
+            const SizedBox(height: AppSpacing.s6),
+            PillButton(
+              key: const Key('receipt-done'),
+              label: l.loanAmountDone,
+              onPressed: () => Navigator.of(sheet).pop(),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _openRepeat() async {
+    final l = AppLocalizations.of(context);
+    final today = ref.read(clockProvider).today();
+    await showAppSheet<void>(
+      context,
+      title: l.repeatLabel,
+      builder: (sheet) => _live(
+        (context, d) => Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            RepeatPicker(
+              value: d.repeat,
+              start: d.date,
+              today: today,
+              allowNever: !d.isTemplate,
+              onChanged: (r) => _edit((x) => x.withRepeat(r)),
+            ),
+            const SizedBox(height: AppSpacing.s6),
+            PillButton(
+              key: const Key('repeat-done'),
+              label: l.loanAmountDone,
+              onPressed: () => Navigator.of(sheet).pop(),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Leaving with changes asks first (an app sheet, never a system alert).
+  Future<void> _back() async {
+    final d = _draft;
+    if (_dirty && !_saved && d != null) {
+      final l = AppLocalizations.of(context);
+      final changing = d.isEdit || d.isTemplate;
+      FocusManager.instance.primaryFocus?.unfocus();
+      final discard = await confirmAction(
+        context,
+        title: changing ? l.expDiscardEditTitle : l.expDiscardTitle,
+        body: changing ? l.expDiscardEditBody : l.expDiscardBody,
+        confirm: l.discardLabel,
+        icon: AppIcons.trash,
+      );
+      if (!discard || !mounted) return;
+    }
+    _close();
+  }
+
+  /// Leaves the editor. `pop` ignores the PopScope that asks before discarding.
+  void _close() {
     final navigator = Navigator.of(context);
     if (navigator.canPop()) {
       navigator.pop();
@@ -128,32 +339,35 @@ class _ExpenseEditorScreenState extends ConsumerState<ExpenseEditorScreen> {
     }
   }
 
-  void _next(ExpenseDraft d) {
-    if (_step == EditorStep.amount && !d.fastPathReady) {
-      setState(() => _showErrors = true);
-      return;
+  /// Points at what stops Save: focuses the field, or opens the sheet that fixes it.
+  void _point(EditorProblem problem) {
+    switch (problem) {
+      case EditorProblem.description:
+        _descriptionFocus.requestFocus();
+      case EditorProblem.amount:
+        _amountFocus.requestFocus();
+      case EditorProblem.paidSplit:
+        unawaited(_openPaidSplit());
+      case EditorProblem.notes:
+        unawaited(_openNotes());
+      case EditorProblem.repeat:
+        unawaited(_openRepeat());
     }
-    _go(EditorStep.values[_step.index + 1]);
   }
 
-  /// First step that still has a problem.
-  EditorStep? _problemStep(ExpenseDraft d) {
-    if (!d.fastPathReady) return EditorStep.amount;
-    if (!d.payersOk) return EditorStep.paidBy;
-    if (d.splitCheck is! SplitReady) return EditorStep.split;
-    if (d.notes.trim().length > maxNotes || d.repeatProblem) return EditorStep.details;
-    return null;
-  }
-
-  Future<void> _save(ExpenseDraft draft) async {
+  Future<void> _save() async {
+    if (_saving || _saved) return;
     if (_suggest != null) _flushSuggestion();
-    final d = ref.read(_provider).value ?? draft;
-    final problem = _problemStep(d);
+    final d = _draft;
+    if (d == null) return;
+    final problem = d.firstProblem;
     if (problem != null) {
       setState(() => _showErrors = true);
-      _go(problem);
+      unawaited(HapticFeedback.lightImpact());
+      _point(problem);
       return;
     }
+    FocusManager.instance.primaryFocus?.unfocus();
     final messenger = ScaffoldMessenger.of(context);
     final l = AppLocalizations.of(context);
     final pause = context.motion.reduced ? Duration.zero : const Duration(milliseconds: 700);
@@ -179,7 +393,12 @@ class _ExpenseEditorScreenState extends ConsumerState<ExpenseEditorScreen> {
           duration: const Duration(seconds: 2),
         ),
       );
-    await _close();
+    _close();
+  }
+
+  String _title(AppLocalizations l) {
+    if (widget.templateId != null) return l.recurringEditFuture;
+    return widget.expenseId != null ? l.expEdit : l.expAddTitle;
   }
 
   @override
@@ -193,181 +412,306 @@ class _ExpenseEditorScreenState extends ConsumerState<ExpenseEditorScreen> {
 
     if (draft == null) {
       return Scaffold(
-        body: Column(
-          children: [
-            _header(l, groupName: '', offline: offline),
-            Expanded(
-              child: state.hasError
-                  ? Center(
-                      child: Padding(
-                        padding: const EdgeInsets.all(AppSpacing.screen),
-                        child: EmptyState(
-                          icon: AppIcons.receipt,
-                          title: widget.templateId == null
-                              ? l.expNotFoundTitle
-                              : l.recurringNotFoundTitle,
-                          message: widget.templateId == null
-                              ? l.expNotFoundBody
-                              : l.recurringNotFoundBody,
-                        ),
-                      ),
-                    )
-                  : Center(
-                      child: DotsPulse(color: context.colors.primary, semanticLabel: l.loading),
-                    ),
-            ),
-          ],
+        appBar: AppBar(
+          leading: AppIconButton(
+            tooltip: l.back,
+            icon: const Icon(AppIcons.back),
+            onPressed: () => Navigator.of(context).maybePop(),
+          ),
+          title: Text(_title(l)),
+        ),
+        body: Center(
+          child: state.hasError
+              ? Padding(
+                  padding: const EdgeInsets.all(AppSpacing.screen),
+                  child: EmptyState(
+                    icon: AppIcons.receipt,
+                    title: widget.templateId == null
+                        ? l.expNotFoundTitle
+                        : l.recurringNotFoundTitle,
+                    message: widget.templateId == null
+                        ? l.expNotFoundBody
+                        : l.recurringNotFoundBody,
+                  ),
+                )
+              : DotsPulse(color: context.colors.primary, semanticLabel: l.loading),
         ),
       );
     }
 
     final description = _description ??= TextEditingController(text: draft.description);
-    final notes = _notes ??= TextEditingController(text: draft.notes);
-    final today = ref.read(clockProvider).today();
-
-    final body = switch (_step) {
-      EditorStep.amount => AmountStep(
-        draft: draft,
-        description: description,
-        showErrors: _showErrors,
-        onAmountText: (t) => _edit((d) => d.copyWith(amountText: t)),
-        onDescription: _described,
-        onCategoryTap: () => _go(EditorStep.details),
-        onPickCurrency: () => unawaited(_pickCurrency(draft)),
-      ),
-      EditorStep.paidBy => PaidByStep(
-        draft: draft,
-        onPayer: (id) => _edit((d) => d.withSinglePayer(id)),
-        onMultiple: () => _edit((d) => d.withMultiplePayers()),
-        onPayerText: (id, t) => _edit((d) => d.withPayerText(id, t)),
-      ),
-      EditorStep.split => SplitStep(
-        draft: draft,
-        onSplit: (s) => _edit((d) => d.copyWith(split: s)),
-      ),
-      EditorStep.details => DetailsStep(
-        draft: draft,
-        today: today,
-        notes: notes,
-        onCategory: (k) => _edit((d) => d.pickCategory(k)),
-        onDate: (date) => _edit((d) => d.copyWith(date: date)),
-        onNotes: (t) => _edit((d) => d.copyWith(notes: t)),
-        onReceipt: draft.isTemplate ? null : (r) => _edit((d) => d.copyWith(receipt: r)),
-        onRepeat: draft.canRepeat || draft.isTemplate ? (r) => _edit((d) => d.withRepeat(r)) : null,
-      ),
-      EditorStep.review => ReviewStep(
-        draft: draft,
-        onEditPayer: () => _go(EditorStep.paidBy),
-        onEditSplit: () => _go(EditorStep.split),
-      ),
-    };
+    final amount = _amount ??= TextEditingController(text: draft.amountText);
+    _notes ??= TextEditingController(text: draft.notes);
+    final c = context.colors;
+    final descriptionProblem = draft.descriptionProblem;
+    final descriptionError =
+        descriptionProblem == DescriptionProblem.tooLong ||
+            (_showErrors && descriptionProblem != null)
+        ? l.descriptionError(descriptionProblem)
+        : null;
+    final amountError =
+        l.amountError(draft.amount, draft.currency) ??
+        (_showErrors && draft.amountMissing ? l.expAmountMissing : null);
 
     return PopScope(
-      canPop: _saved || _step == EditorStep.amount,
+      canPop: _saved || !_dirty,
       onPopInvokedWithResult: (didPop, _) {
-        if (!didPop) _back();
+        if (!didPop) unawaited(_back());
       },
       child: Scaffold(
+        appBar: AppBar(
+          leading: AppIconButton(
+            tooltip: l.back,
+            icon: const Icon(AppIcons.back),
+            onPressed: () => unawaited(_back()),
+          ),
+          title: Text(_title(l)),
+          actions: [
+            Padding(
+              padding: const EdgeInsetsDirectional.only(end: AppSpacing.s2),
+              child: TextButton(
+                key: const Key('expense-save-top'),
+                onPressed: draft.canSave && !_saving && !_saved ? () => unawaited(_save()) : null,
+                child: Text(
+                  l.expSave,
+                  style: context.text.body
+                      .w(700)
+                      .copyWith(color: draft.canSave ? c.primary : c.textTertiary),
+                ),
+              ),
+            ),
+          ],
+        ),
         body: Stack(
           children: [
             Column(
               children: [
-                _header(
-                  l,
-                  groupName: draft.groupName,
-                  offline: offline,
-                  edit: draft.isEdit,
-                  template: draft.isTemplate,
-                ),
                 Expanded(
-                  child: AnimatedSwitcher(
-                    duration: context.motion.base,
-                    switchInCurve: AppMotion.standard,
-                    child: KeyedSubtree(key: ValueKey(_step), child: body),
+                  child: ListView(
+                    key: const Key('expense-form'),
+                    keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                    padding: const EdgeInsets.fromLTRB(
+                      AppSpacing.screen,
+                      AppSpacing.s3,
+                      AppSpacing.screen,
+                      AppSpacing.s6,
+                    ),
+                    children: [
+                      WithRow(draft: draft, offline: offline),
+                      const SizedBox(height: AppSpacing.s6),
+                      // Icon column (category, currency) sized to the wider of the two, so both fields
+                      // start at the same edge at any text size.
+                      Table(
+                        columnWidths: const {0: IntrinsicColumnWidth(), 1: FlexColumnWidth()},
+                        children: [
+                          TableRow(
+                            children: [
+                              Padding(
+                                padding: const EdgeInsetsDirectional.only(end: AppSpacing.s3),
+                                child: Center(
+                                  child: CategoryButton(
+                                    category: draft.category,
+                                    auto: draft.categoryIsAuto,
+                                    onTap: () => unawaited(_pickCategory()),
+                                  ),
+                                ),
+                              ),
+                              UnderlineField(
+                                key: const Key('expense-description'),
+                                label: l.expDescriptionLabel,
+                                hint: l.expDescriptionHint,
+                                required: true,
+                                controller: description,
+                                focusNode: _descriptionFocus,
+                                autofocus: !draft.isEdit && !draft.isTemplate,
+                                errorText: descriptionError,
+                                textInputAction: TextInputAction.next,
+                                textCapitalization: TextCapitalization.sentences,
+                                inputFormatters: [
+                                  LengthLimitingTextInputFormatter(maxDescription + 20),
+                                ],
+                                onChanged: _described,
+                                onSubmitted: (_) => _amountFocus.requestFocus(),
+                              ),
+                            ],
+                          ),
+                          TableRow(
+                            children: [
+                              Padding(
+                                padding: const EdgeInsetsDirectional.only(
+                                  top: AppSpacing.s5 + AppSpacing.s4,
+                                  end: AppSpacing.s3,
+                                ),
+                                child: Center(
+                                  child: CurrencyChip(
+                                    key: const Key('expense-currency'),
+                                    code: draft.currency,
+                                    onTap: () => unawaited(_pickCurrency(draft)),
+                                  ),
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.only(top: AppSpacing.s5),
+                                child: AmountField(
+                                  key: const Key('expense-amount'),
+                                  controller: amount,
+                                  focusNode: _amountFocus,
+                                  currency: draft.currency,
+                                  errorText: amountError,
+                                  onChanged: (t) => _edit((d) => d.copyWith(amountText: t)),
+                                  onSubmitted: (_) => _amountFocus.unfocus(),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: AppSpacing.s6),
+                      PaidSplitPill(
+                        summary: paidSplitSummary(l, draft),
+                        footer: splitSheetFooter(l, draft),
+                        onTap: () => unawaited(_openPaidSplit()),
+                      ),
+                      if (draft.isTemplate) ...[
+                        const SizedBox(height: AppSpacing.s5),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Icon(AppIcons.info, size: 18, color: c.textSecondary),
+                            const SizedBox(width: AppSpacing.s2),
+                            Expanded(
+                              child: Text(
+                                l.recurringEditNote,
+                                key: const Key('template-note'),
+                                style: context.text.bodySmall.copyWith(color: c.textSecondary),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ],
                   ),
                 ),
+                // In the body (not bottomNavigationBar): the Scaffold lifts it above the keyboard.
+                if (!_saved)
+                  StickyActionBar(
+                    summary: _Toolbar(
+                      draft: draft,
+                      today: ref.read(clockProvider).today(),
+                      onDate: () => unawaited(_pickDate(draft)),
+                      onNotes: () => unawaited(_openNotes()),
+                      onReceipt: () => unawaited(_openReceipt()),
+                      onRepeat: () => unawaited(_openRepeat()),
+                    ),
+                    primary: PillButton(
+                      key: const Key('expense-save'),
+                      label: draft.isTemplate ? l.expSave : l.expSaveExpense,
+                      variant: PillVariant.money,
+                      loading: _saving,
+                      onPressed: () => unawaited(_save()),
+                    ),
+                  ),
               ],
             ),
             if (_saved) const Positioned.fill(child: _SavedCheck()),
           ],
         ),
-        bottomNavigationBar: _saved ? null : _bar(l, draft),
       ),
     );
   }
+}
 
-  Widget _header(
-    AppLocalizations l, {
-    required String groupName,
-    required bool offline,
-    bool edit = false,
-    bool template = false,
-  }) {
-    final status = offline
-        ? l.expOfflinePill(groupName)
-        : (template
-              ? l.recurringEditPill(groupName)
-              : (edit ? l.expEditPill(groupName) : groupName));
-    return StepHeader(
-      steps: [
-        StepItem(label: l.stepAmount, icon: AppIcons.stepAmount),
-        StepItem(label: l.stepPaidBy, icon: AppIcons.stepPaidBy),
-        StepItem(label: l.stepSplit, icon: AppIcons.stepSplit),
-        StepItem(label: l.stepDetails, icon: AppIcons.stepDetails),
-        StepItem(label: l.stepReview, icon: AppIcons.stepReview),
-      ],
-      current: _step.index,
-      statusText: status,
-      statusIcon: offline ? AppIcons.unsynced : (template ? AppIcons.repeat : AppIcons.receipt),
-      onBack: _back,
-      onHome: () => context.go('/groups'),
-      onStepTap: (i) => _go(EditorStep.values[i]),
-    );
-  }
+/// The bottom toolbar: date (calendar), notes, receipt photo and repeat as compact chips; a chip is
+/// filled once it holds something. Editing future copies shows the first date read-only and no receipt.
+class _Toolbar extends StatelessWidget {
+  const _Toolbar({
+    required this.draft,
+    required this.today,
+    required this.onDate,
+    required this.onNotes,
+    required this.onReceipt,
+    required this.onRepeat,
+  });
 
-  Widget _bar(AppLocalizations l, ExpenseDraft d) {
-    final review = _step == EditorStep.review;
-    final total = d.total;
-    final Widget? summary = switch (_step) {
-      EditorStep.paidBy when d.multiplePayers => SplitFooterLine(
-        key: const Key('payers-footer'),
-        footer: payersFooter(l, d),
-      ),
-      EditorStep.split => SplitFooterLine(
-        footer: splitFooter(
-          l,
-          d.split,
-          total,
-          d.currency,
-          nameOf: (id) => d.member(id)?.name ?? '',
-        ),
-      ),
-      EditorStep.review when total != null => Text(
-        l.expReviewSummary(
-          MoneyFormatter.list.format(total, d.currency),
-          d.split.participants.length,
-        ),
-        textAlign: TextAlign.center,
-      ),
-      _ => null,
-    };
-    return StickyActionBar(
-      summary: summary,
-      primary: PillButton(
-        key: const Key('expense-save'),
-        label: review ? l.expSaveExpense : l.expSave,
-        variant: PillVariant.money,
-        loading: _saving,
-        onPressed: d.canSave ? () => unawaited(_save(d)) : null,
-      ),
-      secondary: review
-          ? null
-          : PillButton(
-              key: const Key('expense-next'),
-              label: l.expNext,
-              variant: PillVariant.ghost,
-              onPressed: () => _next(d),
+  final ExpenseDraft draft;
+
+  /// The phone's local calendar day (India: IST).
+  final DateTime today;
+  final VoidCallback onDate;
+  final VoidCallback onNotes;
+  final VoidCallback onReceipt;
+  final VoidCallback onRepeat;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final d = draft;
+    final yesterday = DateTime(today.year, today.month, today.day - 1);
+    final String dateText;
+    if (DateUtils.isSameDay(d.date, today)) {
+      dateText = l.expToday;
+    } else if (DateUtils.isSameDay(d.date, yesterday)) {
+      dateText = l.expYesterday;
+    } else {
+      dateText = d.date.year == today.year ? dayMonth(context, d.date) : shortDate(context, d.date);
+    }
+    final hasNotes = d.notes.trim().isNotEmpty;
+    final repeat = d.repeat.interval;
+    final repeatText = repeat == null ? l.repeatLabel : intervalLabel(l, repeat);
+    return SingleChildScrollView(
+      key: const Key('expense-toolbar'),
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: [
+          if (d.isTemplate)
+            ToolChip(
+              key: const Key('template-start'),
+              icon: AppIcons.calendar,
+              label: dateText,
+              semanticLabel: l.expToolFirstDate(shortDate(context, d.date)),
+            )
+          else
+            ToolChip(
+              key: const Key('expense-date'),
+              icon: AppIcons.calendar,
+              label: dateText,
+              semanticLabel: l.expToolDate(shortDate(context, d.date)),
+              active: !DateUtils.isSameDay(d.date, today),
+              onTap: onDate,
             ),
+          const SizedBox(width: AppSpacing.s2),
+          ToolChip(
+            key: const Key('expense-notes-chip'),
+            icon: AppIcons.notes,
+            label: l.expNotesLabel,
+            semanticLabel: hasNotes ? l.expToolNotesAdded : l.expNotesLabel,
+            active: hasNotes,
+            onTap: onNotes,
+          ),
+          if (!d.isTemplate) ...[
+            const SizedBox(width: AppSpacing.s2),
+            ToolChip(
+              key: const Key('expense-receipt-chip'),
+              icon: AppIcons.camera,
+              label: l.receiptLabel,
+              semanticLabel: d.receipt.hasPhoto ? l.expToolReceiptAdded : l.receiptAdd,
+              active: d.receipt.hasPhoto,
+              onTap: onReceipt,
+            ),
+          ],
+          if (d.canRepeat || d.isTemplate) ...[
+            const SizedBox(width: AppSpacing.s2),
+            ToolChip(
+              key: const Key('expense-repeat-chip'),
+              icon: AppIcons.repeat,
+              label: repeatText,
+              semanticLabel: repeatText,
+              active: repeat != null,
+              onTap: onRepeat,
+            ),
+          ],
+        ],
+      ),
     );
   }
 }

@@ -28,7 +28,7 @@ import 'package:splitify/data/remote/supabase_remote_api.dart';
 import 'package:splitify/data/sync/sync_types.dart';
 import 'package:splitify/domain/entities/prepared_image.dart';
 import 'package:splitify/features/auth/application/auth_providers.dart';
-import 'package:splitify/features/expenses/presentation/editor/amount_step.dart';
+import 'package:splitify/features/expenses/presentation/amount_keypad.dart';
 import 'package:splitify/features/expenses/presentation/expense_routes.dart';
 import 'package:splitify/features/groups/application/groups_providers.dart';
 import 'package:splitify/features/photos/application/photo_compression.dart';

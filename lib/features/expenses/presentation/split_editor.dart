@@ -430,9 +430,16 @@ class _ValueFieldState extends State<ValueField> {
 
 /// The live footer line: check or warning icon with text in `owedText` / `oweText`.
 class SplitFooterLine extends StatelessWidget {
-  const SplitFooterLine({required this.footer, super.key});
+  const SplitFooterLine({
+    required this.footer,
+    this.textKey = const Key('split-footer'),
+    super.key,
+  });
 
   final SplitFooter footer;
+
+  /// Key of the text (tests read the footer through it).
+  final Key textKey;
 
   @override
   Widget build(BuildContext context) {
@@ -447,7 +454,7 @@ class SplitFooterLine extends StatelessWidget {
           Expanded(
             child: Text(
               footer.text,
-              key: const Key('split-footer'),
+              key: textKey,
               style: context.text.bodySmall.w(600).copyWith(color: color),
             ),
           ),

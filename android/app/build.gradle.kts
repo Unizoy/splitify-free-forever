@@ -10,7 +10,15 @@ plugins {
 // It is copied next to this script (also git-ignored) and the Google Services plugin turns it into resources,
 // so Firebase.initializeApp() works without firebase_options.dart. Without it the app runs with push off.
 val firebaseConfig = rootProject.file("../secrets/google-services.json")
-if (firebaseConfig.exists()) {
+
+// Side-by-side device builds (S-310): `-PsplitifyAppIdSuffix=.qa` (or the environment variable
+// SPLITIFY_APP_ID_SUFFIX=.qa, which also reaches `flutter test/run` builds) installs the app as
+// com.unizoy.splitify.qa next to an installed store build signed with another key, so a test run never has to
+// uninstall that app and its data. Such builds have push off (google-services.json lists only the real id).
+val appIdSuffix = ((findProperty("splitifyAppIdSuffix") as String?) ?: System.getenv("SPLITIFY_APP_ID_SUFFIX"))
+    ?.trim()?.takeIf { it.isNotEmpty() }
+if (appIdSuffix != null) logger.lifecycle("Splitify: side-by-side build, application id suffix $appIdSuffix")
+if (firebaseConfig.exists() && appIdSuffix == null) {
     firebaseConfig.copyTo(file("google-services.json"), overwrite = true)
     apply(plugin = "com.google.gms.google-services")
 }
@@ -36,7 +44,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.unizoy.splitify"
+        applicationId = "com.unizoy.splitify" + (appIdSuffix ?: "")
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = 24

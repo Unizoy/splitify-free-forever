@@ -11,7 +11,7 @@ import 'package:splitify/domain/rules/expense_categories.dart';
 import 'package:splitify/features/expenses/application/expense_draft.dart';
 import 'package:splitify/features/expenses/application/expense_editor_controller.dart';
 import 'package:splitify/features/expenses/application/split_draft.dart';
-import 'package:splitify/features/expenses/presentation/editor/details_step.dart';
+import 'package:splitify/features/expenses/presentation/editor/pickers.dart';
 import 'package:splitify/features/expenses/presentation/editor/expense_editor_screen.dart';
 import 'package:splitify/ui/components/components.dart';
 import 'package:splitify/domain/rules/recurrence.dart' show RecurrenceInterval;

@@ -17,6 +17,10 @@ const maxNotes = 1000;
 /// Why the description cannot be saved.
 enum DescriptionProblem { missing, tooLong }
 
+/// What still stops Save, in the order the one-screen editor (D-032) points at it: the description and
+/// amount fields (top to bottom), then the "Paid by · split" sheet, notes and repeat.
+enum EditorProblem { description, amount, paidSplit, notes, repeat }
+
 /// Where the draft's category came from (auto-category, D-028).
 enum CategoryOrigin {
   /// A new expense's starting category (the group's last one); typing a description may replace it.
@@ -68,6 +72,7 @@ final class ExpenseDraft {
     required this.date,
     required this.payers,
     this.expenseId,
+    this.groupType = 'other',
     this.payerId,
     this.payerText,
     this.amountText = '',
@@ -84,6 +89,9 @@ final class ExpenseDraft {
 
   final String groupId;
   final String groupName;
+
+  /// The group's `type`; `direct` is the hidden two-person group of a friend expense (#2).
+  final String groupType;
 
   /// Null for a new expense.
   final String? expenseId;
@@ -129,6 +137,12 @@ final class ExpenseDraft {
   final String? templateId;
 
   bool get isEdit => expenseId != null;
+
+  /// A friend expense: the editor names the friend instead of the group.
+  bool get isDirect => groupType == 'direct';
+
+  /// The other person of a friend expense (null in a normal group).
+  EditorMember? get friend => isDirect ? members.where((m) => !m.isMe).firstOrNull : null;
 
   /// Typing the description may still change the category (a new expense whose category was not picked).
   bool get categoryFollowsDescription =>
@@ -221,15 +235,20 @@ final class ExpenseDraft {
   /// True when the payers are consistent with the total.
   bool get payersOk => payersCheck is PayersReady;
 
-  /// Amount + description set: the fast-path Save on step 1 is offered.
-  bool get fastPathReady => total != null && descriptionProblem == null;
+  /// The amount is missing (as opposed to typed but not valid, which [amount] explains).
+  bool get amountMissing => amount is AmountEmpty;
 
-  bool get canSave =>
-      fastPathReady &&
-      notes.trim().length <= maxNotes &&
-      payersOk &&
-      splitCheck is SplitReady &&
-      !repeatProblem;
+  /// The first thing that stops Save, or null when the draft can be saved.
+  EditorProblem? get firstProblem {
+    if (descriptionProblem != null) return EditorProblem.description;
+    if (total == null) return EditorProblem.amount;
+    if (!payersOk || splitCheck is! SplitReady) return EditorProblem.paidSplit;
+    if (notes.trim().length > maxNotes) return EditorProblem.notes;
+    if (repeatProblem) return EditorProblem.repeat;
+    return null;
+  }
+
+  bool get canSave => firstProblem == null;
 
   EditorMember? member(String id) {
     for (final m in members) {
@@ -277,6 +296,7 @@ final class ExpenseDraft {
   ExpenseDraft withCurrency(String code) => ExpenseDraft(
     groupId: groupId,
     groupName: groupName,
+    groupType: groupType,
     expenseId: expenseId,
     currency: code,
     members: members,
@@ -361,6 +381,7 @@ final class ExpenseDraft {
   }) => ExpenseDraft(
     groupId: groupId,
     groupName: groupName,
+    groupType: groupType,
     expenseId: expenseId,
     currency: currency,
     members: members,

@@ -3065,7 +3065,7 @@ abstract class AppLocalizations {
   /// No description provided for @expDescriptionMissing.
   ///
   /// In en, this message translates to:
-  /// **'Add a short description'**
+  /// **'Add a description'**
   String get expDescriptionMissing;
 
   /// No description provided for @expDescriptionTooLong.
@@ -3073,6 +3073,144 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Use up to 120 characters'**
   String get expDescriptionTooLong;
+
+  /// No description provided for @expAddTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add expense'**
+  String get expAddTitle;
+
+  /// No description provided for @expWithLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'With you and'**
+  String get expWithLabel;
+
+  /// No description provided for @expAmountMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter an amount'**
+  String get expAmountMissing;
+
+  /// No description provided for @expPaidSplitTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid by and split'**
+  String get expPaidSplitTitle;
+
+  /// No description provided for @expPaidSplitHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Change who paid and how it\'s split'**
+  String get expPaidSplitHint;
+
+  /// No description provided for @expPillPaidBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid by {name}'**
+  String expPillPaidBy(String name);
+
+  /// No description provided for @expPillPeoplePaid.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{Several people paid} =1{1 person paid} other{{count} people paid}}'**
+  String expPillPeoplePaid(int count);
+
+  /// No description provided for @expPillSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{paid} · {how}'**
+  String expPillSummary(String paid, String how);
+
+  /// No description provided for @expPillSplitEqual.
+  ///
+  /// In en, this message translates to:
+  /// **'split equally'**
+  String get expPillSplitEqual;
+
+  /// No description provided for @expPillSplitExact.
+  ///
+  /// In en, this message translates to:
+  /// **'split exactly'**
+  String get expPillSplitExact;
+
+  /// No description provided for @expPillSplitPercent.
+  ///
+  /// In en, this message translates to:
+  /// **'split by percentages'**
+  String get expPillSplitPercent;
+
+  /// No description provided for @expPillSplitShares.
+  ///
+  /// In en, this message translates to:
+  /// **'split by shares'**
+  String get expPillSplitShares;
+
+  /// No description provided for @expPillSplitAdjust.
+  ///
+  /// In en, this message translates to:
+  /// **'split with adjustments'**
+  String get expPillSplitAdjust;
+
+  /// No description provided for @expSplitSectionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Split'**
+  String get expSplitSectionLabel;
+
+  /// No description provided for @expDiscardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard this expense?'**
+  String get expDiscardTitle;
+
+  /// No description provided for @expDiscardBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The amount and details you typed will be lost.'**
+  String get expDiscardBody;
+
+  /// No description provided for @expDiscardEditTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard your changes?'**
+  String get expDiscardEditTitle;
+
+  /// No description provided for @expDiscardEditBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The expense stays as it was last saved.'**
+  String get expDiscardEditBody;
+
+  /// No description provided for @expToolDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Date: {date}'**
+  String expToolDate(String date);
+
+  /// No description provided for @expToolFirstDate.
+  ///
+  /// In en, this message translates to:
+  /// **'First date: {date}'**
+  String expToolFirstDate(String date);
+
+  /// No description provided for @expToolNotesAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes added'**
+  String get expToolNotesAdded;
+
+  /// No description provided for @expToolReceiptAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Receipt added'**
+  String get expToolReceiptAdded;
+
+  /// No description provided for @expCategoryPick.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a category'**
+  String get expCategoryPick;
 
   /// No description provided for @expCurrencyLabel.
   ///

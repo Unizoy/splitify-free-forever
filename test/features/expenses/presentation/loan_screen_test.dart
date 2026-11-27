@@ -1,7 +1,7 @@
 // TC-11-02 [widget]: the "Record a loan" screen (direction copy, validation, save, empty and edit states).
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:splitify/features/expenses/presentation/editor/amount_step.dart';
+import 'package:splitify/features/expenses/presentation/amount_keypad.dart';
 import 'package:splitify/features/expenses/application/expense_draft.dart';
 import 'package:splitify/features/expenses/application/loan_draft.dart';
 import 'package:splitify/features/expenses/application/loan_editor_controller.dart';
