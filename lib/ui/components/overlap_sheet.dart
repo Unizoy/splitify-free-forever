@@ -71,7 +71,9 @@ class _HeroScrimState extends State<HeroScrim> {
     final color = context.colors.heroTop;
     return _HeroScrimScope(
       state: this,
+      // The page keeps exactly the constraints it had without the scrim.
       child: Stack(
+        fit: StackFit.passthrough,
         children: [
           NotificationListener<ScrollMetricsNotification>(
             onNotification: _onMetrics,
