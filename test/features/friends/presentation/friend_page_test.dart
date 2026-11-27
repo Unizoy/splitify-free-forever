@@ -7,6 +7,7 @@ import 'package:splitify/data/remote/groups_remote.dart';
 import 'package:splitify/features/friends/application/friends_view.dart';
 import 'package:splitify/features/friends/presentation/friend_page.dart';
 import 'package:splitify/ui/components/components.dart';
+import 'package:splitify/ui/theme/theme.dart';
 
 import '../../../support/ledger_seed.dart';
 import '../../expenses/presentation/presentation_harness.dart';
@@ -386,24 +387,31 @@ void main() {
       expect(find.textContaining('Connect to the internet once'), findsOneWidget);
     });
 
-    // TC-23-02 on the friend page (phase 13 RemindButton)
-    testWidgets('Remind sits on each group row where they owe me, never for a name-only friend', (
-      t,
-    ) async {
-      await pumpPage(t, 'u:u2');
-      final f = sampleFriends().firstWhere((x) => x.key == 'u:u2');
-      for (final link in f.links) {
-        expect(
-          find.byKey(Key('remind-${link.friendMemberId}')),
-          link.owesMe ? findsOneWidget : findsNothing,
-          reason: link.group.name,
-        );
-      }
-      final nameOnly = sampleFriends().where((x) => x.nameOnly).firstOrNull;
-      if (nameOnly != null) {
-        await pumpPage(t, nameOnly.key);
-        expect(find.byWidgetPredicate((w) => '${w.key}'.contains('remind-')), findsNothing);
-      }
-    });
+    // TC-23-02 on the friend page (phase 13 RemindButton); D-034 B3: a name-only friend gets the share button.
+    testWidgets(
+      'Remind sits on each group row where they owe me; a name-only friend shares instead',
+      (t) async {
+        await pumpPage(t, 'u:u2');
+        final f = sampleFriends().firstWhere((x) => x.key == 'u:u2');
+        for (final link in f.links) {
+          expect(
+            find.byKey(Key('remind-${link.friendMemberId}')),
+            link.owesMe ? findsOneWidget : findsNothing,
+            reason: link.group.name,
+          );
+        }
+        final nameOnly = sampleFriends().where((x) => x.nameOnly).firstOrNull;
+        if (nameOnly != null) {
+          await pumpPage(t, nameOnly.key);
+          for (final link in nameOnly.links) {
+            final share = find.descendant(
+              of: find.byKey(Key('remind-${link.friendMemberId}')),
+              matching: find.byIcon(AppIcons.share),
+            );
+            expect(share, link.owesMe ? findsOneWidget : findsNothing, reason: link.group.name);
+          }
+        }
+      },
+    );
   });
 }

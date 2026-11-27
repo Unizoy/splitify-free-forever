@@ -33,7 +33,7 @@ class _FixedProfile extends ProfileController {
   Future<Profile?> build() async => Profile(id: 'u1', displayName: name);
 }
 
-class _FakeFriendsRemote implements FriendsRemote {
+class _FakeFriendsRemote extends UnconfiguredFriendsRemote {
   _FakeFriendsRemote({this.fail});
 
   final GroupFailure? fail;

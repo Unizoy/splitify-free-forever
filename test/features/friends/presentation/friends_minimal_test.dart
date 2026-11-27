@@ -173,11 +173,21 @@ void main() {
       expect(_key('friend-remind'), findsOneWidget);
     });
 
-    // D-033
-    testWidgets('D-033 Remind is hidden for a name-only friend who owes me', (t) async {
-      await pumpPage(t, 'm:a3', oneGroup());
+    // D-034 B3 (was D-033: hidden): a friend without the app gets a shared reminder instead of a push.
+    testWidgets('D-034 Remind for a name-only friend who owes me opens "Share a reminder"', (
+      t,
+    ) async {
+      final remote = FakeNotificationsRemote();
+      await pumpPage(t, 'm:a3', oneGroup(), remote: remote);
       expect(_key('friend-settle'), findsOneWidget);
-      expect(_key('friend-remind'), findsNothing);
+      expect(_key('friend-remind'), findsOneWidget);
+      await _tap(t, 'friend-remind');
+      expect(_key('remind-share-sheet'), findsOneWidget);
+      expect(
+        find.textContaining('Hi Rahul Mehta, a reminder about ₹70 for “Goa trip”'),
+        findsOneWidget,
+      );
+      expect(remote.reminders, isEmpty, reason: 'no push and no activity for a shared reminder');
     });
 
     // D-033
