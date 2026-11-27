@@ -31,6 +31,18 @@ group page lost its duplicate empty-state "Add expense".
 - Device (emulator-5554, DEV, `.qa` build): `integration_test/minimal_entry_test.dart`; screenshots
   `splitify-artifacts/screenshots/minimal-entry-{before,after}-*.png` via `tool/e2e/capture_minimal_entry.ps1`.
 
+## Gates (2026-11-27, merged with `origin/feat/simple-add-expense` at b2ebf0f)
+
+| Gate | Result | Evidence |
+| --- | --- | --- |
+| Format / analyze / guards | PASS | `dart format` clean, `flutter analyze` 0 errors/warnings, `guards: OK` |
+| Tests + coverage | PASS | full suite 3,409 tests (two expectations updated for S-344/S-345, one motion test flaky under load, passes alone); coverage overall 95.6 %, every floor met |
+| Build | PASS | debug APKs built by the device runs (`.qa`, side by side) |
+| Device | PASS | `minimal_entry_test.dart` on 85b91e4 (+ → editor → picker search → saved and synced, server row; Appearance, Notifications, Security, widget, Sign out ask, Delete account ask); 33 after screenshots; `--no-uninstall` on every run, `pm list packages` before/after: only `com.unizoy.splitify.qa` (the store app was already absent before these runs) |
+
+Coordinator item: the editor's offline note (white `StatusPill` on the light page) is now the app's `SyncMarker`
+("Not synced yet"), with a failing-first widget test and `expense_editor_offline_*` goldens.
+
 ## Not done / open
 
 - The Friends tab's own "Add friend expense" button (friends area) still picks a friend in a sheet first (S-348).
