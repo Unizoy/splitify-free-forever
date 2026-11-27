@@ -4,7 +4,7 @@
 # 1. Builds and installs the fake UPI app, runs integration_test/friends_upi_test.dart, then checks that the link
 #    the fake app logged (logcat tag FAKE_UPI) is exactly the one the test expected (`UPI-EXPECT <uri>`).
 # 2. Uninstalls it and runs the test again with FAKE_UPI=absent ("No UPI app found" sheet).
-param([string]$Only = '', [string]$Device = 'emulator-5554')
+param([string]$Only = '', [string]$Device = 'emulator-5554', [string]$Test = 'friends_upi_test')
 $ErrorActionPreference = 'Stop'
 $repo = Resolve-Path (Join-Path $PSScriptRoot '..\..')
 Set-Location $repo
@@ -21,7 +21,7 @@ if (-not $env:SPLITIFY_APP_ID_SUFFIX) { $env:SPLITIFY_APP_ID_SUFFIX = '.qa' }
 function Invoke-UpiTest([string]$mode) {
   $log = Join-Path $out "test-$mode.log"
   # flutter.bat writes warnings to stderr; run it through cmd so PowerShell does not stop on them.
-  & cmd /c "flutter test integration_test/friends_upi_test.dart -d $Device --no-uninstall --dart-define-from-file=secrets/env.dev.json --dart-define=PIN_HOST_IP=$ip --dart-define=FAKE_UPI=$mode > `"$log`" 2>&1"
+  & cmd /c "flutter test integration_test/$Test.dart -d $Device --no-uninstall --dart-define-from-file=secrets/env.dev.json --dart-define=PIN_HOST_IP=$ip --dart-define=FAKE_UPI=$mode > `"$log`" 2>&1"
   $code = $LASTEXITCODE
   Get-Content $log | Select-String -Pattern 'UPI-EXPECT|All tests passed|Some tests failed|Expected:|Actual:|\[E\]' |
     ForEach-Object { Write-Host "  $_" }
