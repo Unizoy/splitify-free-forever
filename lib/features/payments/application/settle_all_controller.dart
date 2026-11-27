@@ -245,31 +245,31 @@ class SettleAllController extends AsyncNotifier<SettleAllDraft> {
 
   void setNote(String note) => _set((d) => d.copyWith(note: note));
 
-  /// Writes one payment per group (offline-first, queued in this order); returns their ids, or null when the
-  /// form is not valid. Each write is its own local transaction: `LocalWriter` must not be wrapped in an
-  /// outer one (S-380), and every part is a valid payment on its own (≤ what its group owes).
+  /// Writes one payment per group (offline-first, queued in this order) in ONE local transaction, so the
+  /// batch lands whole or not at all (S-405, `LocalWriter.writeAll`); returns their ids, or null when the
+  /// form is not valid. Every part is a valid payment on its own (≤ what its group owes).
   Future<List<String>?> save() async {
     final d = state.value;
     if (d == null || !d.canSave) return null;
     final repo = ref.read(paymentsRepositoryProvider);
     final createdAt = ref.read(clockProvider).now().toUtc().toIso8601String();
     final note = d.note.trim();
-    final ids = <String>[];
-    for (final p in d.parts) {
-      final g = d.groups.firstWhere((g) => g.groupId == p.groupId);
-      ids.add(
-        await repo.save(g.groupId, {
-          'from_member': p.friendPays ? g.friendMemberId : g.meId,
-          'to_member': p.friendPays ? g.meId : g.friendMemberId,
-          'amount': p.amount,
-          'currency': d.currency,
-          'date': isoDate(d.date),
-          'method': d.method,
-          'note': note.isEmpty ? null : note,
-          'created_at': createdAt,
-        }),
-      );
-    }
-    return ids;
+    return repo.saveAll([
+      for (final p in d.parts)
+        if (d.groups.firstWhere((g) => g.groupId == p.groupId) case final g)
+          (
+            groupId: g.groupId,
+            data: {
+              'from_member': p.friendPays ? g.friendMemberId : g.meId,
+              'to_member': p.friendPays ? g.meId : g.friendMemberId,
+              'amount': p.amount,
+              'currency': d.currency,
+              'date': isoDate(d.date),
+              'method': d.method,
+              'note': note.isEmpty ? null : note,
+              'created_at': createdAt,
+            },
+          ),
+    ]);
   }
 }

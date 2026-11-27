@@ -8683,6 +8683,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This group is archived, so its notes can\'t be changed.'**
   String get boardReadOnly;
+
+  /// No description provided for @qaSignInToAddFriend.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in with Google or an email code, then we add your friend.'**
+  String get qaSignInToAddFriend;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

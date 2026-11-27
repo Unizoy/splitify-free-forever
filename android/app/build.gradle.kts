@@ -32,6 +32,21 @@ val releaseKeyFile = listOf("release-key.properties", "key.properties")
     .firstOrNull { it.exists() }
 val releaseKey = Properties().apply { releaseKeyFile?.inputStream()?.use { load(it) } }
 
+// One-APK builds carry only the ABIs asked for (final QA, S-407): `--target-platform` filters Flutter's own
+// libraries but not the plugins' (ML Kit text recognition + barcode ship armeabi-v7a, arm64-v8a, x86 and
+// x86_64), so the universal phone APK (android-arm,android-arm64) also held ~7 MB of x86_64 libraries.
+// `--split-per-abi` builds keep AGP's ABI splits instead (abiFilters and splits must not be combined), so
+// the x86_64 split for the emulator stays.
+val flutterAbis = mapOf(
+    "android-arm" to "armeabi-v7a",
+    "android-arm64" to "arm64-v8a",
+    "android-x64" to "x86_64",
+    "android-x86" to "x86",
+)
+val splitPerAbi = (findProperty("split-per-abi") as String?)?.toBoolean() ?: false
+val targetAbis = (findProperty("target-platform") as String?)
+    ?.split(',')?.mapNotNull { flutterAbis[it.trim()] }?.takeIf { it.isNotEmpty() }
+
 android {
     namespace = "com.unizoy.splitify"
     compileSdk = 37
@@ -55,6 +70,9 @@ android {
         // flag during build.
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        if (!splitPerAbi && targetAbis != null) {
+            ndk { abiFilters += targetAbis }
+        }
     }
 
     signingConfigs {

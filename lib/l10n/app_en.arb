@@ -1859,5 +1859,6 @@
   "boardActivity": "{actor} updated the group notes",
   "@boardActivity": {"placeholders": {"actor": {"type": "String"}}},
   "boardDiscardBody": "Your changes to the notes will be lost.",
-  "boardReadOnly": "This group is archived, so its notes can't be changed."
+  "boardReadOnly": "This group is archived, so its notes can't be changed.",
+  "qaSignInToAddFriend": "Sign in with Google or an email code, then we add your friend."
 }

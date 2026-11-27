@@ -257,6 +257,27 @@ void main() {
       expect(after.links.firstWhere((l) => l.group.id == 'g2').amounts, {'INR': 5000});
     });
 
+    // Final QA (S-405): the batch is ONE local transaction, so a failure part-way leaves nothing half-saved
+    // (before, the first group's payment stayed queued while the second failed).
+    test('all or nothing: a failing part leaves no payment and no queued change', () async {
+      await _seed(db, archivedFlat: true);
+      await open();
+      await db.customStatement(
+        "CREATE TEMP TRIGGER qa_fail_goa BEFORE INSERT ON payments WHEN NEW.group_id = 'g1' "
+        "BEGIN SELECT RAISE(ABORT, 'boom'); END",
+      );
+      await expectLater(ctl().save(), throwsA(anything));
+      expect(await db.select(db.payments).get(), isEmpty);
+      expect(await paymentsQueued(), isEmpty);
+      await db.customStatement('DROP TRIGGER qa_fail_goa');
+      expect(
+        await ctl().save(),
+        hasLength(2),
+        reason: 'the same form saves once the failure is gone',
+      );
+      expect(await paymentsQueued(), hasLength(2));
+    });
+
     test('I owe on balance: the payments go from me', () async {
       await db.seed(
         groups: [

@@ -40,6 +40,10 @@ class CapsuleNavBar extends StatelessWidget {
 
   static const _inactiveWidth = 56.0;
 
+  /// The active pill's icon, gap and side padding (24 + 8 + 2 × 10): narrower than this, the labelled pill
+  /// would overflow (a 320 dp phone), so the bar goes compact (S-400).
+  static const _labelledMinWidth = 52.0;
+
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
@@ -66,7 +70,14 @@ class CapsuleNavBar extends StatelessWidget {
               ),
               child: LayoutBuilder(
                 builder: (context, constraints) {
-                  final activeWidth = constraints.maxWidth - _inactiveWidth * (items.length - 1);
+                  final others = items.length - 1;
+                  // Compact (S-400): too narrow for the labelled pill, so the other buttons shrink to the
+                  // 48 dp touch size and the active pill shows its icon only (its label stays for screen
+                  // readers).
+                  final compact =
+                      constraints.maxWidth - _inactiveWidth * others < _labelledMinWidth;
+                  final inactiveWidth = compact ? AppSpacing.minTouch : _inactiveWidth;
+                  final activeWidth = constraints.maxWidth - inactiveWidth * others;
                   // While the pills swap, the spring curve overshoots and the widths can add up to a
                   // pixel or two more than the bar: lay them out unbounded and clip instead of overflowing.
                   return ClipRect(
@@ -81,10 +92,11 @@ class CapsuleNavBar extends StatelessWidget {
                             AnimatedContainer(
                               duration: context.motion.showcase,
                               curve: context.motion.spring,
-                              width: i == currentIndex ? activeWidth : _inactiveWidth,
+                              width: i == currentIndex ? activeWidth : inactiveWidth,
                               child: _NavButton(
                                 item: items[i],
                                 active: i == currentIndex,
+                                showLabel: !compact,
                                 onTap: () {
                                   if (i != currentIndex) HapticFeedback.selectionClick();
                                   onSelected(i);
@@ -110,10 +122,18 @@ class CapsuleNavBar extends StatelessWidget {
 }
 
 class _NavButton extends StatelessWidget {
-  const _NavButton({required this.item, required this.active, required this.onTap});
+  const _NavButton({
+    required this.item,
+    required this.active,
+    required this.onTap,
+    this.showLabel = true,
+  });
 
   final CapsuleNavItem item;
   final bool active;
+
+  /// False on a compact bar: the active pill shows its icon only.
+  final bool showLabel;
   final VoidCallback onTap;
 
   @override
@@ -150,7 +170,7 @@ class _NavButton extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     icon,
-                    if (active) ...[
+                    if (active && showLabel) ...[
                       const SizedBox(width: AppSpacing.s2),
                       Flexible(
                         child: MediaQuery.withClampedTextScaling(

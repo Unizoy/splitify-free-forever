@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:splitify/data/data_providers.dart';
+import 'package:splitify/domain/entities/prepared_image.dart' show MediaBuckets;
 import 'package:splitify/features/account/presentation/account_settings_sheet.dart';
 import 'package:splitify/features/auth/application/auth_providers.dart';
 import 'package:splitify/features/balances/application/account_stats.dart';
@@ -13,6 +14,7 @@ import 'package:splitify/features/friends/application/friends_providers.dart' sh
 import 'package:splitify/features/friends/application/friends_view.dart' show Friend;
 import 'package:splitify/features/friends/presentation/friend_routes.dart' show FriendRoutes;
 import 'package:splitify/features/insights/presentation/insights_routes.dart';
+import 'package:splitify/features/photos/application/photo_providers.dart' show storedPhotoProvider;
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/components/components.dart';
 import 'package:splitify/ui/theme/theme.dart';
@@ -27,6 +29,15 @@ class AccountScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context);
     final profile = ref.watch(profileProvider).value;
+    // The saved profile photo (S-402: the tab showed the initials even with a photo).
+    final avatarPath = profile?.avatarPath;
+    final photo = avatarPath == null
+        ? null
+        : ref
+              .watch(
+                storedPhotoProvider((bucket: MediaBuckets.avatars, path: avatarPath, thumb: false)),
+              )
+              .value;
     final mine = ref.watch(myBalancesProvider).value;
     final stats = ref.watch(accountStatsProvider).value;
     // 07 §2 (542): the avatar is flanked by faded avatars of the people you share the most groups with.
@@ -88,6 +99,7 @@ class AccountScreen extends ConsumerWidget {
                             seed: profile.id,
                             size: AvatarSize.s96,
                             ring: true,
+                            image: photo == null ? null : ResizeImage(FileImage(photo), width: 288),
                           ),
                         ),
                       ),

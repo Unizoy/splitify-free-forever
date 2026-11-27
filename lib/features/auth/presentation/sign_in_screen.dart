@@ -69,7 +69,11 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
     return AuthPage(
       title: l.signInTitle,
       // Opened from an invite (S-283): say the group opens right after.
-      subtitle: ref.read(pendingJoinProvider).waiting ? l.signInToJoin : l.signInSubtitle,
+      subtitle: switch (ref.read(pendingJoinProvider)) {
+        final p when p.forFriend => l.qaSignInToAddFriend,
+        final p when p.waiting => l.signInToJoin,
+        _ => l.signInSubtitle,
+      },
       // Welcome pushes sign-in (S-284): back runs the shared-axis pop; a deep link has nothing below.
       onBack: () => context.canPop() ? context.pop() : context.go('/welcome'),
       children: [

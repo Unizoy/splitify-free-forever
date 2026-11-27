@@ -21,6 +21,16 @@ abstract class _Repo {
     return rid;
   }
 
+  /// Creates several records in ONE local transaction (all or none, S-405); returns their ids in order.
+  Future<List<String>> saveAll(List<({String groupId, Map<String, Object?> data})> rows) async {
+    final writes = [
+      for (final r in rows)
+        (entity: entity, op: SyncOp.upsert, id: newId(), groupId: r.groupId, data: r.data),
+    ];
+    await writer.writeAll(writes);
+    return [for (final w in writes) w.id];
+  }
+
   Future<void> delete(String id, String groupId) =>
       writer.write(entity, SyncOp.delete, id, groupId);
 
@@ -42,7 +52,9 @@ class GroupsRepository extends _Repo {
       (db.select(db.groups)..where((g) => g.id.equals(id))).watchSingleOrNull();
 
   /// New group with the creator as owner member (the server creates the same member, TC-1-02). [id] lets
-  /// the form preview the generated cover before saving.
+  /// the form preview the generated cover before saving. [extra] holds more group columns set on the form
+  /// (trip dates, settle-up reminders): they go in the same create, so the feed shows one "created" line
+  /// (S-401).
   Future<String> create({
     required String name,
     required String ownerName,
@@ -50,11 +62,13 @@ class GroupsRepository extends _Repo {
     String mainCurrency = 'INR',
     String? ownerUserId,
     String? id,
+    Map<String, Object?> extra = const {},
   }) async {
     id ??= newId();
     final ownerId = newId();
     final createdAt = writer.clock.now().toUtc().toIso8601String();
     await writer.write(SyncEntity.group, SyncOp.upsert, id, id, {
+      ...extra,
       'name': name,
       'type': type,
       'main_currency': mainCurrency,

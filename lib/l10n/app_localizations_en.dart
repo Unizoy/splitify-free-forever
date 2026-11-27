@@ -5456,4 +5456,8 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get boardReadOnly => 'This group is archived, so its notes can\'t be changed.';
+
+  @override
+  String get qaSignInToAddFriend =>
+      'Sign in with Google or an email code, then we add your friend.';
 }

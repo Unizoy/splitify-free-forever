@@ -106,7 +106,7 @@ class GroupActions {
   }
 
   /// New group; the creator becomes the owner member (offline-first). Trip dates and settle-up reminders
-  /// (D-034 C4) follow as one more queued change of the same group (only when set).
+  /// (D-034 C4) go in the same queued create, only when set (S-401: one "created" line, no "updated").
   Future<String> create({
     required String name,
     required String type,
@@ -117,19 +117,17 @@ class GroupActions {
     DateTime? tripEndsOn,
     SettleReminder reminder = SettleReminder.off,
   }) async {
-    final gid = await _groups.create(
+    final extras = _extras(type, tripStartsOn, tripEndsOn, reminder)
+      ..removeWhere((_, v) => v == null || v == SettleReminder.off.name);
+    return _groups.create(
       id: id,
       name: name.trim(),
       type: type,
       mainCurrency: currency,
       ownerName: ownerName,
       ownerUserId: _ref.read(currentUserIdProvider),
+      extra: extras,
     );
-    final extras = _extras(type, tripStartsOn, tripEndsOn, reminder);
-    if (extras.values.any((v) => v != null && v != SettleReminder.off.name)) {
-      await _groups.update(gid, extras);
-    }
-    return gid;
   }
 
   /// Saves the group form. Trip dates are kept for trips only (another type clears them, so no trip-end

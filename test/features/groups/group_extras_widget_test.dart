@@ -401,26 +401,31 @@ void main() {
       );
     });
 
-    testWidgets('a new trip with dates: the group, then its dates, both through the outbox', (
-      tester,
-    ) async {
-      final db = await _db(tester, groups: const [], members: const []);
-      await pumpGroups(tester, '/groups/new', db: db);
-      await tester.enterText(_key('group-name'), 'Ladakh');
-      await tester.pump();
-      FocusManager.instance.primaryFocus?.unfocus();
-      await _tap(tester, _key('trip-start'));
-      await _pickDay(tester, 25);
-      await _tap(tester, _key('group-save'));
-      final g = (await real(tester, () => db.select(db.groups).get())).single;
-      expect((g.name, g.tripStartsOn, g.tripEndsOn), ('Ladakh', '2026-11-25', null));
-      final out = await _outbox(tester, db);
-      expect(out.map((o) => o.entity), ['group', 'group']);
-      expect(jsonDecode(out.last.payload), containsPair('trip_starts_on', '2026-11-25'));
-      // Back on the group page: the dates chip.
-      expect(_key('group-trip-dates'), findsOneWidget);
-      expect(find.text('From 25 Nov'), findsOneWidget);
-    });
+    testWidgets(
+      'a new trip with dates: one queued create carries the dates (one "created" line, S-401)',
+      (tester) async {
+        final db = await _db(tester, groups: const [], members: const []);
+        await pumpGroups(tester, '/groups/new', db: db);
+        await tester.enterText(_key('group-name'), 'Ladakh');
+        await tester.pump();
+        FocusManager.instance.primaryFocus?.unfocus();
+        await _tap(tester, _key('trip-start'));
+        await _pickDay(tester, 25);
+        await _tap(tester, _key('group-save'));
+        final g = (await real(tester, () => db.select(db.groups).get())).single;
+        expect((g.name, g.tripStartsOn, g.tripEndsOn), ('Ladakh', '2026-11-25', null));
+        final out = await _outbox(tester, db);
+        // One change only: a second "update" mutation made the feed say "created" and "updated the group".
+        expect(out.map((o) => o.entity), ['group']);
+        final sent = jsonDecode(out.single.payload) as Map<String, Object?>;
+        expect(sent, containsPair('trip_starts_on', '2026-11-25'));
+        expect(sent, containsPair('name', 'Ladakh'));
+        expect(sent, contains('owner_member'));
+        // Back on the group page: the dates chip.
+        expect(_key('group-trip-dates'), findsOneWidget);
+        expect(find.text('From 25 Nov'), findsOneWidget);
+      },
+    );
   });
 
   group('C5 group notes', () {

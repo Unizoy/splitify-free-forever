@@ -322,9 +322,7 @@ void main() {
           builder: () => app(_phone, mode, scale),
         );
       }
-      // The tab shell's capsule nav bar (lib/ui, frozen for D-034) overflows at 320 dp: the Groups list has
-      // no small-phone shot here (reported for wave 2).
-      if (shot.name == 'groups_filtered') continue;
+      // The Groups list runs in the tab shell: at 320 dp its capsule nav bar goes compact (S-400).
       goldenTest(
         'D-034 C ${shot.name} ${mode.name} small phone',
         fileName: 'd034c_${shot.name}_${mode.name}_small',

@@ -224,6 +224,27 @@ void main() {
       expect(h.groups.calls, contains('preview:ABCDEFGH'));
     });
 
+    // Final QA (S-404): a friend-code link opened while signed out was lost at sign-in (invites were kept).
+    testWidgets('S-404 a friend-code link opened signed out opens after Google sign-in', (
+      tester,
+    ) async {
+      final h = await _pump(tester, location: '/friends/code/K7M2Q9XA', google: true);
+      await _settle(tester);
+      expect(h.router.state.uri.path, Routes.signIn);
+      expect(
+        find.text('Sign in with Google or an email code, then we add your friend.'),
+        findsOneWidget,
+      );
+      await tester.tap(find.text('Continue with Google'));
+      await _settle(tester);
+      expect(h.router.state.uri.path, Routes.signInProfile);
+      expect(h.pending.waiting, isTrue);
+      await tester.tap(find.text('Continue'));
+      await _settle(tester);
+      expect(h.router.state.uri.path, '/friends/code/K7M2Q9XA');
+      expect(h.pending.waiting, isFalse);
+    });
+
     testWidgets('without the auth gate the invite link opens the join screen directly', (
       tester,
     ) async {
@@ -349,6 +370,28 @@ void main() {
         Routes.signInProfile,
       );
       expect(p.waiting, isTrue);
+    });
+
+    test('S-404 signed out, a friend-code link goes to sign-in and is kept', () {
+      final p = PendingJoin();
+      expect(
+        authRedirect(u('splitify://friend?code=K7M2Q9XA'), signedIn: false, pendingJoin: p),
+        '/friends/code/K7M2Q9XA',
+      );
+      expect(p.waiting, isFalse, reason: 'the app link is mapped first, then kept');
+      expect(
+        authRedirect(u('/friends/code/K7M2Q9XA'), signedIn: false, pendingJoin: p),
+        Routes.signIn,
+      );
+      expect(p.forFriend, isTrue);
+      expect(authRedirect(u('/sign-in'), signedIn: true, pendingJoin: p), Routes.signInProfile);
+      expect(p.take(), '/friends/code/K7M2Q9XA');
+      // "Scan a friend's code" without a code is kept too.
+      expect(authRedirect(u('/friends/code'), signedIn: false, pendingJoin: p), Routes.signIn);
+      expect(p.take(), '/friends/code');
+      // A later invite replaces it and reads as an invite again.
+      p.remember('ABCDEFGH');
+      expect(p.forFriend, isFalse);
     });
 
     test('other signed-out pages still go to welcome', () {

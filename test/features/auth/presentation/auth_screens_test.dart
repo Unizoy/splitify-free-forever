@@ -19,7 +19,7 @@ import 'package:splitify/features/auth/application/auth_providers.dart';
 import 'package:splitify/features/photos/application/photo_providers.dart';
 import 'package:splitify/domain/entities/prepared_image.dart';
 import 'package:splitify/l10n/app_localizations.dart';
-import 'package:splitify/ui/components/components.dart' show Avatar, DotsPulse;
+import 'package:splitify/ui/components/components.dart' show Avatar, AvatarSize, DotsPulse;
 import 'package:splitify/ui/theme/theme.dart';
 
 import '../../../support/fakes.dart';
@@ -282,6 +282,20 @@ void main() {
     );
     await _settle(tester);
     expect(tester.widget<Avatar>(find.byType(Avatar).first).image, isNotNull);
+  });
+
+  // Final QA (S-402): the Account tab's big avatar showed the initials even with a saved photo.
+  testWidgets('Account tab shows the saved profile photo', (tester) async {
+    await _pump(
+      tester,
+      Routes.account,
+      user: const AuthUser(id: 'u1'),
+      profilePhoto: base64Decode(_png1x1),
+    );
+    await _settle(tester);
+    final mine = find.byWidgetPredicate((w) => w is Avatar && w.size == AvatarSize.s96);
+    expect(mine, findsOneWidget);
+    expect(tester.widget<Avatar>(mine).image, isNotNull);
   });
 
   testWidgets('profile edit offline shows "Needs internet"', (tester) async {

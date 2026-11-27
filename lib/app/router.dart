@@ -68,8 +68,8 @@ abstract final class Routes {
 }
 
 /// Where the router sends [uri] for the given auth state (T3), or null to stay.
-/// Signed out: only welcome, sign-in and debug pages; with a [pendingJoin], `/join` goes to sign-in and is
-/// kept for later (S-283). Signed in: the sign-in pages lead on (code → profile confirm, others → groups,
+/// Signed out: only welcome, sign-in and debug pages; with a [pendingJoin], `/join` (and a friend-code page,
+/// S-404) goes to sign-in and is kept for later (S-283). Signed in: the sign-in pages lead on (code → profile confirm, others → groups,
 /// or the profile step when a join is kept: it opens the join). The debug deep link `splitify://dev/login?user=e2e-a` opens the developer sign-in (T4).
 String? authRedirect(
   Uri uri, {
@@ -95,6 +95,12 @@ String? authRedirect(
       pendingJoin.remember(
         uri.queryParameters['code'] ?? (segments.length > 1 ? segments[1] : null),
       );
+      return Routes.signIn;
+    }
+    // A friend-code link waits for sign-in the same way (S-404).
+    if (pendingJoin != null &&
+        (path == FriendRoutes.addByCode || path.startsWith('${FriendRoutes.addByCode}/'))) {
+      pendingJoin.rememberFriend(uri.path);
       return Routes.signIn;
     }
     return Routes.welcome;

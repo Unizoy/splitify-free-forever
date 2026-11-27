@@ -41,14 +41,25 @@ class Avatar extends StatelessWidget {
   /// Chosen colour 0..4 (name-only members, 08 #4); null picks one from [seed].
   final int? tint;
 
-  /// Up to two initials from [name].
+  /// Up to two initials from [name], letters only (S-403): the first and last words that start with a
+  /// letter ("E2E A 82348" → "EA"), else the first letter anywhere, else "?".
   static String initials(String name) {
-    final parts = name.trim().split(RegExp(r'\s+')).where((p) => p.isNotEmpty).toList();
-    if (parts.isEmpty) return '?';
-    final first = parts.first.characters.first;
-    final second = parts.length > 1 ? parts.last.characters.first : '';
+    final words = [
+      for (final w in name.trim().split(RegExp(r'\s+')))
+        if (w.isNotEmpty && _isLetter(w.characters.first)) w,
+    ];
+    if (words.isEmpty) {
+      final letter = name.characters.where(_isLetter).firstOrNull;
+      return letter?.toUpperCase() ?? '?';
+    }
+    final first = words.first.characters.first;
+    final second = words.length > 1 ? words.last.characters.first : '';
     return (first + second).toUpperCase();
   }
+
+  static final _letter = RegExp(r'^\p{L}', unicode: true);
+
+  static bool _isLetter(String grapheme) => _letter.hasMatch(grapheme);
 
   /// Tint pair for [tint] (when set), else the member's chosen colour when [seed] is a member id the
   /// data layer has seen ([MemberTints], S-251), else one picked from [seed], in the current mode.
