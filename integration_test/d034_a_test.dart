@@ -84,13 +84,24 @@ Finder _field(String key) =>
     find.descendant(of: find.byKey(Key(key)), matching: find.byType(TextField));
 
 /// Screenshot points for the host script: light, then dark (the script flips the emulator's night mode).
+/// Real-time waits between pumps, so the engine presents the frames the host captures (a tight
+/// `pump(duration)` loop leaves the screen black).
 Future<void> _capture(WidgetTester t, String name, {bool dark = true}) async {
+  await _pumpFor(t, const Duration(milliseconds: 900));
   if (_hold <= 0) return;
+  Future<void> hold(int seconds) async {
+    final end = DateTime.now().add(Duration(seconds: seconds));
+    while (DateTime.now().isBefore(end)) {
+      await Future<void>.delayed(const Duration(milliseconds: 200));
+      await t.pump();
+    }
+  }
+
   debugPrint('UI-CAPTURE $name');
-  await _pumpFor(t, Duration(seconds: _hold));
+  await hold(_hold);
   if (!dark) return;
   debugPrint('UI-CAPTURE $name-dark');
-  await _pumpFor(t, Duration(seconds: _hold + 2));
+  await hold(_hold + 2);
 }
 
 /// The real server, with a switch that makes the phone "offline" (every call fails like a dropped network),
@@ -338,12 +349,17 @@ void main() {
       final path = '$receiptDir/$name.jpg';
       expect(File(path).existsSync(), isTrue, reason: 'push the fixtures first ($path)');
       final lines = (await t.runAsync(() => mlKitOcr(path)))!;
-      final scan = parseReceipt(receiptRows(lines), today: DateTime.now());
-      if (scan.total == want) right++;
+      final rows = receiptRows(lines);
+      final scan = parseReceipt(rows, today: DateTime.now());
+      if (scan.total == want) {
+        right++;
+      } else {
+        // What the text model read, for the parser fixtures.
+        debugPrint('D034-A3 ROWS $name: ${rows.join(' ¦ ')}');
+      }
       results.add('$name: ${scan.total} (want $want)');
     }
     debugPrint('D034-A3 OCR ${results.join(' | ')}');
-    expect(right, greaterThanOrEqualTo(7), reason: results.join('\n'));
     debugPrint('D034-A3 OCR right $right of ${_receipts.length}');
 
     router.push(ExpenseRoutes.add(trip));
@@ -408,6 +424,8 @@ void main() {
     expect(restored, isNotEmpty);
     await _capture(t, 'restored', dark: false);
     debugPrint('D034-A4 OK');
+    // Acceptance, checked last so the screens above are still captured: ≥ 7 of 8 receipts read right.
+    expect(right, greaterThanOrEqualTo(7), reason: results.join('\n'));
     debugPrint('D034-A-E2E OK');
   });
 }
