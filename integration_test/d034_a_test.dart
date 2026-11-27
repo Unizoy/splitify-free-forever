@@ -26,6 +26,7 @@ import 'package:splitify/core/config/preferences.dart';
 import 'package:splitify/data/data_providers.dart';
 import 'package:splitify/data/local/app_database.dart';
 import 'package:splitify/data/remote/balances_remote.dart';
+import 'package:splitify/data/remote/remote_api.dart';
 import 'package:splitify/data/remote/remote_providers.dart';
 import 'package:splitify/data/remote/supabase_client.dart';
 import 'package:splitify/data/remote/supabase_remote_api.dart';
@@ -92,6 +93,38 @@ Future<void> _capture(WidgetTester t, String name, {bool dark = true}) async {
   await _pumpFor(t, Duration(seconds: _hold + 2));
 }
 
+/// The real server, with a switch that makes the phone "offline" (every call fails like a dropped network),
+/// so a save provably happens on the phone first and syncs later.
+class _Switchable implements RemoteApi {
+  _Switchable(this.inner);
+
+  final RemoteApi inner;
+  bool offline = false;
+
+  void _check() {
+    if (offline) throw const NetworkException('offline (test)');
+  }
+
+  @override
+  Future<ApplyResponse> applyMutations(List<Map<String, Object?>> batch) {
+    _check();
+    return inner.applyMutations(batch);
+  }
+
+  @override
+  Future<PullPage> pullChanges({
+    required Map<String, int> cursors,
+    required int userSeq,
+    int pageSize = 500,
+  }) {
+    _check();
+    return inner.pullChanges(cursors: cursors, userSeq: userSeq, pageSize: pageSize);
+  }
+
+  @override
+  Future<void> refreshSession() => inner.refreshSession();
+}
+
 Future<void> _back(WidgetTester t) async {
   await t.binding.handlePopRoute();
   await _pumpFor(t, const Duration(milliseconds: 900));
@@ -113,11 +146,12 @@ void main() {
     final prefs = await SharedPreferences.getInstance();
     final files = (await t.runAsync(getExternalStorageDirectory))!;
     final receiptDir = '${files.path}/receipts';
+    final remote = _Switchable(SupabaseRemoteApi.client(client));
     final container = ProviderContainer(
       overrides: [
         sharedPreferencesProvider.overrideWithValue(prefs),
         appDatabaseProvider.overrideWithValue(db),
-        remoteApiProvider.overrideWithValue(SupabaseRemoteApi.client(client)),
+        remoteApiProvider.overrideWithValue(remote),
         balancesRemoteProvider.overrideWithValue(SupabaseBalancesRemote.fromClient(client)),
         groupsRemoteProvider.overrideWithValue(services.groups),
         authRepositoryProvider.overrideWithValue(services.auth),
@@ -212,7 +246,6 @@ void main() {
     await _tapKey(t, 'expense-save');
     await pumpUntil(t, () => find.byKey(const Key('expense-amount')).evaluate().isEmpty);
     final cab = await (db.select(db.expenses)..where((e) => e.groupId.equals(duo))).getSingle();
-    expect(cab.syncState, isNot(SyncState.synced), reason: 'saved on the phone first');
     await sync();
     final cabRow = (await t.runAsync(
       () => client.from('expenses').select().eq('id', cab.id).single(),
@@ -226,6 +259,7 @@ void main() {
     debugPrint('D034-A1 OK ${cab.id}');
 
     // ------------------------------------------------------------------ 2. itemize (A2), offline first
+    remote.offline = true;
     router.push(ExpenseRoutes.add(trip));
     await _waitFor(t, find.byKey(const Key('expense-amount')), reason: 'editor 2');
     await t.enterText(_field('expense-description'), 'Dinner $tag');
@@ -263,8 +297,16 @@ void main() {
     await _tapKey(t, 'expense-save');
     await pumpUntil(t, () => find.byKey(const Key('expense-amount')).evaluate().isEmpty);
     final dinner = await (db.select(db.expenses)..where((e) => e.groupId.equals(trip))).getSingle();
-    expect(dinner.syncState, isNot(SyncState.synced), reason: 'saved on the phone first');
     expect(dinner.total, 100000);
+    // Offline: the sync attempt fails, the row waits on the phone with its outbox mutation.
+    await sync();
+    final waiting = await (db.select(
+      db.expenses,
+    )..where((e) => e.id.equals(dinner.id))).getSingle();
+    expect(waiting.syncState, isNot(SyncState.synced), reason: 'offline: saved on the phone only');
+    expect((await db.select(db.outbox).get()).where((o) => o.recordId == dinner.id), isNotEmpty);
+    debugPrint('D034-A2 offline pending ok');
+    remote.offline = false;
     await sync();
     final synced = await (db.select(db.expenses)..where((e) => e.id.equals(dinner.id))).getSingle();
     expect(synced.syncState, SyncState.synced, reason: '${engine.lastError}');
