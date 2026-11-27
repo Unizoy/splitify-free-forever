@@ -69,6 +69,14 @@ while (-not $p.HasExited) {
   Start-Sleep -Milliseconds 500
   $text = Get-Content $log -Raw -ErrorAction SilentlyContinue
   if (-not $text) { continue }
+  if ($text -match 'UI-READY' -and -not $done.ContainsKey('ready')) {
+    # The first window of a fresh install can stay black even when it reports itself shown: always cycle it once.
+    $done['ready'] = $true
+    & $adb -s $Device shell input keyevent KEYCODE_HOME
+    Start-Sleep -Milliseconds 1000
+    & $adb -s $Device shell am start -n com.unizoy.splitify.qa/com.unizoy.splitify.MainActivity 2>$null | Out-Null
+    Write-Output 'window brought to the front'
+  }
   foreach ($m in [regex]::Matches($text, 'UI-DEEPLINK (\S+)')) {
     $uri = $m.Groups[1].Value
     if ($done.ContainsKey("link $uri")) { continue }
