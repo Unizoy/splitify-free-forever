@@ -615,7 +615,8 @@ List<R3Screen> r3Screens() => [
     () => const [],
   ),
   _home('notification_settings', () => const NotificationSettingsScreen(), _notifSettings),
-  _routed('group_form', '${Routes.groups}/new'),
+  // The edit form: the new-group form autofocuses its name, and a blinking caret makes the picture flaky.
+  _routed('group_form', Routes.editGroup(gid)),
   _routed('group_settings', Routes.groupSettings(gid)),
   _home(
     'invite_sheet',
