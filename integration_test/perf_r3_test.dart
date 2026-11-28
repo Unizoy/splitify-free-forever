@@ -39,6 +39,7 @@ import 'package:splitify/features/groups/presentation/groups_home_screen.dart';
 import 'package:splitify/features/insights/presentation/insights_routes.dart';
 import 'package:splitify/features/insights/presentation/insights_screen.dart';
 import 'package:splitify/features/search/presentation/search_screen.dart';
+import 'package:splitify/ui/components/components.dart' show GroupCoverCard;
 
 /// Signed in as [id] without a server.
 class _SignedIn implements AuthRepository {
@@ -316,7 +317,8 @@ void main() {
       final sw = Stopwatch()..start();
       await t.pumpWidget(UncontrolledProviderScope(container: container, child: const App()));
       numbers['groups_first_frame_ms'] = sw.elapsedMilliseconds;
-      numbers['groups_cards_ms'] = await until(find.byKey(Key('group-card-$big')), sw);
+      // The first cards on screen (the grid is lazy since S-454: off-screen cards are not built at all).
+      numbers['groups_cards_ms'] = await until(find.byType(GroupCoverCard), sw);
       await pumpFrames(30);
     });
     expect(find.byType(GroupsHomeScreen), findsOneWidget);

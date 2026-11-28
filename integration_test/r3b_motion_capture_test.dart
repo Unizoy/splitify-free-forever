@@ -46,7 +46,7 @@ const _me = '00000000-0000-4000-8000-0000000000aa';
   final members = <Map<String, Object?>>[];
   final expenses = <Map<String, Object?>>[];
   final payments = <Map<String, Object?>>[];
-  String group(String name, String type) {
+  String group(String name, String type, {String created = '2026-11-01T10:00:00Z'}) {
     final id = newId();
     groups.add({
       'id': id,
@@ -55,7 +55,7 @@ const _me = '00000000-0000-4000-8000-0000000000aa';
       'main_currency': 'INR',
       'cover_kind': 'generated',
       'simplify_debts': false,
-      'created_at': '2026-11-01T10:00:00Z',
+      'created_at': created,
       'created_by': _me,
       'seq': ++seq,
     });
@@ -112,7 +112,8 @@ const _me = '00000000-0000-4000-8000-0000000000aa';
     });
   }
 
-  final goa = group('Goa trip', 'trip');
+  // The newest group: its card comes first on the Groups home.
+  final goa = group('Goa trip', 'trip', created: '2026-11-25T10:00:00Z');
   final g = people(goa, ['Sam', 'Asha', 'Rohan', 'Priya']);
   const what = [
     ('Dinner at Thalassa', 'food.dining_out'),
@@ -206,6 +207,10 @@ void main() {
 
     Future<void> tapKey(String key) async {
       final f = find.byKey(Key(key));
+      if (f.evaluate().isEmpty) {
+        // Lazy lists build only what is near the screen.
+        await t.scrollUntilVisible(f, 300, scrollable: find.byType(Scrollable).first);
+      }
       await t.ensureVisible(f.first);
       await t.pump();
       await t.tap(f.first);

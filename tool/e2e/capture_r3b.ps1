@@ -58,7 +58,7 @@ try {
     $top = (& $adb shell dumpsys activity activities) -match 'topResumedActivity'
     if (-not ($top -match [regex]::Escape($app))) { & $adb shell am start -n $component | Out-Null }
   }
-  ($lines -match 'R3CAP|EXCEPTION|Expected|Actual|failed') | Out-File -Encoding utf8 (Join-Path $artifacts 'r3b-perf\capture-logcat.txt')
+  $lines | Out-File -Encoding utf8 (Join-Path $artifacts 'r3b-perf\capture-logcat.txt')
   if (-not $rec.HasExited) { Wait-Process -Id $rec.Id -Timeout ($Seconds + 10) -ErrorAction SilentlyContinue }
   Start-Sleep 2
   & $adb pull /sdcard/r3b-motion.mp4 (Join-Path $shots 'r3b-motion.mp4') 2>$null | Out-Null
