@@ -32,6 +32,7 @@ class ActivityItem {
     this.currency,
     this.targetType,
     this.targetId,
+    this.detail,
     this.pending = false,
   });
 
@@ -63,12 +64,16 @@ class ActivityItem {
   /// What a tap opens: `expense`, `payment` or `group` (+ id).
   final String? targetType;
   final String? targetId;
+
+  /// Extra word for the sentence: the kind of file (`photo` / `pdf`) of an `attachment_*` row (W2-Y).
+  final String? detail;
   final bool pending;
 
   ActivityFilter get filter => filterOf(type);
 
   static ActivityFilter filterOf(String type) {
     if (type.startsWith('expense_') ||
+        type.startsWith('attachment_') ||
         type.startsWith('recurring_') ||
         type.startsWith('import_')) {
       return ActivityFilter.expenses;
@@ -143,7 +148,9 @@ List<ActivityItem> buildActivityItems(ActivitySources s, String? userId) {
       targetType = d['target_type'] as String?;
       targetId = d['target_id'] as String?;
       description = targetType == 'expense' ? s.expenses[targetId]?.description : null;
-    } else if (type.startsWith('expense_') || type.startsWith('recurring_')) {
+    } else if (type.startsWith('expense_') ||
+        type.startsWith('recurring_') ||
+        type.startsWith('attachment_')) {
       description = d['description'] as String?;
       if (type.startsWith('recurring_') && d['expense_id'] is String) {
         targetType = 'expense';
@@ -179,6 +186,7 @@ List<ActivityItem> buildActivityItems(ActivitySources s, String? userId) {
         currency: (d['currency'] as String?)?.trim(),
         targetType: targetType,
         targetId: targetId,
+        detail: type.startsWith('attachment_') ? (d['kind'] as String?) ?? 'photo' : null,
       ),
     );
   }
@@ -339,6 +347,26 @@ ActivityItem? _pendingItem(
             : s.expenses[t?.expenseId]?.description,
         targetType: t?.expenseId == null && payload['expense_id'] == null ? 'group' : 'expense',
         targetId: (t?.expenseId ?? payload['expense_id'] as String?) ?? o.groupId,
+        pending: true,
+      );
+    // W2-Y: a photo or PDF added to / taken off an expense, before the server has it.
+    case 'attachment':
+      final expenseId = payload['expense_id'] as String?;
+      return ActivityItem(
+        id: base.id,
+        type: switch (op) {
+          'delete' => 'attachment_removed',
+          'restore' => 'attachment_restored',
+          _ => 'attachment_added',
+        },
+        groupId: base.groupId,
+        groupName: groupName,
+        at: base.at,
+        actor: me,
+        description: expenseId == null ? null : s.expenses[expenseId]?.description,
+        targetType: expenseId == null ? 'group' : 'expense',
+        targetId: expenseId ?? o.groupId,
+        detail: (payload['kind'] as String?) ?? 'photo',
         pending: true,
       );
     case 'comment':

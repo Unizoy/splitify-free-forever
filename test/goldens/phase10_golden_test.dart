@@ -31,6 +31,7 @@ import '../features/expenses/presentation/loan_screen_test.dart'
     show FixedLoanController, sampleLoan;
 import '../support/photo_fixtures.dart';
 import '../support/sample_photo.dart';
+import '../support/attachment_fixtures.dart';
 import 'golden_support.dart';
 
 /// One golden scenario: the screen and the overrides that feed it.
@@ -166,6 +167,7 @@ List<_Case> _cases(File photo) {
         commentThreadProvider((groupId: gid, targetType: 'expense', targetId: 'l1'))
             .overrideWithValue(const AsyncData([])),
         expenseViewProvider('l1').overrideWithValue(AsyncData(sampleView(_loanRow()))),
+        noAttachments('l1'),
         expenseGroupProvider(gid).overrideWith((ref) => Stream.value(sampleGroup())),
       ],
     ),
@@ -177,6 +179,7 @@ List<_Case> _cases(File photo) {
             .overrideWithValue(const AsyncData([])),
         noRepeat('e1'),
         expenseViewProvider('e1').overrideWithValue(AsyncData(sampleView(withReceipt))),
+        noAttachments('e1'),
         expenseGroupProvider(gid).overrideWith((ref) => Stream.value(sampleGroup())),
         ...storedReceipt(_receiptPath, photo, ready: _ready),
       ],

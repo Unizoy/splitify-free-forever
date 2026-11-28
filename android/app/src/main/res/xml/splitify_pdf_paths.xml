@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- PdfFileProvider (W2-Y): only the copies PdfBridge makes for "Open with". -->
+<paths>
+    <cache-path name="pdf" path="pdf/" />
+</paths>

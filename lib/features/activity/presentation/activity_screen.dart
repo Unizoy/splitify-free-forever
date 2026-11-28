@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:splitify/features/activity/application/activity_providers.dart';
+import 'package:splitify/features/activity/application/monthly_summary.dart';
 import 'package:splitify/features/activity/presentation/activity_feed.dart';
+import 'package:splitify/features/activity/presentation/monthly_summary_card.dart';
 import 'package:splitify/features/notifications/application/notifications_providers.dart';
 import 'package:splitify/features/search/presentation/search_screen.dart' show SearchRoutes;
 import 'package:splitify/features/sync/presentation/sync_refresh.dart';
@@ -31,6 +33,7 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
     final async = ref.watch(activityItemsProvider(null));
     final items = async.value;
     final unread = ref.watch(unreadNotificationsProvider).value ?? 0;
+    final month = ref.watch(monthSummaryProvider);
     Widget? content;
     Widget? feed;
     if (items == null) {
@@ -99,6 +102,11 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            // F14 (W2-Y): last month's summary in the first days of a month.
+            if (month != null) ...[
+              MonthlySummaryCard(summary: month),
+              const SizedBox(height: AppSpacing.s4),
+            ],
             // The hero says "Activity": the filters come first (D-033).
             if (items != null && items.isNotEmpty) ...[
               ActivityFilters(value: _filter, onChanged: (f) => setState(() => _filter = f)),

@@ -42,6 +42,14 @@ class MediaFiles {
     return rel;
   }
 
+  /// Writes one file waiting for upload (an attachment's photo, thumbnail or PDF, W2-Y); returns its
+  /// pending relative path. [local] shows it until the upload is done.
+  Future<String> stageFile(String bucket, String path, Uint8List bytes) async {
+    final rel = pendingRel(bucket, path);
+    await _write(await _doc(rel), bytes);
+    return rel;
+  }
+
   /// Bytes of a file under the documents folder, or null when it is gone.
   Future<Uint8List?> read(String rel) async {
     final f = await _doc(rel);
@@ -49,7 +57,8 @@ class MediaFiles {
   }
 
   /// After a successful upload the pending copy goes; covers keep the full photo, receipts only the
-  /// thumbnail (the full one comes back through a signed URL).
+  /// thumbnail (the full one comes back through a signed URL). Attachments keep thumbnails and PDFs
+  /// (`AttachmentPaths.keepAfterUpload`).
   Future<void> uploaded(String bucket, String path, {required bool keepFull}) async {
     final pending = await _doc(pendingRel(bucket, path));
     if (!pending.existsSync()) return;

@@ -125,6 +125,66 @@ Deno.test("buildFcmMessage maps the notification to an FCM v1 message with strin
   assertEquals(bare.android.notification.channel_id, "reminders");
 });
 
+Deno.test("W2-Y batch settle-up: the push carries its own words, the bell row keeps its own", () => {
+  const batch = notification({
+    kind: "payments",
+    title: "Goa trip",
+    body: "Asha paid you ₹500",
+    push_title: "Asha",
+    push_body: "Asha settled up with you in 3 groups · ₹800 + $20",
+    data: { target_type: "payment", batch_count: 3 },
+  });
+  const m = buildFcmMessage(batch, "dev-a");
+  assertEquals(m.notification, {
+    title: "Asha",
+    body: "Asha settled up with you in 3 groups · ₹800 + $20",
+  });
+  assertEquals(m.data.batch_count, "3");
+  assertEquals(m.android.notification.channel_id, "payments");
+  // Empty or missing batch words fall back to the bell row's text.
+  const plain = buildFcmMessage(
+    notification({ push_title: null, push_body: "" }),
+    "dev-a",
+  );
+  assertEquals(plain.notification, {
+    title: "Goa trip",
+    body: "Rahul added “Dinner” · ₹1,200",
+  });
+});
+
+Deno.test("W2-Y a push still 'batched' (covered by another one) is never sent", async () => {
+  const db = withTokens(
+    new FakeDb(notification({ push_status: "batched" })),
+    "dev-a",
+  );
+  const fcm = fakeFcm();
+  assertEquals(await sendPush(ID, { db, fcm }), {
+    outcome: "duplicate",
+    push_status: "batched",
+  });
+  assertEquals(fcm.sent.length, 0);
+});
+
+Deno.test("W2-Y the monthly summary pushes on its own channel", () => {
+  const m = buildFcmMessage(
+    notification({
+      kind: "summary",
+      group_id: null,
+      title: "Your November",
+      body: "You spent ₹4,250 across 3 groups · you're owed ₹1,200",
+      data: { target_type: "insights", month: "2026-11" },
+    }),
+    "dev-a",
+  );
+  assertEquals(m.android.notification.channel_id, "summary");
+  assertEquals(m.data, {
+    target_type: "insights",
+    month: "2026-11",
+    notification_id: ID,
+    kind: "summary",
+  });
+});
+
 Deno.test("TC-19-02 a pending notification is sent once; a second call is a duplicate", async () => {
   const db = withTokens(new FakeDb(), "dev-a", "dev-b");
   const fcm = fakeFcm();

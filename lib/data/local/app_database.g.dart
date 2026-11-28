@@ -4109,6 +4109,996 @@ class ExpensesCompanion extends UpdateCompanion<LocalExpense> {
   }
 }
 
+class ExpenseAttachments extends Table with TableInfo<ExpenseAttachments, LocalAttachment> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  ExpenseAttachments(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL PRIMARY KEY',
+  );
+  static const VerificationMeta _groupIdMeta = const VerificationMeta('groupId');
+  late final GeneratedColumn<String> groupId = GeneratedColumn<String>(
+    'group_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL',
+  );
+  static const VerificationMeta _expenseIdMeta = const VerificationMeta('expenseId');
+  late final GeneratedColumn<String> expenseId = GeneratedColumn<String>(
+    'expense_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL',
+  );
+  static const VerificationMeta _kindMeta = const VerificationMeta('kind');
+  late final GeneratedColumn<String> kind = GeneratedColumn<String>(
+    'kind',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    $customConstraints: 'NOT NULL DEFAULT \'photo\'',
+    defaultValue: const CustomExpression('\'photo\''),
+  );
+  static const VerificationMeta _pathMeta = const VerificationMeta('path');
+  late final GeneratedColumn<String> path = GeneratedColumn<String>(
+    'path',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL',
+  );
+  static const VerificationMeta _thumbPathMeta = const VerificationMeta('thumbPath');
+  late final GeneratedColumn<String> thumbPath = GeneratedColumn<String>(
+    'thumb_path',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    $customConstraints: '',
+  );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    $customConstraints: '',
+  );
+  static const VerificationMeta _sizeBytesMeta = const VerificationMeta('sizeBytes');
+  late final GeneratedColumn<int> sizeBytes = GeneratedColumn<int>(
+    'size_bytes',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    $customConstraints: 'NOT NULL DEFAULT 0',
+    defaultValue: const CustomExpression('0'),
+  );
+  static const VerificationMeta _widthMeta = const VerificationMeta('width');
+  late final GeneratedColumn<int> width = GeneratedColumn<int>(
+    'width',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    $customConstraints: '',
+  );
+  static const VerificationMeta _heightMeta = const VerificationMeta('height');
+  late final GeneratedColumn<int> height = GeneratedColumn<int>(
+    'height',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    $customConstraints: '',
+  );
+  static const VerificationMeta _positionMeta = const VerificationMeta('position');
+  late final GeneratedColumn<int> position = GeneratedColumn<int>(
+    'position',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    $customConstraints: 'NOT NULL DEFAULT 0',
+    defaultValue: const CustomExpression('0'),
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta('createdAt');
+  late final GeneratedColumn<String> createdAt = GeneratedColumn<String>(
+    'created_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    $customConstraints: '',
+  );
+  static const VerificationMeta _createdByMeta = const VerificationMeta('createdBy');
+  late final GeneratedColumn<String> createdBy = GeneratedColumn<String>(
+    'created_by',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    $customConstraints: '',
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta('updatedAt');
+  late final GeneratedColumn<String> updatedAt = GeneratedColumn<String>(
+    'updated_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    $customConstraints: '',
+  );
+  static const VerificationMeta _updatedByMeta = const VerificationMeta('updatedBy');
+  late final GeneratedColumn<String> updatedBy = GeneratedColumn<String>(
+    'updated_by',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    $customConstraints: '',
+  );
+  static const VerificationMeta _clientUpdatedAtMeta = const VerificationMeta('clientUpdatedAt');
+  late final GeneratedColumn<String> clientUpdatedAt = GeneratedColumn<String>(
+    'client_updated_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    $customConstraints: '',
+  );
+  static const VerificationMeta _deletedAtMeta = const VerificationMeta('deletedAt');
+  late final GeneratedColumn<String> deletedAt = GeneratedColumn<String>(
+    'deleted_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    $customConstraints: '',
+  );
+  static const VerificationMeta _deletedByMeta = const VerificationMeta('deletedBy');
+  late final GeneratedColumn<String> deletedBy = GeneratedColumn<String>(
+    'deleted_by',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    $customConstraints: '',
+  );
+  static const VerificationMeta _seqMeta = const VerificationMeta('seq');
+  late final GeneratedColumn<int> seq = GeneratedColumn<int>(
+    'seq',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    $customConstraints: 'NOT NULL DEFAULT 0',
+    defaultValue: const CustomExpression('0'),
+  );
+  static const VerificationMeta _syncStateMeta = const VerificationMeta('syncState');
+  late final GeneratedColumn<String> syncState = GeneratedColumn<String>(
+    'sync_state',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    $customConstraints: 'NOT NULL DEFAULT \'synced\'',
+    defaultValue: const CustomExpression('\'synced\''),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    groupId,
+    expenseId,
+    kind,
+    path,
+    thumbPath,
+    name,
+    sizeBytes,
+    width,
+    height,
+    position,
+    createdAt,
+    createdBy,
+    updatedAt,
+    updatedBy,
+    clientUpdatedAt,
+    deletedAt,
+    deletedBy,
+    seq,
+    syncState,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'expense_attachments';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<LocalAttachment> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('group_id')) {
+      context.handle(_groupIdMeta, groupId.isAcceptableOrUnknown(data['group_id']!, _groupIdMeta));
+    } else if (isInserting) {
+      context.missing(_groupIdMeta);
+    }
+    if (data.containsKey('expense_id')) {
+      context.handle(
+        _expenseIdMeta,
+        expenseId.isAcceptableOrUnknown(data['expense_id']!, _expenseIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_expenseIdMeta);
+    }
+    if (data.containsKey('kind')) {
+      context.handle(_kindMeta, kind.isAcceptableOrUnknown(data['kind']!, _kindMeta));
+    }
+    if (data.containsKey('path')) {
+      context.handle(_pathMeta, path.isAcceptableOrUnknown(data['path']!, _pathMeta));
+    } else if (isInserting) {
+      context.missing(_pathMeta);
+    }
+    if (data.containsKey('thumb_path')) {
+      context.handle(
+        _thumbPathMeta,
+        thumbPath.isAcceptableOrUnknown(data['thumb_path']!, _thumbPathMeta),
+      );
+    }
+    if (data.containsKey('name')) {
+      context.handle(_nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
+    }
+    if (data.containsKey('size_bytes')) {
+      context.handle(
+        _sizeBytesMeta,
+        sizeBytes.isAcceptableOrUnknown(data['size_bytes']!, _sizeBytesMeta),
+      );
+    }
+    if (data.containsKey('width')) {
+      context.handle(_widthMeta, width.isAcceptableOrUnknown(data['width']!, _widthMeta));
+    }
+    if (data.containsKey('height')) {
+      context.handle(_heightMeta, height.isAcceptableOrUnknown(data['height']!, _heightMeta));
+    }
+    if (data.containsKey('position')) {
+      context.handle(
+        _positionMeta,
+        position.isAcceptableOrUnknown(data['position']!, _positionMeta),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
+    if (data.containsKey('created_by')) {
+      context.handle(
+        _createdByMeta,
+        createdBy.isAcceptableOrUnknown(data['created_by']!, _createdByMeta),
+      );
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    }
+    if (data.containsKey('updated_by')) {
+      context.handle(
+        _updatedByMeta,
+        updatedBy.isAcceptableOrUnknown(data['updated_by']!, _updatedByMeta),
+      );
+    }
+    if (data.containsKey('client_updated_at')) {
+      context.handle(
+        _clientUpdatedAtMeta,
+        clientUpdatedAt.isAcceptableOrUnknown(data['client_updated_at']!, _clientUpdatedAtMeta),
+      );
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(
+        _deletedAtMeta,
+        deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta),
+      );
+    }
+    if (data.containsKey('deleted_by')) {
+      context.handle(
+        _deletedByMeta,
+        deletedBy.isAcceptableOrUnknown(data['deleted_by']!, _deletedByMeta),
+      );
+    }
+    if (data.containsKey('seq')) {
+      context.handle(_seqMeta, seq.isAcceptableOrUnknown(data['seq']!, _seqMeta));
+    }
+    if (data.containsKey('sync_state')) {
+      context.handle(
+        _syncStateMeta,
+        syncState.isAcceptableOrUnknown(data['sync_state']!, _syncStateMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  LocalAttachment map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return LocalAttachment(
+      id: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      groupId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}group_id'],
+      )!,
+      expenseId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}expense_id'],
+      )!,
+      kind: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}kind'])!,
+      path: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}path'])!,
+      thumbPath: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}thumb_path'],
+      ),
+      name: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}name']),
+      sizeBytes: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}size_bytes'],
+      )!,
+      width: attachedDatabase.typeMapping.read(DriftSqlType.int, data['${effectivePrefix}width']),
+      height: attachedDatabase.typeMapping.read(DriftSqlType.int, data['${effectivePrefix}height']),
+      position: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}position'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}created_at'],
+      ),
+      createdBy: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}created_by'],
+      ),
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}updated_at'],
+      ),
+      updatedBy: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}updated_by'],
+      ),
+      clientUpdatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}client_updated_at'],
+      ),
+      deletedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}deleted_at'],
+      ),
+      deletedBy: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}deleted_by'],
+      ),
+      seq: attachedDatabase.typeMapping.read(DriftSqlType.int, data['${effectivePrefix}seq'])!,
+      syncState: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}sync_state'],
+      )!,
+    );
+  }
+
+  @override
+  ExpenseAttachments createAlias(String alias) {
+    return ExpenseAttachments(attachedDatabase, alias);
+  }
+
+  @override
+  bool get dontWriteConstraints => true;
+}
+
+class LocalAttachment extends DataClass implements Insertable<LocalAttachment> {
+  final String id;
+  final String groupId;
+  final String expenseId;
+  final String kind;
+  final String path;
+  final String? thumbPath;
+  final String? name;
+  final int sizeBytes;
+  final int? width;
+  final int? height;
+  final int position;
+  final String? createdAt;
+  final String? createdBy;
+  final String? updatedAt;
+  final String? updatedBy;
+  final String? clientUpdatedAt;
+  final String? deletedAt;
+  final String? deletedBy;
+  final int seq;
+  final String syncState;
+  const LocalAttachment({
+    required this.id,
+    required this.groupId,
+    required this.expenseId,
+    required this.kind,
+    required this.path,
+    this.thumbPath,
+    this.name,
+    required this.sizeBytes,
+    this.width,
+    this.height,
+    required this.position,
+    this.createdAt,
+    this.createdBy,
+    this.updatedAt,
+    this.updatedBy,
+    this.clientUpdatedAt,
+    this.deletedAt,
+    this.deletedBy,
+    required this.seq,
+    required this.syncState,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['group_id'] = Variable<String>(groupId);
+    map['expense_id'] = Variable<String>(expenseId);
+    map['kind'] = Variable<String>(kind);
+    map['path'] = Variable<String>(path);
+    if (!nullToAbsent || thumbPath != null) {
+      map['thumb_path'] = Variable<String>(thumbPath);
+    }
+    if (!nullToAbsent || name != null) {
+      map['name'] = Variable<String>(name);
+    }
+    map['size_bytes'] = Variable<int>(sizeBytes);
+    if (!nullToAbsent || width != null) {
+      map['width'] = Variable<int>(width);
+    }
+    if (!nullToAbsent || height != null) {
+      map['height'] = Variable<int>(height);
+    }
+    map['position'] = Variable<int>(position);
+    if (!nullToAbsent || createdAt != null) {
+      map['created_at'] = Variable<String>(createdAt);
+    }
+    if (!nullToAbsent || createdBy != null) {
+      map['created_by'] = Variable<String>(createdBy);
+    }
+    if (!nullToAbsent || updatedAt != null) {
+      map['updated_at'] = Variable<String>(updatedAt);
+    }
+    if (!nullToAbsent || updatedBy != null) {
+      map['updated_by'] = Variable<String>(updatedBy);
+    }
+    if (!nullToAbsent || clientUpdatedAt != null) {
+      map['client_updated_at'] = Variable<String>(clientUpdatedAt);
+    }
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<String>(deletedAt);
+    }
+    if (!nullToAbsent || deletedBy != null) {
+      map['deleted_by'] = Variable<String>(deletedBy);
+    }
+    map['seq'] = Variable<int>(seq);
+    map['sync_state'] = Variable<String>(syncState);
+    return map;
+  }
+
+  ExpenseAttachmentsCompanion toCompanion(bool nullToAbsent) {
+    return ExpenseAttachmentsCompanion(
+      id: Value(id),
+      groupId: Value(groupId),
+      expenseId: Value(expenseId),
+      kind: Value(kind),
+      path: Value(path),
+      thumbPath: thumbPath == null && nullToAbsent ? const Value.absent() : Value(thumbPath),
+      name: name == null && nullToAbsent ? const Value.absent() : Value(name),
+      sizeBytes: Value(sizeBytes),
+      width: width == null && nullToAbsent ? const Value.absent() : Value(width),
+      height: height == null && nullToAbsent ? const Value.absent() : Value(height),
+      position: Value(position),
+      createdAt: createdAt == null && nullToAbsent ? const Value.absent() : Value(createdAt),
+      createdBy: createdBy == null && nullToAbsent ? const Value.absent() : Value(createdBy),
+      updatedAt: updatedAt == null && nullToAbsent ? const Value.absent() : Value(updatedAt),
+      updatedBy: updatedBy == null && nullToAbsent ? const Value.absent() : Value(updatedBy),
+      clientUpdatedAt: clientUpdatedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(clientUpdatedAt),
+      deletedAt: deletedAt == null && nullToAbsent ? const Value.absent() : Value(deletedAt),
+      deletedBy: deletedBy == null && nullToAbsent ? const Value.absent() : Value(deletedBy),
+      seq: Value(seq),
+      syncState: Value(syncState),
+    );
+  }
+
+  factory LocalAttachment.fromJson(Map<String, dynamic> json, {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return LocalAttachment(
+      id: serializer.fromJson<String>(json['id']),
+      groupId: serializer.fromJson<String>(json['group_id']),
+      expenseId: serializer.fromJson<String>(json['expense_id']),
+      kind: serializer.fromJson<String>(json['kind']),
+      path: serializer.fromJson<String>(json['path']),
+      thumbPath: serializer.fromJson<String?>(json['thumb_path']),
+      name: serializer.fromJson<String?>(json['name']),
+      sizeBytes: serializer.fromJson<int>(json['size_bytes']),
+      width: serializer.fromJson<int?>(json['width']),
+      height: serializer.fromJson<int?>(json['height']),
+      position: serializer.fromJson<int>(json['position']),
+      createdAt: serializer.fromJson<String?>(json['created_at']),
+      createdBy: serializer.fromJson<String?>(json['created_by']),
+      updatedAt: serializer.fromJson<String?>(json['updated_at']),
+      updatedBy: serializer.fromJson<String?>(json['updated_by']),
+      clientUpdatedAt: serializer.fromJson<String?>(json['client_updated_at']),
+      deletedAt: serializer.fromJson<String?>(json['deleted_at']),
+      deletedBy: serializer.fromJson<String?>(json['deleted_by']),
+      seq: serializer.fromJson<int>(json['seq']),
+      syncState: serializer.fromJson<String>(json['sync_state']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'group_id': serializer.toJson<String>(groupId),
+      'expense_id': serializer.toJson<String>(expenseId),
+      'kind': serializer.toJson<String>(kind),
+      'path': serializer.toJson<String>(path),
+      'thumb_path': serializer.toJson<String?>(thumbPath),
+      'name': serializer.toJson<String?>(name),
+      'size_bytes': serializer.toJson<int>(sizeBytes),
+      'width': serializer.toJson<int?>(width),
+      'height': serializer.toJson<int?>(height),
+      'position': serializer.toJson<int>(position),
+      'created_at': serializer.toJson<String?>(createdAt),
+      'created_by': serializer.toJson<String?>(createdBy),
+      'updated_at': serializer.toJson<String?>(updatedAt),
+      'updated_by': serializer.toJson<String?>(updatedBy),
+      'client_updated_at': serializer.toJson<String?>(clientUpdatedAt),
+      'deleted_at': serializer.toJson<String?>(deletedAt),
+      'deleted_by': serializer.toJson<String?>(deletedBy),
+      'seq': serializer.toJson<int>(seq),
+      'sync_state': serializer.toJson<String>(syncState),
+    };
+  }
+
+  LocalAttachment copyWith({
+    String? id,
+    String? groupId,
+    String? expenseId,
+    String? kind,
+    String? path,
+    Value<String?> thumbPath = const Value.absent(),
+    Value<String?> name = const Value.absent(),
+    int? sizeBytes,
+    Value<int?> width = const Value.absent(),
+    Value<int?> height = const Value.absent(),
+    int? position,
+    Value<String?> createdAt = const Value.absent(),
+    Value<String?> createdBy = const Value.absent(),
+    Value<String?> updatedAt = const Value.absent(),
+    Value<String?> updatedBy = const Value.absent(),
+    Value<String?> clientUpdatedAt = const Value.absent(),
+    Value<String?> deletedAt = const Value.absent(),
+    Value<String?> deletedBy = const Value.absent(),
+    int? seq,
+    String? syncState,
+  }) => LocalAttachment(
+    id: id ?? this.id,
+    groupId: groupId ?? this.groupId,
+    expenseId: expenseId ?? this.expenseId,
+    kind: kind ?? this.kind,
+    path: path ?? this.path,
+    thumbPath: thumbPath.present ? thumbPath.value : this.thumbPath,
+    name: name.present ? name.value : this.name,
+    sizeBytes: sizeBytes ?? this.sizeBytes,
+    width: width.present ? width.value : this.width,
+    height: height.present ? height.value : this.height,
+    position: position ?? this.position,
+    createdAt: createdAt.present ? createdAt.value : this.createdAt,
+    createdBy: createdBy.present ? createdBy.value : this.createdBy,
+    updatedAt: updatedAt.present ? updatedAt.value : this.updatedAt,
+    updatedBy: updatedBy.present ? updatedBy.value : this.updatedBy,
+    clientUpdatedAt: clientUpdatedAt.present ? clientUpdatedAt.value : this.clientUpdatedAt,
+    deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+    deletedBy: deletedBy.present ? deletedBy.value : this.deletedBy,
+    seq: seq ?? this.seq,
+    syncState: syncState ?? this.syncState,
+  );
+  LocalAttachment copyWithCompanion(ExpenseAttachmentsCompanion data) {
+    return LocalAttachment(
+      id: data.id.present ? data.id.value : this.id,
+      groupId: data.groupId.present ? data.groupId.value : this.groupId,
+      expenseId: data.expenseId.present ? data.expenseId.value : this.expenseId,
+      kind: data.kind.present ? data.kind.value : this.kind,
+      path: data.path.present ? data.path.value : this.path,
+      thumbPath: data.thumbPath.present ? data.thumbPath.value : this.thumbPath,
+      name: data.name.present ? data.name.value : this.name,
+      sizeBytes: data.sizeBytes.present ? data.sizeBytes.value : this.sizeBytes,
+      width: data.width.present ? data.width.value : this.width,
+      height: data.height.present ? data.height.value : this.height,
+      position: data.position.present ? data.position.value : this.position,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      createdBy: data.createdBy.present ? data.createdBy.value : this.createdBy,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      updatedBy: data.updatedBy.present ? data.updatedBy.value : this.updatedBy,
+      clientUpdatedAt: data.clientUpdatedAt.present
+          ? data.clientUpdatedAt.value
+          : this.clientUpdatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+      deletedBy: data.deletedBy.present ? data.deletedBy.value : this.deletedBy,
+      seq: data.seq.present ? data.seq.value : this.seq,
+      syncState: data.syncState.present ? data.syncState.value : this.syncState,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LocalAttachment(')
+          ..write('id: $id, ')
+          ..write('groupId: $groupId, ')
+          ..write('expenseId: $expenseId, ')
+          ..write('kind: $kind, ')
+          ..write('path: $path, ')
+          ..write('thumbPath: $thumbPath, ')
+          ..write('name: $name, ')
+          ..write('sizeBytes: $sizeBytes, ')
+          ..write('width: $width, ')
+          ..write('height: $height, ')
+          ..write('position: $position, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('createdBy: $createdBy, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('updatedBy: $updatedBy, ')
+          ..write('clientUpdatedAt: $clientUpdatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('deletedBy: $deletedBy, ')
+          ..write('seq: $seq, ')
+          ..write('syncState: $syncState')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    groupId,
+    expenseId,
+    kind,
+    path,
+    thumbPath,
+    name,
+    sizeBytes,
+    width,
+    height,
+    position,
+    createdAt,
+    createdBy,
+    updatedAt,
+    updatedBy,
+    clientUpdatedAt,
+    deletedAt,
+    deletedBy,
+    seq,
+    syncState,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is LocalAttachment &&
+          other.id == this.id &&
+          other.groupId == this.groupId &&
+          other.expenseId == this.expenseId &&
+          other.kind == this.kind &&
+          other.path == this.path &&
+          other.thumbPath == this.thumbPath &&
+          other.name == this.name &&
+          other.sizeBytes == this.sizeBytes &&
+          other.width == this.width &&
+          other.height == this.height &&
+          other.position == this.position &&
+          other.createdAt == this.createdAt &&
+          other.createdBy == this.createdBy &&
+          other.updatedAt == this.updatedAt &&
+          other.updatedBy == this.updatedBy &&
+          other.clientUpdatedAt == this.clientUpdatedAt &&
+          other.deletedAt == this.deletedAt &&
+          other.deletedBy == this.deletedBy &&
+          other.seq == this.seq &&
+          other.syncState == this.syncState);
+}
+
+class ExpenseAttachmentsCompanion extends UpdateCompanion<LocalAttachment> {
+  final Value<String> id;
+  final Value<String> groupId;
+  final Value<String> expenseId;
+  final Value<String> kind;
+  final Value<String> path;
+  final Value<String?> thumbPath;
+  final Value<String?> name;
+  final Value<int> sizeBytes;
+  final Value<int?> width;
+  final Value<int?> height;
+  final Value<int> position;
+  final Value<String?> createdAt;
+  final Value<String?> createdBy;
+  final Value<String?> updatedAt;
+  final Value<String?> updatedBy;
+  final Value<String?> clientUpdatedAt;
+  final Value<String?> deletedAt;
+  final Value<String?> deletedBy;
+  final Value<int> seq;
+  final Value<String> syncState;
+  final Value<int> rowid;
+  const ExpenseAttachmentsCompanion({
+    this.id = const Value.absent(),
+    this.groupId = const Value.absent(),
+    this.expenseId = const Value.absent(),
+    this.kind = const Value.absent(),
+    this.path = const Value.absent(),
+    this.thumbPath = const Value.absent(),
+    this.name = const Value.absent(),
+    this.sizeBytes = const Value.absent(),
+    this.width = const Value.absent(),
+    this.height = const Value.absent(),
+    this.position = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.createdBy = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.updatedBy = const Value.absent(),
+    this.clientUpdatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.deletedBy = const Value.absent(),
+    this.seq = const Value.absent(),
+    this.syncState = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ExpenseAttachmentsCompanion.insert({
+    required String id,
+    required String groupId,
+    required String expenseId,
+    this.kind = const Value.absent(),
+    required String path,
+    this.thumbPath = const Value.absent(),
+    this.name = const Value.absent(),
+    this.sizeBytes = const Value.absent(),
+    this.width = const Value.absent(),
+    this.height = const Value.absent(),
+    this.position = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.createdBy = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.updatedBy = const Value.absent(),
+    this.clientUpdatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.deletedBy = const Value.absent(),
+    this.seq = const Value.absent(),
+    this.syncState = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       groupId = Value(groupId),
+       expenseId = Value(expenseId),
+       path = Value(path);
+  static Insertable<LocalAttachment> custom({
+    Expression<String>? id,
+    Expression<String>? groupId,
+    Expression<String>? expenseId,
+    Expression<String>? kind,
+    Expression<String>? path,
+    Expression<String>? thumbPath,
+    Expression<String>? name,
+    Expression<int>? sizeBytes,
+    Expression<int>? width,
+    Expression<int>? height,
+    Expression<int>? position,
+    Expression<String>? createdAt,
+    Expression<String>? createdBy,
+    Expression<String>? updatedAt,
+    Expression<String>? updatedBy,
+    Expression<String>? clientUpdatedAt,
+    Expression<String>? deletedAt,
+    Expression<String>? deletedBy,
+    Expression<int>? seq,
+    Expression<String>? syncState,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (groupId != null) 'group_id': groupId,
+      if (expenseId != null) 'expense_id': expenseId,
+      if (kind != null) 'kind': kind,
+      if (path != null) 'path': path,
+      if (thumbPath != null) 'thumb_path': thumbPath,
+      if (name != null) 'name': name,
+      if (sizeBytes != null) 'size_bytes': sizeBytes,
+      if (width != null) 'width': width,
+      if (height != null) 'height': height,
+      if (position != null) 'position': position,
+      if (createdAt != null) 'created_at': createdAt,
+      if (createdBy != null) 'created_by': createdBy,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (updatedBy != null) 'updated_by': updatedBy,
+      if (clientUpdatedAt != null) 'client_updated_at': clientUpdatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (deletedBy != null) 'deleted_by': deletedBy,
+      if (seq != null) 'seq': seq,
+      if (syncState != null) 'sync_state': syncState,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ExpenseAttachmentsCompanion copyWith({
+    Value<String>? id,
+    Value<String>? groupId,
+    Value<String>? expenseId,
+    Value<String>? kind,
+    Value<String>? path,
+    Value<String?>? thumbPath,
+    Value<String?>? name,
+    Value<int>? sizeBytes,
+    Value<int?>? width,
+    Value<int?>? height,
+    Value<int>? position,
+    Value<String?>? createdAt,
+    Value<String?>? createdBy,
+    Value<String?>? updatedAt,
+    Value<String?>? updatedBy,
+    Value<String?>? clientUpdatedAt,
+    Value<String?>? deletedAt,
+    Value<String?>? deletedBy,
+    Value<int>? seq,
+    Value<String>? syncState,
+    Value<int>? rowid,
+  }) {
+    return ExpenseAttachmentsCompanion(
+      id: id ?? this.id,
+      groupId: groupId ?? this.groupId,
+      expenseId: expenseId ?? this.expenseId,
+      kind: kind ?? this.kind,
+      path: path ?? this.path,
+      thumbPath: thumbPath ?? this.thumbPath,
+      name: name ?? this.name,
+      sizeBytes: sizeBytes ?? this.sizeBytes,
+      width: width ?? this.width,
+      height: height ?? this.height,
+      position: position ?? this.position,
+      createdAt: createdAt ?? this.createdAt,
+      createdBy: createdBy ?? this.createdBy,
+      updatedAt: updatedAt ?? this.updatedAt,
+      updatedBy: updatedBy ?? this.updatedBy,
+      clientUpdatedAt: clientUpdatedAt ?? this.clientUpdatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      deletedBy: deletedBy ?? this.deletedBy,
+      seq: seq ?? this.seq,
+      syncState: syncState ?? this.syncState,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (groupId.present) {
+      map['group_id'] = Variable<String>(groupId.value);
+    }
+    if (expenseId.present) {
+      map['expense_id'] = Variable<String>(expenseId.value);
+    }
+    if (kind.present) {
+      map['kind'] = Variable<String>(kind.value);
+    }
+    if (path.present) {
+      map['path'] = Variable<String>(path.value);
+    }
+    if (thumbPath.present) {
+      map['thumb_path'] = Variable<String>(thumbPath.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (sizeBytes.present) {
+      map['size_bytes'] = Variable<int>(sizeBytes.value);
+    }
+    if (width.present) {
+      map['width'] = Variable<int>(width.value);
+    }
+    if (height.present) {
+      map['height'] = Variable<int>(height.value);
+    }
+    if (position.present) {
+      map['position'] = Variable<int>(position.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<String>(createdAt.value);
+    }
+    if (createdBy.present) {
+      map['created_by'] = Variable<String>(createdBy.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<String>(updatedAt.value);
+    }
+    if (updatedBy.present) {
+      map['updated_by'] = Variable<String>(updatedBy.value);
+    }
+    if (clientUpdatedAt.present) {
+      map['client_updated_at'] = Variable<String>(clientUpdatedAt.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<String>(deletedAt.value);
+    }
+    if (deletedBy.present) {
+      map['deleted_by'] = Variable<String>(deletedBy.value);
+    }
+    if (seq.present) {
+      map['seq'] = Variable<int>(seq.value);
+    }
+    if (syncState.present) {
+      map['sync_state'] = Variable<String>(syncState.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ExpenseAttachmentsCompanion(')
+          ..write('id: $id, ')
+          ..write('groupId: $groupId, ')
+          ..write('expenseId: $expenseId, ')
+          ..write('kind: $kind, ')
+          ..write('path: $path, ')
+          ..write('thumbPath: $thumbPath, ')
+          ..write('name: $name, ')
+          ..write('sizeBytes: $sizeBytes, ')
+          ..write('width: $width, ')
+          ..write('height: $height, ')
+          ..write('position: $position, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('createdBy: $createdBy, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('updatedBy: $updatedBy, ')
+          ..write('clientUpdatedAt: $clientUpdatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('deletedBy: $deletedBy, ')
+          ..write('seq: $seq, ')
+          ..write('syncState: $syncState, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class Payments extends Table with TableInfo<Payments, LocalPayment> {
   @override
   final GeneratedDatabase attachedDatabase;
@@ -12119,6 +13109,11 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     'expenses_group_date',
     'CREATE INDEX expenses_group_date ON expenses (group_id, date)',
   );
+  late final ExpenseAttachments expenseAttachments = ExpenseAttachments(this);
+  late final Index expenseAttachmentsExpense = Index(
+    'expense_attachments_expense',
+    'CREATE INDEX expense_attachments_expense ON expense_attachments (expense_id)',
+  );
   late final Payments payments = Payments(this);
   late final Index paymentsGroup = Index(
     'payments_group',
@@ -12189,6 +13184,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     groupMembersGroup,
     expenses,
     expensesGroupDate,
+    expenseAttachments,
+    expenseAttachmentsExpense,
     payments,
     paymentsGroup,
     comments,
@@ -13853,6 +14850,407 @@ typedef $ExpensesProcessedTableManager =
       $ExpensesUpdateCompanionBuilder,
       (LocalExpense, BaseReferences<_$AppDatabase, Expenses, LocalExpense>),
       LocalExpense,
+      PrefetchHooks Function()
+    >;
+typedef $ExpenseAttachmentsCreateCompanionBuilder = ExpenseAttachmentsCompanion Function({
+  required String id,
+  required String groupId,
+  required String expenseId,
+  Value<String> kind,
+  required String path,
+  Value<String?> thumbPath,
+  Value<String?> name,
+  Value<int> sizeBytes,
+  Value<int?> width,
+  Value<int?> height,
+  Value<int> position,
+  Value<String?> createdAt,
+  Value<String?> createdBy,
+  Value<String?> updatedAt,
+  Value<String?> updatedBy,
+  Value<String?> clientUpdatedAt,
+  Value<String?> deletedAt,
+  Value<String?> deletedBy,
+  Value<int> seq,
+  Value<String> syncState,
+  Value<int> rowid,
+});
+typedef $ExpenseAttachmentsUpdateCompanionBuilder = ExpenseAttachmentsCompanion Function({
+  Value<String> id,
+  Value<String> groupId,
+  Value<String> expenseId,
+  Value<String> kind,
+  Value<String> path,
+  Value<String?> thumbPath,
+  Value<String?> name,
+  Value<int> sizeBytes,
+  Value<int?> width,
+  Value<int?> height,
+  Value<int> position,
+  Value<String?> createdAt,
+  Value<String?> createdBy,
+  Value<String?> updatedAt,
+  Value<String?> updatedBy,
+  Value<String?> clientUpdatedAt,
+  Value<String?> deletedAt,
+  Value<String?> deletedBy,
+  Value<int> seq,
+  Value<String> syncState,
+  Value<int> rowid,
+});
+
+class $ExpenseAttachmentsFilterComposer extends Composer<_$AppDatabase, ExpenseAttachments> {
+  $ExpenseAttachmentsFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get groupId =>
+      $composableBuilder(column: $table.groupId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get expenseId =>
+      $composableBuilder(column: $table.expenseId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get kind =>
+      $composableBuilder(column: $table.kind, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get path =>
+      $composableBuilder(column: $table.path, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get thumbPath =>
+      $composableBuilder(column: $table.thumbPath, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get sizeBytes =>
+      $composableBuilder(column: $table.sizeBytes, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get width =>
+      $composableBuilder(column: $table.width, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get height =>
+      $composableBuilder(column: $table.height, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get position =>
+      $composableBuilder(column: $table.position, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get createdBy =>
+      $composableBuilder(column: $table.createdBy, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get updatedBy =>
+      $composableBuilder(column: $table.updatedBy, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get clientUpdatedAt => $composableBuilder(
+    column: $table.clientUpdatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get deletedBy =>
+      $composableBuilder(column: $table.deletedBy, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get seq =>
+      $composableBuilder(column: $table.seq, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get syncState =>
+      $composableBuilder(column: $table.syncState, builder: (column) => ColumnFilters(column));
+}
+
+class $ExpenseAttachmentsOrderingComposer extends Composer<_$AppDatabase, ExpenseAttachments> {
+  $ExpenseAttachmentsOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get groupId =>
+      $composableBuilder(column: $table.groupId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get expenseId =>
+      $composableBuilder(column: $table.expenseId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get kind =>
+      $composableBuilder(column: $table.kind, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get path =>
+      $composableBuilder(column: $table.path, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get thumbPath =>
+      $composableBuilder(column: $table.thumbPath, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get sizeBytes =>
+      $composableBuilder(column: $table.sizeBytes, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get width =>
+      $composableBuilder(column: $table.width, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get height =>
+      $composableBuilder(column: $table.height, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get position =>
+      $composableBuilder(column: $table.position, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get createdBy =>
+      $composableBuilder(column: $table.createdBy, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get updatedBy =>
+      $composableBuilder(column: $table.updatedBy, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get clientUpdatedAt => $composableBuilder(
+    column: $table.clientUpdatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get deletedBy =>
+      $composableBuilder(column: $table.deletedBy, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get seq =>
+      $composableBuilder(column: $table.seq, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get syncState =>
+      $composableBuilder(column: $table.syncState, builder: (column) => ColumnOrderings(column));
+}
+
+class $ExpenseAttachmentsAnnotationComposer extends Composer<_$AppDatabase, ExpenseAttachments> {
+  $ExpenseAttachmentsAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get groupId =>
+      $composableBuilder(column: $table.groupId, builder: (column) => column);
+
+  GeneratedColumn<String> get expenseId =>
+      $composableBuilder(column: $table.expenseId, builder: (column) => column);
+
+  GeneratedColumn<String> get kind =>
+      $composableBuilder(column: $table.kind, builder: (column) => column);
+
+  GeneratedColumn<String> get path =>
+      $composableBuilder(column: $table.path, builder: (column) => column);
+
+  GeneratedColumn<String> get thumbPath =>
+      $composableBuilder(column: $table.thumbPath, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<int> get sizeBytes =>
+      $composableBuilder(column: $table.sizeBytes, builder: (column) => column);
+
+  GeneratedColumn<int> get width =>
+      $composableBuilder(column: $table.width, builder: (column) => column);
+
+  GeneratedColumn<int> get height =>
+      $composableBuilder(column: $table.height, builder: (column) => column);
+
+  GeneratedColumn<int> get position =>
+      $composableBuilder(column: $table.position, builder: (column) => column);
+
+  GeneratedColumn<String> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<String> get createdBy =>
+      $composableBuilder(column: $table.createdBy, builder: (column) => column);
+
+  GeneratedColumn<String> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get updatedBy =>
+      $composableBuilder(column: $table.updatedBy, builder: (column) => column);
+
+  GeneratedColumn<String> get clientUpdatedAt =>
+      $composableBuilder(column: $table.clientUpdatedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get deletedBy =>
+      $composableBuilder(column: $table.deletedBy, builder: (column) => column);
+
+  GeneratedColumn<int> get seq =>
+      $composableBuilder(column: $table.seq, builder: (column) => column);
+
+  GeneratedColumn<String> get syncState =>
+      $composableBuilder(column: $table.syncState, builder: (column) => column);
+}
+
+class $ExpenseAttachmentsTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          ExpenseAttachments,
+          LocalAttachment,
+          $ExpenseAttachmentsFilterComposer,
+          $ExpenseAttachmentsOrderingComposer,
+          $ExpenseAttachmentsAnnotationComposer,
+          $ExpenseAttachmentsCreateCompanionBuilder,
+          $ExpenseAttachmentsUpdateCompanionBuilder,
+          (LocalAttachment, BaseReferences<_$AppDatabase, ExpenseAttachments, LocalAttachment>),
+          LocalAttachment,
+          PrefetchHooks Function()
+        > {
+  $ExpenseAttachmentsTableManager(_$AppDatabase db, ExpenseAttachments table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () => $ExpenseAttachmentsFilterComposer($db: db, $table: table),
+          createOrderingComposer: () => $ExpenseAttachmentsOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $ExpenseAttachmentsAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> groupId = const Value.absent(),
+                Value<String> expenseId = const Value.absent(),
+                Value<String> kind = const Value.absent(),
+                Value<String> path = const Value.absent(),
+                Value<String?> thumbPath = const Value.absent(),
+                Value<String?> name = const Value.absent(),
+                Value<int> sizeBytes = const Value.absent(),
+                Value<int?> width = const Value.absent(),
+                Value<int?> height = const Value.absent(),
+                Value<int> position = const Value.absent(),
+                Value<String?> createdAt = const Value.absent(),
+                Value<String?> createdBy = const Value.absent(),
+                Value<String?> updatedAt = const Value.absent(),
+                Value<String?> updatedBy = const Value.absent(),
+                Value<String?> clientUpdatedAt = const Value.absent(),
+                Value<String?> deletedAt = const Value.absent(),
+                Value<String?> deletedBy = const Value.absent(),
+                Value<int> seq = const Value.absent(),
+                Value<String> syncState = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ExpenseAttachmentsCompanion(
+                id: id,
+                groupId: groupId,
+                expenseId: expenseId,
+                kind: kind,
+                path: path,
+                thumbPath: thumbPath,
+                name: name,
+                sizeBytes: sizeBytes,
+                width: width,
+                height: height,
+                position: position,
+                createdAt: createdAt,
+                createdBy: createdBy,
+                updatedAt: updatedAt,
+                updatedBy: updatedBy,
+                clientUpdatedAt: clientUpdatedAt,
+                deletedAt: deletedAt,
+                deletedBy: deletedBy,
+                seq: seq,
+                syncState: syncState,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String groupId,
+                required String expenseId,
+                Value<String> kind = const Value.absent(),
+                required String path,
+                Value<String?> thumbPath = const Value.absent(),
+                Value<String?> name = const Value.absent(),
+                Value<int> sizeBytes = const Value.absent(),
+                Value<int?> width = const Value.absent(),
+                Value<int?> height = const Value.absent(),
+                Value<int> position = const Value.absent(),
+                Value<String?> createdAt = const Value.absent(),
+                Value<String?> createdBy = const Value.absent(),
+                Value<String?> updatedAt = const Value.absent(),
+                Value<String?> updatedBy = const Value.absent(),
+                Value<String?> clientUpdatedAt = const Value.absent(),
+                Value<String?> deletedAt = const Value.absent(),
+                Value<String?> deletedBy = const Value.absent(),
+                Value<int> seq = const Value.absent(),
+                Value<String> syncState = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ExpenseAttachmentsCompanion.insert(
+                id: id,
+                groupId: groupId,
+                expenseId: expenseId,
+                kind: kind,
+                path: path,
+                thumbPath: thumbPath,
+                name: name,
+                sizeBytes: sizeBytes,
+                width: width,
+                height: height,
+                position: position,
+                createdAt: createdAt,
+                createdBy: createdBy,
+                updatedAt: updatedAt,
+                updatedBy: updatedBy,
+                clientUpdatedAt: clientUpdatedAt,
+                deletedAt: deletedAt,
+                deletedBy: deletedBy,
+                seq: seq,
+                syncState: syncState,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<ExpenseAttachments, LocalAttachment>(table),
+                  BaseReferences<_$AppDatabase, ExpenseAttachments, LocalAttachment>(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $ExpenseAttachmentsProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      ExpenseAttachments,
+      LocalAttachment,
+      $ExpenseAttachmentsFilterComposer,
+      $ExpenseAttachmentsOrderingComposer,
+      $ExpenseAttachmentsAnnotationComposer,
+      $ExpenseAttachmentsCreateCompanionBuilder,
+      $ExpenseAttachmentsUpdateCompanionBuilder,
+      (LocalAttachment, BaseReferences<_$AppDatabase, ExpenseAttachments, LocalAttachment>),
+      LocalAttachment,
       PrefetchHooks Function()
     >;
 typedef $PaymentsCreateCompanionBuilder = PaymentsCompanion Function({
@@ -17430,6 +18828,8 @@ class $AppDatabaseManager {
   $GroupsTableManager get groups => $GroupsTableManager(_db, _db.groups);
   $GroupMembersTableManager get groupMembers => $GroupMembersTableManager(_db, _db.groupMembers);
   $ExpensesTableManager get expenses => $ExpensesTableManager(_db, _db.expenses);
+  $ExpenseAttachmentsTableManager get expenseAttachments =>
+      $ExpenseAttachmentsTableManager(_db, _db.expenseAttachments);
   $PaymentsTableManager get payments => $PaymentsTableManager(_db, _db.payments);
   $CommentsTableManager get comments => $CommentsTableManager(_db, _db.comments);
   $ActivityTableManager get activity => $ActivityTableManager(_db, _db.activity);

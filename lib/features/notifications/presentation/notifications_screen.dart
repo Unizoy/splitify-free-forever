@@ -22,6 +22,7 @@ IconData kindIcon(NotificationKind k) => switch (k) {
   NotificationKind.reminders => AppIcons.bell,
   NotificationKind.comments => AppIcons.chat,
   NotificationKind.groups => AppIcons.groups,
+  NotificationKind.summary => AppIcons.chart,
 };
 
 String kindLabel(AppLocalizations l, NotificationKind k) => switch (k) {
@@ -30,6 +31,7 @@ String kindLabel(AppLocalizations l, NotificationKind k) => switch (k) {
   NotificationKind.reminders => l.notifKindReminders,
   NotificationKind.comments => l.notifKindComments,
   NotificationKind.groups => l.notifKindGroups,
+  NotificationKind.summary => l.w2yNotifMonthly,
 };
 
 String kindHint(AppLocalizations l, NotificationKind k) => switch (k) {
@@ -38,6 +40,7 @@ String kindHint(AppLocalizations l, NotificationKind k) => switch (k) {
   NotificationKind.reminders => l.notifKindRemindersHint,
   NotificationKind.comments => l.notifKindCommentsHint,
   NotificationKind.groups => l.notifKindGroupsHint,
+  NotificationKind.summary => l.w2yNotifMonthlyHint,
 };
 
 /// Bell list (`/notifications`, #19, 646): newest first by day, unread rows bold with an indigo dot, "Mark all

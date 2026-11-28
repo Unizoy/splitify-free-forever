@@ -380,8 +380,10 @@ select ok(
 select is(
   (select array_agg(p.proname::text order by p.proname) from pg_proc p join pg_namespace n on n.oid = p.pronamespace
    where n.nspname in ('private', 'money') and has_function_privilege('authenticated', p.oid, 'execute')),
-  array['is_member', 'shares_group', 'try_uuid'],
-  'signed-in users can execute only the three RLS helper functions of the private and money schemas');
+  -- W2-Y (0029): attachment_upload_ok is the expense-files storage policy's check (only answers "did an attachment
+  -- row of one of my groups register this path?"), so the signed-in role must be able to run it like is_member.
+  array['attachment_upload_ok', 'is_member', 'shares_group', 'try_uuid'],
+  'signed-in users can execute only the four RLS helper functions of the private and money schemas');
 select ok(
   not exists (select 1 from pg_proc p join pg_namespace n on n.oid = p.pronamespace
               where n.nspname in ('public', 'private', 'money') and p.prosecdef

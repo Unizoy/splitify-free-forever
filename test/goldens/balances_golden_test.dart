@@ -10,6 +10,7 @@ import 'package:splitify/core/config/preferences.dart';
 import 'package:splitify/data/data_providers.dart';
 import 'package:splitify/data/remote/remote_providers.dart';
 import 'package:splitify/data/repositories/auth_repository.dart';
+import 'package:splitify/features/activity/application/monthly_summary.dart';
 import 'package:splitify/features/activity/application/activity_providers.dart';
 import 'package:splitify/features/activity/presentation/activity_feed.dart';
 import 'package:splitify/features/activity/presentation/activity_screen.dart';
@@ -120,6 +121,8 @@ List<_Case> _cases() => [
     () => [
       activityItemsProvider(null).overrideWithValue(AsyncData(sampleActivity())),
       unreadNotificationsProvider.overrideWith((ref) => Stream.value(2)),
+      // W2-Y: the monthly card has its own goldens (w2y_golden_test).
+      monthSummaryProvider.overrideWithValue(null),
     ],
     height: 1100,
   ),

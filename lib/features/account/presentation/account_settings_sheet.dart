@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:splitify/core/platform/crash_reporting.dart';
 import 'package:go_router/go_router.dart';
 import 'package:splitify/core/config/app_info.dart';
 import 'package:splitify/data/data_providers.dart';
@@ -76,6 +77,7 @@ class AccountSettingsList extends ConsumerWidget {
     final pushOn =
         ref.watch(pushMessagingProvider).available &&
         ref.watch(pushStateProvider).value?.permission == PushPermission.granted;
+    final crash = ref.watch(crashReporterProvider);
     void open(String route) => unawaited(context.push(route));
 
     return Column(
@@ -152,6 +154,17 @@ class AccountSettingsList extends ConsumerWidget {
               icon: AppIcons.restore,
               label: l.deletedGroups,
               onTap: () => open('/account/deleted-groups'),
+            ),
+            // W2-Y (S-436): crash reports with no personal data; off when this build has no Firebase.
+            ToggleRow(
+              key: const Key('settings-crash-reports'),
+              icon: const IconData(0xe5f4, fontFamily: 'PhosphorRegular'),
+              title: l.w2yCrashTitle,
+              subtitle: crash.available ? l.w2yCrashHint : l.w2yCrashOff,
+              value: crash.available && ref.watch(crashReportsSettingProvider),
+              onChanged: crash.available
+                  ? (on) => unawaited(ref.read(crashReportsSettingProvider.notifier).set(on: on))
+                  : null,
             ),
             DashedListRow(
               key: const Key('settings-about'),

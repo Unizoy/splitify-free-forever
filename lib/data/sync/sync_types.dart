@@ -5,7 +5,10 @@ enum SyncEntity {
   expense('expense', 'expenses'),
   payment('payment', 'payments'),
   comment('comment', 'comments'),
-  recurring('recurring', 'recurring_templates');
+  recurring('recurring', 'recurring_templates'),
+
+  /// A photo or PDF of an expense (W2-Y, 0029); its files go up through `pending_uploads`.
+  attachment('attachment', 'expense_attachments');
 
   const SyncEntity(this.wire, this.table);
 

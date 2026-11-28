@@ -23,11 +23,13 @@ contact apply to their copy.
 | Profile: display name, avatar photo, UPI ID, default currency | `profiles` table, `avatars` bucket (server); phone | To show your name to group members and fill in UPI payment links | Until you delete your account (cleared on deletion) |
 | Groups, members, expenses, payments, comments | `groups`, `group_members`, `expenses`, `payments`, `comments` tables (server); phone | The core of the app: splitting and settling | Until deleted by a group member; deleted items are kept (soft delete) so they can be restored |
 | Receipt photos | `receipts` bucket (server); phone until uploaded | To attach a receipt to an expense | With the expense |
+| Expense attachments: photos and PDFs | `expense_attachments` table and the private `expense-files` bucket (server): only members of the group can open them, and only files the app registered for an expense can be uploaded; phone (thumbnails, PDFs, photos you opened) | To keep bills, tickets and invoices with an expense, in full resolution | With the expense. Removing one is a soft delete that can be undone, so the file stays |
 | Group cover images | `group-covers` bucket (server); phone | To show a cover on a group | With the group |
 | Activity log | `activity` table (server) | To show who did what and when; also the source of notifications | Kept; never deleted |
 | Edit history | `record_versions` table (server) | To show earlier versions and restore them | Kept; never deleted |
 | Recurring bill templates | `recurring_templates` table (server) | To create repeating expenses | Until a group member deletes them |
-| Notifications and notification settings | `notifications`, `notification_settings` tables (server) | To show the in-app bell and respect your push settings | Until you delete your account |
+| Notifications and notification settings | `notifications`, `notification_settings` tables (server) | To show the in-app bell and respect your push settings. The monthly summary push is off unless you turn it on | Until you delete your account |
+| Crash reports, if you leave them on (see "Crash reports") | Firebase Crashlytics (Google) | To find and fix crashes | 90 days (Crashlytics) |
 | Device push tokens (Firebase Cloud Messaging) | `device_tokens` table (server) | To send push notifications to your phone | Removed when you sign out of that device, and when you delete your account |
 | Exchange rates | `fx_rates` table (server) | To convert currencies. No personal data. The server fetches them from Frankfurter | Kept |
 | Sync de-duplication | `mutation_log` table (server) | So a change that is sent twice is applied once | Kept until the backend owner prunes it (suggested: 30 days) |
@@ -41,7 +43,8 @@ contact apply to their copy.
 ## What we never do
 
 - No ads.
-- No analytics or tracking libraries.
+- No analytics or tracking libraries. Crash reports are the only diagnostics, they hold no personal data, and you
+  can switch them off.
 - We do not sell your data.
 - We do not upload your contacts.
 - The app never makes a payment. A "Pay via UPI" button opens your own UPI app. A payment is recorded only when
@@ -76,8 +79,24 @@ depend on it. To have it removed, ask your groups to delete it, or open an issue
 - **Supabase**: hosts the database, sign-in, file storage and server functions, as our processor.
 - **Google Sign-In**: only if you choose "Continue with Google".
 - **Firebase Cloud Messaging**: delivers push notifications. It receives a device token and the notification text.
+- **Firebase Crashlytics**: receives crash reports while "Send crash reports" is on (see below).
 - **Frankfurter**: exchange rates. Only the server calls it, so it never sees your device or data.
 - **Email (SMTP) provider**: delivers one-time sign-in codes to your address.
+
+## Crash reports
+
+When the app hits an error it did not expect, it can send a crash report through Firebase Crashlytics, so the
+crash can be found and fixed.
+
+- **What a report holds:** the type of the error (for example `StateError`) and the stack trace of the app's own
+  code (file, line and method), plus what Crashlytics adds itself: the phone model, the Android version, the app
+  version, free memory and disk, and a random installation id.
+- **What it never holds:** your name, email, UPI ID, group names, amounts, descriptions, notes, comments, photos,
+  or the error's message text (a message can quote what you typed, so it stays on your phone). The app sets no
+  user id and no custom keys.
+- **Your choice:** Account → Settings → **Send crash reports**. It is on in store builds and off in debug builds;
+  nothing is collected before the app has applied your choice. Builds without Firebase (contributors' builds, the
+  side-by-side test build) have no crash reporting at all.
 
 ## Payment bubble (not in this version)
 

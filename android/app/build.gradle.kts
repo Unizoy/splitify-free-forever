@@ -21,6 +21,12 @@ if (appIdSuffix != null) logger.lifecycle("Splitify: side-by-side build, applica
 if (firebaseConfig.exists() && appIdSuffix == null) {
     firebaseConfig.copyTo(file("google-services.json"), overwrite = true)
     apply(plugin = "com.google.gms.google-services")
+    // Crash reports (W2-Y, S-436) ride on the same Firebase file. R8 mapping files are uploaded only when asked
+    // (`-PsplitifyCrashlyticsUpload=true`, owner's release builds), so offline and contributor builds never need
+    // the Firebase project; Dart stack traces work without them.
+    apply(plugin = "com.google.firebase.crashlytics")
+    val uploadMapping = (findProperty("splitifyCrashlyticsUpload") as String?)?.toBoolean() ?: false
+    tasks.matching { it.name.startsWith("uploadCrashlyticsMappingFile") }.configureEach { enabled = uploadMapping }
 }
 
 // Release signing (phase 19, S-201): the first of secrets/release-key.properties and secrets/key.properties

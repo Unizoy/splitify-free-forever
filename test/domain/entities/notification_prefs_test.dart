@@ -17,7 +17,8 @@ void main() {
     // TC-19-05
     test('TC-19-05 everything is on by default and nothing is muted', () {
       const p = NotificationPrefs();
-      for (final k in NotificationKind.values) {
+      // The monthly summary (W2-Y) is the one opt-in push; see its own test.
+      for (final k in NotificationKind.switchable) {
         for (final c in NotificationChannel.values) {
           expect(p.isOn(k, c), isTrue);
         }
@@ -98,6 +99,45 @@ void main() {
         const NotificationPrefs(),
       );
       expect(NotificationPrefs.fromJson(const {}), const NotificationPrefs());
+    });
+
+    test('W2-Y: the monthly summary is off unless the server says push: true', () {
+      const summary = NotificationKind.summary;
+      expect(const NotificationPrefs().isOn(summary, push), isFalse);
+      expect(const NotificationPrefs().isOn(summary, NotificationChannel.inapp), isTrue);
+      expect(
+        const NotificationPrefs().kindsJson(),
+        isEmpty,
+        reason: 'off is the default: nothing to send',
+      );
+      final on = const NotificationPrefs().withKind(summary, push, on: true);
+      expect(on.monthlySummary, isTrue);
+      expect(on.kindsJson(), {
+        'summary': {'push': true},
+      });
+      expect(NotificationPrefs.fromJson({'kinds': on.kindsJson()}), on);
+      expect(
+        NotificationPrefs.fromJson({
+          'kinds': {
+            'summary': {'push': 'yes'},
+          },
+        }).monthlySummary,
+        isFalse,
+      );
+      final both = on
+          .withKind(NotificationKind.payments, push, on: false)
+          .withMuted('g1', muted: true);
+      expect(both.monthlySummary, isTrue, reason: 'other changes keep it');
+      expect(both.kindsJson(), {
+        'payments': {'push': false},
+        'summary': {'push': true},
+      });
+      expect(both.withKind(summary, push, on: false).kindsJson(), {
+        'payments': {'push': false},
+      });
+      expect(on == const NotificationPrefs(), isFalse);
+      expect(NotificationKind.switchable, isNot(contains(summary)));
+      expect(NotificationKind.tryParse('summary'), summary);
     });
 
     test('equality compares both sets and differs when either differs', () {

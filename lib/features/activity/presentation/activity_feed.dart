@@ -82,6 +82,10 @@ String activitySentence(AppLocalizations l, ActivityItem i) {
     'import_completed' => l.actImportCompleted(a),
     'import_completed_file' => l.actImportCompletedFile(a),
     'import_undone' => l.actImportUndone(a),
+    // W2-Y (0029): photos and PDFs on an expense.
+    'attachment_added' => l.w2yActAttachAdded(a, i.detail ?? 'photo', d),
+    'attachment_removed' => l.w2yActAttachRemoved(a, i.detail ?? 'photo', d),
+    'attachment_restored' => l.w2yActAttachRestored(a, i.detail ?? 'photo', d),
     _ => l.actUnknown(a),
   };
 }

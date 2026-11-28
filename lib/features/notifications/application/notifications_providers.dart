@@ -108,7 +108,14 @@ String? notificationRoute(Map<String, Object?> data) {
 
   final id = s('target_id');
   final group = s('group_id');
+  // A batch settle-up's one push (0030) covers several groups: the bell lists them all.
+  final batch = data['batch_count'];
+  if ((batch is num && batch > 1) || (batch is String && (int.tryParse(batch) ?? 0) > 1)) {
+    return '/notifications';
+  }
   return switch (s('target_type')) {
+    // The monthly summary (F14) opens Insights.
+    'insights' => '/insights?mode=me',
     'expense' when id != null => '/expense/$id',
     'payment' when id != null => '/payment/$id',
     'balances' when group != null => '/groups/$group?tab=balances',

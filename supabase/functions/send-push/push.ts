@@ -15,7 +15,12 @@ import {
 } from "../_shared/http.ts";
 import type { FcmClient, FcmMessage } from "../_shared/fcm.ts";
 
-export type PushStatus = "pending" | "sent" | "skipped" | "failed";
+export type PushStatus =
+  | "pending"
+  | "sent"
+  | "skipped"
+  | "failed"
+  | "batched";
 
 /** The `notifications` columns send-push reads. `kind` is the channel kind (expenses, payments, ...). */
 export interface NotificationRow {
@@ -27,6 +32,9 @@ export interface NotificationRow {
   body: string;
   data: Record<string, unknown> | null;
   push_status: PushStatus;
+  /** 0030 (W2-Y): the push's own words when it covers a batch settle-up; null = title / body. */
+  push_title?: string | null;
+  push_body?: string | null;
 }
 
 /** `notification_settings`: `kinds = {kind: {push, inapp}}`; a missing row or entry means on. */
@@ -92,11 +100,17 @@ export function toFcmData(n: NotificationRow): Record<string, string> {
   return out;
 }
 
-/** The FCM v1 message for one device; the Android channel id is the notification kind (phase 13 T1). */
+/**
+ * The FCM v1 message for one device; the Android channel id is the notification kind (phase 13 T1). A batch
+ * settle-up's push (0030) has its own title and body for the whole batch.
+ */
 export function buildFcmMessage(n: NotificationRow, token: string): FcmMessage {
   return {
     token,
-    notification: { title: n.title, body: n.body },
+    notification: {
+      title: n.push_title || n.title,
+      body: n.push_body || n.body,
+    },
     data: toFcmData(n),
     android: { priority: "HIGH", notification: { channel_id: n.kind } },
   };

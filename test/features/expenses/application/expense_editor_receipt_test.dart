@@ -1,14 +1,18 @@
-// TC-29-01 (receipt on the expense editor: pick, remove, replace, reopen) + lastCategory ignoring loans.
+// TC-29-01 (W2-Y): the expense's files in the editor — photos and PDFs saved as attachments with the expense,
+// reopened, taken out (soft delete), the old single receipt photo kept and removable — + lastCategory ignoring
+// loans.
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:drift/drift.dart' show OrderingTerm;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:splitify/data/data_providers.dart';
 import 'package:splitify/data/local/app_database.dart';
 import 'package:splitify/data/local/media_files.dart';
 import 'package:splitify/data/media_providers.dart';
 import 'package:splitify/data/repositories/expense_reads.dart';
+import 'package:splitify/domain/entities/attachment.dart';
 import 'package:splitify/domain/entities/prepared_image.dart';
 import 'package:splitify/features/expenses/application/expense_draft.dart';
 import 'package:splitify/features/expenses/application/receipt_draft.dart';
@@ -21,6 +25,10 @@ void main() {
   late Directory cache;
 
   final image = PreparedImage(full: Uint8List.fromList([1, 2]), thumb: Uint8List.fromList([3]));
+  final pdf = NewAttachment.pdf(
+    Uint8List.fromList(utf8.encode('%PDF-1.7 tiny')),
+    name: 'Hotel invoice.pdf',
+  );
 
   setUp(() async {
     docs = Directory.systemTemp.createTempSync('er_docs');
@@ -43,102 +51,177 @@ void main() {
 
   Future<List<PendingUpload>> pending() => env.db.select(env.db.pendingUploads).get();
 
-  // TC-29-01
-  test('a picked photo sets receipt_path and queues one receipts upload', () async {
-    final e = await env.open();
-    e.edit((d) => fill('100')(d).copyWith(receipt: const ReceiptDraft.none().pick(image)));
-    final id = (await e.save())!;
+  Future<List<LocalAttachment>> attachments() => (env.db.select(
+    env.db.expenseAttachments,
+  )..orderBy([(a) => OrderingTerm.asc(a.position)])).get();
 
-    final row = await expense(id);
-    expect(row.receiptPath, matches(RegExp('^${env.groupId}/$id/[0-9a-f-]{36}\\.jpg\$')));
-    final up = (await pending()).single;
-    expect(up.bucket, 'receipts');
-    expect(up.remotePath, row.receiptPath);
-    expect(up.recordId, id);
-    final out = await env.db.select(env.db.outbox).get();
-    expect((jsonDecode(out.last.payload) as Map<String, Object?>)['receipt_path'], row.receiptPath);
-  });
+  /// The expense and attachment mutations (the test group's own set-up rows left out).
+  Future<List<OutboxItem>> outbox() async => [
+    for (final o in await (env.db.select(
+      env.db.outbox,
+    )..orderBy([(o) => OrderingTerm.asc(o.seq)])).get())
+      if (o.entity == 'expense' || o.entity == 'attachment') o,
+  ];
+
+  // TC-29-01 (W2-Y): a picked photo is an attachment now, saved with the expense in one transaction.
+  test(
+    'a picked photo becomes an attachment: row, outbox after the expense, thumb then full upload',
+    () async {
+      final e = await env.open();
+      e.edit((d) => fill('100')(d).copyWith(receipt: const ReceiptDraft.none().pick(image)));
+      final id = (await e.save())!;
+
+      expect((await expense(id)).receiptPath, isNull);
+      final a = (await attachments()).single;
+      expect(
+        (a.expenseId, a.groupId, a.kind, a.sizeBytes, a.position, a.syncState),
+        (id, env.groupId, 'photo', 2, 0, 'pending'),
+      );
+      expect(a.path, '${env.groupId}/$id/${a.id}.jpg');
+      expect(a.thumbPath, '${env.groupId}/$id/${a.id}-thumb.jpg');
+      final out = await outbox();
+      expect(out.map((o) => (o.entity, o.recordId)), [('expense', id), ('attachment', a.id)]);
+      final payload = jsonDecode(out.last.payload) as Map<String, Object?>;
+      expect(payload['expense_id'], id);
+      expect(payload['path'], a.path);
+      expect(payload['thumb_path'], a.thumbPath);
+      final up = await pending();
+      expect(up.map((u) => (u.bucket, u.remotePath, u.recordId)), [
+        ('expense-files', a.thumbPath, a.id),
+        ('expense-files', a.path, a.id),
+      ]);
+      final files = env.container.read(mediaFilesProvider);
+      expect(await files.read(up.last.localPath), image.full);
+      expect(await files.read(up.first.localPath), image.thumb);
+    },
+  );
 
   // TC-29-01
-  test('a saved expense with receipt_path reopens with ReceiptDraft.saved', () async {
+  test('a saved expense reopens with its files; saving again writes nothing new', () async {
     final e = await env.open();
-    e.edit((d) => fill('100')(d).copyWith(receipt: const ReceiptDraft.none().pick(image)));
+    e.edit(
+      (d) => fill('100')(d).copyWith(receipt: const ReceiptDraft.none().pick(image).addAll([pdf])),
+    );
     final id = (await e.save())!;
-    final path = (await expense(id)).receiptPath!;
+    expect((await attachments()).map((a) => (a.kind, a.position, a.name)), [
+      ('photo', 0, null),
+      ('pdf', 1, 'Hotel invoice.pdf'),
+    ]);
 
     final r = await env.open(expenseId: id);
-    expect(r.draft.receipt.savedPath, path);
+    expect(r.draft.receipt.kept, hasLength(2));
     expect(r.draft.receipt.hasPhoto, isTrue);
     expect(r.draft.receipt.changed, isFalse);
-
-    // Saving again without touching the receipt keeps the path and queues nothing new.
+    expect(r.draft.receipt.nextPosition, 2);
+    final before = (await outbox()).length;
     expect(await r.save(), id);
-    expect((await expense(id)).receiptPath, path);
-    expect(await pending(), hasLength(1));
+    final after = await outbox();
+    expect(after.length, before + 1, reason: 'only the expense itself');
+    expect(after.last.entity, 'expense');
+    expect(await pending(), hasLength(3));
 
     final plain = await env.open();
     expect(plain.draft.receipt.hasPhoto, isFalse);
   });
 
   // TC-29-01
-  test('removing a photo that never went up clears receipt_path and drops the upload', () async {
+  test(
+    'taking a saved file out is a soft delete; its upload still goes (Undo keeps the file)',
+    () async {
+      final e = await env.open();
+      e.edit((d) => fill('100')(d).copyWith(receipt: const ReceiptDraft.none().pick(image)));
+      final id = (await e.save())!;
+      final a = (await attachments()).single;
+
+      final r = await env.open(expenseId: id);
+      r.edit((d) => d.copyWith(receipt: d.receipt.removeSaved(a.id)));
+      expect(await r.save(), id);
+
+      expect((await attachments()).single.deletedAt, isNotNull);
+      final last = (await outbox()).last;
+      expect((last.entity, last.op, last.recordId), ('attachment', 'delete', a.id));
+      expect(jsonDecode(last.payload), {'expense_id': id, 'kind': 'photo'});
+      expect(await pending(), hasLength(2));
+      expect((await env.open(expenseId: id)).draft.receipt.hasPhoto, isFalse);
+    },
+  );
+
+  // TC-29-01
+  test('new files go after the saved ones', () async {
     final e = await env.open();
     e.edit((d) => fill('100')(d).copyWith(receipt: const ReceiptDraft.none().pick(image)));
     final id = (await e.save())!;
-    final rel = (await pending()).single.localPath;
-
     final r = await env.open(expenseId: id);
-    r.edit((d) => d.copyWith(receipt: d.receipt.remove()));
-    expect(await r.save(), id);
-
-    expect((await expense(id)).receiptPath, isNull);
-    expect(await pending(), isEmpty);
-    expect(await env.container.read(mediaFilesProvider).read(rel), isNull);
+    r.edit((d) => d.copyWith(receipt: d.receipt.addAll([pdf])));
+    await r.save();
+    expect((await attachments()).map((a) => (a.kind, a.position)), [('photo', 0), ('pdf', 1)]);
   });
 
+  // TC-29-01: the one receipt photo of older versions.
+  test(
+    'removing an old receipt photo that never went up clears receipt_path and drops its upload',
+    () async {
+      final e = await env.open();
+      e.edit(fill('100'));
+      final id = (await e.save())!;
+      final files = env.container.read(mediaFilesProvider);
+      const path = 'g/e/old.jpg';
+      final rel = await files.stage(MediaBuckets.receipts, path, image);
+      await env.db
+          .into(env.db.pendingUploads)
+          .insert(
+            PendingUploadsCompanion.insert(
+              id: 'u1',
+              bucket: MediaBuckets.receipts,
+              localPath: rel,
+              remotePath: path,
+              recordId: id,
+            ),
+          );
+      await env.db.customStatement("UPDATE expenses SET receipt_path = '$path' WHERE id = '$id'");
+
+      final r = await env.open(expenseId: id);
+      expect(r.draft.receipt.savedPath, path);
+      expect(r.draft.receipt.showsLegacy, isTrue);
+      r.edit((d) => d.copyWith(receipt: d.receipt.remove()));
+      expect(await r.save(), id);
+
+      expect((await expense(id)).receiptPath, isNull);
+      expect(await pending(), isEmpty);
+      expect(await files.read(rel), isNull);
+    },
+  );
+
   // TC-29-01
-  test('removing an uploaded photo clears receipt_path (nothing pending to drop)', () async {
+  test(
+    'removing an uploaded old receipt photo clears receipt_path (nothing pending to drop)',
+    () async {
+      final e = await env.open();
+      e.edit(fill('100'));
+      final id = (await e.save())!;
+      await env.db.customStatement(
+        "UPDATE expenses SET receipt_path = 'g/old.jpg' WHERE id = '$id'",
+      );
+      final r = await env.open(expenseId: id);
+      r.edit((d) => d.copyWith(receipt: d.receipt.remove()));
+      await r.save();
+      expect((await expense(id)).receiptPath, isNull);
+      expect(await pending(), isEmpty);
+    },
+  );
+
+  // TC-29-01
+  test('an old receipt photo stays next to new files', () async {
     final e = await env.open();
     e.edit(fill('100'));
     final id = (await e.save())!;
     await env.db.customStatement("UPDATE expenses SET receipt_path = 'g/old.jpg' WHERE id = '$id'");
     final r = await env.open(expenseId: id);
-    r.edit((d) => d.copyWith(receipt: d.receipt.remove()));
-    await r.save();
-    expect((await expense(id)).receiptPath, isNull);
-    expect(await pending(), isEmpty);
-  });
-
-  // TC-29-01
-  test('replacing a pending photo discards the old upload and queues the new one', () async {
-    final e = await env.open();
-    e.edit((d) => fill('100')(d).copyWith(receipt: const ReceiptDraft.none().pick(image)));
-    final id = (await e.save())!;
-    final oldPath = (await expense(id)).receiptPath!;
-
-    final r = await env.open(expenseId: id);
     r.edit((d) => d.copyWith(receipt: d.receipt.pick(image)));
     await r.save();
-
-    final newPath = (await expense(id)).receiptPath!;
-    expect(newPath, isNot(oldPath));
-    final up = await pending();
-    expect(up.map((u) => u.remotePath), [newPath]);
-  });
-
-  // TC-29-01
-  test('replacing an uploaded photo keeps the old one on the server and queues the new', () async {
-    final e = await env.open();
-    e.edit(fill('100'));
-    final id = (await e.save())!;
-    await env.db.customStatement("UPDATE expenses SET receipt_path = 'g/old.jpg' WHERE id = '$id'");
-    final r = await env.open(expenseId: id);
-    r.edit((d) => d.copyWith(receipt: d.receipt.pick(image)));
-    await r.save();
-    final up = await pending();
-    expect(up, hasLength(1));
-    expect(up.single.remotePath, isNot('g/old.jpg'));
-    expect((await expense(id)).receiptPath, up.single.remotePath);
+    expect((await expense(id)).receiptPath, 'g/old.jpg');
+    expect(await attachments(), hasLength(1));
+    expect((await env.open(expenseId: id)).draft.receipt.count, 2);
   });
 
   // TC-13-01
@@ -166,27 +249,32 @@ void main() {
     expect(await reads.lastCategory(env.groupId), 'food.snacks');
   });
 
-  // TC-29-01
-  test('ReceiptDraft none, saved, pick and remove', () {
+  // TC-29-01 (W2-Y)
+  test('ReceiptDraft: none, saved, pick, add, remove and the limits', () {
     const none = ReceiptDraft.none();
-    expect(none.hasPhoto, isFalse);
-    expect(none.changed, isFalse);
+    expect((none.hasPhoto, none.changed, none.count, none.room), (false, false, 0, 10));
     expect(none.remove().removed, isFalse);
 
     const saved = ReceiptDraft.saved('g/e/x.jpg');
-    expect(saved.hasPhoto, isTrue);
-    expect(saved.changed, isFalse);
+    expect((saved.hasPhoto, saved.changed, saved.showsLegacy, saved.count), (true, false, true, 1));
 
     final picked = saved.pick(image);
-    expect(picked.hasPhoto, isTrue);
-    expect(picked.changed, isTrue);
+    expect((picked.hasPhoto, picked.changed, picked.count), (true, true, 2));
+    expect(picked.picked, same(image));
     expect(picked.savedPath, 'g/e/x.jpg');
+    expect(picked.removeAdded(picked.added.single.id).added, isEmpty);
 
     final removed = saved.remove();
-    expect(removed.hasPhoto, isFalse);
-    expect(removed.changed, isTrue);
-    expect(removed.removed, isTrue);
-    expect(removed.pick(image).removed, isFalse);
-    expect(picked.remove().picked, isNull);
+    expect((removed.hasPhoto, removed.changed, removed.removed), (false, true, true));
+    expect(
+      removed.pick(image).removed,
+      isTrue,
+      reason: 'adding a file keeps the old photo removed',
+    );
+
+    final full = none.addAll([for (var i = 0; i < 12; i++) NewAttachment.photo(image)]);
+    expect((full.count, full.room), (10, 0), reason: 'never more than 10 files');
+    expect(full.totalBytes, 20);
+    expect(full.addAll([pdf]).count, 10);
   });
 }

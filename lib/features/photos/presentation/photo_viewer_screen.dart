@@ -3,6 +3,9 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:splitify/data/remote/media_remote.dart';
+import 'package:splitify/features/photos/application/photo_providers.dart';
 import 'package:splitify/features/photos/presentation/stored_photo.dart';
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/components/components.dart';
@@ -16,6 +19,7 @@ class PhotoViewerScreen extends StatefulWidget {
     this.bytes,
     this.bucket,
     this.path,
+    this.placeholderPath,
     this.onReplace,
     this.onRemove,
     super.key,
@@ -28,6 +32,7 @@ class PhotoViewerScreen extends StatefulWidget {
     Uint8List? bytes,
     String? bucket,
     String? path,
+    String? placeholderPath,
     Future<bool> Function()? onReplace,
     Future<bool> Function()? onRemove,
   }) => Navigator.of(context, rootNavigator: true).push(
@@ -38,6 +43,7 @@ class PhotoViewerScreen extends StatefulWidget {
         bytes: bytes,
         bucket: bucket,
         path: path,
+        placeholderPath: placeholderPath,
         onReplace: onReplace,
         onRemove: onRemove,
       ),
@@ -50,6 +56,10 @@ class PhotoViewerScreen extends StatefulWidget {
   final Uint8List? bytes;
   final String? bucket;
   final String? path;
+
+  /// A small copy in the same bucket (an attachment's thumbnail, W2-Y) shown while the full-resolution
+  /// photo loads, and kept with a note when it can't load offline.
+  final String? placeholderPath;
   final Future<bool> Function()? onReplace;
   final Future<bool> Function()? onRemove;
 
@@ -94,8 +104,11 @@ class _PhotoViewerScreenState extends State<PhotoViewerScreen> {
     final l = AppLocalizations.of(context);
     final c = context.colors;
     final bytes = widget.bytes;
+    final placeholder = widget.placeholderPath;
     final photo = bytes != null
         ? MemoryPhoto(bytes: bytes, fit: BoxFit.contain)
+        : placeholder != null
+        ? _FullOverThumb(bucket: widget.bucket!, path: widget.path!, thumbPath: placeholder)
         : StoredPhoto(
             bucket: widget.bucket!,
             path: widget.path!,
@@ -200,6 +213,65 @@ class _PhotoViewerScreenState extends State<PhotoViewerScreen> {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// The full-resolution photo over its thumbnail (W2-Y "full resolution on tap"): the thumbnail shows at
+/// once, the big photo replaces it when it is here (downloaded once, then cached); a small note says it is
+/// loading, or that the full size needs the internet.
+class _FullOverThumb extends ConsumerWidget {
+  const _FullOverThumb({required this.bucket, required this.path, required this.thumbPath});
+
+  final String bucket;
+  final String path;
+  final String thumbPath;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context);
+    final c = context.colors;
+    final full = ref.watch(storedPhotoProvider((bucket: bucket, path: path, thumb: false)));
+    final note = switch (full) {
+      AsyncData() => null,
+      AsyncError(:final error) when error is MediaOffline => l.w2yPhotoFullOffline,
+      AsyncError() => null,
+      _ => l.w2yPhotoFullLoading,
+    };
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        if (full case AsyncData(:final value))
+          Image.file(
+            value,
+            key: const Key('photo-full'),
+            fit: BoxFit.contain,
+            gaplessPlayback: true,
+            errorBuilder: (context, _, _) => const PhotoProblem(offline: false),
+          )
+        else
+          StoredPhoto(bucket: bucket, path: thumbPath, fit: BoxFit.contain, showProblem: false),
+        if (note != null)
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: AppSpacing.s12 * 2,
+            child: Center(
+              child: Container(
+                key: const Key('photo-full-note'),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.s3,
+                  vertical: AppSpacing.s1,
+                ),
+                decoration: BoxDecoration(
+                  color: AppPalette.black.withValues(alpha: 0.6),
+                  borderRadius: AppRadii.allPill,
+                ),
+                child: Text(note, style: context.text.caption.w(600).copyWith(color: c.onHero)),
+              ),
+            ),
+          ),
+      ],
     );
   }
 }

@@ -98,6 +98,7 @@ const channelNames = {
   NotificationKind.reminders: ('Reminders', 'Someone reminded you to settle up'),
   NotificationKind.comments: ('Comments', 'Comments on expenses and payments you are in'),
   NotificationKind.groups: ('Groups', 'People joining or leaving, group settings'),
+  NotificationKind.summary: ('Monthly summary', 'What you spent last month, on the 1st'),
 };
 
 /// Starts Firebase when this build has it (google-services.json applied by Gradle). Any failure means

@@ -57,14 +57,14 @@ class _NotificationSettingsScreenState extends ConsumerState<NotificationSetting
     final pushOff = push != null && (!push.available || push.permission == PushPermission.denied);
     // Push rows explain each kind; the in-app rows repeat only the names (D-033: shorter page).
     List<Widget> kindRows(NotificationChannel ch) => [
-      for (final k in NotificationKind.values)
+      for (final k in NotificationKind.switchable)
         ToggleRow(
           key: Key('notif-${ch.name}-${k.name}'),
           icon: kindIcon(k),
           title: kindLabel(l, k),
           subtitle: ch == NotificationChannel.push ? kindHint(l, k) : null,
           value: prefs.isOn(k, ch),
-          showDivider: k != NotificationKind.values.last,
+          showDivider: k != NotificationKind.switchable.last,
           onChanged: ch == NotificationChannel.push && pushOff
               ? null
               : (on) => unawaited(actions.setKind(k, ch, on: on)),
@@ -101,6 +101,27 @@ class _NotificationSettingsScreenState extends ConsumerState<NotificationSetting
             key: const Key('notif-section-push'),
             title: l.notifSectionPush,
             children: kindRows(NotificationChannel.push),
+          ),
+          const SizedBox(height: AppSpacing.s6),
+          // W2-Y (F14): the monthly summary is opt-in (off until switched on).
+          SettingsSection(
+            key: const Key('notif-section-summary'),
+            title: l.w2yNotifMonthly,
+            children: [
+              ToggleRow(
+                key: const Key('notif-push-summary'),
+                icon: kindIcon(NotificationKind.summary),
+                title: kindLabel(l, NotificationKind.summary),
+                subtitle: kindHint(l, NotificationKind.summary),
+                value: prefs.isOn(NotificationKind.summary, NotificationChannel.push),
+                showDivider: false,
+                onChanged: pushOff
+                    ? null
+                    : (on) => unawaited(
+                        actions.setKind(NotificationKind.summary, NotificationChannel.push, on: on),
+                      ),
+              ),
+            ],
           ),
           const SizedBox(height: AppSpacing.s6),
           SettingsSection(

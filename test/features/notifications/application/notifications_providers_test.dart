@@ -195,6 +195,25 @@ void main() {
       expect(notificationRoute({'target_type': 5, 'group_id': 7}), isNull);
       expect(notificationRoute(const {}), isNull);
     });
+
+    test('W2-Y: the monthly summary opens Insights; a batch push opens the bell', () {
+      expect(
+        notificationRoute({'target_type': 'insights', 'month': '2026-11'}),
+        '/insights?mode=me',
+      );
+      expect(
+        notificationRoute({'target_type': 'payment', 'target_id': 'p1', 'batch_count': '3'}),
+        '/notifications',
+      );
+      expect(
+        notificationRoute({'target_type': 'payment', 'target_id': 'p1', 'batch_count': 3}),
+        '/notifications',
+      );
+      expect(
+        notificationRoute({'target_type': 'payment', 'target_id': 'p1', 'batch_count': '1'}),
+        '/payment/p1',
+      );
+    });
   });
 
   group('NotificationItem.fromRow', () {

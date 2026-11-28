@@ -14,6 +14,12 @@ A `.zip` named `splitify-backup-YYYY-MM-DD.zip` (your phone's date). It holds:
 | `splitify-backup.json` | Everything, in the format below. |
 | `README.txt` | A short note on what is inside. |
 | `csv/<group>.csv` | One spreadsheet per group that has expenses or payments. This is the same file as **Export CSV** on the group's Totals tab. |
+| `attachments/<expense id>/<id>.jpg` or `.pdf` | The photos and PDFs attached to expenses (see `attachments[]`). |
+| `receipts/<expense id>.jpg` | The one receipt photo older versions of the app kept per expense (`receipt_path`). |
+
+**Files:** the photos and PDFs on your phone go in as they are; the others are downloaded once while you
+are online. Together they stay under 64 MB (the file is built on the phone). A file that is not on the
+phone while offline, or that does not fit, is still listed in the JSON with `"file": null`.
 
 **CSV file names:**
 - The group name in lower-case letters and digits, joined with `-`, at most 40 characters.
@@ -34,7 +40,7 @@ UTF-8 JSON, indented with two spaces.
   "app_version": "0.2.0",
   "me": { "user_id": "…", "name": "Mohit", "upi_id": "mohit@okaxis", "default_currency": "INR" },
   "groups": [ { "group": {…}, "me_member_id": "…", "members": [], "expenses": [], "payments": [],
-                "comments": [], "recurring": [] } ]
+                "comments": [], "attachments": [], "recurring": [] } ]
 }
 ```
 
@@ -101,7 +107,7 @@ Oldest first (date, then when added). Loans are here too, with `"kind": "iou"`.
 | `owed` | `{member id: minor units}`: each person's share. The values add up to `total`. |
 | `split_kind`, `split_values` | How it was split (`equal`, `exact`, `percent`, `shares`, `adjust`) and the typed values (an object, or `null`). |
 | `fx` | `null`, or a saved conversion: `currency`, `rate` (string), `rate_date`, `source`, `total`, `paid_by`, `owed` (minor units of `fx.currency`). |
-| `receipt_path` | Where the receipt photo is stored on the server, or `null`. The photo itself is not in the zip. |
+| `receipt_path`, `receipt_file` | Where the old single receipt photo is stored on the server, or `null`, and its path inside the zip (`null` when it could not be included). |
 | `recurring_id`, `source` | The repeating expense that made it, and `app` · `recurring` · `import`. |
 | `updated_by`, `deleted_by` | Who last changed it, and who deleted it. |
 
@@ -118,6 +124,14 @@ Oldest first.
 Oldest first.
 
 `target_type` (`expense` · `payment`), `target_id`, `body`, `created_by` and the common fields.
+
+### `attachments[]`
+
+Photos and PDFs of the group's expenses, removed ones too (`deleted_at` set; they can be restored in the app).
+
+`expense_id`, `kind` (`photo` · `pdf`), `name` (a PDF's file name), `size_bytes`, `width` and `height` (photos),
+`position` (order on the expense), `file` (the path inside the zip, or `null`), `created_by` and the common
+fields.
 
 ### `recurring[]`
 

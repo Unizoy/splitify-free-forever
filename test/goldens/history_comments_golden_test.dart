@@ -15,6 +15,7 @@ import 'package:splitify/features/payments/presentation/payment_detail_screen.da
 
 import '../features/expenses/expense_fixtures.dart';
 import '../features/history/presentation/history_fixtures.dart';
+import '../support/attachment_fixtures.dart';
 import 'golden_support.dart';
 
 /// One golden scenario: the screen, its overrides and the frame height at text scale 1.0.
@@ -77,6 +78,7 @@ List<_Case> _cases() => [
     const ExpenseDetailScreen(expenseId: 'e1'),
     [
       noRepeat('e1'),
+      noAttachments('e1'),
       expenseViewProvider('e1').overrideWithValue(
         AsyncData(sampleView(sampleExpense(notes: 'Table by the window, paid by card.'))),
       ),

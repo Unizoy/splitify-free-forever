@@ -14,6 +14,7 @@ import 'package:splitify/domain/entities/prepared_image.dart';
 import 'package:splitify/domain/rules/category_suggester.dart';
 import 'package:splitify/domain/rules/default_split.dart';
 import 'package:splitify/domain/rules/expense_categories.dart';
+import 'package:splitify/features/attachments/application/attachment_providers.dart';
 import 'package:splitify/features/auth/application/auth_providers.dart'
     show authRepositoryProvider, profileProvider;
 import 'package:splitify/features/currency/application/conversion_actions.dart'
@@ -123,9 +124,10 @@ class ExpenseEditorController extends AsyncNotifier<ExpenseDraft> {
       description: saved.description,
       category: ExpenseCategories.normalize(saved.category),
       notes: saved.notes ?? '',
-      receipt: saved.receiptPath == null
-          ? const ReceiptDraft.none()
-          : ReceiptDraft.saved(saved.receiptPath!),
+      receipt: ReceiptDraft.saved(
+        saved.receiptPath,
+        attachments: await ref.read(attachmentsRepositoryProvider).forExpense(saved.id),
+      ),
       canRepeat: saved.source != 'recurring' && saved.kind == 'expense' && await _noTemplate(saved),
     );
   }
@@ -283,9 +285,9 @@ class ExpenseEditorController extends AsyncNotifier<ExpenseDraft> {
     await memory.learn(suggester.lessons(d.description, d.category, learned: memory.entries));
   }
 
-  /// Saves (offline first) and returns the expense id, or null when the draft is not valid. A new
-  /// receipt photo is queued for upload in the same transaction (#29); a removed or replaced photo
-  /// that never went up is forgotten.
+  /// Saves (offline first) and returns the expense id, or null when the draft is not valid. New photos and
+  /// PDFs are written and queued for upload in the expense's own transaction (W2-Y); a removed old receipt
+  /// photo that never went up is forgotten.
   Future<String?> save() async {
     final d = state.value;
     if (d == null || !d.canSave) return null;
@@ -296,16 +298,21 @@ class ExpenseEditorController extends AsyncNotifier<ExpenseDraft> {
     if (d.isEdit) row.addAll(await _fxAfterEdit(d, row));
     final id = d.expenseId ?? newId();
     final receipt = d.receipt;
-    final media = ref.read(mediaRepositoryProvider);
     final old = receipt.savedPath;
-    if (receipt.changed && old != null) await media.discardPending(MediaBuckets.receipts, old);
-    final picked = receipt.picked;
-    if (picked != null) {
-      await media.saveExpenseWithReceipt(d.groupId, id, row, picked);
-    } else {
-      if (receipt.removed) row['receipt_path'] = null;
-      await ref.read(expensesRepositoryProvider).save(d.groupId, row, id: id);
+    if (receipt.removed && old != null) {
+      await ref.read(mediaRepositoryProvider).discardPending(MediaBuckets.receipts, old);
+      row['receipt_path'] = null;
     }
+    await ref
+        .read(attachmentsRepositoryProvider)
+        .saveWithExpense(
+          groupId: d.groupId,
+          expenseId: id,
+          expenseRow: row,
+          added: receipt.added,
+          removedIds: receipt.removedIds,
+          firstPosition: receipt.nextPosition,
+        );
     // "Repeat" (#12): a template next to the expense, also through the outbox.
     final rule = d.canRepeat ? d.repeat.ruleFrom(d.date) : null;
     if (rule != null) {

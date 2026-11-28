@@ -12,6 +12,7 @@ import 'package:splitify/features/expenses/presentation/expense_list.dart';
 import 'package:splitify/ui/theme/theme.dart';
 
 import '../features/expenses/expense_fixtures.dart';
+import '../support/attachment_fixtures.dart';
 import 'golden_support.dart';
 
 /// One golden scenario: the screen and the overrides that feed it.
@@ -54,6 +55,7 @@ List<_Case> _cases() {
       const ExpenseDetailScreen(expenseId: 'e1'),
       [
         noRepeat('e1'),
+        noAttachments('e1'),
         expenseViewProvider('e1').overrideWithValue(
           AsyncData(sampleView(sampleExpense(notes: 'Table by the window, paid by card.'))),
         ),
@@ -68,6 +70,7 @@ List<_Case> _cases() {
       [
         noRepeat('e2'),
         expenseViewProvider('e2').overrideWithValue(AsyncData(views.first)),
+        noAttachments('e2'),
         expenseGroupProvider(gid).overrideWith((ref) => Stream.value(null)),
         commentThreadProvider((groupId: gid, targetType: 'expense', targetId: 'e2'))
             .overrideWithValue(const AsyncData([])),

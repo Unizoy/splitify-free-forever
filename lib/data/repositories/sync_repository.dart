@@ -89,11 +89,15 @@ class SyncUpload {
     required this.bucket,
     required this.recordId,
     required this.attempts,
+    this.path = '',
   });
 
   final String id;
   final String bucket;
   final String recordId;
+
+  /// Object path in [bucket] (tells an attachment's PDF, photo and thumbnail apart, W2-Y).
+  final String path;
 
   /// Refusals so far; at [UploadQueue.skipAfter] the queue stops trying.
   final int attempts;
@@ -201,7 +205,8 @@ class SyncRepository {
           attempts: i.attempts,
           createdAt: DateTime.tryParse(i.createdAt)?.toUtc(),
           targetType: _payloadText(i.payload, 'target_type'),
-          targetId: _payloadText(i.payload, 'target_id'),
+          // An attachment's expense (W2-Y): "Edit" opens it.
+          targetId: _payloadText(i.payload, 'target_id') ?? _payloadText(i.payload, 'expense_id'),
         ),
     ],
   );
@@ -277,7 +282,13 @@ class SyncRepository {
           .map(
             (rows) => [
               for (final r in rows)
-                SyncUpload(id: r.id, bucket: r.bucket, recordId: r.recordId, attempts: r.attempts),
+                SyncUpload(
+                  id: r.id,
+                  bucket: r.bucket,
+                  recordId: r.recordId,
+                  attempts: r.attempts,
+                  path: r.remotePath,
+                ),
             ],
           );
 

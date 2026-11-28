@@ -124,6 +124,8 @@ class MainActivity : FlutterFragmentActivity() {
                     else -> result.notImplemented()
                 }
             }
+        // Expense attachments (W2-Y): PDF pages through PdfRenderer, "Open with" another app.
+        PdfBridge(this, flutterEngine.dartExecutor.binaryMessenger)
         // Android's own settings screens (lib/core/platform/system_settings.dart): the blocked-push banner opens
         // Splitify's notification settings (app info on Android 7, which has no such screen).
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "splitify/settings")

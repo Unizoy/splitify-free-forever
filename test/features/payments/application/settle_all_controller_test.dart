@@ -258,6 +258,15 @@ void main() {
           ('INR', 'bank', 'Goa + dinners', '2026-11-27'),
         );
       }
+      // W2-Y (0030): one batch id on every payment, so the friend gets one push for the whole batch.
+      final batch = queued.first['batch_id'];
+      expect(batch, isA<String>());
+      expect(queued.map((q) => q['batch_id']).toSet(), {batch});
+      expect(
+        (await db.select(db.payments).get()).length,
+        2,
+        reason: 'the batch id is for the server only, not a column',
+      );
       final rows = await db.select(db.payments).get();
       expect(
         rows.every((p) => p.syncState == 'pending'),

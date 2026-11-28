@@ -8696,6 +8696,276 @@ abstract class AppLocalizations {
   /// **'This group is archived, so the expense can\'t be restored.'**
   String get qaExpenseRestoreArchived;
 
+  /// No description provided for @w2yAttachTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Receipts and files'**
+  String get w2yAttachTitle;
+
+  /// No description provided for @w2yAttachAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add photo or PDF'**
+  String get w2yAttachAdd;
+
+  /// No description provided for @w2yAttachAddShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get w2yAttachAddShort;
+
+  /// No description provided for @w2yAttachAddHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Bills, tickets, invoices. Up to {max} files per expense.'**
+  String w2yAttachAddHint(int max);
+
+  /// No description provided for @w2yAttachSourceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to this expense'**
+  String get w2yAttachSourceTitle;
+
+  /// No description provided for @w2yAttachPhotos.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose photos'**
+  String get w2yAttachPhotos;
+
+  /// No description provided for @w2yAttachPdfPick.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a PDF'**
+  String get w2yAttachPdfPick;
+
+  /// No description provided for @w2yAttachSourceHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Splitify only sees the files you pick. Photos are shrunk before they\'re uploaded.'**
+  String get w2yAttachSourceHint;
+
+  /// No description provided for @w2yAttachPdf.
+  ///
+  /// In en, this message translates to:
+  /// **'PDF'**
+  String get w2yAttachPdf;
+
+  /// No description provided for @w2yAttachPhotoTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo'**
+  String get w2yAttachPhotoTitle;
+
+  /// No description provided for @w2yAttachSizeKb.
+  ///
+  /// In en, this message translates to:
+  /// **'{size} KB'**
+  String w2yAttachSizeKb(String size);
+
+  /// No description provided for @w2yAttachSizeMb.
+  ///
+  /// In en, this message translates to:
+  /// **'{size} MB'**
+  String w2yAttachSizeMb(String size);
+
+  /// No description provided for @w2yAttachCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} of {max} files · {size}'**
+  String w2yAttachCount(int count, int max, String size);
+
+  /// No description provided for @w2yAttachPhotoLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo {index} of {count}, open'**
+  String w2yAttachPhotoLabel(int index, int count);
+
+  /// No description provided for @w2yAttachPdfLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'PDF {name} {size}, open'**
+  String w2yAttachPdfLabel(String name, String size);
+
+  /// No description provided for @w2yAttachRemoveLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Take this file out'**
+  String get w2yAttachRemoveLabel;
+
+  /// No description provided for @w2yAttachRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'{kind, select, pdf{PDF removed} other{Photo removed}}'**
+  String w2yAttachRemoved(String kind);
+
+  /// No description provided for @w2yAttachTooMany.
+  ///
+  /// In en, this message translates to:
+  /// **'An expense can have up to {max} files.'**
+  String w2yAttachTooMany(int max);
+
+  /// No description provided for @w2yAttachTooBig.
+  ///
+  /// In en, this message translates to:
+  /// **'That PDF is over {max} MB. Try a smaller one.'**
+  String w2yAttachTooBig(int max);
+
+  /// No description provided for @w2yAttachTooMuch.
+  ///
+  /// In en, this message translates to:
+  /// **'Files on one expense can be up to {max} MB together.'**
+  String w2yAttachTooMuch(int max);
+
+  /// No description provided for @w2yAttachUnreadable.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t use that file. Pick a photo or a PDF.'**
+  String get w2yAttachUnreadable;
+
+  /// No description provided for @w2yPhotoFullLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading full size'**
+  String get w2yPhotoFullLoading;
+
+  /// No description provided for @w2yPhotoFullOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Full size shows when you\'re online'**
+  String get w2yPhotoFullOffline;
+
+  /// No description provided for @w2yPdfOpenWith.
+  ///
+  /// In en, this message translates to:
+  /// **'Open in another app'**
+  String get w2yPdfOpenWith;
+
+  /// No description provided for @w2yPdfNoApp.
+  ///
+  /// In en, this message translates to:
+  /// **'No app on this phone opens PDFs. It still shows here.'**
+  String get w2yPdfNoApp;
+
+  /// No description provided for @w2yPdfPage.
+  ///
+  /// In en, this message translates to:
+  /// **'Page {page} of {count}'**
+  String w2yPdfPage(int page, int count);
+
+  /// No description provided for @w2yPdfUnreadable.
+  ///
+  /// In en, this message translates to:
+  /// **'This PDF can\'t be shown.'**
+  String get w2yPdfUnreadable;
+
+  /// No description provided for @w2yPdfOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Opens when you\'re online'**
+  String get w2yPdfOffline;
+
+  /// No description provided for @w2yUploadKind.
+  ///
+  /// In en, this message translates to:
+  /// **'{kind, select, pdf{PDF} thumb{Photo preview} other{Photo}}'**
+  String w2yUploadKind(String kind);
+
+  /// No description provided for @w2yActAttachAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'{actor} attached {kind, select, pdf{a PDF} other{a photo}} to “{description}”'**
+  String w2yActAttachAdded(String actor, String kind, String description);
+
+  /// No description provided for @w2yActAttachRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'{actor} removed {kind, select, pdf{a PDF} other{a photo}} from “{description}”'**
+  String w2yActAttachRemoved(String actor, String kind, String description);
+
+  /// No description provided for @w2yActAttachRestored.
+  ///
+  /// In en, this message translates to:
+  /// **'{actor} restored {kind, select, pdf{a PDF} other{a photo}} on “{description}”'**
+  String w2yActAttachRestored(String actor, String kind, String description);
+
+  /// No description provided for @w2yMonthTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your {month}'**
+  String w2yMonthTitle(String month);
+
+  /// No description provided for @w2yMonthSpent.
+  ///
+  /// In en, this message translates to:
+  /// **'You spent {amount} across {count, plural, =1{1 group} other{{count} groups}}'**
+  String w2yMonthSpent(String amount, int count);
+
+  /// No description provided for @w2yMonthOwed.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re owed {amount}'**
+  String w2yMonthOwed(String amount);
+
+  /// No description provided for @w2yMonthOwe.
+  ///
+  /// In en, this message translates to:
+  /// **'You owe {amount}'**
+  String w2yMonthOwe(String amount);
+
+  /// No description provided for @w2yMonthSettled.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re all settled up'**
+  String get w2yMonthSettled;
+
+  /// No description provided for @w2yMonthInsights.
+  ///
+  /// In en, this message translates to:
+  /// **'See insights'**
+  String get w2yMonthInsights;
+
+  /// No description provided for @w2yMonthHide.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide until next month'**
+  String get w2yMonthHide;
+
+  /// No description provided for @w2yMonthNotSynced.
+  ///
+  /// In en, this message translates to:
+  /// **'Not synced yet: totals may change'**
+  String get w2yMonthNotSynced;
+
+  /// No description provided for @w2yNotifMonthly.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly summary'**
+  String get w2yNotifMonthly;
+
+  /// No description provided for @w2yNotifMonthlyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'A push on the 1st: what you spent last month and where your balances stand.'**
+  String get w2yNotifMonthlyHint;
+
+  /// No description provided for @w2yCrashTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Send crash reports'**
+  String get w2yCrashTitle;
+
+  /// No description provided for @w2yCrashHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Helps fix crashes. Reports hold no names, amounts or emails.'**
+  String get w2yCrashHint;
+
+  /// No description provided for @w2yCrashOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Not available in this build'**
+  String get w2yCrashOff;
+
   /// No description provided for @w2xNamesAnd.
   ///
   /// In en, this message translates to:

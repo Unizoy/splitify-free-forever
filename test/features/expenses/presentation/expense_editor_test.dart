@@ -515,7 +515,8 @@ void main() {
     testWidgets('receipt: the chip opens the receipt sheet', (t) async {
       await pumpEditor(t, sampleDraft());
       await tapKey(t, 'expense-receipt-chip');
-      expect(find.text('Add receipt photo'), findsWidgets);
+      // W2-Y: the sheet adds photos and PDFs.
+      expect(find.text('Add photo or PDF'), findsWidgets);
       await tapKey(t, 'receipt-done');
       expect(find.byKey(const Key('receipt-add')), findsNothing);
     });

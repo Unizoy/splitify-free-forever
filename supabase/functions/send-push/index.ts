@@ -18,7 +18,9 @@ function supabasePushDb(): PushDb {
   return {
     async getNotification(id) {
       const { data, error } = await sb.from("notifications")
-        .select("id,user_id,group_id,kind,title,body,data,push_status")
+        .select(
+          "id,user_id,group_id,kind,title,body,data,push_status,push_title,push_body",
+        )
         .eq("id", id).maybeSingle();
       if (error) throw new Error(`notifications read: ${error.message}`);
       return data as NotificationRow | null;

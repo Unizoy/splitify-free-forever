@@ -19,6 +19,7 @@ class PullApplier {
     'groups',
     'group_members',
     'expenses',
+    'expense_attachments',
     'payments',
     'comments',
     'recurring_templates',
@@ -28,6 +29,7 @@ class PullApplier {
   static const _groupScoped = [
     'group_members',
     'expenses',
+    'expense_attachments',
     'payments',
     'comments',
     'recurring_templates',

@@ -31,6 +31,7 @@ import 'package:splitify/ui/theme/theme.dart';
 
 import '../features/expenses/expense_fixtures.dart';
 import '../support/sample_photo.dart';
+import '../support/attachment_fixtures.dart';
 import 'golden_support.dart';
 
 const _small = Size(320, 568);
@@ -150,6 +151,7 @@ final _itemizedRow =
 List<Override> _detail(String id, ExpenseView view) => [
   noRepeat(id),
   expenseViewProvider(id).overrideWithValue(AsyncData(view)),
+  noAttachments(id),
   expenseGroupProvider(gid).overrideWith((ref) => Stream.value(sampleGroup())),
   commentThreadProvider((groupId: gid, targetType: 'expense', targetId: id))
       .overrideWithValue(const AsyncData([])),
