@@ -363,6 +363,34 @@ void main() {
     expect(await engine.dao.groupCursors(), isEmpty);
   });
 
+  test('R4 losing a group drops its waiting uploads (no endless refused retries)', () async {
+    final e = await expenses.save(gid, expenseData('With photo'));
+    Future<void> waiting(String id, String record) => db
+        .into(db.pendingUploads)
+        .insert(
+          PendingUploadsCompanion.insert(
+            id: id,
+            bucket: 'expense-files',
+            localPath: 'media/pending/$id.jpg',
+            remotePath: '$gid/$record/$id.jpg',
+            recordId: record,
+          ),
+        );
+    await waiting('u1', e); // the expense's receipt
+    await waiting('u2', gid); // the group's cover
+    await waiting('u3', 'some-other-record'); // another group's
+    await engine.applier.apply(
+      PullPage(
+        serverTime: remote.serverTime,
+        rows: const {},
+        nextCursors: const {},
+        userSeq: 0,
+        lostGroups: const [gid],
+      ),
+    );
+    expect((await db.select(db.pendingUploads).get()).map((u) => u.id), ['u3']);
+  });
+
   group('engine details', () {
     test('pending local edits are not overwritten by a pull', () async {
       final a = await expenses.save(gid, expenseData('Local'));

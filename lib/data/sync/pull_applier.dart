@@ -87,8 +87,18 @@ class PullApplier {
     await dao.setCursor(SyncDao.userScope, page.userSeq);
   });
 
-  /// Lost access to a group: its local rows, outbox items and cursor go.
+  /// Lost access to a group: its local rows, outbox items, waiting uploads and cursor go.
   Future<void> forgetGroup(String groupId) async {
+    // R4 (S-461): uploads for its records (cover, receipts, attachments) would only be refused from now on,
+    // retried until skipped and then listed in "Sync & storage" for good.
+    await db.customUpdate(
+      'DELETE FROM pending_uploads WHERE record_id = ?1 '
+      'OR record_id IN (SELECT id FROM expenses WHERE group_id = ?1) '
+      'OR record_id IN (SELECT id FROM expense_attachments WHERE group_id = ?1)',
+      variables: [Variable<String>(groupId)],
+      updates: {db.pendingUploads},
+      updateKind: UpdateKind.delete,
+    );
     for (final name in _groupScoped) {
       await db.customUpdate(
         'DELETE FROM "$name" WHERE group_id = ?',
