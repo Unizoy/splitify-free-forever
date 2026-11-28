@@ -150,6 +150,7 @@ final notificationPrefsPendingProvider = StreamProvider<bool>(
 final pushStateProvider = FutureProvider.autoDispose<({bool available, PushPermission permission})>(
   (ref) async {
     final push = ref.watch(pushMessagingProvider);
+    await whenPushReady(push);
     if (!push.available) return (available: false, permission: PushPermission.denied);
     return (available: true, permission: await push.permission());
   },
@@ -292,6 +293,7 @@ class PushPrePrompt {
   static const shownKey = 'push_preprompt_shown';
 
   Future<bool> shouldShow() async {
+    await whenPushReady(push);
     if (!push.available || (prefs.getBool(shownKey) ?? false)) return false;
     return await push.permission() == PushPermission.notAsked;
   }

@@ -1,11 +1,11 @@
 import 'dart:convert';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:splitify/features/activity/application/settings_activity.dart';
 import 'package:splitify/data/data_providers.dart';
 import 'package:splitify/data/local/app_database.dart';
 import 'package:splitify/data/repositories/activity_repository.dart';
 import 'package:splitify/data/repositories/import_repository.dart';
+import 'package:splitify/features/activity/application/settings_activity.dart';
 import 'package:splitify/features/groups/application/groups_providers.dart';
 
 /// Filter chips of the feed (#18).

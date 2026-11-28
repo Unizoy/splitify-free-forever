@@ -59,10 +59,18 @@ final class ExpenseView {
   String? get borrower => isLoan ? owed.keys.firstOrNull : null;
 }
 
+/// Decoded payer / share maps by their JSON text (S-455): a group's list maps every row again whenever it
+/// changes, and the same text decodes once. Read-only; cleared when it gets big.
+final _intsCache = <String, Map<String, int>>{};
+
 Map<String, int> _ints(String? json) {
   if (json == null) return const {};
+  final hit = _intsCache[json];
+  if (hit != null) return hit;
   final m = jsonDecode(json) as Map<String, Object?>;
-  return {for (final e in m.entries) e.key: e.value! as int};
+  final out = Map<String, int>.unmodifiable({for (final e in m.entries) e.key: e.value! as int});
+  if (_intsCache.length >= 20000) _intsCache.clear();
+  return _intsCache[json] = out;
 }
 
 /// Builds the views for [expenses] (newest first, as the repository streams them).

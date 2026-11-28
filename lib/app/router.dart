@@ -11,14 +11,14 @@ import 'package:splitify/features/account/presentation/about_screen.dart';
 import 'package:splitify/features/account/presentation/account_screen.dart';
 import 'package:splitify/features/account/presentation/delete_account_screen.dart';
 import 'package:splitify/features/account/presentation/profile_edit_screen.dart';
+import 'package:splitify/features/activity/presentation/activity_screen.dart';
+import 'package:splitify/features/app_lock/presentation/security_routes.dart';
 import 'package:splitify/features/auth/application/auth_providers.dart';
 import 'package:splitify/features/auth/application/pending_join.dart';
 import 'package:splitify/features/auth/presentation/code_screen.dart';
 import 'package:splitify/features/auth/presentation/dev_login_screen.dart';
 import 'package:splitify/features/auth/presentation/profile_confirm_screen.dart';
 import 'package:splitify/features/auth/presentation/sign_in_screen.dart';
-import 'package:splitify/features/activity/presentation/activity_screen.dart';
-import 'package:splitify/features/app_lock/presentation/security_routes.dart';
 import 'package:splitify/features/debug/presentation/gallery_screen.dart';
 import 'package:splitify/features/expenses/presentation/expense_routes.dart';
 import 'package:splitify/features/friends/presentation/friend_routes.dart';
@@ -36,8 +36,8 @@ import 'package:splitify/features/insights/presentation/insights_routes.dart';
 import 'package:splitify/features/notifications/presentation/notifications_binding.dart';
 import 'package:splitify/features/onboarding/presentation/welcome_screen.dart';
 import 'package:splitify/features/payments/presentation/payment_routes.dart';
-import 'package:splitify/features/sync/presentation/sync_storage_screen.dart';
 import 'package:splitify/features/search/presentation/search_screen.dart' show searchRoutes;
+import 'package:splitify/features/sync/presentation/sync_storage_screen.dart';
 import 'package:splitify/ui/components/fade_through_stack.dart';
 
 /// Route paths (planning/07-screens-and-flows.md §1).

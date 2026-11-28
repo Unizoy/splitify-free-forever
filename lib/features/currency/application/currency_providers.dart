@@ -2,10 +2,11 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logging/logging.dart';
+import 'package:splitify/core/platform/startup_gate.dart';
 import 'package:splitify/data/data_providers.dart';
 import 'package:splitify/data/fx_providers.dart';
-import 'package:splitify/data/repositories/fx_rates_repository.dart';
 import 'package:splitify/data/repositories/currency_reads.dart';
+import 'package:splitify/data/repositories/fx_rates_repository.dart';
 import 'package:splitify/features/balances/application/balance_views.dart';
 import 'package:splitify/features/balances/application/balances_providers.dart';
 import 'package:splitify/features/currency/application/conversion_actions.dart';
@@ -17,7 +18,8 @@ import 'package:splitify/features/groups/application/groups_providers.dart'
 /// younger than 6 h), so conversions work offline later (05 §6). Watched by the signed-in shell.
 final fxAutoRefreshProvider = Provider<void>((ref) {
   ref.listen<DateTime?>(lastSyncProvider, (_, next) {
-    if (next != null) unawaited(_refreshQuietly(ref.read(fxRatesRepositoryProvider)));
+    // Not while the first screen is still coming up (S-456).
+    if (next != null) StartupGate.run(() => _refreshQuietly(ref.read(fxRatesRepositoryProvider)));
   }, fireImmediately: true);
 });
 

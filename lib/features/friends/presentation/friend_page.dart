@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:splitify/core/money/balances.dart' show Transfer;
 import 'package:splitify/data/data_providers.dart';
+import 'package:splitify/data/remote/notifications_remote.dart';
 import 'package:splitify/features/auth/application/auth_providers.dart' show profileProvider;
 import 'package:splitify/features/balances/application/balance_views.dart';
 import 'package:splitify/features/balances/presentation/balance_copy.dart';
@@ -20,7 +21,6 @@ import 'package:splitify/features/friends/presentation/add_friend_sheet.dart';
 import 'package:splitify/features/friends/presentation/friend_widgets.dart';
 import 'package:splitify/features/groups/presentation/group_visuals.dart' show SectionLabel;
 import 'package:splitify/features/groups/presentation/invite_sheet.dart';
-import 'package:splitify/data/remote/notifications_remote.dart';
 import 'package:splitify/features/notifications/application/reminders.dart';
 import 'package:splitify/features/notifications/presentation/remind_button.dart';
 import 'package:splitify/features/payments/application/settle_all_controller.dart'

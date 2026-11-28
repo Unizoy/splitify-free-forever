@@ -135,3 +135,25 @@ Future<bool> askForegroundToSync({
     reply.close();
   }
 }
+
+/// Background sync that WorkManager joins after the first frame (R3-B, S-456): calls made before
+/// [complete] wait for it.
+class DeferredBackgroundSync implements BackgroundSync {
+  DeferredBackgroundSync();
+
+  final _impl = Completer<BackgroundSync>();
+
+  /// Sets the real scheduler (once).
+  void complete(BackgroundSync sync) {
+    if (!_impl.isCompleted) _impl.complete(sync);
+  }
+
+  @override
+  Future<void> start() async => (await _impl.future).start();
+
+  @override
+  Future<void> syncWhenOnline() async => (await _impl.future).syncWhenOnline();
+
+  @override
+  Future<void> stop() async => (await _impl.future).stop();
+}

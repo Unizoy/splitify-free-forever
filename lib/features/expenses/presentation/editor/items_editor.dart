@@ -56,68 +56,92 @@ class _ItemsEditorState extends State<ItemsEditor> {
     ];
     final symbol = Currencies.of(widget.currency).symbol;
     final shares = widget.split.values;
-    return Column(
-      key: const Key('items-editor'),
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        for (final (i, item) in items.items.indexed) ...[
-          _ItemCard(
-            key: ValueKey('item-${item.key}'),
-            item: item,
-            number: i + 1,
-            people: people,
-            symbol: symbol,
-            canRemove: items.items.length > 1,
-            onName: (t) => _set(_items.setName(item.key, t)),
-            onAmount: (t) => _set(_items.setAmount(item.key, t)),
-            onToggle: (id) => _set(_items.toggleMember(item.key, id)),
-            onRemove: () => _set(_items.removeItem(item.key)),
-          ),
-          const SizedBox(height: AppSpacing.s3),
-        ],
-        if (items.canAdd)
-          Align(
-            alignment: AlignmentDirectional.centerStart,
-            child: PillButton(
-              key: const Key('item-add'),
-              label: l.entryItemAdd,
-              icon: AppIcons.plus,
-              variant: PillVariant.outline,
-              size: PillSize.medium,
-              expand: false,
-              // A new line starts with everyone in the split.
-              onPressed: () => _set(_items.addItem(widget.split.members)),
+    // A new line grows in; removing one closes the gap smoothly (S-451).
+    return InsertMotionScope(
+      ids: [for (final item in items.items) '${item.key}'],
+      child: AnimatedSize(
+        duration: context.motion.expand,
+        curve: AppMotion.standard,
+        alignment: Alignment.topCenter,
+        child: Column(
+          key: const Key('items-editor'),
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            for (final (i, item) in items.items.indexed)
+              InsertMotion(
+                key: ValueKey('item-motion-${item.key}'),
+                id: '${item.key}',
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: AppSpacing.s3),
+                  child: _ItemCard(
+                    key: ValueKey('item-${item.key}'),
+                    item: item,
+                    number: i + 1,
+                    people: people,
+                    symbol: symbol,
+                    canRemove: items.items.length > 1,
+                    onName: (t) => _set(_items.setName(item.key, t)),
+                    onAmount: (t) => _set(_items.setAmount(item.key, t)),
+                    onToggle: (id) => _set(_items.toggleMember(item.key, id)),
+                    onRemove: () => _set(_items.removeItem(item.key)),
+                  ),
+                ),
+              ),
+            if (items.canAdd)
+              Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: PillButton(
+                  key: const Key('item-add'),
+                  label: l.entryItemAdd,
+                  icon: AppIcons.plus,
+                  variant: PillVariant.outline,
+                  size: PillSize.medium,
+                  expand: false,
+                  // A new line starts with everyone in the split.
+                  onPressed: () => _set(_items.addItem(widget.split.members)),
+                ),
+              ),
+            const SizedBox(height: AppSpacing.s5),
+            _ExtrasToggle(
+              open: _extrasOpen,
+              onTap: () => setState(() => _extrasOpen = !_extrasOpen),
             ),
-          ),
-        const SizedBox(height: AppSpacing.s5),
-        _ExtrasToggle(open: _extrasOpen, onTap: () => setState(() => _extrasOpen = !_extrasOpen)),
-        if (_extrasOpen) ...[
-          const SizedBox(height: AppSpacing.s2),
-          Text(
-            l.entryItemsExtrasHint,
-            style: context.text.bodySmall.copyWith(color: c.textSecondary),
-          ),
-          const SizedBox(height: AppSpacing.s2),
-          for (final e in ItemExtra.values)
-            _ExtraRow(
-              key: ValueKey('extra-${e.name}'),
-              extra: e,
-              initial: items.extras[e] ?? '',
-              symbol: symbol,
-              onChanged: (t) => _set(_items.setExtra(e, t)),
+            // Tax, tip and discount fold open under their toggle (S-451).
+            AppExpand(
+              open: _extrasOpen,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const SizedBox(height: AppSpacing.s2),
+                  Text(
+                    l.entryItemsExtrasHint,
+                    style: context.text.bodySmall.copyWith(color: c.textSecondary),
+                  ),
+                  const SizedBox(height: AppSpacing.s2),
+                  for (final e in ItemExtra.values)
+                    _ExtraRow(
+                      key: ValueKey('extra-${e.name}'),
+                      extra: e,
+                      initial: items.extras[e] ?? '',
+                      symbol: symbol,
+                      onChanged: (t) => _set(_items.setExtra(e, t)),
+                    ),
+                ],
+              ),
             ),
-        ],
-        const SizedBox(height: AppSpacing.s5),
-        SectionLabel(l.entryItemsEach),
-        for (final (i, p) in people.indexed)
-          _ShareRow(
-            key: ValueKey('item-share-${p.id}'),
-            member: p,
-            share: shares?[p.id],
-            currency: widget.currency,
-            divider: i < people.length - 1,
-          ),
-      ],
+            const SizedBox(height: AppSpacing.s5),
+            SectionLabel(l.entryItemsEach),
+            for (final (i, p) in people.indexed)
+              _ShareRow(
+                key: ValueKey('item-share-${p.id}'),
+                member: p,
+                share: shares?[p.id],
+                currency: widget.currency,
+                divider: i < people.length - 1,
+              ),
+          ],
+        ),
+      ),
     );
   }
 }

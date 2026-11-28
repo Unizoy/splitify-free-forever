@@ -3,11 +3,11 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:splitify/core/money/money_formatter.dart';
-import 'package:splitify/features/expenses/application/expense_providers.dart'
-    show expenseGroupProvider;
 import 'package:splitify/features/currency/domain/conversion.dart';
 import 'package:splitify/features/currency/presentation/conversion_sheet.dart';
 import 'package:splitify/features/currency/presentation/fx_copy.dart';
+import 'package:splitify/features/expenses/application/expense_providers.dart'
+    show expenseGroupProvider;
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/components/components.dart';
 import 'package:splitify/ui/theme/theme.dart';

@@ -4,6 +4,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:splitify/app/router.dart';
 import 'package:splitify/core/config/env.dart';
+import 'package:splitify/core/platform/startup_gate.dart';
 import 'package:splitify/features/account/application/theme_mode_controller.dart';
 import 'package:splitify/features/app_lock/presentation/app_lock_gate.dart';
 import 'package:splitify/features/widget/application/home_widget_sync.dart';
@@ -14,13 +15,31 @@ import 'package:splitify/ui/theme/theme.dart';
 final envProvider = Provider<Env>((ref) => throw UnimplementedError());
 
 /// Root widget: router, localisation and the light/dark themes (B3).
-class App extends ConsumerWidget {
+class App extends ConsumerStatefulWidget {
   const App({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<App> createState() => _AppState();
+}
+
+class _AppState extends ConsumerState<App> {
+  /// The home-screen widget joins after the first frame (S-456): its balances read every group.
+  bool _widgetSync = !StartupGate.armed;
+
+  @override
+  void initState() {
+    super.initState();
+    if (!_widgetSync) {
+      StartupGate.run(() async {
+        if (mounted) setState(() => _widgetSync = true);
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     // X3: keeps the home-screen widget's values in step with balances and sync.
-    ref.watch(homeWidgetSyncProvider);
+    if (_widgetSync) ref.watch(homeWidgetSyncProvider);
     return MaterialApp.router(
       onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
       routerConfig: ref.watch(routerProvider),

@@ -3,27 +3,27 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:splitify/core/money/split.dart';
 import 'package:splitify/data/data_providers.dart';
 import 'package:splitify/data/local/app_database.dart';
 import 'package:splitify/data/remote/groups_remote.dart';
 import 'package:splitify/data/sync/sync_types.dart';
+import 'package:splitify/domain/rules/default_split.dart';
 import 'package:splitify/domain/rules/group_rules.dart';
+import 'package:splitify/features/expenses/presentation/default_split_sheet.dart';
+import 'package:splitify/features/expenses/presentation/expense_copy.dart';
+import 'package:splitify/features/export/presentation/export_action.dart';
 import 'package:splitify/features/groups/application/groups_providers.dart';
 import 'package:splitify/features/groups/presentation/group_notes_screen.dart' show GroupRoutes;
 import 'package:splitify/features/groups/presentation/group_visuals.dart';
 import 'package:splitify/features/groups/presentation/invite_sheet.dart';
 import 'package:splitify/features/groups/presentation/simplify_setting.dart';
+import 'package:splitify/features/history/presentation/history_routes.dart';
+import 'package:splitify/features/import_splitwise/presentation/import_routes.dart';
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/components/components.dart';
 import 'package:splitify/ui/painters/cover_cache.dart';
 import 'package:splitify/ui/theme/theme.dart';
-import 'package:splitify/core/money/split.dart';
-import 'package:splitify/domain/rules/default_split.dart';
-import 'package:splitify/features/expenses/presentation/expense_copy.dart';
-import 'package:splitify/features/expenses/presentation/default_split_sheet.dart';
-import 'package:splitify/features/history/presentation/history_routes.dart';
-import 'package:splitify/features/export/presentation/export_action.dart';
-import 'package:splitify/features/import_splitwise/presentation/import_routes.dart';
 
 /// Group settings (`/groups/:id/settings`, 614), a clean Splitwise-like list (D-033): the group (cover, name,
 /// type · currency; tap = the one-screen edit form), members with "Add people to group" and "Invite via link

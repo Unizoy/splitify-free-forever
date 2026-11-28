@@ -8,9 +8,9 @@ import 'package:splitify/features/expenses/application/expense_draft.dart';
 import 'package:splitify/features/expenses/application/split_draft.dart';
 import 'package:splitify/features/expenses/application/two_person.dart';
 import 'package:splitify/features/expenses/presentation/editor/items_editor.dart';
+import 'package:splitify/features/expenses/presentation/editor/step_body.dart';
 import 'package:splitify/features/expenses/presentation/editor/two_person_sheet.dart'
     show answerLine;
-import 'package:splitify/features/expenses/presentation/editor/step_body.dart';
 import 'package:splitify/features/expenses/presentation/expense_copy.dart';
 import 'package:splitify/features/expenses/presentation/split_editor.dart';
 import 'package:splitify/l10n/app_localizations.dart';
@@ -78,16 +78,23 @@ class PaidSplitPanel extends StatelessWidget {
             ),
           ],
         ),
-        if (several) ...[
-          const SizedBox(height: AppSpacing.s4),
-          PayerAmounts(draft: d, people: people, onChanged: onPayerText),
-          const SizedBox(height: AppSpacing.s3),
-          SplitFooterLine(
-            key: const Key('payers-footer'),
-            textKey: const Key('payers-footer-text'),
-            footer: payersFooter(l, d),
+        // "Multiple people" folds the amounts open under the chips (S-451).
+        AppExpand(
+          open: several,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const SizedBox(height: AppSpacing.s4),
+              PayerAmounts(draft: d, people: people, onChanged: onPayerText),
+              const SizedBox(height: AppSpacing.s3),
+              SplitFooterLine(
+                key: const Key('payers-footer'),
+                textKey: const Key('payers-footer-text'),
+                footer: payersFooter(l, d),
+              ),
+            ],
           ),
-        ],
+        ),
         const SizedBox(height: AppSpacing.s8),
         SectionLabel(l.expSplitSectionLabel),
         SplitKindPicker(
@@ -97,22 +104,32 @@ class PaidSplitPanel extends StatelessWidget {
           onChanged: (k) => onSplit(d.split.switchTo(k, total: d.total)),
         ),
         const SizedBox(height: AppSpacing.s4),
-        if (d.split.isItems)
-          ItemsEditor(
-            split: d.split,
-            members: d.members,
-            currency: d.currency,
-            total: d.total,
-            onChanged: onSplit,
-          )
-        else
-          SplitMemberRows(
-            split: d.split,
-            members: d.members,
-            currency: d.currency,
-            total: d.total,
-            onChanged: onSplit,
+        // A new split kind cross-fades its rows in place and the sheet's height follows (S-451).
+        AnimatedSize(
+          duration: context.motion.expand,
+          curve: AppMotion.standard,
+          alignment: Alignment.topCenter,
+          child: MotionSwitcher(
+            scale: false,
+            child: d.split.isItems
+                ? ItemsEditor(
+                    key: const ValueKey('split-body-items'),
+                    split: d.split,
+                    members: d.members,
+                    currency: d.currency,
+                    total: d.total,
+                    onChanged: onSplit,
+                  )
+                : SplitMemberRows(
+                    key: ValueKey('split-body-${d.split.kind.name}'),
+                    split: d.split,
+                    members: d.members,
+                    currency: d.currency,
+                    total: d.total,
+                    onChanged: onSplit,
+                  ),
           ),
+        ),
         const SizedBox(height: AppSpacing.s3),
         SplitFooterLine(footer: splitSheetFooter(l, d, payers: false)),
         if (_itemsTotal(d) case final int itemsTotal when onUseTotal != null) ...[
