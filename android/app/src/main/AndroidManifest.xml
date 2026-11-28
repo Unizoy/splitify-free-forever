@@ -7,7 +7,11 @@
     <application
         android:label="Splitify Free Forever"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/ic_launcher"
+        android:allowBackup="false"
+        android:dataExtractionRules="@xml/data_extraction_rules">
+        <!-- No Android backup / phone-to-phone copy (R4, S-479): the database, the saved sign-in and the app
+             lock keys stay on this phone; everything synced comes back from the server after signing in. -->
         <!-- Launcher label: the full name does not fit under an icon ("Splitify Free …"); final QA S-257. -->
         <activity
             android:name=".MainActivity"

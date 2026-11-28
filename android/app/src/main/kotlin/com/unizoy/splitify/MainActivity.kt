@@ -43,13 +43,21 @@ class MainActivity : FlutterFragmentActivity() {
                 @Suppress("DEPRECATION")
                 incoming.getParcelableExtra(Intent.EXTRA_STREAM)
             }
-            stream?.let { copyShared(it) }?.let { payload["image"] = it }
+            stream?.takeIf { sharedFromOtherApp(it) }?.let { copyShared(it) }?.let { payload["image"] = it }
         }
         if (payload.isEmpty()) return null
         val token = UUID.randomUUID().toString()
         shares[token] = payload
         return Intent(Intent.ACTION_VIEW, Uri.parse("splitify://expense/new?share=$token"))
     }
+
+    /**
+     * Only content:// pictures another app offers (R4, S-478). A file:// URI, or one of Splitify's own provider,
+     * could point at Splitify's private files (its database, the saved sign-in, other people's receipts), which
+     * Splitify itself can read and would copy into the editor for upload.
+     */
+    private fun sharedFromOtherApp(uri: Uri): Boolean =
+        uri.scheme == "content" && uri.authority != null && uri.authority != "$packageName.files"
 
     /** Copies a shared picture (max 25 MB) to cache/shared/; returns its path or null. */
     private fun copyShared(uri: Uri): String? = try {
