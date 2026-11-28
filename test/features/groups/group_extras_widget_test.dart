@@ -489,6 +489,28 @@ void main() {
       },
     );
 
+    // R4 (S-472): groups_whiteboard_check is char_length <= 5000 (code points); a flag is two of them.
+    testWidgets(
+      'the limit counts like the server: 2,600 flags are 5,200, refused; 2,500 are saved',
+      (tester) async {
+        const flag = '\u{1F1EE}\u{1F1F3}';
+        final db = await _db(tester);
+        await pumpGroups(tester, '/groups/g1/notes', db: db);
+        await tester.enterText(_key('board-text'), flag * 2600);
+        await tester.pump();
+        // The count reads "5,200 / 5,000" (the copy puts no-break spaces around the slash).
+        final count = tester.widget<Text>(_key('board-count')).data!;
+        expect(count.replaceAll(RegExp(r'\s'), ' '), '5,200 / 5,000');
+        await _tap(tester, _key('board-save'));
+        expect(find.text('Notes can be up to 5,000 characters'), findsOneWidget);
+        expect(await _outbox(tester, db), isEmpty);
+        await tester.enterText(_key('board-text'), flag * 2500);
+        await tester.pump();
+        await _tap(tester, _key('board-save'));
+        expect(await _outbox(tester, db), hasLength(1));
+      },
+    );
+
     testWidgets('archived: read only; settings has the Group notes row', (tester) async {
       final db = await _db(tester, groups: [seedGroup(archivedAt: '2026-11-21T10:00:00Z')]);
       final h = await pumpGroups(tester, '/groups/g1/settings', db: db);

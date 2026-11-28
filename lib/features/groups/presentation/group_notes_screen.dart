@@ -22,6 +22,11 @@ abstract final class GroupRoutes {
 /// Longest notes the server takes (0026 `groups_whiteboard_check`).
 const whiteboardMax = 5000;
 
+/// Length of [text] as the server counts it (`char_length`: code points, so a flag or an emoji with a skin
+/// tone counts 2+), not as grapheme clusters: counting what the eye sees let notes through that the server
+/// then refused (R4, S-472).
+int whiteboardLength(String text) => text.runes.length;
+
 /// The group notes (`/groups/:id/notes`, D-034 C5, Splitwise's whiteboard): one full-screen text field for the
 /// address, Wi-Fi, door codes and contacts, "Last edited by Asha · 21 Nov", and Save above the keyboard. Works
 /// offline (a group edit through the outbox; a conflicting edit keeps both versions in the history).
@@ -50,7 +55,7 @@ class _GroupNotesScreenState extends ConsumerState<GroupNotesScreen> {
     super.dispose();
   }
 
-  bool get _tooLong => _text.text.characters.length > whiteboardMax;
+  bool get _tooLong => whiteboardLength(_text.text) > whiteboardMax;
 
   Future<void> _save() async {
     if (_saving) return;
@@ -111,7 +116,7 @@ class _GroupNotesScreenState extends ConsumerState<GroupNotesScreen> {
       _text.text = group.whiteboard ?? '';
     }
     final readOnly = group?.archivedAt != null;
-    final count = _text.text.characters.length;
+    final count = whiteboardLength(_text.text);
     final error = _showError && _tooLong ? l.boardTooLong(_number(context, whiteboardMax)) : null;
     return PopScope(
       canPop: _saved || !_dirty,
