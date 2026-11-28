@@ -551,9 +551,10 @@ List<R3Screen> r3Screens() => [
       sampleView(
         sampleExpense(
           description: 'Dinner at Thalassa with the whole gang',
-          total: 1234550,
-          payers: const {'m1': 1234550},
-          shares: const {'m1': 308638, 'm2': 308638, 'm3': 308637, 'm4': 308637},
+          // A lakh amount: Indian grouping (₹1,23,456.50) on the hero and in every row (S-448).
+          total: 12345650,
+          payers: const {'m1': 12345650},
+          shares: const {'m1': 3086413, 'm2': 3086413, 'm3': 3086412, 'm4': 3086412},
           notes: 'Table by the window, paid by card.',
         ),
       ),

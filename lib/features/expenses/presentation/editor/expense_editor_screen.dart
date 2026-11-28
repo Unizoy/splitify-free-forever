@@ -918,6 +918,8 @@ class _Toolbar extends StatelessWidget {
     return SingleChildScrollView(
       key: const Key('expense-toolbar'),
       scrollDirection: Axis.horizontal,
+      // Chips scroll on to the screen edge instead of being cut at the 20 dp margin (R3-A, S-446).
+      clipBehavior: Clip.none,
       child: Row(
         children: [
           if (d.isTemplate)

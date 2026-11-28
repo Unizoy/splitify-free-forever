@@ -279,7 +279,12 @@ class LegendChip extends StatelessWidget {
                   else ...[
                     Expanded(child: name),
                     const SizedBox(width: AppSpacing.s2),
-                    Text(amount, style: context.text.body.w(600).copyWith(color: fg)),
+                    Text(
+                      amount,
+                      style: context.text.body
+                          .w(600)
+                          .copyWith(color: fg, fontFeatures: AppText.tabularFigures),
+                    ),
                     ConstrainedBox(
                       constraints: const BoxConstraints(minWidth: 48),
                       child: Text(
@@ -328,7 +333,14 @@ class _Centre extends StatelessWidget {
             style: context.text.caption.w(600).copyWith(color: captionColor ?? c.textSecondary),
           ),
           const SizedBox(height: 2),
-          Text(amount, maxLines: 1, style: context.text.headline.copyWith(color: c.textPrimary)),
+          Text(
+            amount,
+            maxLines: 1,
+            style: context.text.headline.copyWith(
+              color: c.textPrimary,
+              fontFeatures: AppText.tabularFigures,
+            ),
+          ),
           const SizedBox(height: 2),
           Text(
             footer,

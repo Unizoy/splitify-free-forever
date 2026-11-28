@@ -4,6 +4,8 @@
 // picture (light), plus dark at 393 × 852 at 1.0 and 2.0. Any overflow fails the test; every picture runs the
 // a11y guidelines (48 dp targets, labels, tap actions) through pumpFixedFrames.
 // Review with real fonts: $env:PLATFORM_GOLDENS='1'; flutter test --update-goldens test/goldens/r3_sizes_golden_test.dart
+import 'dart:io';
+
 import 'package:alchemist/alchemist.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -52,6 +54,14 @@ GoldenTestGroup _group(
 /// tabular figures on every standalone amount (S-443, S-445).
 Future<void> _pump(WidgetTester t) async {
   await pumpFixedFrames(t);
+  // R3_REPORT=1 (visual review runs): print the findings and still write the picture.
+  if (Platform.environment['R3_REPORT'] == '1') {
+    for (final g in [textOnSolidContrastGuideline, tabularAmountsGuideline]) {
+      final e = await g.evaluate(t);
+      if (!e.passed) debugPrint('R3-GUIDE ${t.testDescription}: ${e.reason}');
+    }
+    return;
+  }
   await expectLater(t, meetsGuideline(textOnSolidContrastGuideline));
   await expectLater(t, meetsGuideline(tabularAmountsGuideline));
 }

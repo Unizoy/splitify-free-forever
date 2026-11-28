@@ -204,3 +204,23 @@ cover. Users may upload a photo instead (compressed, stored in Storage).
   a navy panel so the lime highlight keeps 3:1+.
 - Amendment (S-015): capsule-nav labels scale at most 1.15× (they must fit the active pill); everything else
   scales to 2.0×.
+
+## Amendments (R3-A, layout / type / accessibility on every phone size, 2026-11-28)
+
+- Amendment (S-442): extra type tokens `displayLarge` (Instrument Serif 42/44, −0.6: welcome headline,
+  celebration), `amountLarge` (Inter 26/30 700, tabular: stat tiles, code boxes), `labelCapsLarge` (13/16 700,
+  1.8: showpiece card headers, wallet), `input` (16/22 400: typed text). Error text is `bodySmall` w500 in
+  `oweText`. No literal `fontSize:` outside `lib/ui/theme/` (guard `type-scale-only`). Smallest text 11 sp.
+- Amendment (S-443): list amounts use `amount` (w700 in rows), never `title`; any amount drawn in another style
+  adds `AppText.tabularFigures`.
+- Amendment (S-445): `textSecondary` light is `#616F7F` (4.5:1 also on `chip`/`surfaceMuted`); avatar peach fg
+  `#A35A17`, mint fg `#347C34`; placeholders use `textSecondary`; `textTertiary` is for disabled and decorative
+  icons only. Every token pair in `contrastPairs` (now incl. bgSubtle/surfaceMuted/chip/primaryContainer) and every
+  avatar tint is tested; goldens check text against the colour actually behind it.
+- Amendment (S-444): `AppSpacing.maxContent` 560 (content column on tablets/open foldables, centred, backgrounds
+  full-bleed), `maxSheet` 640 (sheets), `maxNav` 520 (capsule nav); group grid 2 columns on phones, 3 when cards stay
+  ≥ 170 dp (≥ 220 at text ≥ 1.3). No two-pane layouts.
+- Amendment (S-446): `context.stackRows` (width / text scale < 250) decides when rows put the amount under the text;
+  pinned action bars stack below 320 dp per unit of text scale and clamp text to 1.5× on phones under 700 dp tall;
+  heroes use 20 dp gaps (not 32) under 700 dp and drop a tagline title there (`taglineTitle`, still a TalkBack header).
+- Amendment (S-447): the capsule nav's active label is shown only when it fits whole; otherwise icon only.

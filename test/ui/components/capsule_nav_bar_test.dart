@@ -3,6 +3,7 @@
 // size and the active pill shows its icon only (the label stays for screen readers). Wider phones keep the
 // labelled pill.
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:splitify/ui/components/capsule_nav_bar.dart';
 import 'package:splitify/ui/theme/theme.dart';
@@ -66,11 +67,39 @@ void main() {
     handle.dispose();
   });
 
-  testWidgets('360 dp and wider keep the labelled active pill', (tester) async {
-    for (final width in [360.0, 412.0]) {
+  // R3-A (S-447): the active label shows only when it fits whole, never cut to "Frie…" (360 / 393 dp phones
+  // showed "Gr", "Frie", "Accou"); then the other buttons shrink to 48 dp first, else the pill is icon only.
+  testWidgets('the active label is drawn whole or not at all', (tester) async {
+    for (final width in [340.0, 360.0, 393.0, 412.0, 480.0]) {
+      for (final index in [0, 1, 2, 3]) {
+        await _pumpBar(tester, width, index: index);
+        expect(tester.takeException(), isNull);
+        final label = find.text(_items[index].label);
+        if (label.evaluate().isEmpty) continue;
+        final p = tester.renderObject<RenderParagraph>(
+          find.descendant(of: label, matching: find.byType(RichText)),
+        );
+        expect(
+          p.size.width,
+          greaterThanOrEqualTo(p.getMaxIntrinsicWidth(double.infinity) - 0.5),
+          reason: '$width dp, tab $index: label cut',
+        );
+      }
+    }
+  });
+
+  testWidgets('wide phones keep the labelled active pill', (tester) async {
+    for (final width in [412.0, 480.0]) {
       await _pumpBar(tester, width);
       expect(tester.takeException(), isNull);
       expect(find.text('Groups'), findsOneWidget);
     }
+  });
+
+  testWidgets('tablet: a phone-sized capsule in the middle (S-444)', (tester) async {
+    await _pumpBar(tester, 840);
+    final bar = tester.getRect(find.byType(Row).first);
+    expect(bar.width, lessThanOrEqualTo(AppSpacing.maxNav + 0.5));
+    expect(bar.center.dx, closeTo(420, 1));
   });
 }
