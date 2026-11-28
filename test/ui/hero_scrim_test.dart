@@ -171,7 +171,8 @@ void main() {
       );
       final heroTop = AppTheme.light().extension<AppColors>()!.heroTop;
       expect(_scrim(tester), 0);
-      await _scrollBy(tester, find.byType(SingleChildScrollView).first, 200);
+      // The page is a CustomScrollView since the lazy grid (S-454).
+      await _scrollBy(tester, find.byType(CustomScrollView).first, 200);
       expect(_scrim(tester), 1);
       expect(find.byType(OverlapColumn), isNot(_band(heroTop)));
       expect(_barStyle(tester)?.statusBarIconBrightness, Brightness.light);
