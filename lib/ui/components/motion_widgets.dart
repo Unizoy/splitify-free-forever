@@ -47,7 +47,13 @@ class MotionSwitcher extends StatelessWidget {
       transitionBuilder: (child, animation) {
         final faded = FadeTransition(opacity: animation, child: child);
         if (grow) {
-          return SizeTransition(sizeFactor: animation, axisAlignment: -1, child: faded);
+          // Width follows the child (like AnimatedSize), so centred content stays centred.
+          return SizeTransition(
+            sizeFactor: animation,
+            axisAlignment: -1,
+            fixedCrossAxisSizeFactor: 1,
+            child: faded,
+          );
         }
         if (!scale) return faded;
         return ScaleTransition(
@@ -112,9 +118,12 @@ class _AppExpandState extends State<AppExpand> with SingleTickerProviderStateMix
   Widget build(BuildContext context) {
     if (_c.isDismissed) return const SizedBox(width: double.infinity);
     // The same wrappers open and moving, so the content keeps its state when the move ends.
+    // fixedCrossAxisSizeFactor: the width follows the child (like AnimatedSize), so a centred section stays
+    // centred instead of moving to the start edge.
     return SizeTransition(
       sizeFactor: _size,
       axisAlignment: -1,
+      fixedCrossAxisSizeFactor: 1,
       child: FadeTransition(opacity: _fade, child: widget.child),
     );
   }

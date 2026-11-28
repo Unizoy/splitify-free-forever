@@ -287,6 +287,11 @@ class _InsertMotionState extends State<InsertMotion> with SingleTickerProviderSt
         child: faded,
       );
     }
-    return SizeTransition(sizeFactor: size, axisAlignment: -1, child: faded);
+    return SizeTransition(
+      sizeFactor: size,
+      axisAlignment: -1,
+      fixedCrossAxisSizeFactor: 1,
+      child: faded,
+    );
   }
 }
