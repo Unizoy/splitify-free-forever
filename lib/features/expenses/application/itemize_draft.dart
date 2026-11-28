@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:splitify/core/money/itemize.dart';
 import 'package:splitify/core/money/money_error.dart';
 import 'package:splitify/core/money/scaled_input.dart';
+import 'package:splitify/core/utils/text_clip.dart';
 
 /// The extras of an itemized bill, typed as amounts (never %).
 enum ItemExtra { tax, service, tip, discount }
@@ -255,7 +256,7 @@ final class ItemizeDraft {
 
   static String _clip(String s) {
     final t = s.trim();
-    return t.length > maxItemName ? t.substring(0, maxItemName).trim() : t;
+    return t.length > maxItemName ? clipText(t, maxItemName).trim() : t;
   }
 
   static Object? _decode(String s) {

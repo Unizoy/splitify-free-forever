@@ -7,6 +7,8 @@
 /// (CGST, SGST, IGST), service charge, round off, "Net Amount" / "Grand Total" / "Amount Payable".
 library;
 
+import 'package:splitify/core/utils/text_clip.dart';
+
 /// One recognised line of text and where it sits in the picture (whole pixels, any origin).
 final class OcrLine {
   const OcrLine(this.text, {this.left = 0, this.top = 0, this.right = 0, this.bottom = 0});
@@ -304,7 +306,7 @@ String _itemName(String text) {
   ).hasMatch(name)) {
     return '';
   }
-  return name.length > 60 ? name.substring(0, 60).trim() : name;
+  return name.length > 60 ? clipText(name, 60).trim() : name;
 }
 
 final _numericToken = RegExp(
@@ -601,5 +603,5 @@ String? _cleanName(String raw) {
         .map((w) => w.isEmpty ? w : w[0].toUpperCase() + w.substring(1))
         .join(' ');
   }
-  return s.length > 60 ? s.substring(0, 60).trim() : s;
+  return s.length > 60 ? clipText(s, 60).trim() : s;
 }

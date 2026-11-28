@@ -5,6 +5,7 @@
 /// anyone else without changing what people owe), see [withoutSkipped].
 library;
 
+import 'package:splitify/core/utils/text_clip.dart';
 import 'package:splitify/features/import_splitwise/domain/splitwise_csv_parser.dart';
 
 /// What happens to one person of the file.
@@ -82,7 +83,7 @@ Map<String, MemberChoice> suggestMapping(List<String> names, List<MappingMember>
 /// [name] trimmed to what a member name may hold.
 String clipName(String name) {
   final t = name.trim();
-  return t.length <= maxMemberName ? t : t.substring(0, maxMemberName).trim();
+  return t.length <= maxMemberName ? t : clipText(t, maxMemberName).trim();
 }
 
 /// Why a mapping can't be imported yet.

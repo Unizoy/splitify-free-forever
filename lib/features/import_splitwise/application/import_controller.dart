@@ -5,6 +5,7 @@ import 'dart:typed_data';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:splitify/core/money/currencies.dart';
 import 'package:splitify/core/money/money_error.dart';
+import 'package:splitify/core/utils/text_clip.dart';
 import 'package:splitify/core/utils/uuid.dart';
 import 'package:splitify/data/data_providers.dart';
 import 'package:splitify/domain/rules/group_rules.dart';
@@ -390,5 +391,5 @@ String groupNameFromFile(String fileName) {
       .trim();
   if (base.isEmpty) return '';
   final name = base[0].toUpperCase() + base.substring(1);
-  return name.length <= GroupRules.nameMax ? name : name.substring(0, GroupRules.nameMax).trim();
+  return name.length <= GroupRules.nameMax ? name : clipText(name, GroupRules.nameMax).trim();
 }

@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:splitify/core/utils/text_clip.dart';
 import 'package:splitify/core/utils/uuid.dart';
 import 'package:splitify/domain/entities/prepared_image.dart';
 
@@ -140,7 +141,7 @@ String? cleanAttachmentName(String? raw) {
   if (name.length > max) {
     final dot = name.lastIndexOf('.');
     final ext = dot > 0 && name.length - dot <= 8 ? name.substring(dot) : '';
-    name = '${name.substring(0, max - ext.length).trimRight()}$ext';
+    name = '${clipText(name, max - ext.length).trimRight()}$ext';
   }
   return name;
 }

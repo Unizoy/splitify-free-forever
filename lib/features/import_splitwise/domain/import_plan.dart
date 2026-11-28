@@ -7,6 +7,7 @@
 /// ordinary payments (each logged, rule 9).
 library;
 
+import 'package:splitify/core/utils/text_clip.dart';
 import 'package:splitify/data/repositories/import_repository.dart';
 import 'package:splitify/domain/rules/expense_categories.dart';
 import 'package:splitify/features/import_splitwise/domain/import_csv.dart';
@@ -31,7 +32,7 @@ String isoDay(DateTime d) =>
     '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-'
     '${d.day.toString().padLeft(2, '0')}';
 
-String _clip(String s, int max) => s.length <= max ? s : s.substring(0, max).trimRight();
+String _clip(String s, int max) => s.length <= max ? s : clipText(s, max).trimRight();
 
 /// Rows for [import]. [memberIds] maps every file name left in the import to a member id.
 /// [fallbackDescription] names an expense whose description cell is empty. [suggestCategory] (auto-category,
