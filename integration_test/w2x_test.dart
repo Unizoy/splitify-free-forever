@@ -336,6 +336,7 @@ void main() {
     await _tapKey(t, 'show-in-currency');
     await _waitFor(t, find.byKey(const Key('groups-overall-converted')), reason: 'converted total');
     expect(find.text('In INR · saved rates'), findsOneWidget);
+    await t.ensureVisible(find.byKey(const Key('groups-glass')));
     await _shot(t, 'home-inr');
     await _tapKey(t, 'show-in-currency');
     expect(find.byKey(const Key('groups-overall-converted')), findsNothing);

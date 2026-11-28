@@ -25,11 +25,24 @@
 
 ## Device run
 
-(filled in after the run)
+`tool/e2e/capture_w2x.ps1` → `integration_test/w2x_test.dart` on emulator-5554 (`com.unizoy.splitify.qa`,
+`--no-uninstall`, DEV, DNS pin): **PASS** (`W2X-E2E OK`, 2 min 19 s). e2e-a + a fresh second account (claims "Bina"
+in a test trip): + → Bina (her direct group made online once) → "+" → Rahul (name only) → one hidden ad-hoc group made
+offline, synced (type `other`, `is_adhoc` on the server), Bina's account linked by the server (the phone never sends
+user_id), she sees the group (RLS) and got the `expense_added` notification; the Groups grid hides it; Rahul's page
+shows the trip and "You, Bina & Rahul". "From contacts" opened the system contact picker (Google Contacts); Back added
+nothing. "Save as group default" with Bina paying → server `default_split.payer` = Bina, the next expense says "Paid
+by Bina". A dollar expense with a saved INR conversion → "Show in INR" on Home shows the converted total, labelled.
+`pm list packages` before = after: com.unizoy.splitify (owner), com.unizoy.splitify.qa, com.Splitwise.SplitwiseMobile.
+Screenshots: `splitify-artifacts\screenshots\w2x-{add-person,editor-people,friend-adhoc,save-default,home-inr}{,-dark}.png`
+and `w2x-contact-picker.png`. Earlier attempts found test-only issues (friends remote not wired in the test, a fresh
+account's profile name, a system Back on the only page closing the app) — fixed in the test.
 
 ## Notes for the coordinator
 
-- Merge: W2-Y also edits `expense_editor_controller.dart`, `expense_detail_screen.dart`,
-  `notification_settings_screen.dart`, `pull_applier.dart`, `MainActivity.kt`, `app_en.arb` (+ generated l10n): the
-  hunks are separate; regenerate l10n after merging the ARB blocks (both append at the end).
-- 190_attack #86 fails on DEV because of W2-Y's `attachment_upload_ok` grant (not 0028).
+- Merged `origin/feat/simple-add-expense` (with W2-Y) into this branch: conflicts only in the ARB (both append blocks
+  kept, l10n regenerated) and planning docs (both kept); W2-Y's editor controller, expense detail, pull applier
+  (`expense_attachments`) and `MainActivity` (`PdfBridge`) changes merged cleanly next to mine (`ContactsBridge`).
+- 0028 redefines none of 0029/0030's functions (apply_mutations, pull_changes, fan-out, settings): it only adds a
+  column, an index, four new functions and three new triggers. After the merge, on DEV: 300 34/34, 001 32/32, 190
+  288/288 (W2-Y fixed #86), 280 47/47, 290 32/32, 040 35/35, 041 29/29.
