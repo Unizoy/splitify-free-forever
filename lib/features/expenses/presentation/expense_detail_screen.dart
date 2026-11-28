@@ -228,7 +228,7 @@ class _Hero extends ConsumerWidget {
     'trip' => CoverFamily.trip,
     'home' => CoverFamily.home,
     'couple' => CoverFamily.couple,
-    'direct' => CoverFamily.direct,
+    'direct' || 'adhoc' => CoverFamily.direct,
     _ => CoverFamily.other,
   };
 }

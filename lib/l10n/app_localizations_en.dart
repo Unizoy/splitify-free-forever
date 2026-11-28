@@ -5464,4 +5464,77 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get qaExpenseRestoreArchived =>
       'This group is archived, so the expense can\'t be restored.';
+
+  @override
+  String w2xNamesAnd(String rest, String last) {
+    return '$rest & $last';
+  }
+
+  @override
+  String w2xMorePeople(int count) {
+    return '$count more';
+  }
+
+  @override
+  String get w2xAddPerson => 'Add another person';
+
+  @override
+  String get w2xAddPersonTitle => 'Add a person';
+
+  @override
+  String w2xRemovePerson(String name) {
+    return 'Remove $name';
+  }
+
+  @override
+  String w2xAddByName(String name) {
+    return 'Add “$name”';
+  }
+
+  @override
+  String get w2xAddByNameHint => 'Not on Splitify yet? Add them by name';
+
+  @override
+  String get w2xFromContacts => 'From contacts';
+
+  @override
+  String get w2xFromContactsHint => 'Pick a name from your phone';
+
+  @override
+  String get w2xContactsUnavailable => 'Couldn\'t open your contacts';
+
+  @override
+  String get w2xSaveAsDefault => 'Save as group default';
+
+  @override
+  String get w2xSaveAsDefaultHint => 'New expenses here start with this payer and split';
+
+  @override
+  String get w2xDefaultSaved => 'Saved as the group default';
+
+  @override
+  String get w2xDefaultPayerAnyone => 'Whoever adds it';
+
+  @override
+  String w2xShowIn(String currency) {
+    return 'Show in $currency';
+  }
+
+  @override
+  String get w2xShowByCurrency => 'By currency';
+
+  @override
+  String w2xInSavedRates(String currency) {
+    return 'In $currency · saved rates';
+  }
+
+  @override
+  String w2xNotConverted(String amounts) {
+    return '+ $amounts not converted';
+  }
+
+  @override
+  String w2xNothingConverted(String currency) {
+    return 'No saved $currency rates for these yet';
+  }
 }

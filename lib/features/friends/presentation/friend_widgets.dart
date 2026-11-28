@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:splitify/core/money/money_formatter.dart';
+import 'package:splitify/data/local/app_database.dart';
 import 'package:splitify/data/sync/sync_types.dart';
 import 'package:splitify/features/balances/application/balance_views.dart';
 import 'package:splitify/features/balances/presentation/balance_copy.dart';
@@ -38,15 +39,36 @@ String friendGroupsCaption(AppLocalizations l, Friend f) {
   return l.friendGroupsMore(names.take(2).join('\u00A0· '), names.length - 2);
 }
 
-/// The group a friend-page item or row belongs to ("Just you two" for the direct group).
-String friendLinkLabel(AppLocalizations l, FriendLink link) =>
-    link.isDirect ? l.friendDirectGroup : link.group.name;
+/// The group a friend-page item or row belongs to ("Just you two" for the direct group, "You, Bina & Raj"
+/// for several friends, W2-X F11).
+String friendLinkLabel(AppLocalizations l, FriendLink link) {
+  if (link.isDirect) return l.friendDirectGroup;
+  if (link.isAdhoc) return adhocPeopleLabel(l, link.ledger.members, link.meId);
+  return link.group.name;
+}
+
+/// "You, Bina & Raj": the active people of a several-friends group, me first (W2-X F11).
+String adhocPeopleLabel(AppLocalizations l, List<LocalMember> members, String? meId) {
+  final names = [
+    l.you,
+    for (final m in members)
+      if (m.id != meId && m.status == 'active' && m.deletedAt == null) m.displayName,
+  ];
+  return joinNames(l, names);
+}
+
+/// "A", "A & B", "A, B & C".
+String joinNames(AppLocalizations l, List<String> names) {
+  if (names.isEmpty) return '';
+  if (names.length == 1) return names.single;
+  return l.w2xNamesAnd(names.sublist(0, names.length - 1).join(', '), names.last);
+}
 
 IconData groupTypeIcon(String type) => switch (type) {
   'trip' => AppIcons.typeTrip,
   'home' => AppIcons.typeHome,
   'couple' => AppIcons.typeCouple,
-  'direct' => AppIcons.typeDirect,
+  'direct' || 'adhoc' => AppIcons.typeDirect,
   _ => AppIcons.typeOther,
 };
 

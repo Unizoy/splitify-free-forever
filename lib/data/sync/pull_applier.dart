@@ -53,6 +53,9 @@ class PullApplier {
         final id = row['id']! as String;
         if (pending.contains(id)) continue;
         final values = columnValues(table, row);
+        // 0028 (W2-X F11): the server keeps an ad-hoc group as type 'other' + is_adhoc; the phone as 'adhoc'.
+        if (name == 'groups' && row['is_adhoc'] == true)
+          values['type'] = const Variable<Object>('adhoc');
         if (hasState) values['sync_state'] = const Variable<Object>(SyncState.synced);
         await insertRaw(db, table, values, replace: true);
         if (name == 'expenses') {

@@ -35,6 +35,9 @@ abstract final class AppIcons {
   static const IconData scan = IconData(0xebb6, fontFamily: _regular);
   static const IconData camera = IconData(0xe10e, fontFamily: _regular);
   static const IconData userPlus = IconData(0xe4d0, fontFamily: _regular);
+
+  /// "From contacts" (W2-X F15): Phosphor address-book.
+  static const IconData contacts = IconData(0xe6f8, fontFamily: _regular);
   static const IconData link = IconData(0xe2e2, fontFamily: _regular);
   static const IconData unlink = IconData(0xe2e4, fontFamily: _regular);
   static const IconData archive = IconData(0xe00c, fontFamily: _regular);

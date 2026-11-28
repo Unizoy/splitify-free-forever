@@ -22,12 +22,12 @@ ImageProvider? groupCoverImage(WidgetRef ref, LocalGroup g, {int? width}) {
   return width == null ? image : ResizeImage(image, width: width);
 }
 
-/// Cover family for a group `type` (trip/home/couple/other/direct).
+/// Cover family for a group `type` (trip/home/couple/other/direct; several friends look like friends).
 CoverFamily coverFamilyFor(String type) => switch (type) {
   'trip' => CoverFamily.trip,
   'home' => CoverFamily.home,
   'couple' => CoverFamily.couple,
-  'direct' => CoverFamily.direct,
+  'direct' || 'adhoc' => CoverFamily.direct,
   _ => CoverFamily.other,
 };
 

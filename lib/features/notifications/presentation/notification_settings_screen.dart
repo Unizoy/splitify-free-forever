@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:splitify/data/local/app_database.dart';
 import 'package:splitify/data/remote/push_messaging.dart';
 import 'package:splitify/domain/entities/notification_prefs.dart';
+import 'package:splitify/domain/rules/group_rules.dart';
 import 'package:splitify/features/groups/application/groups_providers.dart';
 import 'package:splitify/features/groups/presentation/group_visuals.dart' show GroupThumb;
 import 'package:splitify/features/notifications/application/notifications_providers.dart';
@@ -50,7 +51,7 @@ class _NotificationSettingsScreenState extends ConsumerState<NotificationSetting
     final push = ref.watch(pushStateProvider).value;
     final groups = <LocalGroup>[
       for (final g in ref.watch(groupsListProvider).value ?? const <LocalGroup>[])
-        if (g.archivedAt == null && g.deletedAt == null && g.type != 'direct') g,
+        if (g.archivedAt == null && g.deletedAt == null && !GroupRules.isHidden(g.type)) g,
     ];
     final actions = ref.read(notificationActionsProvider);
     final pushOff = push != null && (!push.available || push.permission == PushPermission.denied);

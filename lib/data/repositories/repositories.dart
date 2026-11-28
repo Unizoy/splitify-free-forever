@@ -4,6 +4,7 @@ import 'package:splitify/core/utils/uuid.dart';
 import 'package:splitify/data/local/app_database.dart';
 import 'package:splitify/data/sync/local_writer.dart';
 import 'package:splitify/data/sync/sync_types.dart';
+import 'package:splitify/domain/rules/group_rules.dart';
 
 /// Read streams + write-with-outbox for the synced entities (offline-sync rules 1–6). Writes take snake_case
 /// server columns; feature controllers build them (money already split by `lib/core/money`).
@@ -41,10 +42,10 @@ abstract class _Repo {
 class GroupsRepository extends _Repo {
   GroupsRepository(AppDatabase db, LocalWriter writer) : super(db, writer, SyncEntity.group);
 
-  /// Groups tab: live, not deleted, not friend (`direct`) groups, newest first.
+  /// Groups tab: live, not deleted, not friend (`direct`) or several-friends (`adhoc`) groups, newest first.
   Stream<List<LocalGroup>> watchAll() =>
       (db.select(db.groups)
-            ..where((g) => g.deletedAt.isNull() & g.type.equals('direct').not())
+            ..where((g) => g.deletedAt.isNull() & g.type.isNotIn(GroupRules.hiddenTypes))
             ..orderBy([(g) => OrderingTerm.desc(g.createdAt), (g) => OrderingTerm.desc(g.id)]))
           .watch();
 
@@ -88,6 +89,62 @@ class GroupsRepository extends _Repo {
     return id;
   }
 
+  /// "With you and" several friends (W2-X F11, 0028): a hidden ad-hoc group with me as owner and [people] as
+  /// members, made offline in ONE local transaction (the group, then each member, queued in that order). Each
+  /// person brings their member id (origin XOR group id for someone picked from another group, S-421), name,
+  /// tint and, for a friend with an account, that account: written here only (the server links it from the
+  /// origin member, never from the phone).
+  Future<void> createAdhoc({
+    required String id,
+    required String name,
+    required String ownerName,
+    required String mainCurrency,
+    required List<({String id, String name, int tint, String? userId})> people,
+    String? ownerUserId,
+  }) async {
+    final ownerId = newId();
+    final createdAt = writer.clock.now().toUtc().toIso8601String();
+    await writer.writeAll([
+      (
+        entity: SyncEntity.group,
+        op: SyncOp.upsert,
+        id: id,
+        groupId: id,
+        data: {
+          'name': name,
+          'type': 'adhoc',
+          'main_currency': mainCurrency,
+          'created_at': createdAt,
+          'created_by': ?ownerUserId,
+          'owner_member': {'id': ownerId, 'display_name': ownerName},
+        },
+      ),
+      for (var i = 0; i < people.length; i++)
+        (
+          entity: SyncEntity.member,
+          op: SyncOp.upsert,
+          id: people[i].id,
+          groupId: id,
+          data: {
+            'display_name': people[i].name,
+            'position': i + 1,
+            'tint': people[i].tint,
+            'user_id': ?people[i].userId,
+            'created_at': createdAt,
+          },
+        ),
+    ]);
+    await writer.writeShadow(SyncEntity.member, {
+      'id': ownerId,
+      'group_id': id,
+      'user_id': ownerUserId,
+      'display_name': ownerName,
+      'position': 0,
+      'role': 'owner',
+      'created_at': createdAt,
+    });
+  }
+
   /// Save the group itself (its id is its scope).
   Future<void> update(String id, Map<String, Object?> data) => save(id, data, id: id);
 
@@ -102,7 +159,7 @@ class GroupsRepository extends _Repo {
               (g) =>
                   g.deletedAt.isNotNull() &
                   g.createdBy.equals(userId) &
-                  g.type.equals('direct').not(),
+                  g.type.isNotIn(GroupRules.hiddenTypes),
             )
             ..orderBy([(g) => OrderingTerm.desc(g.deletedAt)]))
           .watch();

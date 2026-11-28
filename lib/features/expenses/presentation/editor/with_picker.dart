@@ -6,6 +6,7 @@ import 'package:splitify/data/local/app_database.dart';
 import 'package:splitify/data/remote/groups_remote.dart' show GroupFailure, GroupFailureCode;
 import 'package:splitify/features/balances/application/balances_providers.dart'
     show allLedgersProvider;
+import 'package:splitify/features/friends/application/contact_picker.dart';
 import 'package:splitify/features/friends/application/friends_providers.dart';
 import 'package:splitify/features/friends/application/friends_view.dart';
 import 'package:splitify/features/groups/application/groups_providers.dart'
@@ -54,7 +55,8 @@ final withTargetsProvider = Provider.autoDispose<List<WithTarget>?>((ref) {
   final out = <WithTarget>[];
   for (final ledger in ledgers) {
     final g = ledger.group;
-    if (g.archivedAt != null || g.deletedAt != null) continue;
+    // Several-friends groups stay out of the pickers (W2-X F11): their people are picked one by one.
+    if (g.archivedAt != null || g.deletedAt != null || g.type == 'adhoc') continue;
     final active = [
       for (final m in ledger.members)
         if (m.deletedAt == null && m.status == 'active') m,
@@ -129,12 +131,59 @@ Future<String?> showWithPicker(BuildContext context, {String? selected}) {
   );
 }
 
+/// What "Add person" picked (W2-X F11): a friend, or a name that is not a friend yet (typed, or from contacts).
+typedef PersonPick = ({Friend? friend, String? name});
+
+/// "With you and" + (W2-X F11, like Splitwise's chips): one more person for this expense — a friend not in it
+/// yet ([exclude] = friend keys already in), a new name, or a name from contacts.
+Future<PersonPick?> showAddPersonPicker(BuildContext context, {required Set<String> exclude}) {
+  final l = AppLocalizations.of(context);
+  final container = ProviderScope.containerOf(context);
+  return showAppSheet<PersonPick>(
+    context,
+    title: l.w2xAddPersonTitle,
+    builder: (sheet) => UncontrolledProviderScope(
+      container: container,
+      child: WithPicker(
+        addPerson: true,
+        exclude: exclude,
+        onPicked: (_) {},
+        onPerson: (p) => Navigator.of(sheet).pop(p),
+      ),
+    ),
+  );
+}
+
+/// A friend named exactly [name] (any case) among [friends] when there is exactly one; else null.
+Friend? friendNamed(List<Friend> friends, String name, {Set<String> exclude = const {}}) {
+  final q = name.trim().toLowerCase();
+  final hits = [
+    for (final f in friends)
+      if (!exclude.contains(f.key) && f.name.trim().toLowerCase() == q) f,
+  ];
+  return hits.length == 1 ? hits.single : null;
+}
+
 /// The picker's content (also used by goldens inside an [AppSheet]).
 class WithPicker extends ConsumerStatefulWidget {
-  const WithPicker({required this.onPicked, this.selected, super.key});
+  const WithPicker({
+    required this.onPicked,
+    this.selected,
+    this.addPerson = false,
+    this.exclude = const {},
+    this.onPerson,
+    super.key,
+  });
 
   final String? selected;
   final ValueChanged<String> onPicked;
+
+  /// "Add person" mode (W2-X F11): friends and new names only, answered through [onPerson].
+  final bool addPerson;
+
+  /// Friend keys already in the expense (add mode).
+  final Set<String> exclude;
+  final ValueChanged<PersonPick>? onPerson;
 
   @override
   ConsumerState<WithPicker> createState() => _WithPickerState();
@@ -174,9 +223,35 @@ class _WithPickerState extends ConsumerState<WithPicker> {
   }
 
   Future<void> _newFriend(String name) async {
+    if (widget.addPerson) return widget.onPerson?.call((friend: null, name: name));
     setState(() => _busy = 'new');
     final made = await ref.read(friendActionsProvider).addNameOnlyFriend(name);
     if (mounted) widget.onPicked(made.groupId);
+  }
+
+  void _pickFriend(Friend f) {
+    if (widget.addPerson) {
+      widget.onPerson?.call((friend: f, name: null));
+    } else {
+      unawaited(_friend(f));
+    }
+  }
+
+  /// "From contacts" (F15): a contact's name; a friend of that exact name is that friend.
+  Future<void> _fromContacts() async {
+    final l = AppLocalizations.of(context);
+    final String? name;
+    try {
+      name = await ref.read(contactPickerProvider).pickName();
+    } on ContactPickFailed {
+      if (mounted) showGroupMessage(context, l.w2xContactsUnavailable);
+      return;
+    }
+    if (name == null || !mounted) return;
+    final friends = ref.read(friendsProvider).value ?? const <Friend>[];
+    final f = friendNamed(friends, name, exclude: widget.exclude);
+    if (f != null) return _pickFriend(f);
+    await _newFriend(name);
   }
 
   @override
@@ -184,8 +259,12 @@ class _WithPickerState extends ConsumerState<WithPicker> {
     final l = AppLocalizations.of(context);
     final c = context.colors;
     final q = _query.text.trim().toLowerCase();
-    final targets = ref.watch(withTargetsProvider);
-    final friends = ref.watch(friendsProvider).value ?? const <Friend>[];
+    final add = widget.addPerson;
+    final targets = add ? const <WithTarget>[] : ref.watch(withTargetsProvider);
+    final friends = [
+      for (final f in ref.watch(friendsProvider).value ?? const <Friend>[])
+        if (!widget.exclude.contains(f.key)) f,
+    ];
     final direct = {for (final t in targets ?? const <WithTarget>[]) t.groupId};
     final matches = [
       for (final t in targets ?? const <WithTarget>[])
@@ -195,10 +274,10 @@ class _WithPickerState extends ConsumerState<WithPicker> {
     // Friends we share only a normal group with (no direct group yet): picking one finds or makes it.
     final allOthers = [
       for (final f in searchFriends(friends, q))
-        if (f.directGroupId == null || !direct.contains(f.directGroupId)) f,
+        if (add || f.directGroupId == null || !direct.contains(f.directGroupId)) f,
     ];
     // Without a search only a few: the field finds the rest.
-    final others = q.isEmpty ? allOthers.take(_recent).toList() : allOthers;
+    final others = q.isEmpty ? allOthers.take(add ? _recent + 2 : _recent).toList() : allOthers;
     final exact =
         matches.any((t) => t.name.toLowerCase() == q) ||
         others.any((f) => f.name.toLowerCase() == q);
@@ -210,7 +289,20 @@ class _WithPickerState extends ConsumerState<WithPicker> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           _SearchBox(controller: _query, onChanged: (_) => setState(() {})),
-          const SizedBox(height: AppSpacing.s4),
+          const SizedBox(height: AppSpacing.s3),
+          _Row(
+            key: const Key('with-contacts'),
+            leading: Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(color: c.bgSubtle, shape: BoxShape.circle),
+              child: Icon(AppIcons.contacts, size: 20, color: c.textPrimary),
+            ),
+            title: l.w2xFromContacts,
+            subtitle: l.w2xFromContactsHint,
+            onTap: _busy == null ? () => unawaited(_fromContacts()) : null,
+          ),
+          const SizedBox(height: AppSpacing.s3),
           if (targets == null)
             const Shimmer(child: Column(children: [SkeletonRow(), SkeletonRow(lineWidth: 0.4)]))
           else ...[
@@ -228,14 +320,14 @@ class _WithPickerState extends ConsumerState<WithPicker> {
             ],
             if (others.isNotEmpty) ...[
               const SizedBox(height: AppSpacing.s3),
-              SectionLabel(l.expWithFriends),
+              SectionLabel(add ? l.navFriends : l.expWithFriends),
               for (final f in others)
                 _Row(
                   key: Key('with-friend-${f.key}'),
                   leading: Avatar(name: f.name, seed: f.seed, tint: f.tint),
                   title: f.name,
                   busy: _busy == f.key,
-                  onTap: _busy == null ? () => unawaited(_friend(f)) : null,
+                  onTap: _busy == null ? () => _pickFriend(f) : null,
                 ),
             ],
             if (typed.isNotEmpty && !exact) ...[
@@ -248,8 +340,8 @@ class _WithPickerState extends ConsumerState<WithPicker> {
                   decoration: BoxDecoration(color: c.primaryContainer, shape: BoxShape.circle),
                   child: Icon(AppIcons.userPlus, size: 20, color: c.onPrimaryContainer),
                 ),
-                title: l.expWithAddFriend(typed),
-                subtitle: l.expWithAddFriendHint,
+                title: add ? l.w2xAddByName(typed) : l.expWithAddFriend(typed),
+                subtitle: add ? l.w2xAddByNameHint : l.expWithAddFriendHint,
                 busy: _busy == 'new',
                 onTap: _busy == null ? () => unawaited(_newFriend(typed)) : null,
               ),

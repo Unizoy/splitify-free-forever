@@ -133,6 +133,8 @@ class MainActivity : FlutterFragmentActivity() {
                     else -> result.notImplemented()
                 }
             }
+        // "From contacts" (W2-X F15): the system contact picker, names only, no contacts permission.
+        ContactsBridge(this, flutterEngine.dartExecutor.binaryMessenger)
     }
 
     private fun openNotificationSettings(): Boolean {

@@ -6,6 +6,9 @@ import 'package:splitify/features/expenses/application/amount_input.dart';
 import 'package:splitify/features/expenses/application/expense_draft.dart';
 import 'package:splitify/features/expenses/presentation/editor/with_picker.dart';
 import 'package:splitify/features/expenses/presentation/expense_copy.dart';
+import 'package:splitify/features/friends/application/friends_providers.dart'
+    show groupFriendsProvider;
+import 'package:splitify/features/friends/application/friends_view.dart' show Friend;
 import 'package:splitify/features/friends/presentation/friend_widgets.dart' show groupTypeIcon;
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/components/components.dart';
@@ -16,13 +19,17 @@ import 'package:splitify/ui/theme/theme.dart';
 /// friend expense (#2). Tapping the chip opens the picker of recent groups and friends ([onPick]); a saved
 /// expense or a template keeps its group, so the chip is read-only there ([onPick] null). With nobody
 /// picked yet (the + of the tab bar) a dashed "Choose group or friend" chip and the most recent groups /
-/// friends as one-tap suggestions ([onQuickPick]) show instead.
+/// friends as one-tap suggestions ([onQuickPick]) show instead. With friends (no group) every person is a
+/// chip and a "+" adds one more ([onAddPerson], W2-X F11, like Splitwise); with several, each chip has a remove
+/// button ([onRemovePerson]).
 class WithRow extends ConsumerWidget {
   const WithRow({
     required this.draft,
     required this.offline,
     this.onPick,
     this.onQuickPick,
+    this.onAddPerson,
+    this.onRemovePerson,
     this.showError = false,
     super.key,
   });
@@ -33,6 +40,12 @@ class WithRow extends ConsumerWidget {
   final bool offline;
   final VoidCallback? onPick;
   final ValueChanged<String>? onQuickPick;
+
+  /// "+": one more person (friend expenses only; null for saved expenses and templates).
+  final VoidCallback? onAddPerson;
+
+  /// Takes a person out of a several-friends expense (the rest stay).
+  final ValueChanged<Friend>? onRemovePerson;
 
   /// After a Save attempt without a group: says what is missing.
   final bool showError;
@@ -87,6 +100,17 @@ class WithRow extends ConsumerWidget {
             ),
           ],
         ],
+      );
+    }
+    final friendGroup = draft.groupType == 'direct' || draft.groupType == 'adhoc';
+    final people = friendGroup ? ref.watch(groupFriendsProvider(draft.groupId)) : const <Friend>[];
+    if (people.isNotEmpty && (draft.groupType == 'adhoc' || onAddPerson != null)) {
+      return _PeopleRow(
+        people: people,
+        offline: offline,
+        onPick: onPick,
+        onAdd: onAddPerson,
+        onRemove: people.length > 1 ? onRemovePerson : null,
       );
     }
     final friend = draft.friend;
@@ -158,6 +182,169 @@ class WithRow extends ConsumerWidget {
             padding: EdgeInsets.symmetric(vertical: AppSpacing.s3),
             child: SyncMarker(),
           ),
+      ],
+    );
+  }
+}
+
+/// "With you and: [Asha] [Ben] (+)" (W2-X F11): one chip per person; tapping a chip opens the full picker, the
+/// small x takes that person out, "+" adds one more.
+class _PeopleRow extends StatelessWidget {
+  const _PeopleRow({
+    required this.people,
+    required this.offline,
+    required this.onPick,
+    required this.onAdd,
+    required this.onRemove,
+  });
+
+  final List<Friend> people;
+  final bool offline;
+  final VoidCallback? onPick;
+  final VoidCallback? onAdd;
+  final ValueChanged<Friend>? onRemove;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final c = context.colors;
+    return Wrap(
+      key: const Key('expense-with-people'),
+      spacing: AppSpacing.s2,
+      runSpacing: AppSpacing.s1,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      children: [
+        Text(l.expWithLabel, style: context.text.body.copyWith(color: c.textSecondary)),
+        for (final f in people)
+          _PersonChip(
+            key: Key('expense-with-person-${f.key}'),
+            friend: f,
+            onTap: onPick,
+            onRemove: onRemove == null ? null : () => onRemove!(f),
+          ),
+        if (onAdd != null)
+          Semantics(
+            button: true,
+            label: l.w2xAddPerson,
+            excludeSemantics: true,
+            onTap: onAdd,
+            child: Pressable(
+              key: const Key('expense-with-add'),
+              onTap: onAdd,
+              borderRadius: AppRadii.allPill,
+              scale: 0.92,
+              haptic: PressHaptic.selection,
+              child: SizedBox(
+                width: AppSpacing.minTouch,
+                height: AppSpacing.minTouch,
+                child: Center(
+                  child: Container(
+                    width: 40,
+                    height: 40,
+                    decoration: ShapeDecoration(
+                      color: c.primaryContainer,
+                      shape: const CircleBorder(),
+                    ),
+                    child: Icon(AppIcons.plus, size: 18, color: c.onPrimaryContainer),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        if (offline)
+          const Padding(
+            key: Key('expense-offline'),
+            padding: EdgeInsets.symmetric(vertical: AppSpacing.s3),
+            child: SyncMarker(),
+          ),
+      ],
+    );
+  }
+}
+
+/// One person of "With you and": avatar + name on a pill, and a remove button when there are several.
+class _PersonChip extends StatelessWidget {
+  const _PersonChip({required this.friend, required this.onTap, required this.onRemove, super.key});
+
+  final Friend friend;
+  final VoidCallback? onTap;
+  final VoidCallback? onRemove;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final c = context.colors;
+    final f = friend;
+    final chip = Container(
+      constraints: const BoxConstraints(minHeight: 40),
+      padding: EdgeInsetsDirectional.fromSTEB(
+        AppSpacing.s1,
+        AppSpacing.s1,
+        onRemove == null ? AppSpacing.s4 : AppSpacing.s1,
+        AppSpacing.s1,
+      ),
+      decoration: ShapeDecoration(
+        color: c.surface,
+        shape: StadiumBorder(side: BorderSide(color: c.border, width: 1.2)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Avatar(name: f.name, seed: f.seed, tint: f.tint, size: AvatarSize.s32),
+          const SizedBox(width: AppSpacing.s2),
+          Flexible(child: Text(f.name, style: context.text.body.w(600))),
+          if (onRemove != null) const SizedBox(width: 32),
+        ],
+      ),
+    );
+    final body = Semantics(
+      container: true,
+      button: onTap != null,
+      label: f.name,
+      hint: onTap == null ? null : l.expWithChange,
+      excludeSemantics: true,
+      onTap: onTap,
+      child: onTap == null
+          ? ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: AppSpacing.minTouch),
+              child: Center(widthFactor: 1, child: chip),
+            )
+          : Pressable(
+              onTap: onTap,
+              borderRadius: AppRadii.allPill,
+              scale: 0.96,
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(minHeight: AppSpacing.minTouch),
+                child: Center(widthFactor: 1, child: chip),
+              ),
+            ),
+    );
+    if (onRemove == null) return body;
+    // The x sits on the chip's end, with a full 48 dp target.
+    return Stack(
+      alignment: AlignmentDirectional.centerEnd,
+      children: [
+        Padding(
+          padding: const EdgeInsetsDirectional.only(end: AppSpacing.s2),
+          child: body,
+        ),
+        Semantics(
+          button: true,
+          label: l.w2xRemovePerson(f.name),
+          excludeSemantics: true,
+          onTap: onRemove,
+          child: Pressable(
+            key: Key('expense-with-remove-${f.key}'),
+            onTap: onRemove,
+            borderRadius: AppRadii.allPill,
+            scale: 0.9,
+            child: SizedBox(
+              width: AppSpacing.minTouch,
+              height: AppSpacing.minTouch,
+              child: Center(child: Icon(AppIcons.close, size: 16, color: c.textSecondary)),
+            ),
+          ),
+        ),
       ],
     );
   }

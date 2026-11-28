@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:splitify/core/money/scaled_input.dart';
 import 'package:splitify/core/time/clock.dart';
 import 'package:splitify/data/data_providers.dart' show clockProvider;
+import 'package:splitify/data/remote/groups_remote.dart' show GroupFailure, GroupFailureCode;
 import 'package:splitify/domain/rules/expense_categories.dart';
 import 'package:splitify/features/currency/presentation/currency_picker_sheet.dart'
     show CurrencyChip, pickGroupCurrency, showCurrencyPicker;
@@ -21,9 +22,13 @@ import 'package:splitify/features/expenses/presentation/editor/receipt_field.dar
 import 'package:splitify/features/expenses/presentation/editor/two_person_sheet.dart';
 import 'package:splitify/features/expenses/presentation/editor/with_picker.dart';
 import 'package:splitify/features/expenses/presentation/expense_copy.dart';
+import 'package:splitify/features/friends/application/friends_providers.dart'
+    show friendActionsProvider, groupFriendsProvider;
+import 'package:splitify/features/friends/application/friends_view.dart' show Friend;
 import 'package:splitify/features/groups/application/groups_providers.dart'
     show syncOfflineProvider;
-import 'package:splitify/features/groups/presentation/group_visuals.dart' show confirmAction;
+import 'package:splitify/features/groups/presentation/group_visuals.dart'
+    show confirmAction, showGroupMessage;
 import 'package:splitify/features/receipt_scan/application/scan_apply.dart';
 import 'package:splitify/features/receipt_scan/application/share_intake.dart';
 import 'package:splitify/features/receipt_scan/presentation/scan_flow.dart';
@@ -159,6 +164,51 @@ class _ExpenseEditorScreenState extends ConsumerState<ExpenseEditorScreen> {
     FocusManager.instance.primaryFocus?.unfocus();
     final picked = await showWithPicker(context, selected: d.hasGroup ? d.groupId : null);
     if (picked != null && picked != d.groupId && mounted) await _moveTo(picked);
+  }
+
+  /// "+" next to the people (W2-X F11): one more friend, a new name or a contact; the expense moves to the group
+  /// of everyone picked (a several-friends group, found or made offline).
+  Future<void> _addPerson() async {
+    final d = _draft;
+    if (d == null || d.isEdit || d.isTemplate) return;
+    if (_suggest != null) _flushSuggestion();
+    FocusManager.instance.primaryFocus?.unfocus();
+    final current = ref.read(groupFriendsProvider(d.groupId));
+    final pick = await showAddPersonPicker(context, exclude: {for (final f in current) f.key});
+    if (pick == null || !mounted) return;
+    final friend = pick.friend;
+    final name = pick.name;
+    await _withPeople([...current, ?friend], newNames: [?name]);
+  }
+
+  /// The x on a person's chip: the expense goes to the group of the others.
+  Future<void> _removePerson(Friend f) async {
+    final d = _draft;
+    if (d == null || d.isEdit || d.isTemplate) return;
+    final rest = [
+      for (final p in ref.read(groupFriendsProvider(d.groupId)))
+        if (p.key != f.key) p,
+    ];
+    if (rest.isEmpty) return;
+    await _withPeople(rest);
+  }
+
+  Future<void> _withPeople(List<Friend> friends, {List<String> newNames = const []}) async {
+    final l = AppLocalizations.of(context);
+    try {
+      final id = await ref
+          .read(friendActionsProvider)
+          .expenseGroupWith(friends, newNames: newNames, more: l.w2xMorePeople);
+      if (mounted && id != _draft?.groupId) await _moveTo(id);
+    } on GroupFailure catch (e) {
+      if (!mounted || friends.isEmpty) return;
+      showGroupMessage(
+        context,
+        e.code == GroupFailureCode.offline
+            ? l.friendNeedsInternet(friends.first.name)
+            : l.friendStartFailed(friends.first.name),
+      );
+    }
   }
 
   /// Moves the draft to [groupId], then puts the cursor back where typing goes next (D-034 A5): the
@@ -673,6 +723,12 @@ class _ExpenseEditorScreenState extends ConsumerState<ExpenseEditorScreen> {
                             ? null
                             : () => unawaited(_pickWith()),
                         onQuickPick: (id) => unawaited(_moveTo(id)),
+                        onAddPerson: draft.isEdit || draft.isTemplate
+                            ? null
+                            : () => unawaited(_addPerson()),
+                        onRemovePerson: draft.isEdit || draft.isTemplate
+                            ? null
+                            : (f) => unawaited(_removePerson(f)),
                         showError: _showErrors && !draft.hasGroup,
                       ),
                       const SizedBox(height: AppSpacing.s6),

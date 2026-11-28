@@ -6,6 +6,7 @@ import 'package:splitify/core/money/money_error.dart' show MoneyError;
 import 'package:splitify/data/local/app_database.dart';
 import 'package:splitify/data/remote/balances_remote.dart';
 import 'package:splitify/data/repositories/ledger_repository.dart';
+import 'package:splitify/features/friends/application/friend_identity.dart';
 
 final _log = Logger('balances');
 
@@ -272,6 +273,8 @@ MyBalances myBalancesOf(List<GroupBalances> groups) {
   final totals = <String, int>{};
   final byGroup = <String, Map<String, int>>{};
   final people = <String, ({String name, String seed, Map<String, int> balances})>{};
+  // One person is one key, also when picked into a several-friends group (S-421).
+  final byId = membersById([for (final g in groups) g.members]);
   for (final g in groups) {
     final me = g.meId;
     if (me == null) continue;
@@ -292,7 +295,7 @@ MyBalances myBalancesOf(List<GroupBalances> groups) {
           continue;
         }
         final m = g.member(other);
-        final key = m?.userId != null ? 'u:${m!.userId}' : 'm:$other';
+        final key = m == null ? 'm:$other' : friendKeyIn(m, byId);
         final p = people.putIfAbsent(
           key,
           () => (name: g.nameOf(other), seed: other, balances: <String, int>{}),

@@ -7,6 +7,13 @@ abstract final class GroupRules {
   static const maxMembers = 100;
   static const types = ['trip', 'home', 'couple', 'other'];
 
+  /// Friend groups (`direct`) and several-friends groups (`adhoc`, W2-X F11, 0028): never on the Groups grid or in
+  /// group pickers; their people show on the Friends tab instead.
+  static const hiddenTypes = ['direct', 'adhoc'];
+
+  /// True for a [hiddenTypes] group type.
+  static bool isHidden(String type) => hiddenTypes.contains(type);
+
   /// Group name: 1..60 characters after trimming (TC-1-01).
   static GroupFieldError? name(String value) => _check(value, nameMax);
 

@@ -3,6 +3,7 @@ import 'package:splitify/data/data_providers.dart';
 import 'package:splitify/data/local/app_database.dart';
 import 'package:splitify/data/repositories/ledger_repository.dart';
 import 'package:splitify/domain/rules/expense_categories.dart';
+import 'package:splitify/domain/rules/group_rules.dart';
 import 'package:splitify/features/auth/application/auth_providers.dart' show profileProvider;
 import 'package:splitify/features/balances/application/balance_views.dart' show decodeMinorMap;
 import 'package:splitify/features/balances/application/balances_providers.dart';
@@ -123,7 +124,7 @@ String? myMemberIdIn(GroupLedger ledger, String? userId) => userId == null
 List<InsightsGroup> insightsGroupsOf(List<GroupLedger> ledgers) {
   final out = [
     for (final l in ledgers)
-      if (l.group.type != 'direct')
+      if (!GroupRules.isHidden(l.group.type))
         InsightsGroup(
           id: l.group.id,
           name: l.group.name,

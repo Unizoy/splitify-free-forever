@@ -6,6 +6,8 @@ import 'package:splitify/features/auth/application/auth_providers.dart' show pro
 import 'package:splitify/features/balances/application/balance_views.dart';
 import 'package:splitify/features/balances/application/balances_providers.dart';
 import 'package:splitify/features/balances/domain/group_totals.dart';
+import 'package:splitify/domain/rules/group_rules.dart';
+import 'package:splitify/features/friends/application/friend_identity.dart';
 import 'package:splitify/features/groups/application/groups_providers.dart';
 import 'package:splitify/features/insights/domain/aggregations.dart' show expenseKindIou;
 
@@ -46,13 +48,14 @@ AccountStats accountStatsOf(
   var groups = 0;
   var expenses = 0;
   final people = <String>{};
+  final byId = membersById([for (final l in ledgers) l.members]);
   for (final l in ledgers) {
     final me = groupBalancesOf(l, userId).meId;
     if (me == null) continue;
-    if (l.group.archivedAt == null && l.group.type != 'direct') groups++;
+    if (l.group.archivedAt == null && !GroupRules.isHidden(l.group.type)) groups++;
     for (final m in l.members) {
       if (m.id == me || m.deletedAt != null || m.status != 'active') continue;
-      people.add(m.userId != null ? 'u:${m.userId}' : 'm:${m.id}');
+      people.add(friendKeyIn(m, byId));
     }
     for (final e in l.expenses) {
       if (e.createdBy == userId || (e.createdBy == null && e.seq == 0)) expenses++;

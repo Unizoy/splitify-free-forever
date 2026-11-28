@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:splitify/data/data_providers.dart';
 import 'package:splitify/data/remote/notifications_remote.dart';
+import 'package:splitify/domain/rules/group_rules.dart';
 import 'package:splitify/features/auth/application/auth_providers.dart' show profileProvider;
 import 'package:splitify/features/balances/application/balance_views.dart'
     show GroupBalances, groupBalancesOf;
@@ -78,7 +79,7 @@ class _RemindButtonState extends ConsumerState<RemindButton> {
       context,
       ref,
       balances: groupBalancesOf(ledger, ref.read(currentUserIdProvider)),
-      direct: ledger.group.type == 'direct',
+      direct: GroupRules.isHidden(ledger.group.type),
       me: widget.fromMember,
       them: widget.toMember,
       name: widget.name,

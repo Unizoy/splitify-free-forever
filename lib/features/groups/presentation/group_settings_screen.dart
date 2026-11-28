@@ -57,7 +57,8 @@ class GroupSettingsScreen extends ConsumerWidget {
     }
     final archived = group.archivedAt != null;
     final isCreator = me != null && group.createdBy == me;
-    final direct = group.type == 'direct';
+    // Friend and several-friends groups (W2-X F11) have no name, cover or type to edit.
+    final direct = GroupRules.isHidden(group.type);
     return Scaffold(
       appBar: back,
       body: SafeArea(

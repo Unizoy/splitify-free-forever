@@ -3,6 +3,7 @@ import 'package:splitify/core/money/money_error.dart' show MoneyError;
 import 'package:splitify/data/local/app_database.dart';
 import 'package:splitify/data/repositories/ledger_repository.dart';
 import 'package:splitify/features/balances/application/balance_views.dart';
+import 'package:splitify/features/friends/application/friend_identity.dart';
 
 /// One group I share with a friend (a normal group or our `direct` friend group, #2).
 class FriendLink {
@@ -17,6 +18,9 @@ class FriendLink {
   LocalGroup get group => ledger.group;
 
   bool get isDirect => group.type == 'direct';
+
+  /// A several-friends group (W2-X F11): hidden from the Groups grid, shown here.
+  bool get isAdhoc => group.type == 'adhoc';
 
   /// My member id here (links exist only where I am an active member).
   String get meId => balances.meId!;
@@ -78,8 +82,26 @@ class Friend {
   /// Our direct friend group, if there is one.
   String? get directGroupId => links.where((l) => l.isDirect).firstOrNull?.group.id;
 
-  /// Shared normal groups (not the direct one).
-  List<FriendLink> get sharedGroups => [...links.where((l) => !l.isDirect)];
+  /// Shared normal groups (not the direct one, not several-friends groups).
+  List<FriendLink> get sharedGroups => [...links.where((l) => !l.isDirect && !l.isAdhoc)];
+
+  /// The member id a new several-friends group derives this friend's id from (S-421): the person's own
+  /// member for name-only friends; for an account, an active member in a live group, our direct group first.
+  String get originMemberId {
+    if (userId == null) return key.substring(2);
+    bool active(FriendLink l) {
+      final m = l.ledger.members.where((m) => m.id == l.friendMemberId).firstOrNull;
+      return m != null && m.status == 'active' && m.deletedAt == null && l.group.deletedAt == null;
+    }
+
+    final live = links.where(active).toList();
+    final pick =
+        live.where((l) => l.isDirect).firstOrNull ??
+        live.where((l) => !l.isAdhoc).firstOrNull ??
+        live.firstOrNull ??
+        links.first;
+    return pick.friendMemberId;
+  }
 
   BalanceStatus get status => balanceStatusOf(balances.values);
 
@@ -104,6 +126,7 @@ List<Friend> friendsOf(
 }) {
   if (userId == null) return const [];
   final found = <String, ({LocalMember first, List<FriendLink> links})>{};
+  final byId = membersById([for (final l in ledgers) l.members]);
   for (final ledger in ledgers) {
     final b = groupBalancesOf(ledger, userId);
     final me = b.meId;
@@ -117,8 +140,10 @@ List<Friend> friendsOf(
       if (m.id == me || (m.userId != null && m.userId == userId)) continue;
       final active = m.deletedAt == null && m.status == 'active';
       if (!active && !withMe.contains(m.id)) continue;
-      final key = friendKeyOf(m);
-      final entry = found.putIfAbsent(key, () => (first: m, links: <FriendLink>[]));
+      final key = friendKeyIn(m, byId);
+      // A name-only person is named and coloured by the member they were first added as (S-421).
+      final root = key.startsWith('m:') ? byId[key.substring(2)] : null;
+      final entry = found.putIfAbsent(key, () => (first: root ?? m, links: <FriendLink>[]));
       entry.links.add(FriendLink(ledger: ledger, balances: b, friendMemberId: m.id));
     }
   }

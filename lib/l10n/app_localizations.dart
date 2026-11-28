@@ -8695,6 +8695,120 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This group is archived, so the expense can\'t be restored.'**
   String get qaExpenseRestoreArchived;
+
+  /// No description provided for @w2xNamesAnd.
+  ///
+  /// In en, this message translates to:
+  /// **'{rest} & {last}'**
+  String w2xNamesAnd(String rest, String last);
+
+  /// No description provided for @w2xMorePeople.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} more'**
+  String w2xMorePeople(int count);
+
+  /// No description provided for @w2xAddPerson.
+  ///
+  /// In en, this message translates to:
+  /// **'Add another person'**
+  String get w2xAddPerson;
+
+  /// No description provided for @w2xAddPersonTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a person'**
+  String get w2xAddPersonTitle;
+
+  /// No description provided for @w2xRemovePerson.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove {name}'**
+  String w2xRemovePerson(String name);
+
+  /// No description provided for @w2xAddByName.
+  ///
+  /// In en, this message translates to:
+  /// **'Add “{name}”'**
+  String w2xAddByName(String name);
+
+  /// No description provided for @w2xAddByNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Not on Splitify yet? Add them by name'**
+  String get w2xAddByNameHint;
+
+  /// No description provided for @w2xFromContacts.
+  ///
+  /// In en, this message translates to:
+  /// **'From contacts'**
+  String get w2xFromContacts;
+
+  /// No description provided for @w2xFromContactsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a name from your phone'**
+  String get w2xFromContactsHint;
+
+  /// No description provided for @w2xContactsUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t open your contacts'**
+  String get w2xContactsUnavailable;
+
+  /// No description provided for @w2xSaveAsDefault.
+  ///
+  /// In en, this message translates to:
+  /// **'Save as group default'**
+  String get w2xSaveAsDefault;
+
+  /// No description provided for @w2xSaveAsDefaultHint.
+  ///
+  /// In en, this message translates to:
+  /// **'New expenses here start with this payer and split'**
+  String get w2xSaveAsDefaultHint;
+
+  /// No description provided for @w2xDefaultSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved as the group default'**
+  String get w2xDefaultSaved;
+
+  /// No description provided for @w2xDefaultPayerAnyone.
+  ///
+  /// In en, this message translates to:
+  /// **'Whoever adds it'**
+  String get w2xDefaultPayerAnyone;
+
+  /// No description provided for @w2xShowIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Show in {currency}'**
+  String w2xShowIn(String currency);
+
+  /// No description provided for @w2xShowByCurrency.
+  ///
+  /// In en, this message translates to:
+  /// **'By currency'**
+  String get w2xShowByCurrency;
+
+  /// No description provided for @w2xInSavedRates.
+  ///
+  /// In en, this message translates to:
+  /// **'In {currency} · saved rates'**
+  String w2xInSavedRates(String currency);
+
+  /// No description provided for @w2xNotConverted.
+  ///
+  /// In en, this message translates to:
+  /// **'+ {amounts} not converted'**
+  String w2xNotConverted(String amounts);
+
+  /// No description provided for @w2xNothingConverted.
+  ///
+  /// In en, this message translates to:
+  /// **'No saved {currency} rates for these yet'**
+  String w2xNothingConverted(String currency);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
