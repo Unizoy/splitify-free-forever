@@ -436,7 +436,9 @@ class BackupExporter {
         return bytes;
       } on Exception catch (e) {
         // Offline, refused, gone from the phone: listed without its bytes.
-        _log.info('backup: ${bucket == AttachmentPaths.bucket ? 'attachment' : 'receipt'} left out (${e.runtimeType})');
+        _log.info(
+          'backup: ${bucket == AttachmentPaths.bucket ? 'attachment' : 'receipt'} left out (${e.runtimeType})',
+        );
         return null;
       }
     }

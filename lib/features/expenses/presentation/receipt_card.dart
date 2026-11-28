@@ -95,13 +95,16 @@ class ReceiptCard extends ConsumerWidget {
                       child: Text(
                         l.w2yAttachTitle,
                         style: context.text.body.w(700),
-                        maxLines: 1,
+                        maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                    if (bytes > 0) AttachmentSummaryLine(count: items.length, bytes: bytes),
                   ],
                 ),
+                if (bytes > 0) ...[
+                  const SizedBox(height: AppSpacing.s1),
+                  AttachmentSummaryLine(count: items.length, bytes: bytes),
+                ],
                 const SizedBox(height: AppSpacing.s3),
                 AttachmentGrid(items: items, onOpen: open),
               ],

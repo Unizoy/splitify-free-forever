@@ -222,8 +222,9 @@ class AttachmentTile extends ConsumerWidget {
             ),
           if (onRemove != null)
             Positioned(
-              top: -AppSpacing.s2,
-              right: -AppSpacing.s2,
+              // A 48 dp target around the small circle on the tile's corner.
+              top: -AppSpacing.s3,
+              right: -AppSpacing.s3,
               child: Semantics(
                 button: true,
                 label: l.w2yAttachRemoveLabel,
@@ -234,7 +235,7 @@ class AttachmentTile extends ConsumerWidget {
                   onTap: onRemove,
                   circle: true,
                   child: SizedBox.square(
-                    dimension: 40,
+                    dimension: AppSpacing.minTouch,
                     child: Center(
                       child: Container(
                         width: 26,
@@ -270,28 +271,35 @@ class _PdfFace extends StatelessWidget {
     final size = item.sizeBytes;
     return ColoredBox(
       color: c.surfaceMuted,
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.s2),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Icon(AttachmentIcons.pdf, size: 26, color: c.oweText),
-            const Spacer(),
-            Text(
-              item.name ?? l.w2yAttachPdf,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: context.text.caption.w(600).copyWith(color: c.textPrimary),
+      child: LayoutBuilder(
+        builder: (context, box) {
+          // Small tiles (320 dp phones, large text) keep the icon and one line of the name.
+          final roomy =
+              box.maxHeight >= 96 * MediaQuery.textScalerOf(context).scale(1).clamp(1, 1.4);
+          return Padding(
+            padding: EdgeInsets.all(roomy ? AppSpacing.s2 : AppSpacing.s1 + 2),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(AttachmentIcons.pdf, size: roomy ? 26 : 20, color: c.oweText),
+                const Spacer(),
+                Text(
+                  item.name ?? l.w2yAttachPdf,
+                  maxLines: roomy ? 2 : 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: context.text.caption.w(600).copyWith(color: c.textPrimary),
+                ),
+                if (size != null && roomy)
+                  Text(
+                    attachmentSize(l, locale, size),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: context.text.caption.copyWith(color: c.textSecondary),
+                  ),
+              ],
             ),
-            if (size != null)
-              Text(
-                attachmentSize(l, locale, size),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: context.text.caption.copyWith(color: c.textSecondary),
-              ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }

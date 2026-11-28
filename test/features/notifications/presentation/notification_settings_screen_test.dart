@@ -89,11 +89,15 @@ bool _on(WidgetTester t, Finder row) =>
 void main() {
   group('switches', () {
     // TC-19-07
-    testWidgets('five push and five in-app rows, all on by default', (t) async {
+    testWidgets('five push and five in-app rows, all on by default; the monthly summary off', (
+      t,
+    ) async {
       await _pump(t, _Rig(push: FakePushMessaging()));
-      expect(find.byType(ToggleRow), findsNWidgets(10 + 2));
+      expect(find.byType(ToggleRow), findsNWidgets(10 + 1 + 2));
+      // W2-Y (S-434): the monthly summary push is opt-in.
+      expect(_on(t, find.byKey(const Key('notif-push-summary'))), isFalse);
       for (final ch in ['push', 'inapp']) {
-        for (final k in NotificationKind.values) {
+        for (final k in NotificationKind.switchable) {
           expect(_row(ch, k), findsOneWidget, reason: '$ch $k');
           expect(_on(t, _row(ch, k)), isTrue, reason: '$ch $k');
         }
@@ -205,7 +209,7 @@ void main() {
     testWidgets('no groups says so', (t) async {
       await _pump(t, _Rig(groups: const [], push: FakePushMessaging()));
       expect(find.text("You're not in any groups yet."), findsOneWidget);
-      expect(find.byType(ToggleRow), findsNWidgets(10));
+      expect(find.byType(ToggleRow), findsNWidgets(10 + 1));
     });
 
     // TC-19-07
