@@ -2,11 +2,14 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:splitify/domain/entities/attachment.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as sb;
 
-/// Storage calls for photos (receipts, group covers; 03 §3, 04 §6). Tests use a fake.
+/// Storage calls for photos and attachments (receipts, group covers, expense files; 03 §3, 04 §6). Tests use a
+/// fake.
 abstract interface class MediaRemote {
-  /// Uploads a JPEG to `bucket/path` (replaces an earlier partial upload of the same path).
+  /// Uploads a JPEG (or an attachment's PDF, by its `.pdf` path) to `bucket/path` (replaces an earlier partial
+  /// upload of the same path).
   Future<void> upload(String bucket, String path, Uint8List jpeg);
 
   /// A signed URL for reading `bucket/path`, valid for [lifetime].
@@ -66,7 +69,7 @@ class SupabaseMediaRemote implements MediaRemote {
         .uploadBinary(
           path,
           jpeg,
-          fileOptions: const sb.FileOptions(contentType: 'image/jpeg', upsert: true),
+          fileOptions: sb.FileOptions(contentType: AttachmentPaths.contentType(path), upsert: true),
         ),
     sign: (bucket, path, seconds) => c.storage.from(bucket).createSignedUrl(path, seconds),
   );

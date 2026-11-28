@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:splitify/data/repositories/sync_repository.dart';
 import 'package:splitify/data/sync/sync_types.dart';
+import 'package:splitify/domain/entities/attachment.dart';
 import 'package:splitify/domain/entities/prepared_image.dart';
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/theme/theme.dart';
@@ -111,6 +112,7 @@ IconData syncEntityIcon(SyncEntity e) => switch (e) {
   SyncEntity.payment => AppIcons.coins,
   SyncEntity.comment => AppIcons.chat,
   SyncEntity.recurring => AppIcons.repeat,
+  SyncEntity.attachment => AppIcons.images,
 };
 
 /// Where "Edit" opens the record of a refused change so the person can fix it; null when there is nothing
@@ -124,6 +126,8 @@ String? syncIssueRoute(SyncIssue i) {
     SyncEntity.member => '/groups/${i.groupId}/settings',
     // A refused repeat rule opens "Edit future copies" (phase 16).
     SyncEntity.recurring => '/recurring/${i.recordId}/edit',
+    // A refused photo or PDF (W2-Y) opens its expense.
+    SyncEntity.attachment => i.targetId == null ? null : '/expense/${i.targetId}',
     SyncEntity.comment => switch ((i.targetType, i.targetId)) {
       ('expense', final String id) => '/expense/$id',
       ('payment', final String id) => '/payment/$id',
@@ -132,12 +136,20 @@ String? syncIssueRoute(SyncIssue i) {
   };
 }
 
-/// "Receipt photo" / "Group cover".
-String syncUploadTitle(AppLocalizations l, SyncUpload u) => l.syncUploadKind(switch (u.bucket) {
-  MediaBuckets.receipts => 'receipt',
-  MediaBuckets.groupCovers => 'cover',
-  _ => 'other',
-});
+/// "Receipt photo" / "Group cover" / an attachment's "PDF" / "Photo" / "Photo preview".
+String syncUploadTitle(AppLocalizations l, SyncUpload u) => u.bucket == AttachmentPaths.bucket
+    ? l.w2yUploadKind(
+        u.path.endsWith('-thumb.jpg')
+            ? 'thumb'
+            : u.path.toLowerCase().endsWith('.pdf')
+            ? 'pdf'
+            : 'photo',
+      )
+    : l.syncUploadKind(switch (u.bucket) {
+        MediaBuckets.receipts => 'receipt',
+        MediaBuckets.groupCovers => 'cover',
+        _ => 'other',
+      });
 
 /// Waiting, retrying after refusals, or skipped (S-113).
 String syncUploadState(AppLocalizations l, SyncUpload u) {

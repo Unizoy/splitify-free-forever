@@ -345,11 +345,8 @@ class _Body extends StatelessWidget {
               ],
             ),
           ),
-        if (e.receiptPath != null) ...[
-          const SizedBox(height: AppSpacing.s4),
-          ReceiptCard(expense: e, readOnly: readOnly),
-          const SizedBox(height: AppSpacing.s2),
-        ],
+        // The receipt photo and the other files (W2-Y); nothing when the expense has none.
+        ReceiptCard(expense: e, readOnly: readOnly),
         if (!view.isLoan && !view.deleted)
           CategoryTrendCard(groupId: e.groupId, category: e.category),
         DashedListRow(

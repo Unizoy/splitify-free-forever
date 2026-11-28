@@ -5,11 +5,11 @@ import 'package:logging/logging.dart';
 import 'package:splitify/data/local/app_database.dart';
 import 'package:splitify/data/local/media_files.dart';
 import 'package:splitify/data/remote/media_remote.dart';
-import 'package:splitify/domain/entities/prepared_image.dart';
+import 'package:splitify/domain/entities/attachment.dart';
 
 final _log = Logger('uploads');
 
-/// The photo upload queue (`pending_uploads`, 04 §6). A photo goes up only once its record's mutation
+/// The photo and file upload queue (`pending_uploads`, 04 §6; attachments W2-Y). A photo goes up only once its record's mutation
 /// was applied (no outbox row left for the record), so the server knows the group and the record
 /// first. Runs after every push; one run at a time; a network failure stops the run until the next
 /// sync, a refusal counts an attempt and the photo is skipped after [maxAttempts].
@@ -66,7 +66,7 @@ class UploadQueue {
       await files.uploaded(
         row.bucket,
         row.remotePath,
-        keepFull: row.bucket != MediaBuckets.receipts,
+        keepFull: AttachmentPaths.keepAfterUpload(row.bucket, row.remotePath),
       );
       done++;
     }

@@ -2,38 +2,70 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:splitify/domain/entities/prepared_image.dart';
+import 'package:splitify/domain/entities/attachment.dart';
+import 'package:splitify/features/attachments/presentation/attachment_flows.dart';
+import 'package:splitify/features/attachments/presentation/attachment_widgets.dart';
 import 'package:splitify/features/expenses/application/receipt_draft.dart';
-import 'package:splitify/features/photos/application/photo_providers.dart';
-import 'package:splitify/features/photos/presentation/photo_source_sheet.dart';
-import 'package:splitify/features/photos/presentation/photo_viewer_screen.dart';
-import 'package:splitify/features/photos/presentation/stored_photo.dart';
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/components/components.dart';
 import 'package:splitify/ui/painters/dashed.dart';
 import 'package:splitify/ui/theme/theme.dart';
 
-/// Receipt photo on the Details step (#29, 07 §2 "receipt (photo pill)"): a dashed "Add receipt photo"
-/// tile, or the thumbnail (tap = full screen) with Replace and Remove.
+/// The expense's files in the receipt sheet (#29, W2-Y): a dashed "Add photo or PDF" tile, or a grid of the
+/// photos and PDFs (tap = full screen, × = take out before Save) with "Add" while there is room. Nothing is
+/// written until Save.
 class ReceiptField extends ConsumerWidget {
   const ReceiptField({required this.receipt, required this.onChanged, super.key});
 
   final ReceiptDraft receipt;
   final ValueChanged<ReceiptDraft> onChanged;
 
-  Future<void> _pick(BuildContext context, WidgetRef ref) async {
-    final image = await pickPhoto(context, ref);
-    if (image != null) onChanged(receipt.pick(image));
+  Future<void> _add(BuildContext context, WidgetRef ref) async {
+    final files = await pickAttachmentFiles(
+      context,
+      ref,
+      count: receipt.count,
+      totalBytes: receipt.totalBytes,
+    );
+    if (files.isNotEmpty) onChanged(receipt.addAll(files));
   }
+
+  ReceiptDraft _without(AttachmentItem item) => switch (item) {
+    LegacyReceipt() => receipt.remove(),
+    SavedAttachment(:final row) => receipt.removeSaved(row.id),
+    PickedAttachment(:final file) => receipt.removeAdded(file.id),
+  };
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    if (!receipt.hasPhoto) return _AddTile(onTap: () => unawaited(_pick(context, ref)));
-    return _PhotoRow(
-      picked: receipt.picked,
-      savedPath: receipt.savedPath,
-      onReplace: () => unawaited(_pick(context, ref)),
-      onRemove: () => onChanged(receipt.remove()),
+    final items = <AttachmentItem>[
+      if (receipt.showsLegacy) LegacyReceipt(receipt.savedPath!),
+      for (final a in receipt.kept) SavedAttachment(a),
+      for (final a in receipt.added) PickedAttachment(a),
+    ];
+    if (items.isEmpty) return _AddTile(onTap: () => unawaited(_add(context, ref)));
+    return Column(
+      key: const Key('receipt-photo'),
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        AttachmentGrid(
+          items: items,
+          onOpen: (item) => unawaited(
+            openAttachment(
+              context,
+              item,
+              onRemove: () async {
+                onChanged(_without(item));
+                return true;
+              },
+            ),
+          ),
+          onRemove: (item) => onChanged(_without(item)),
+          onAdd: receipt.room > 0 ? () => unawaited(_add(context, ref)) : null,
+        ),
+        const SizedBox(height: AppSpacing.s2),
+        AttachmentSummaryLine(count: receipt.count, bytes: receipt.totalBytes),
+      ],
     );
   }
 }
@@ -49,7 +81,7 @@ class _AddTile extends StatelessWidget {
     final c = context.colors;
     return Semantics(
       button: true,
-      label: l.receiptAdd,
+      label: l.w2yAttachAdd,
       excludeSemantics: true,
       onTap: onTap,
       child: CustomPaint(
@@ -71,12 +103,12 @@ class _AddTile extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          l.receiptAdd,
+                          l.w2yAttachAdd,
                           style: context.text.body.w(700).copyWith(color: c.primary),
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          l.receiptAddHint,
+                          l.w2yAttachAddHint(AttachmentLimits.perExpense),
                           style: context.text.bodySmall.copyWith(color: c.textSecondary),
                         ),
                       ],
@@ -87,140 +119,6 @@ class _AddTile extends StatelessWidget {
             ),
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _PhotoRow extends ConsumerWidget {
-  const _PhotoRow({
-    required this.picked,
-    required this.savedPath,
-    required this.onReplace,
-    required this.onRemove,
-  });
-
-  final PreparedImage? picked;
-  final String? savedPath;
-  final VoidCallback onReplace;
-  final VoidCallback onRemove;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l = AppLocalizations.of(context);
-    final c = context.colors;
-    final image = picked;
-    final path = savedPath;
-    final pending =
-        image == null &&
-        path != null &&
-        (ref
-                .watch(
-                  photoPendingProvider((bucket: MediaBuckets.receipts, path: path, thumb: true)),
-                )
-                .value ??
-            false);
-    final thumb = image != null
-        ? MemoryPhoto(bytes: image.thumb, decodeWidth: 240)
-        : StoredPhoto(
-            bucket: MediaBuckets.receipts,
-            path: path!,
-            decodeWidth: 240,
-            showProblem: false,
-          );
-    final scale = MediaQuery.textScalerOf(context).scale(1);
-    final side = 88 * (1 + (scale.clamp(1, 2) - 1) * 0.4);
-    void open() => unawaited(
-      PhotoViewerScreen.open(
-        context,
-        title: l.receiptPhoto,
-        bytes: image?.full,
-        bucket: image == null ? MediaBuckets.receipts : null,
-        path: image == null ? path : null,
-      ),
-    );
-    return Container(
-      key: const Key('receipt-photo'),
-      padding: const EdgeInsets.all(AppSpacing.s3),
-      decoration: BoxDecoration(
-        color: c.surface,
-        borderRadius: AppRadii.all24,
-        border: Border.all(color: c.border),
-      ),
-      child: Row(
-        children: [
-          Semantics(
-            button: true,
-            label: l.photoView,
-            excludeSemantics: true,
-            onTap: open,
-            child: Pressable(
-              key: const Key('receipt-open'),
-              onTap: () => unawaited(
-                PhotoViewerScreen.open(
-                  context,
-                  title: l.receiptPhoto,
-                  bytes: image?.full,
-                  bucket: image == null ? MediaBuckets.receipts : null,
-                  path: image == null ? path : null,
-                ),
-              ),
-              scale: AppMotion.rowPressScale,
-              child: ClipRRect(
-                borderRadius: AppRadii.all16,
-                child: SizedBox.square(dimension: side, child: thumb),
-              ),
-            ),
-          ),
-          const SizedBox(width: AppSpacing.s4),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(l.receiptPhoto, style: context.text.body.w(700)),
-                if (pending) ...[
-                  const SizedBox(height: 2),
-                  Row(
-                    children: [
-                      Icon(AppIcons.cloudUpload, size: 14, color: c.unsynced),
-                      const SizedBox(width: AppSpacing.s1),
-                      Flexible(
-                        child: Text(
-                          l.photoWaiting,
-                          style: context.text.caption.copyWith(color: c.textSecondary),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-                const SizedBox(height: AppSpacing.s2),
-                Wrap(
-                  spacing: AppSpacing.s2,
-                  runSpacing: AppSpacing.s2,
-                  children: [
-                    PillButton(
-                      key: const Key('receipt-replace'),
-                      label: l.photoReplace,
-                      icon: AppIcons.replace,
-                      variant: PillVariant.outline,
-                      size: PillSize.medium,
-                      expand: false,
-                      onPressed: onReplace,
-                    ),
-                    PillButton(
-                      key: const Key('receipt-remove'),
-                      label: l.photoRemove,
-                      variant: PillVariant.ghost,
-                      size: PillSize.medium,
-                      expand: false,
-                      onPressed: onRemove,
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ],
       ),
     );
   }

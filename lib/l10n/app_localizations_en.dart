@@ -5464,4 +5464,194 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get qaExpenseRestoreArchived =>
       'This group is archived, so the expense can\'t be restored.';
+
+  @override
+  String get w2yAttachTitle => 'Receipts and files';
+
+  @override
+  String get w2yAttachAdd => 'Add photo or PDF';
+
+  @override
+  String get w2yAttachAddShort => 'Add';
+
+  @override
+  String w2yAttachAddHint(int max) {
+    return 'Bills, tickets, invoices. Up to $max files per expense.';
+  }
+
+  @override
+  String get w2yAttachSourceTitle => 'Add to this expense';
+
+  @override
+  String get w2yAttachPhotos => 'Choose photos';
+
+  @override
+  String get w2yAttachPdfPick => 'Choose a PDF';
+
+  @override
+  String get w2yAttachSourceHint =>
+      'Splitify only sees the files you pick. Photos are shrunk before they\'re uploaded.';
+
+  @override
+  String get w2yAttachPdf => 'PDF';
+
+  @override
+  String get w2yAttachPhotoTitle => 'Photo';
+
+  @override
+  String w2yAttachSizeKb(String size) {
+    return '$size KB';
+  }
+
+  @override
+  String w2yAttachSizeMb(String size) {
+    return '$size MB';
+  }
+
+  @override
+  String w2yAttachCount(int count, int max, String size) {
+    return '$count of $max files · $size';
+  }
+
+  @override
+  String w2yAttachPhotoLabel(int index, int count) {
+    return 'Photo $index of $count, open';
+  }
+
+  @override
+  String w2yAttachPdfLabel(String name, String size) {
+    return 'PDF $name $size, open';
+  }
+
+  @override
+  String get w2yAttachRemoveLabel => 'Take this file out';
+
+  @override
+  String w2yAttachRemoved(String kind) {
+    String _temp0 = intl.Intl.selectLogic(kind, {'pdf': 'PDF removed', 'other': 'Photo removed'});
+    return '$_temp0';
+  }
+
+  @override
+  String w2yAttachTooMany(int max) {
+    return 'An expense can have up to $max files.';
+  }
+
+  @override
+  String w2yAttachTooBig(int max) {
+    return 'That PDF is over $max MB. Try a smaller one.';
+  }
+
+  @override
+  String w2yAttachTooMuch(int max) {
+    return 'Files on one expense can be up to $max MB together.';
+  }
+
+  @override
+  String get w2yAttachUnreadable => 'Couldn\'t use that file. Pick a photo or a PDF.';
+
+  @override
+  String get w2yPhotoFullLoading => 'Loading full size';
+
+  @override
+  String get w2yPhotoFullOffline => 'Full size shows when you\'re online';
+
+  @override
+  String get w2yPdfOpenWith => 'Open in another app';
+
+  @override
+  String get w2yPdfNoApp => 'No app on this phone opens PDFs. It still shows here.';
+
+  @override
+  String w2yPdfPage(int page, int count) {
+    return 'Page $page of $count';
+  }
+
+  @override
+  String get w2yPdfUnreadable => 'This PDF can\'t be shown.';
+
+  @override
+  String get w2yPdfOffline => 'Opens when you\'re online';
+
+  @override
+  String w2yUploadKind(String kind) {
+    String _temp0 = intl.Intl.selectLogic(kind, {
+      'pdf': 'PDF',
+      'thumb': 'Photo preview',
+      'other': 'Photo',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String w2yActAttachAdded(String actor, String kind, String description) {
+    String _temp0 = intl.Intl.selectLogic(kind, {'pdf': 'a PDF', 'other': 'a photo'});
+    return '$actor attached $_temp0 to “$description”';
+  }
+
+  @override
+  String w2yActAttachRemoved(String actor, String kind, String description) {
+    String _temp0 = intl.Intl.selectLogic(kind, {'pdf': 'a PDF', 'other': 'a photo'});
+    return '$actor removed $_temp0 from “$description”';
+  }
+
+  @override
+  String w2yActAttachRestored(String actor, String kind, String description) {
+    String _temp0 = intl.Intl.selectLogic(kind, {'pdf': 'a PDF', 'other': 'a photo'});
+    return '$actor restored $_temp0 on “$description”';
+  }
+
+  @override
+  String w2yMonthTitle(String month) {
+    return 'Your $month';
+  }
+
+  @override
+  String w2yMonthSpent(String amount, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count groups',
+      one: '1 group',
+    );
+    return 'You spent $amount across $_temp0';
+  }
+
+  @override
+  String w2yMonthOwed(String amount) {
+    return 'You\'re owed $amount';
+  }
+
+  @override
+  String w2yMonthOwe(String amount) {
+    return 'You owe $amount';
+  }
+
+  @override
+  String get w2yMonthSettled => 'You\'re all settled up';
+
+  @override
+  String get w2yMonthInsights => 'See insights';
+
+  @override
+  String get w2yMonthHide => 'Hide until next month';
+
+  @override
+  String get w2yMonthNotSynced => 'Not synced yet: totals may change';
+
+  @override
+  String get w2yNotifMonthly => 'Monthly summary';
+
+  @override
+  String get w2yNotifMonthlyHint =>
+      'A push on the 1st: what you spent last month and where your balances stand.';
+
+  @override
+  String get w2yCrashTitle => 'Send crash reports';
+
+  @override
+  String get w2yCrashHint => 'Helps fix crashes. Reports hold no names, amounts or emails.';
+
+  @override
+  String get w2yCrashOff => 'Not available in this build';
 }

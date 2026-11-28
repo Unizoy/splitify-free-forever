@@ -11,7 +11,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 10;
+  int get schemaVersion => 11;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -59,6 +59,13 @@ class AppDatabase extends _$AppDatabase {
         await m.addColumn(groups, groups.tripEndsOn);
         await m.addColumn(groups, groups.settleReminder);
         await m.addColumn(groups, groups.whiteboard);
+      }
+      // v11 (W2-Y, 0029, S-431): several photos and PDFs per expense. An older app already pulled (and skipped)
+      // attachments other phones added, so every group is pulled once more from the start (rows are upserts).
+      if (from < 11) {
+        await m.createTable(expenseAttachments);
+        await m.createIndex(expenseAttachmentsExpense);
+        await customStatement("UPDATE sync_cursors SET seq = 0 WHERE scope LIKE 'group:%'");
       }
     },
     beforeOpen: (details) async {

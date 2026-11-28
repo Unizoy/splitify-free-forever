@@ -51,8 +51,9 @@ class LocalWriter {
   }
 
   /// Several changes in ONE local transaction, queued in this order (S-405): all land or none does (a
-  /// batch settle-up writes one payment per group). The same rules as [write] apply to each.
-  Future<void> writeAll(List<LocalWrite> writes) async {
+  /// batch settle-up writes one payment per group). The same rules as [write] apply to each; [alongside]
+  /// runs inside the same transaction (an expense with its new attachments queues their uploads, W2-Y).
+  Future<void> writeAll(List<LocalWrite> writes, {Future<void> Function()? alongside}) async {
     if (writes.isEmpty) return;
     final cua = (await serverClock.now()).toIso8601String();
     final now = clock.now().toUtc().toIso8601String();
@@ -60,6 +61,7 @@ class LocalWriter {
       for (final w in writes) {
         await _apply(w.entity, w.op, w.id, w.groupId, w.data, cua, now);
       }
+      if (alongside != null) await alongside();
     });
     onWrite?.call();
   }

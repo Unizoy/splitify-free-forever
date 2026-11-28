@@ -57,6 +57,16 @@
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
             android:value="expenses" />
+        <!-- Expense attachments (W2-Y): "Open with" hands a PDF copy from cache/pdf/ to a viewer app. -->
+        <provider
+            android:name=".PdfFileProvider"
+            android:authorities="${applicationId}.files"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/splitify_pdf_paths" />
+        </provider>
         <!-- Home-screen balance widgets (X3, phase 18): 2x2 and 4x2, drawn by BalanceWidget.kt. -->
         <receiver android:name=".BalanceWidgetSmall" android:exported="true" android:label="@string/widget_small_label">
             <intent-filter>
