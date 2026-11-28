@@ -52,7 +52,7 @@ class Entrance extends StatefulWidget {
 
 class _EntranceState extends State<Entrance> with SingleTickerProviderStateMixin {
   AnimationController? _c;
-  Animation<double>? _t;
+  CurvedAnimation? _t;
 
   @override
   void didChangeDependencies() {
@@ -77,6 +77,8 @@ class _EntranceState extends State<Entrance> with SingleTickerProviderStateMixin
 
   @override
   void dispose() {
+    // The curve too: an undisposed CurvedAnimation stayed behind for every row that rose in (S-457).
+    _t?.dispose();
     _c?.dispose();
     super.dispose();
   }
@@ -235,8 +237,8 @@ class InsertMotion extends StatefulWidget {
 
 class _InsertMotionState extends State<InsertMotion> with SingleTickerProviderStateMixin {
   AnimationController? _c;
-  Animation<double>? _size;
-  Animation<double>? _fade;
+  CurvedAnimation? _size;
+  CurvedAnimation? _fade;
 
   @override
   void didChangeDependencies() {
@@ -258,6 +260,8 @@ class _InsertMotionState extends State<InsertMotion> with SingleTickerProviderSt
 
   @override
   void dispose() {
+    _size?.dispose();
+    _fade?.dispose();
     _c?.dispose();
     super.dispose();
   }

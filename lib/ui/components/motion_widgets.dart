@@ -34,8 +34,9 @@ class MotionSwitcher extends StatelessWidget {
     return AnimatedSwitcher(
       duration: grow ? motion.expand : motion.swap,
       reverseDuration: grow ? motion.expand : motion.swap,
-      switchInCurve: Curves.easeOut,
-      switchOutCurve: Curves.easeIn,
+      // The switcher curves the animation it hands out (no CurvedAnimation per build to dispose).
+      switchInCurve: grow ? AppMotion.standard : Curves.easeOut,
+      switchOutCurve: grow ? AppMotion.standard : Curves.easeIn,
       layoutBuilder: (current, previous) => Stack(
         alignment: alignment,
         children: [
@@ -46,11 +47,7 @@ class MotionSwitcher extends StatelessWidget {
       transitionBuilder: (child, animation) {
         final faded = FadeTransition(opacity: animation, child: child);
         if (grow) {
-          return SizeTransition(
-            sizeFactor: CurvedAnimation(parent: animation, curve: AppMotion.standard),
-            axisAlignment: -1,
-            child: faded,
-          );
+          return SizeTransition(sizeFactor: animation, axisAlignment: -1, child: faded);
         }
         if (!scale) return faded;
         return ScaleTransition(

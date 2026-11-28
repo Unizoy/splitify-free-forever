@@ -233,7 +233,7 @@ class _Frames {
 }
 
 void main() {
-  IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   final frames = _Frames()..attach();
 
   testWidgets('R3 perf: 50 groups, 2,000-expense group, storm, editor, insights, search, memory', (
@@ -290,6 +290,8 @@ void main() {
       await body();
       await flush();
       numbers[name] = frames.since(mark);
+      // Each part as soon as it is measured, so a later failure keeps what came before.
+      debugPrint('R3PERF-SEG $name ${jsonEncode(numbers[name])}');
     }
 
     Future<void> scroll(Type screen) async {
@@ -391,6 +393,10 @@ void main() {
     unawaited(router.push(SearchRoutes.search()));
     await pumpFrames(30);
     expect(find.byType(SearchScreen), findsOneWidget);
+    // The field takes focus on open and talks to the real keyboard: hand it to the test keyboard first.
+    FocusManager.instance.primaryFocus?.unfocus();
+    await pumpFrames(10);
+    binding.testTextInput.register();
     await segment('search', () async {
       final sw = Stopwatch()..start();
       await t.enterText(find.byKey(const Key('search-field')), 'biryani');
@@ -419,7 +425,10 @@ void main() {
     numbers['rss_mb_after_20x'] = ProcessInfo.currentRss ~/ (1024 * 1024);
     numbers['rss_mb_max'] = ProcessInfo.maxRss ~/ (1024 * 1024);
 
-    debugPrint('R3PERF ${jsonEncode(numbers)}');
+    debugPrint(
+      'R3PERF ${jsonEncode({for (final e in numbers.entries)
+        if (e.value is! Map) e.key: e.value})}',
+    );
     debugPrint('R3PERF-DONE');
     await t.pumpWidget(const SizedBox());
     await pumpFrames(10);

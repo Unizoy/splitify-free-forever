@@ -26,7 +26,7 @@ class FadeHeroRoute<T> extends PageRouteBuilder<T> {
         transitionsBuilder: (context, animation, _, child) => AppMotion.of(context).reduced
             ? child
             : FadeTransition(
-                opacity: CurvedAnimation(parent: animation, curve: Curves.easeOut),
+                opacity: animation.drive(CurveTween(curve: Curves.easeOut)),
                 child: child,
               ),
       );
