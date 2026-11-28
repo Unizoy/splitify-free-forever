@@ -305,7 +305,7 @@ class _TickCircle extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.colors;
     void tap() {
-      HapticFeedback.selectionClick();
+      AppHaptics.selection();
       onTap();
     }
 
@@ -317,7 +317,7 @@ class _TickCircle extends StatelessWidget {
       onTap: tap,
       child: Pressable(
         onTap: () {
-          HapticFeedback.selectionClick();
+          AppHaptics.selection();
           onTap();
         },
         circle: true,

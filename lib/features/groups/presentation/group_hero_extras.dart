@@ -114,27 +114,22 @@ class GroupBalanceLines extends ConsumerWidget {
           ],
         ),
         // Like the pill, the lines keep the hero readable at 200 % text (06 §4).
-        AnimatedSize(
-          duration: AppMotion.of(context).fast,
-          alignment: Alignment.topCenter,
-          child: collapsed
-              ? const SizedBox(width: double.infinity)
-              : MediaQuery.withClampedTextScaling(
-                  maxScaleFactor: AppText.maxSerifScale,
-                  child: Column(
-                    key: const Key('group-lines'),
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const SizedBox(height: AppSpacing.s1),
-                      for (final line in shown) _Line(balances: b, line: line),
-                      if (more > 0) _MoreLink(label: l.groupLinesMore(more), onTap: onMore),
-                      if (b.unsynced) ...[
-                        const SizedBox(height: AppSpacing.s2),
-                        const _HeroSyncMarker(),
-                      ],
-                    ],
-                  ),
-                ),
+        // Who owes whom folds open from the top and fades in (S-451).
+        AppExpand(
+          open: !collapsed,
+          child: MediaQuery.withClampedTextScaling(
+            maxScaleFactor: AppText.maxSerifScale,
+            child: Column(
+              key: const Key('group-lines'),
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const SizedBox(height: AppSpacing.s1),
+                for (final line in shown) _Line(balances: b, line: line),
+                if (more > 0) _MoreLink(label: l.groupLinesMore(more), onTap: onMore),
+                if (b.unsynced) ...[const SizedBox(height: AppSpacing.s2), const _HeroSyncMarker()],
+              ],
+            ),
+          ),
         ),
       ],
     );

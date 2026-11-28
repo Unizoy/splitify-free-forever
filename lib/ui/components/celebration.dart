@@ -41,7 +41,7 @@ class _CelebrationState extends State<Celebration> with SingleTickerProviderStat
     if (context.motion.reduced) {
       _c.value = 1;
     } else {
-      HapticFeedback.mediumImpact();
+      AppHaptics.success();
       _c.forward();
     }
   }

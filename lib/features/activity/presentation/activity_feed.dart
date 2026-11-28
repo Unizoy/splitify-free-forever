@@ -174,19 +174,30 @@ class ActivityFeed extends ConsumerWidget {
       entries.add(
         () => Entrance(
           index: index,
-          child: ActivityRow(item: item, showGroup: showGroup, showDivider: divider),
+          // A new entry arriving while the feed is open grows in at the top (S-451).
+          child: InsertMotion(
+            id: item.id,
+            child: ActivityRow(item: item, showGroup: showGroup, showDivider: divider),
+          ),
         ),
       );
     }
+    final ids = [for (final i in items) i.id];
     if (sliver) {
-      return SliverList.builder(
-        itemCount: entries.length,
-        itemBuilder: (context, i) => entries[i](),
+      return InsertMotionScope(
+        ids: ids,
+        child: SliverList.builder(
+          itemCount: entries.length,
+          itemBuilder: (context, i) => entries[i](),
+        ),
       );
     }
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [for (final build in entries) build()],
+    return InsertMotionScope(
+      ids: ids,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [for (final build in entries) build()],
+      ),
     );
   }
 }

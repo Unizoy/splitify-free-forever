@@ -107,7 +107,7 @@ class _Hero extends ConsumerWidget {
     final actions = ref.read(paymentActionsProvider);
     final p = view.payment;
     await actions.delete(p);
-    unawaited(HapticFeedback.mediumImpact());
+    AppHaptics.success();
     await navigator.maybePop();
     messenger
       ..hideCurrentSnackBar()
@@ -312,11 +312,11 @@ class _RestoreCardState extends ConsumerState<_RestoreCard> {
     final messenger = ScaffoldMessenger.of(context);
     setState(() => _busy = true);
     await ref.read(paymentActionsProvider).restore(widget.view.payment);
-    unawaited(HapticFeedback.mediumImpact());
+    AppHaptics.success();
     if (mounted) setState(() => _busy = false);
     messenger
       ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text(l.settle2Restored)));
+      ..showSnackBar(successSnackBar(l.settle2Restored));
   }
 
   @override

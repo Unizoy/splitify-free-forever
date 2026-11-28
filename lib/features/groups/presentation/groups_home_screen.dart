@@ -66,7 +66,10 @@ class _GroupsHomeScreenState extends ConsumerState<GroupsHomeScreen> {
     ];
     final archived = [...?groups?.where((g) => g.archivedAt != null && shown(g))];
 
-    final Widget content;
+    // Everything below the header is a sliver, so 50 groups build and paint only the cards on screen
+    // (S-454; the grid was a shrink-wrapped GridView that laid out and drew every cover card).
+    Widget? content;
+    Widget? sliver;
     if (groups == null && groupsAsync.hasError) {
       content = EmptyState(icon: AppIcons.warning, title: l.authErrorUnknown);
     } else if (groups == null) {
@@ -105,99 +108,128 @@ class _GroupsHomeScreenState extends ConsumerState<GroupsHomeScreen> {
         ],
       );
     } else {
-      // The cards rise in once, when the list first shows (S-265).
-      content = EntranceScope(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            if (active.isNotEmpty) _GroupGrid(groups: active, balances: byGroup),
-            if (archived.isNotEmpty) ...[
-              const SizedBox(height: AppSpacing.s4),
-              DashedListRow(
-                key: const Key('groups-archived'),
-                icon: AppIcons.archive,
-                label: l.archivedGroups,
-                value: '${archived.length}',
-                showDivider: false,
-                onTap: () => setState(() => _showArchived = !_showArchived),
-              ),
-              if (_showArchived) ...[
-                const SizedBox(height: AppSpacing.s3),
+      // The cards rise in once, when the list first shows (S-265); a new group grows in (S-451).
+      sliver = EntranceScope(
+        child: InsertMotionScope(
+          ids: [
+            for (final g in active) g.id,
+            if (_showArchived)
+              for (final g in archived) g.id,
+          ],
+          child: SliverMainAxisGroup(
+            slivers: [
+              if (active.isNotEmpty) _GroupGrid(groups: active, balances: byGroup),
+              if (archived.isNotEmpty)
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: AppSpacing.s4),
+                    child: DashedListRow(
+                      key: const Key('groups-archived'),
+                      icon: AppIcons.archive,
+                      label: l.archivedGroups,
+                      value: '${archived.length}',
+                      showDivider: false,
+                      onTap: () => setState(() => _showArchived = !_showArchived),
+                    ),
+                  ),
+                ),
+              if (archived.isNotEmpty && _showArchived) ...[
+                const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.s3)),
                 _GroupGrid(groups: archived, balances: byGroup),
               ],
             ],
-          ],
+          ),
         ),
       );
     }
 
     return Scaffold(
       body: SyncRefresh(
-        child: SingleChildScrollView(
+        child: CustomScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
-          child: OverlapColumn(
-            top: _Hero(
-              groupCount: groups?.where((g) => g.archivedAt == null).length ?? 0,
-              balances: mine,
-            ),
-            bottom: OverlapSheet(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Wrap(
-                    spacing: AppSpacing.s2,
-                    runSpacing: AppSpacing.s2,
-                    alignment: WrapAlignment.spaceBetween,
-                    crossAxisAlignment: WrapCrossAlignment.center,
+          slivers: [
+            SliverToBoxAdapter(
+              child: OverlapColumn(
+                top: _Hero(
+                  groupCount: groups?.where((g) => g.archivedAt == null).length ?? 0,
+                  balances: mine,
+                ),
+                bottom: OverlapSheet(
+                  // The sheet ends under the header; the cards follow on the same page colour.
+                  padding: const EdgeInsets.fromLTRB(
+                    AppSpacing.screen,
+                    AppSpacing.s6 + AppSpacing.s1,
+                    AppSpacing.screen,
+                    0,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
+                      Wrap(
+                        spacing: AppSpacing.s2,
+                        runSpacing: AppSpacing.s2,
+                        alignment: WrapAlignment.spaceBetween,
+                        crossAxisAlignment: WrapCrossAlignment.center,
                         children: [
-                          Flexible(child: SectionLabel(l.activeGroups(active.length))),
-                          if (groups != null && groups.isNotEmpty) ...[
-                            const SizedBox(width: AppSpacing.s2),
-                            GroupFilterPill(
-                              value: filter,
-                              onChanged: (f) => ref.read(groupFilterProvider.notifier).select(f),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Flexible(child: SectionLabel(l.activeGroups(active.length))),
+                              if (groups != null && groups.isNotEmpty) ...[
+                                const SizedBox(width: AppSpacing.s2),
+                                GroupFilterPill(
+                                  value: filter,
+                                  onChanged: (f) =>
+                                      ref.read(groupFilterProvider.notifier).select(f),
+                                ),
+                              ],
+                              const SizedBox(width: AppSpacing.s2),
+                            ],
+                          ),
+                          if (groups != null && groups.isNotEmpty)
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                PillButton(
+                                  key: const Key('groups-join'),
+                                  label: l.joinShort,
+                                  icon: AppIcons.qr,
+                                  variant: PillVariant.outline,
+                                  size: PillSize.medium,
+                                  expand: false,
+                                  onPressed: () => context.push('/join'),
+                                ),
+                                const SizedBox(width: AppSpacing.s2),
+                                PillButton(
+                                  key: const Key('groups-new'),
+                                  label: l.newShort,
+                                  icon: AppIcons.plus,
+                                  size: PillSize.medium,
+                                  expand: false,
+                                  onPressed: () => context.push('/groups/new'),
+                                ),
+                              ],
                             ),
-                          ],
-                          const SizedBox(width: AppSpacing.s2),
                         ],
                       ),
-                      if (groups != null && groups.isNotEmpty)
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            PillButton(
-                              key: const Key('groups-join'),
-                              label: l.joinShort,
-                              icon: AppIcons.qr,
-                              variant: PillVariant.outline,
-                              size: PillSize.medium,
-                              expand: false,
-                              onPressed: () => context.push('/join'),
-                            ),
-                            const SizedBox(width: AppSpacing.s2),
-                            PillButton(
-                              key: const Key('groups-new'),
-                              label: l.newShort,
-                              icon: AppIcons.plus,
-                              size: PillSize.medium,
-                              expand: false,
-                              onPressed: () => context.push('/groups/new'),
-                            ),
-                          ],
-                        ),
+                      if (offline) ...[const SizedBox(height: AppSpacing.s4), const _OfflineNote()],
+                      const SizedBox(height: AppSpacing.s4),
                     ],
                   ),
-                  if (offline) ...[const SizedBox(height: AppSpacing.s4), const _OfflineNote()],
-                  const SizedBox(height: AppSpacing.s4),
-                  content,
-                  const SizedBox(height: AppSpacing.navReserve),
-                ],
+                ),
               ),
             ),
-          ),
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
+              sliver: sliver ?? SliverToBoxAdapter(child: content),
+            ),
+            SliverToBoxAdapter(
+              child: SizedBox(
+                height:
+                    AppSpacing.navReserve + AppSpacing.s6 + MediaQuery.paddingOf(context).bottom,
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -289,47 +321,58 @@ class _Hero extends ConsumerWidget {
               ],
             ),
             const SizedBox(height: AppSpacing.s4),
-            if (converted != null)
-              FittedBox(
-                fit: BoxFit.scaleDown,
-                alignment: AlignmentDirectional.centerStart,
-                child: AnimatedAmount(
-                  textKey: const Key('groups-overall-converted'),
-                  minor: converted.amount.abs(),
-                  currency: first,
-                  format: (m) => listMoney(m, first),
-                  style: context.text.amountHero.copyWith(
-                    color: convertedStatus == BalanceStatus.settled
-                        ? c.onHero
-                        : toneOf(convertedStatus).onDarkColor(c),
-                  ),
-                ),
-              )
-            else ...[
-              FittedBox(
-                fit: BoxFit.scaleDown,
-                alignment: AlignmentDirectional.centerStart,
-                child: AnimatedAmount(
-                  textKey: const Key('groups-overall-amount'),
-                  // Counts to a new total when a change lands (S-264).
-                  minor: codes.isEmpty
-                      ? 0
-                      : (mixed ? totals[codes.first]! : totals[codes.first]!.abs()),
-                  currency: codes.isEmpty ? first : codes.first,
-                  format: (m) => codes.isEmpty
-                      ? listMoney(m, first)
-                      : (mixed ? signedMoney(m, codes.first) : listMoney(m, codes.first)),
-                  style: context.text.amountHero.copyWith(
-                    color: codes.isEmpty || mixed ? c.onHero : toneOf(status).onDarkColor(c),
-                  ),
-                ),
-              ),
-              if (codes.length > 1)
-                Text(
-                  [for (final code in codes.skip(1)) amount(code)].join('\u00A0· '),
-                  style: context.text.amount.w(700).copyWith(color: c.onHero),
-                ),
-            ],
+            // "Show in INR" and by currency cross-fade in place (S-451); a new value counts (S-264).
+            MotionSwitcher(
+              alignment: AlignmentDirectional.centerStart,
+              child: converted != null
+                  ? FittedBox(
+                      key: const ValueKey('overall-converted'),
+                      fit: BoxFit.scaleDown,
+                      alignment: AlignmentDirectional.centerStart,
+                      child: AnimatedAmount(
+                        textKey: const Key('groups-overall-converted'),
+                        minor: converted.amount.abs(),
+                        currency: first,
+                        format: (m) => listMoney(m, first),
+                        style: context.text.amountHero.copyWith(
+                          color: convertedStatus == BalanceStatus.settled
+                              ? c.onHero
+                              : toneOf(convertedStatus).onDarkColor(c),
+                        ),
+                      ),
+                    )
+                  : Column(
+                      key: const ValueKey('overall-by-currency'),
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        FittedBox(
+                          fit: BoxFit.scaleDown,
+                          alignment: AlignmentDirectional.centerStart,
+                          child: AnimatedAmount(
+                            textKey: const Key('groups-overall-amount'),
+                            // Counts to a new total when a change lands (S-264).
+                            minor: codes.isEmpty
+                                ? 0
+                                : (mixed ? totals[codes.first]! : totals[codes.first]!.abs()),
+                            currency: codes.isEmpty ? first : codes.first,
+                            format: (m) => codes.isEmpty
+                                ? listMoney(m, first)
+                                : (mixed ? signedMoney(m, codes.first) : listMoney(m, codes.first)),
+                            style: context.text.amountHero.copyWith(
+                              color: codes.isEmpty || mixed
+                                  ? c.onHero
+                                  : toneOf(status).onDarkColor(c),
+                            ),
+                          ),
+                        ),
+                        if (codes.length > 1)
+                          Text(
+                            [for (final code in codes.skip(1)) amount(code)].join('\u00A0· '),
+                            style: context.text.amount.w(700).copyWith(color: c.onHero),
+                          ),
+                      ],
+                    ),
+            ),
             if (showIn && inFirst != null) ...[
               const SizedBox(height: AppSpacing.s1),
               InCurrencyNote(value: inFirst),
@@ -400,18 +443,21 @@ class _GroupGrid extends ConsumerWidget {
     final l = AppLocalizations.of(context);
     // Any pending row of the group (not just the group row) marks its card (T2, phase 15).
     final unsynced = ref.watch(unsyncedGroupIdsProvider).value ?? const <String>{};
-    return GridView.count(
-      crossAxisCount: 2,
-      shrinkWrap: true,
-      padding: EdgeInsets.zero,
-      physics: const NeverScrollableScrollPhysics(),
-      mainAxisSpacing: AppSpacing.gutter,
-      crossAxisSpacing: AppSpacing.gutter,
-      childAspectRatio: GroupCoverCard.aspectRatioFor(context),
-      children: [
-        for (final (i, g) in groups.indexed)
-          Entrance(
-            index: i,
+    // A lazy grid: only the cards on screen (and a little beyond) are built and painted (S-454).
+    return SliverGrid(
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        mainAxisSpacing: AppSpacing.gutter,
+        crossAxisSpacing: AppSpacing.gutter,
+        childAspectRatio: GroupCoverCard.aspectRatioFor(context),
+      ),
+      delegate: SliverChildBuilderDelegate(childCount: groups.length, (context, i) {
+        final g = groups[i];
+        return Entrance(
+          index: i,
+          child: InsertMotion(
+            id: g.id,
+            grow: false,
             child: _groupCard(
               l,
               context,
@@ -421,7 +467,8 @@ class _GroupGrid extends ConsumerWidget {
               photo: groupCoverImage(ref, g, width: 600),
             ),
           ),
-      ],
+        );
+      }),
     );
   }
 }

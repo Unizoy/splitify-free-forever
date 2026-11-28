@@ -170,12 +170,20 @@ class _FriendPageState extends ConsumerState<FriendPage> {
             ),
           ),
           if (rows.isNotEmpty)
-            EntranceScope(
-              child: SliverPadding(
-                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
-                sliver: SliverList.builder(
-                  itemCount: rows.length,
-                  itemBuilder: (context, i) => Entrance(index: i, child: rows[i]),
+            InsertMotionScope(
+              maxBatch: null,
+              ids: [
+                for (final item in open) item.id,
+                if (_showSettled)
+                  for (final item in items.sublist(open.length)) item.id,
+              ],
+              child: EntranceScope(
+                child: SliverPadding(
+                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
+                  sliver: SliverList.builder(
+                    itemCount: rows.length,
+                    itemBuilder: (context, i) => Entrance(index: i, child: rows[i]),
+                  ),
                 ),
               ),
             ),
@@ -209,7 +217,13 @@ class _FriendPageState extends ConsumerState<FriendPage> {
       }
       final nextSame =
           i + 1 < items.length && monthHeader(context, parseIsoDate(items[i + 1].date)) == header;
-      out.add(FriendItemRow(item: items[i], friendName: friend.name, showDivider: nextSame));
+      // Records that arrive while the page is open (saved, synced, settled history unfolding) grow in (S-451).
+      out.add(
+        InsertMotion(
+          id: items[i].id,
+          child: FriendItemRow(item: items[i], friendName: friend.name, showDivider: nextSame),
+        ),
+      );
     }
     return out;
   }
@@ -296,7 +310,11 @@ class _Hero extends ConsumerWidget {
           Center(
             child: MediaQuery.withClampedTextScaling(
               maxScaleFactor: AppText.maxSerifScale,
-              child: pill,
+              // A new total or "Show in INR" cross-fades the pill in place (S-451).
+              child: MotionSwitcher(
+                alignment: Alignment.center,
+                child: KeyedSubtree(key: ValueKey('friend-pill-${pill.key}-$amounts'), child: pill),
+              ),
             ),
           ),
           if (showIn && inFirst != null) ...[

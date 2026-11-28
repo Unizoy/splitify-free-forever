@@ -72,17 +72,25 @@ class WithRow extends ConsumerWidget {
               _ChooseChip(onTap: onPick, error: showError),
             ],
           ),
-          if (showError) ...[
-            const SizedBox(height: AppSpacing.s1),
-            Semantics(
-              liveRegion: true,
-              child: Text(
-                l.expWithMissing,
-                key: const Key('with-error'),
-                style: context.text.caption.copyWith(color: c.oweText, fontSize: 13),
-              ),
-            ),
-          ],
+          // Inline errors fold in under their field (S-451).
+          MotionSwitcher(
+            grow: true,
+            alignment: AlignmentDirectional.topStart,
+            child: !showError
+                ? const SizedBox(key: ValueKey('with-ok'), width: double.infinity)
+                : Padding(
+                    key: const ValueKey('with-error'),
+                    padding: const EdgeInsets.only(top: AppSpacing.s1),
+                    child: Semantics(
+                      liveRegion: true,
+                      child: Text(
+                        l.expWithMissing,
+                        key: const Key('with-error'),
+                        style: context.text.caption.copyWith(color: c.oweText, fontSize: 13),
+                      ),
+                    ),
+                  ),
+          ),
           if (recent.isNotEmpty && onQuickPick != null) ...[
             const SizedBox(height: AppSpacing.s2),
             SingleChildScrollView(
@@ -208,56 +216,70 @@ class _PeopleRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     final c = context.colors;
-    return Wrap(
-      key: const Key('expense-with-people'),
-      spacing: AppSpacing.s2,
-      runSpacing: AppSpacing.s1,
-      crossAxisAlignment: WrapCrossAlignment.center,
-      children: [
-        Text(l.expWithLabel, style: context.text.body.copyWith(color: c.textSecondary)),
-        for (final f in people)
-          _PersonChip(
-            key: Key('expense-with-person-${f.key}'),
-            friend: f,
-            onTap: onPick,
-            onRemove: onRemove == null ? null : () => onRemove!(f),
-          ),
-        if (onAdd != null)
-          Semantics(
-            button: true,
-            label: l.w2xAddPerson,
-            excludeSemantics: true,
-            onTap: onAdd,
-            child: Pressable(
-              key: const Key('expense-with-add'),
-              onTap: onAdd,
-              borderRadius: AppRadii.allPill,
-              scale: 0.92,
-              haptic: PressHaptic.selection,
-              child: SizedBox(
-                width: AppSpacing.minTouch,
-                height: AppSpacing.minTouch,
-                child: Center(
-                  child: Container(
-                    width: 40,
-                    height: 40,
-                    decoration: ShapeDecoration(
-                      color: c.primaryContainer,
-                      shape: const CircleBorder(),
+    // A person added fades in; the row reflows smoothly when one is added or removed (S-451).
+    return InsertMotionScope(
+      ids: [for (final f in people) f.key],
+      child: AnimatedSize(
+        duration: context.motion.expand,
+        curve: AppMotion.standard,
+        alignment: AlignmentDirectional.topStart,
+        child: Wrap(
+          key: const Key('expense-with-people'),
+          spacing: AppSpacing.s2,
+          runSpacing: AppSpacing.s1,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: [
+            Text(l.expWithLabel, style: context.text.body.copyWith(color: c.textSecondary)),
+            for (final f in people)
+              InsertMotion(
+                key: ValueKey('insert-${f.key}'),
+                id: f.key,
+                grow: false,
+                child: _PersonChip(
+                  key: Key('expense-with-person-${f.key}'),
+                  friend: f,
+                  onTap: onPick,
+                  onRemove: onRemove == null ? null : () => onRemove!(f),
+                ),
+              ),
+            if (onAdd != null)
+              Semantics(
+                button: true,
+                label: l.w2xAddPerson,
+                excludeSemantics: true,
+                onTap: onAdd,
+                child: Pressable(
+                  key: const Key('expense-with-add'),
+                  onTap: onAdd,
+                  borderRadius: AppRadii.allPill,
+                  scale: 0.92,
+                  haptic: PressHaptic.selection,
+                  child: SizedBox(
+                    width: AppSpacing.minTouch,
+                    height: AppSpacing.minTouch,
+                    child: Center(
+                      child: Container(
+                        width: 40,
+                        height: 40,
+                        decoration: ShapeDecoration(
+                          color: c.primaryContainer,
+                          shape: const CircleBorder(),
+                        ),
+                        child: Icon(AppIcons.plus, size: 18, color: c.onPrimaryContainer),
+                      ),
                     ),
-                    child: Icon(AppIcons.plus, size: 18, color: c.onPrimaryContainer),
                   ),
                 ),
               ),
-            ),
-          ),
-        if (offline)
-          const Padding(
-            key: Key('expense-offline'),
-            padding: EdgeInsets.symmetric(vertical: AppSpacing.s3),
-            child: SyncMarker(),
-          ),
-      ],
+            if (offline)
+              const Padding(
+                key: Key('expense-offline'),
+                padding: EdgeInsets.symmetric(vertical: AppSpacing.s3),
+                child: SyncMarker(),
+              ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -663,17 +685,25 @@ class _AmountFieldState extends State<AmountField> {
               ? ColoredBox(color: lineColor)
               : CustomPaint(painter: DashedLinePainter(color: lineColor, dash: 5, gap: 4)),
         ),
-        if (error != null) ...[
-          const SizedBox(height: AppSpacing.s1),
-          Semantics(
-            liveRegion: true,
-            child: Text(
-              error,
-              key: const Key('amount-error'),
-              style: context.text.caption.copyWith(color: c.oweText, fontSize: 13),
-            ),
-          ),
-        ],
+        // The error folds in under the line and out once fixed (S-451).
+        MotionSwitcher(
+          grow: true,
+          alignment: AlignmentDirectional.topStart,
+          child: error == null
+              ? const SizedBox(key: ValueKey('amount-ok'), width: double.infinity)
+              : Padding(
+                  key: ValueKey('amount-error-$error'),
+                  padding: const EdgeInsets.only(top: AppSpacing.s1),
+                  child: Semantics(
+                    liveRegion: true,
+                    child: Text(
+                      error,
+                      key: const Key('amount-error'),
+                      style: context.text.caption.copyWith(color: c.oweText, fontSize: 13),
+                    ),
+                  ),
+                ),
+        ),
       ],
     );
   }

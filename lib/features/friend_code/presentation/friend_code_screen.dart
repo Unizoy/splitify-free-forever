@@ -93,15 +93,13 @@ class _FriendCodeScreenState extends ConsumerState<FriendCodeScreen> {
     try {
       final added = await ref.read(friendCodeActionsProvider).add(code);
       if (!mounted) return;
-      unawaited(HapticFeedback.mediumImpact());
+      AppHaptics.success();
       final name = added.friendName;
       router.pushReplacement(FriendRoutes.page('u:${added.friendUserId}'));
       messenger
         ..hideCurrentSnackBar()
         ..showSnackBar(
-          SnackBar(
-            content: Text(added.created ? l.friendCodeAdded(name) : l.friendCodeAlready(name)),
-          ),
+          successSnackBar(added.created ? l.friendCodeAdded(name) : l.friendCodeAlready(name)),
         );
     } on FriendCodeFailure catch (e) {
       if (mounted) setState(() => _error = friendCodeFailureText(l, e.code));

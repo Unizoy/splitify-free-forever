@@ -98,7 +98,7 @@ class CapsuleNavBar extends StatelessWidget {
                                 active: i == currentIndex,
                                 showLabel: !compact,
                                 onTap: () {
-                                  if (i != currentIndex) HapticFeedback.selectionClick();
+                                  if (i != currentIndex) AppHaptics.selection();
                                   onSelected(i);
                                 },
                               ),
@@ -206,7 +206,7 @@ class _AddButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.colors;
     void tap() {
-      HapticFeedback.selectionClick();
+      AppHaptics.selection();
       onTap();
     }
 

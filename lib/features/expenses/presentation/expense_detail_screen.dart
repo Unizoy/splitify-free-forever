@@ -112,7 +112,7 @@ class _Hero extends ConsumerWidget {
     final stops = template != null && template.active && template.expenseId == e.id;
     await actions.delete(e);
     if (stops) await ref.read(recurringActionsProvider).stop(template);
-    unawaited(HapticFeedback.mediumImpact());
+    AppHaptics.success();
     await navigator.maybePop();
     messenger
       ..hideCurrentSnackBar()
@@ -420,10 +420,10 @@ Future<void> restoreExpense(BuildContext context, WidgetRef ref, LocalExpense e)
   final l = AppLocalizations.of(context);
   final messenger = ScaffoldMessenger.of(context);
   await ref.read(expenseActionsProvider).restore(e);
-  unawaited(HapticFeedback.mediumImpact());
+  AppHaptics.success();
   messenger
     ..hideCurrentSnackBar()
-    ..showSnackBar(SnackBar(content: Text(l.entryRestored), duration: const Duration(seconds: 3)));
+    ..showSnackBar(successSnackBar(l.entryRestored, duration: const Duration(seconds: 3)));
 }
 
 /// "This expense was deleted …" with the Restore button, at the top of a deleted expense's page.

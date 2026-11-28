@@ -46,7 +46,7 @@ class _DashedCircleButtonState extends State<DashedCircleButton>
     final scale = MediaQuery.textScalerOf(context).scale(1).clamp(1.0, 2.0);
     final diameter = 120 * (1 + (scale - 1) * 0.5);
     void tap() {
-      HapticFeedback.selectionClick();
+      AppHaptics.selection();
       widget.onPressed();
     }
 

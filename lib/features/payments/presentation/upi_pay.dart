@@ -143,7 +143,7 @@ class _UpiFallbacksState extends State<UpiFallbacks> {
   Future<void> _copy(String which, String text) async {
     await Clipboard.setData(ClipboardData(text: text));
     if (!mounted) return;
-    unawaited(HapticFeedback.selectionClick());
+    AppHaptics.selection();
     setState(() => _copied = which);
     _reset?.cancel();
     _reset = Timer(const Duration(seconds: 2), () {

@@ -177,7 +177,7 @@ class _LoanScreenState extends ConsumerState<LoanScreen> {
     if (d == null) return;
     if (!d.canSave) {
       setState(() => _showErrors = true);
-      unawaited(HapticFeedback.lightImpact());
+      AppHaptics.error();
       _point(d);
       return;
     }
@@ -193,14 +193,14 @@ class _LoanScreenState extends ConsumerState<LoanScreen> {
       setState(() => _saving = false);
       return;
     }
-    unawaited(HapticFeedback.mediumImpact());
+    AppHaptics.success();
     setState(() {
       _saving = false;
       _saved = true;
     });
     messenger
       ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text(l.loanSaved), duration: const Duration(seconds: 2)));
+      ..showSnackBar(successSnackBar(l.loanSaved, duration: const Duration(seconds: 2)));
     _close();
   }
 

@@ -69,7 +69,7 @@ class FolderTabs extends StatelessWidget {
                     scaler: scaler,
                     onTap: () {
                       if (i == index) return;
-                      HapticFeedback.selectionClick();
+                      AppHaptics.selection();
                       onChanged(i);
                     },
                   ),

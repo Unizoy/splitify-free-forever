@@ -175,37 +175,43 @@ class PayerChip extends StatelessWidget {
       label: name,
       excludeSemantics: true,
       onTap: onTap,
-      child: Pressable(
-        onTap: onTap,
-        borderRadius: AppRadii.allPill,
-        scale: 0.95,
-        haptic: PressHaptic.selection,
-        child: Material(
-          color: selected ? c.ink : c.surface,
-          shape: StadiumBorder(side: BorderSide(color: selected ? c.ink : c.border, width: 1.2)),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(minHeight: AppSpacing.minTouch),
-            child: Padding(
-              padding: const EdgeInsetsDirectional.fromSTEB(
-                AppSpacing.s2,
-                AppSpacing.s1,
-                AppSpacing.s4,
-                AppSpacing.s1,
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Avatar(name: member.name, seed: member.id, size: AvatarSize.s32),
-                  const SizedBox(width: AppSpacing.s2),
-                  Flexible(
-                    child: Text(
-                      name,
-                      style: context.text.body
-                          .w(600)
-                          .copyWith(color: selected ? c.onInk : c.textPrimary),
+      // The pill moves between its resting and picked looks in 150 ms (S-451).
+      child: SelectionMotion(
+        selected: selected,
+        builder: (context, t, _) => Pressable(
+          onTap: onTap,
+          borderRadius: AppRadii.allPill,
+          scale: 0.95,
+          haptic: PressHaptic.selection,
+          child: Material(
+            color: Color.lerp(c.surface, c.ink, t),
+            shape: StadiumBorder(
+              side: BorderSide(color: Color.lerp(c.border, c.ink, t)!, width: 1.2),
+            ),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: AppSpacing.minTouch),
+              child: Padding(
+                padding: const EdgeInsetsDirectional.fromSTEB(
+                  AppSpacing.s2,
+                  AppSpacing.s1,
+                  AppSpacing.s4,
+                  AppSpacing.s1,
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Avatar(name: member.name, seed: member.id, size: AvatarSize.s32),
+                    const SizedBox(width: AppSpacing.s2),
+                    Flexible(
+                      child: Text(
+                        name,
+                        style: context.text.body
+                            .w(600)
+                            .copyWith(color: Color.lerp(c.textPrimary, c.onInk, t)),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),

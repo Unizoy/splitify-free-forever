@@ -63,7 +63,7 @@ class _AvatarCarouselState extends State<AvatarCarousel> {
                 controller: _controller,
                 itemCount: widget.people.length,
                 onPageChanged: (i) {
-                  HapticFeedback.selectionClick();
+                  AppHaptics.selection();
                   setState(() => _index = i);
                   widget.onChanged(i);
                 },

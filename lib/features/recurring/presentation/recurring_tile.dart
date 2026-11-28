@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:splitify/data/local/app_database.dart';
@@ -86,7 +85,7 @@ class RecurringSheet extends ConsumerWidget {
     );
     if (!yes) return;
     await ref.read(recurringActionsProvider).stop(t);
-    unawaited(HapticFeedback.mediumImpact());
+    AppHaptics.success();
     if (navigator.canPop()) navigator.pop();
     messenger
       ..hideCurrentSnackBar()

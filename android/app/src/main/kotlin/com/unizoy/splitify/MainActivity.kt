@@ -5,6 +5,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
+import android.view.HapticFeedbackConstants
 import android.view.WindowManager
 import io.flutter.embedding.android.FlutterFragmentActivity
 import java.io.File
@@ -137,6 +138,32 @@ class MainActivity : FlutterFragmentActivity() {
             }
         // "From contacts" (W2-X F15): the system contact picker, names only, no contacts permission.
         ContactsBridge(this, flutterEngine.dartExecutor.binaryMessenger)
+        // Success / error haptics (lib/ui/theme/app_motion.dart AppHaptics, S-453): Android 11+ has CONFIRM and
+        // REJECT; older phones get a firm tick for success and two quick ticks for an error. Follows the
+        // system's touch-feedback setting like every other tick.
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "splitify/haptics")
+            .setMethodCallHandler { call, result ->
+                val view = window.decorView
+                val modern = Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
+                when (call.method) {
+                    "success" -> {
+                        view.performHapticFeedback(
+                            if (modern) HapticFeedbackConstants.CONFIRM else HapticFeedbackConstants.KEYBOARD_TAP,
+                        )
+                        result.success(null)
+                    }
+                    "error" -> {
+                        if (modern) {
+                            view.performHapticFeedback(HapticFeedbackConstants.REJECT)
+                        } else {
+                            view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
+                            view.postDelayed({ view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP) }, 90)
+                        }
+                        result.success(null)
+                    }
+                    else -> result.notImplemented()
+                }
+            }
     }
 
     private fun openNotificationSettings(): Boolean {

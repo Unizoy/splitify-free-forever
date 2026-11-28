@@ -89,7 +89,7 @@ class SegmentedPill<T> extends StatelessWidget {
                     selected: item.value == value,
                     onTap: () {
                       if (item.value == value) return;
-                      HapticFeedback.selectionClick();
+                      AppHaptics.selection();
                       onChanged(item.value);
                     },
                   ),

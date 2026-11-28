@@ -590,14 +590,15 @@ class _ExpenseEditorScreenState extends ConsumerState<ExpenseEditorScreen> {
     final problem = d.firstProblem;
     if (problem != null) {
       setState(() => _showErrors = true);
-      unawaited(HapticFeedback.lightImpact());
+      AppHaptics.error();
       _point(problem);
       return;
     }
     FocusManager.instance.primaryFocus?.unfocus();
     final messenger = ScaffoldMessenger.of(context);
     final l = AppLocalizations.of(context);
-    final pause = context.motion.reduced ? Duration.zero : const Duration(milliseconds: 700);
+    // The check draws itself, then the page closes (S-452: 420 ms, was 700).
+    final pause = context.motion.successHold;
     setState(() => _saving = true);
     final id = await ref.read(_provider.notifier).save();
     if (!mounted) return;
@@ -608,7 +609,7 @@ class _ExpenseEditorScreenState extends ConsumerState<ExpenseEditorScreen> {
     // "Save as group default" (P-10): the payer and split this expense used, through the outbox.
     if (_saveDefault.value && _canSaveDefault(d)) await ref.read(saveDraftAsDefaultProvider)(d);
     if (!mounted) return;
-    unawaited(HapticFeedback.mediumImpact());
+    AppHaptics.success();
     setState(() {
       _saving = false;
       _saved = true;
@@ -618,8 +619,8 @@ class _ExpenseEditorScreenState extends ConsumerState<ExpenseEditorScreen> {
     messenger
       ..hideCurrentSnackBar()
       ..showSnackBar(
-        SnackBar(
-          content: Text(d.isTemplate ? l.recurringSaved : l.expSaved),
+        successSnackBar(
+          d.isTemplate ? l.recurringSaved : l.expSaved,
           duration: const Duration(seconds: 2),
         ),
       );
@@ -981,26 +982,21 @@ class _SavedCheck extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.colors;
     final l = AppLocalizations.of(context);
-    return ColoredBox(
-      color: c.bg,
-      child: Center(
-        child: TweenAnimationBuilder<double>(
-          tween: Tween(begin: 0.4, end: 1),
-          duration: context.motion.slow,
-          curve: context.motion.spring,
-          builder: (context, t, child) => Transform.scale(scale: t, child: child),
+    // The page colour fades over the form while the check draws itself (S-452).
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0, end: 1),
+      duration: context.motion.fast,
+      builder: (context, t, child) => Opacity(opacity: t, child: child),
+      child: ColoredBox(
+        color: c.bg,
+        child: Center(
           child: Semantics(
             liveRegion: true,
             label: l.expSaved,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Container(
-                  width: 96,
-                  height: 96,
-                  decoration: BoxDecoration(color: c.ink, shape: BoxShape.circle),
-                  child: Icon(AppIcons.check, size: 48, color: c.owedAccent),
-                ),
+                const SuccessCheck(key: Key('expense-saved-check')),
                 const SizedBox(height: AppSpacing.s4),
                 ExcludeSemantics(child: Text(l.expSaved, style: context.text.title)),
               ],

@@ -26,6 +26,9 @@ final _literalString = RegExp(
 // text styles outside lib/ui/theme/.
 final _literalStyle = RegExp(r'\bColor\(0x|\bColor\.from(ARGB|RGBO)\(|\bColors\.|\bTextStyle\(');
 
+// One haptics helper (S-453): `AppHaptics` in lib/ui/theme/app_motion.dart, never `HapticFeedback` directly.
+final _rawHaptic = RegExp(r'HapticFeedback\.');
+
 String _norm(String p) => p.replaceAll('\\', '/');
 
 Iterable<File> _files(String dir, {String ext = '.dart'}) sync* {
@@ -68,6 +71,9 @@ void main() {
       }
       if (_printCall.hasMatch(l)) {
         out.add(Violation('no-print', path, i + 1, l));
+      }
+      if (!inTheme && _rawHaptic.hasMatch(l)) {
+        out.add(Violation('haptics-helper-only', path, i + 1, l));
       }
       if (!inTheme && _literalStyle.hasMatch(l)) {
         out.add(Violation('ui-tokens-only', path, i + 1, l));

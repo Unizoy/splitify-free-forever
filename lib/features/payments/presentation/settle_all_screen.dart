@@ -149,7 +149,7 @@ class _SettleAllScreenState extends ConsumerState<SettleAllScreen> {
   bool _check(SettleAllDraft d) {
     if (d.canSave) return true;
     setState(() => _showErrors = true);
-    unawaited(HapticFeedback.lightImpact());
+    AppHaptics.error();
     if (d.amount == null || d.over) {
       _amountFocus.requestFocus();
     } else if (d.noteTooLong) {
@@ -173,7 +173,7 @@ class _SettleAllScreenState extends ConsumerState<SettleAllScreen> {
       setState(() => _saving = false);
       return;
     }
-    unawaited(HapticFeedback.mediumImpact());
+    AppHaptics.success();
     setState(() {
       _saving = false;
       _saved = true;
@@ -181,7 +181,7 @@ class _SettleAllScreenState extends ConsumerState<SettleAllScreen> {
     _close();
     messenger
       ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text(l.settle2Recorded(ids.length))));
+      ..showSnackBar(successSnackBar(l.settle2Recorded(ids.length)));
     if (d.settlesEverything) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (root.mounted) unawaited(showSettledCelebration(root.context, name: d.friendName));

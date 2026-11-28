@@ -59,11 +59,11 @@ class _ConversionSheetState extends ConsumerState<ConversionSheet> {
     if (!mounted) return;
     setState(() => _saving = false);
     if (!ok) return;
-    unawaited(HapticFeedback.lightImpact());
+    AppHaptics.success();
     navigator.pop();
     messenger
       ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text(message)));
+      ..showSnackBar(successSnackBar(message));
   }
 
   @override

@@ -25,7 +25,7 @@ class QuantityStepper extends StatelessWidget {
   final String? semanticLabel;
 
   void _set(int v) {
-    HapticFeedback.selectionClick();
+    AppHaptics.selection();
     onChanged(v.clamp(min, max));
   }
 
