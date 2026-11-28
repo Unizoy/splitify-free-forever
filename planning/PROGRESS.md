@@ -57,3 +57,10 @@ Current phase: _none in progress_ (05 + 06 leftovers finished 2026-11-22 on `pha
   device test on the emulator (`.qa`, `--no-uninstall`) green, full screen walk light/dark/font 2.0, 8 leftovers +
   5 defects fixed with tests, universal APK 45.8 → 39.2 MB. Migration 0027 applied on DEV. S-400..S-415.
   [report](reports/final-qa-d034.md)
+- 2026-11-28, D-034 wave 2 W2-Y attachments, summaries and reliability (`feat/w2-attachments-reliability`, off
+  `feat/simple-add-expense`, no PR): several photos + PDFs per expense (0029, private `expense-files` bucket,
+  full size on tap, PdfRenderer viewer, offline upload queue, backup), monthly summary card + opt-in push (0030
+  cron), one push per batch settle-up (0030 fan-out), Crashlytics with opt-out and no personal data. Gates:
+  format, analyze (0 errors/warnings), guards, 4,164 tests in 4 chunks (coverage 95.3 %), pgTAP 280 47/47,
+  290 32/32 + regressions, deno 56, release arm64 +0.2 MB, device e2e `w2y_test` green. S-430..S-439.
+  [report](reports/w2y.md)

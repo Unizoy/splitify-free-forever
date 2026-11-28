@@ -24,6 +24,7 @@ import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/components/components.dart';
 
 import '../features/expenses/expense_fixtures.dart';
+import '../support/attachment_fixtures.dart';
 import 'golden_support.dart';
 
 /// One golden scenario: the screen, its overrides and the frame height at text scale 1.0.
@@ -127,6 +128,7 @@ List<Override> _search(SearchState s, List<SearchHit> hits) => [
 
 List<Override> _detail(LocalExpense e, LocalRecurring t) => [
   expenseViewProvider(e.id).overrideWithValue(AsyncData(sampleView(e))),
+  noAttachments(e.id),
   expenseGroupProvider(gid).overrideWith((ref) => Stream.value(sampleGroup())),
   commentThreadProvider((groupId: gid, targetType: 'expense', targetId: e.id))
       .overrideWithValue(const AsyncData([])),

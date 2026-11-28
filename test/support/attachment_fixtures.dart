@@ -132,3 +132,8 @@ List<Override> storedAttachments(
 /// A temp PDF-ish file for [attachmentFileProvider] overrides (the fake platform never reads it).
 File samplePdfFile(void Function(Future<void> Function()) deleteAfter) =>
     samplePhotoFile(deleteAfter, 'invoice.pdf');
+
+/// The expense page reads the expense's files from the database: goldens without one say "none" (W2-Y).
+Override noAttachments(String expenseId) =>
+    expenseAttachmentsProvider(expenseId)
+        .overrideWith((ref) => Stream.value(const <LocalAttachment>[]));

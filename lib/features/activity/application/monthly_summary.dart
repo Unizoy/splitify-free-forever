@@ -118,13 +118,16 @@ final hiddenMonthSummaryProvider = NotifierProvider<HiddenMonthSummary, String?>
 
 /// The card's data, or null when it doesn't show (later in the month, nothing spent, hidden).
 final monthSummaryProvider = Provider.autoDispose<MonthSummary?>((ref) {
+  // After the first days of a month nothing is read at all.
+  final today = ref.watch(clockProvider).today();
+  if (today.day > monthSummaryDays) return null;
   final ledgers = ref.watch(allLedgersProvider).value;
   final balances = ref.watch(myBalancesProvider).value;
   if (ledgers == null || balances == null) return null;
   final summary = monthSummaryOf(
     ledgers: ledgers,
     userId: ref.watch(currentUserIdProvider),
-    today: ref.watch(clockProvider).today(),
+    today: today,
     balances: balances,
   );
   if (summary == null || ref.watch(hiddenMonthSummaryProvider) == summary.key) return null;

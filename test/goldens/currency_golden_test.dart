@@ -23,6 +23,7 @@ import 'package:splitify/ui/components/components.dart';
 import 'package:splitify/ui/theme/theme.dart';
 
 import '../features/balances/balance_fixtures.dart';
+import '../support/attachment_fixtures.dart';
 import '../features/expenses/expense_fixtures.dart' show noRepeat;
 import '../support/notification_fakes.dart' show quietNotificationOverrides;
 import 'golden_support.dart';
@@ -243,6 +244,7 @@ List<Override> _detail({required bool converted}) {
   }
   return [
     expenseViewProvider('e2').overrideWithValue(AsyncData(sampleView(e))),
+    noAttachments('e2'),
     expenseGroupProvider(gid).overrideWith((ref) => Stream.value(sampleGroup())),
     groupMainCurrencyProvider(gid).overrideWith((ref) => Stream.value('INR')),
     commentThreadProvider((groupId: gid, targetType: 'expense', targetId: 'e2'))
