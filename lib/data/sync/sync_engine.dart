@@ -171,24 +171,50 @@ class SyncEngine {
       await serverClock.measure(resp.serverTime);
       final byId = {for (final r in resp.results) r.mutationId: r};
       var lost = 0;
+      final again = <String, int>{};
       await db.transaction(() async {
         for (final item in batch) {
           final r = byId[item.mutationId];
           switch (r?.status) {
             case null:
               await queue.requeue([item], 'NO_RESULT');
-            case MutationStatus.applied || MutationStatus.duplicate:
+            case MutationStatus.applied:
               await queue.complete(item);
+            case MutationStatus.duplicate:
+              await queue.complete(item);
+              _pullAgainFrom(again, item.groupId, r!.seq);
             case MutationStatus.superseded:
               lost++;
               await queue.complete(item);
+              _pullAgainFrom(again, item.groupId, r!.seq);
             case MutationStatus.rejected:
               await queue.fail(item, r!.code ?? 'REJECTED');
           }
         }
+        await _rewind(again);
       });
       if (lost > 0) _superseded.add(lost);
       if (batch.length < batchSize || byId.isEmpty) return;
+    }
+  }
+
+  /// R4 (S-460): an edit that lost (superseded) or whose first answer got lost (duplicate) leaves the
+  /// server row at a seq this phone's cursor may already be past — the pull skipped the row while the edit
+  /// waited in the outbox (a retried Sync issue, an edit made mid-sync), or a phone clock set back made the
+  /// edit lose. That group is pulled again from just before that seq, so the server copy comes back.
+  void _pullAgainFrom(Map<String, int> again, String groupId, int? seq) {
+    final from = max(0, (seq ?? 0) - 1);
+    again[groupId] = min(again[groupId] ?? from, from);
+  }
+
+  Future<void> _rewind(Map<String, int> again) async {
+    if (again.isEmpty) return;
+    final cursors = await dao.groupCursors();
+    for (final e in again.entries) {
+      final cursor = cursors[e.key];
+      if (cursor != null && cursor > e.value) {
+        await dao.setCursor(SyncDao.groupScope(e.key), e.value);
+      }
     }
   }
 

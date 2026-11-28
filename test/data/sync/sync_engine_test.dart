@@ -419,6 +419,51 @@ void main() {
       expect(engine.phase, SyncPhase.idle);
     });
 
+    test(
+      'R4 an edit that lost or whose answer got lost pulls its group again from before that seq',
+      () async {
+        expect(
+          ApplyResponse.fromJson({
+            'server_time': '2026-11-21T10:00:00Z',
+            'results': [
+              {'mutation_id': 'm1', 'status': 'superseded', 'seq': 20},
+              {
+                'mutation_id': 'm2',
+                'status': 'duplicate',
+                'result': {'status': 'applied', 'seq': 7},
+                'seq': 7,
+              },
+              {'mutation_id': 'm3', 'status': 'rejected', 'code': 'NOT_MEMBER'},
+            ],
+          }).results.map((r) => (r.status, r.seq)),
+          [
+            (MutationStatus.superseded, 20),
+            (MutationStatus.duplicate, 7),
+            (MutationStatus.rejected, null),
+          ],
+        );
+        Future<void> pushWith(MutationStatus status, int? seq) async {
+          await expenses.save(gid, expenseData('Edit'));
+          remote.applyScript.add(
+            (batch) => ApplyResponse(remote.serverTime, [
+              for (final m in batch) MutationResult(m['mutation_id']! as String, status, seq: seq),
+            ]),
+          );
+          await engine.sync();
+        }
+
+        await engine.dao.setCursor(SyncDao.groupScope(gid), 50);
+        await pushWith(MutationStatus.superseded, 20);
+        expect(remote.pulls.last, {gid: 19}, reason: 'the server copy at seq 20 comes back');
+        await pushWith(MutationStatus.duplicate, 30);
+        expect(remote.pulls.last, {gid: 19}, reason: 'already behind seq 30');
+        await pushWith(MutationStatus.applied, 5);
+        expect(remote.pulls.last, {gid: 19}, reason: 'a fresh version always comes with the pull');
+        await pushWith(MutationStatus.duplicate, null);
+        expect(remote.pulls.last, {gid: 0}, reason: 'no seq: the whole group again');
+      },
+    );
+
     test('a batch without results stays queued', () async {
       await expenses.save(gid, expenseData('A'));
       remote.applyScript.add((_) => ApplyResponse(remote.serverTime, const []));

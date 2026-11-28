@@ -19,17 +19,22 @@ abstract class RemoteApi {
 enum MutationStatus { applied, duplicate, superseded, rejected }
 
 class MutationResult {
-  const MutationResult(this.mutationId, this.status, {this.code});
+  const MutationResult(this.mutationId, this.status, {this.code, this.seq});
 
   factory MutationResult.fromJson(Map<String, Object?> j) => MutationResult(
     j['mutation_id']! as String,
     MutationStatus.values.byName(j['status']! as String),
     code: j['code'] as String?,
+    seq: (j['seq'] as num?)?.toInt(),
   );
 
   final String mutationId;
   final MutationStatus status;
   final String? code;
+
+  /// The row's `seq` on the server after this mutation: the new version (applied), the version that won
+  /// (superseded) or, for a duplicate, what the first delivery reported.
+  final int? seq;
 }
 
 class ApplyResponse {
