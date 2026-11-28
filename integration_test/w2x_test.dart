@@ -62,11 +62,14 @@ Future<void> _waitFor(WidgetTester t, Finder f, {String reason = '', int seconds
 Finder _field(String key) =>
     find.descendant(of: find.byKey(Key(key)), matching: find.byType(TextField));
 
-/// Asks the PC-side watcher for a screenshot.
+/// Asks the PC-side watcher (tool/e2e/capture_w2x.ps1) for screenshots: light, then dark (the watcher switches
+/// the emulator's dark mode; the app follows the system).
 Future<void> _shot(WidgetTester t, String name) async {
   await _pumpFor(t, const Duration(milliseconds: 900));
   debugPrint('W2X-SHOT $name');
-  await _pumpFor(t, const Duration(seconds: 3));
+  await _pumpFor(t, const Duration(seconds: 5));
+  debugPrint('W2X-SHOT $name-dark');
+  await _pumpFor(t, const Duration(seconds: 9));
 }
 
 void main() {
@@ -157,6 +160,8 @@ void main() {
       ),
     );
     await _waitFor(t, find.byKey(Key('group-card-$tripId')), reason: 'home', seconds: 90);
+    debugPrint('UI-READY');
+    await _pumpFor(t, const Duration(seconds: 4));
 
     // ---- F11: the + → Bina (an account) → "+" → Rahul (name only) → one hidden group of the three.
     await _tapKey(t, 'nav-add');
@@ -320,14 +325,8 @@ void main() {
     await _waitFor(t, find.byKey(const Key('groups-overall-converted')), reason: 'converted total');
     expect(find.text('In INR · saved rates'), findsOneWidget);
     await _shot(t, 'home-inr');
-    await container.read(themeModeControllerProvider.notifier).select(ThemeMode.dark);
-    await _shot(t, 'home-inr-dark');
-    router.go('/friends/m:$rahulId');
-    await _waitFor(t, find.byKey(ValueKey('friend-group-$adhocId')), reason: 'Rahul page dark');
-    await _shot(t, 'friend-adhoc-dark');
-    await container.read(themeModeControllerProvider.notifier).select(ThemeMode.system);
-    router.go(Routes.groups);
-    await _pumpFor(t, const Duration(seconds: 1));
+    await _tapKey(t, 'show-in-currency');
+    expect(find.byKey(const Key('groups-overall-converted')), findsNothing);
 
     debugPrint('W2X-E2E OK adhoc=$adhocId expense=${saved.id}');
   });
