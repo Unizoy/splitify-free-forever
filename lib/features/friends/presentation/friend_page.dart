@@ -392,29 +392,43 @@ class _Actions extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context);
     final remindable = remindableLinks(friend);
-    return Wrap(
-      spacing: AppSpacing.s3,
-      runSpacing: AppSpacing.s3,
+    PillButton settle({required bool expand}) => PillButton(
+      key: const Key('friend-settle'),
+      label: l.settleUp,
+      icon: AppIcons.coins,
+      variant: PillVariant.outline,
+      size: PillSize.medium,
+      expand: expand,
+      onPressed: () => unawaited(_settle(context, ref, friend)),
+    );
+    if (remindable.isEmpty) {
+      return Align(alignment: AlignmentDirectional.centerStart, child: settle(expand: false));
+    }
+    final remind = PillButton(
+      key: const Key('friend-remind'),
+      label: l.remindAction,
+      icon: AppIcons.bell,
+      variant: PillVariant.outline,
+      size: PillSize.medium,
+      onPressed: () => unawaited(_remind(context, ref, friend, remindable)),
+    );
+    // Two equal buttons like Splitwise's header; stacked full width when side by side would wrap a label
+    // (small phone, large text; R3-A, S-446).
+    if (StickyActionBar.stacks(context)) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          settle(expand: true),
+          const SizedBox(height: AppSpacing.s3),
+          remind,
+        ],
+      );
+    }
+    return Row(
       children: [
-        PillButton(
-          key: const Key('friend-settle'),
-          label: l.settleUp,
-          icon: AppIcons.coins,
-          variant: PillVariant.outline,
-          size: PillSize.medium,
-          expand: false,
-          onPressed: () => unawaited(_settle(context, ref, friend)),
-        ),
-        if (remindable.isNotEmpty)
-          PillButton(
-            key: const Key('friend-remind'),
-            label: l.remindAction,
-            icon: AppIcons.bell,
-            variant: PillVariant.outline,
-            size: PillSize.medium,
-            expand: false,
-            onPressed: () => unawaited(_remind(context, ref, friend, remindable)),
-          ),
+        Expanded(child: settle(expand: true)),
+        const SizedBox(width: AppSpacing.s3),
+        Expanded(child: remind),
       ],
     );
   }
