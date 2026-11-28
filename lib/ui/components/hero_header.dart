@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:splitify/ui/components/content_width.dart';
 import 'package:splitify/ui/components/glass_card.dart';
 import 'package:splitify/ui/components/hero_flight.dart';
 import 'package:splitify/ui/components/pressable.dart';
@@ -59,6 +60,9 @@ class HeroHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.colors;
     final topInset = MediaQuery.viewPaddingOf(context).top;
+    // Short phones (≤ 700 dp tall, e.g. 360 × 640): tighter gaps, so the overlap sheet with the first rows
+    // still shows below the hero (R3-A, S-446).
+    final gap = MediaQuery.sizeOf(context).height < 700 ? AppSpacing.s5 : AppSpacing.s8;
     final headline =
         titleWidget ??
         (title == null
@@ -87,37 +91,40 @@ class HeroHeader extends StatelessWidget {
               AppSpacing.screen,
               topInset + AppSpacing.s2,
               AppSpacing.screen,
-              overlap + AppSpacing.s8,
+              overlap + gap,
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                SizedBox(
-                  height: AppSpacing.minTouch,
-                  child: Row(
-                    children: [
-                      ?leading,
-                      const Spacer(),
-                      for (var i = 0; i < actions.length; i++) ...[
-                        if (i > 0) const SizedBox(width: AppSpacing.s1),
-                        actions[i],
+            // Full-bleed background; the buttons, title and card keep phone proportions on tablets (S-444).
+            child: ContentWidth(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  SizedBox(
+                    height: AppSpacing.minTouch,
+                    child: Row(
+                      children: [
+                        ?leading,
+                        const Spacer(),
+                        for (var i = 0; i < actions.length; i++) ...[
+                          if (i > 0) const SizedBox(width: AppSpacing.s1),
+                          actions[i],
+                        ],
                       ],
-                    ],
-                  ),
-                ),
-                if (top != null) ...[const SizedBox(height: AppSpacing.s4), top!],
-                if (headline != null) ...[
-                  const SizedBox(height: AppSpacing.s8),
-                  Semantics(
-                    header: true,
-                    child: MediaQuery.withClampedTextScaling(
-                      maxScaleFactor: AppText.maxSerifScale,
-                      child: headline,
                     ),
                   ),
+                  if (top != null) ...[const SizedBox(height: AppSpacing.s4), top!],
+                  if (headline != null) ...[
+                    SizedBox(height: gap),
+                    Semantics(
+                      header: true,
+                      child: MediaQuery.withClampedTextScaling(
+                        maxScaleFactor: AppText.maxSerifScale,
+                        child: headline,
+                      ),
+                    ),
+                  ],
+                  if (child != null) ...[SizedBox(height: gap), child!],
                 ],
-                if (child != null) ...[const SizedBox(height: AppSpacing.s8), child!],
-              ],
+              ),
             ),
           ),
         ),

@@ -196,8 +196,6 @@ class _TopBar extends StatelessWidget {
   }
 }
 
-const _headlineSize = 42.0;
-
 /// "split it." / "settle it." in the hero serif, the second line lime (the Groups hero's words).
 class _Headline extends StatelessWidget {
   const _Headline();
@@ -207,11 +205,7 @@ class _Headline extends StatelessWidget {
     final l = AppLocalizations.of(context);
     final c = context.colors;
     // One step up from the Groups hero: this is the page's message (S-282).
-    final style = context.text.heroDisplay.copyWith(
-      color: c.onHero,
-      fontSize: _headlineSize,
-      height: 1.05,
-    );
+    final style = context.text.displayLarge.copyWith(color: c.onHero);
     return Semantics(
       header: true,
       child: MediaQuery.withClampedTextScaling(

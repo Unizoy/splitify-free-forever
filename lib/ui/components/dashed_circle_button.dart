@@ -76,9 +76,7 @@ class _DashedCircleButtonState extends State<DashedCircleButton>
               Text(
                 widget.label,
                 textAlign: TextAlign.center,
-                style: context.text.button
-                    .w(600)
-                    .copyWith(color: color, fontSize: 20, height: 1.25),
+                style: context.text.headline.w(600).copyWith(color: color),
               ),
             ],
           ),

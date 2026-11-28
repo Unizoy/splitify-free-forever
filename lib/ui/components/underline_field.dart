@@ -90,7 +90,7 @@ class _UnderlineFieldState extends State<UnderlineField> {
     final hasError = widget.errorText != null;
     final lineColor = hasError ? c.oweText : (focused ? c.primary : c.divider);
     final l = AppLocalizations.of(context);
-    final inputStyle = context.text.body.copyWith(fontSize: 16, height: 1.35);
+    final inputStyle = context.text.input;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
@@ -164,7 +164,7 @@ class _UnderlineFieldState extends State<UnderlineField> {
             liveRegion: true,
             child: Text(
               widget.errorText!,
-              style: context.text.caption.copyWith(color: c.oweText, fontSize: 13),
+              style: context.text.bodySmall.w(500).copyWith(color: c.oweText),
             ),
           ),
         ],

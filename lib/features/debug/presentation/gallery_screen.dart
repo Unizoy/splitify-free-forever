@@ -43,10 +43,7 @@ class GalleryScreen extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               if (i > 0) Divider(height: AppSpacing.s12, color: c.border),
-              Semantics(
-                header: true,
-                child: Text(section.title, style: context.text.sheetTitle.copyWith(fontSize: 28)),
-              ),
+              Semantics(header: true, child: Text(section.title, style: context.text.sheetTitle)),
               const SizedBox(height: AppSpacing.s5),
               section.builder(context),
             ],

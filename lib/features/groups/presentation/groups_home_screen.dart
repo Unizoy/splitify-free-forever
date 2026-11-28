@@ -400,28 +400,30 @@ class _GroupGrid extends ConsumerWidget {
     final l = AppLocalizations.of(context);
     // Any pending row of the group (not just the group row) marks its card (T2, phase 15).
     final unsynced = ref.watch(unsyncedGroupIdsProvider).value ?? const <String>{};
-    return GridView.count(
-      crossAxisCount: 2,
-      shrinkWrap: true,
-      padding: EdgeInsets.zero,
-      physics: const NeverScrollableScrollPhysics(),
-      mainAxisSpacing: AppSpacing.gutter,
-      crossAxisSpacing: AppSpacing.gutter,
-      childAspectRatio: GroupCoverCard.aspectRatioFor(context),
-      children: [
-        for (final (i, g) in groups.indexed)
-          Entrance(
-            index: i,
-            child: _groupCard(
-              l,
-              context,
-              g,
-              balances,
-              unsynced: g.syncState != SyncState.synced || unsynced.contains(g.id),
-              photo: groupCoverImage(ref, g, width: 600),
+    return LayoutBuilder(
+      builder: (context, box) => GridView.count(
+        crossAxisCount: GroupCoverCard.columnsFor(context, box.maxWidth),
+        shrinkWrap: true,
+        padding: EdgeInsets.zero,
+        physics: const NeverScrollableScrollPhysics(),
+        mainAxisSpacing: AppSpacing.gutter,
+        crossAxisSpacing: AppSpacing.gutter,
+        childAspectRatio: GroupCoverCard.aspectRatioFor(context),
+        children: [
+          for (final (i, g) in groups.indexed)
+            Entrance(
+              index: i,
+              child: _groupCard(
+                l,
+                context,
+                g,
+                balances,
+                unsynced: g.syncState != SyncState.synced || unsynced.contains(g.id),
+                photo: groupCoverImage(ref, g, width: 600),
+              ),
             ),
-          ),
-      ],
+        ],
+      ),
     );
   }
 }
@@ -467,7 +469,13 @@ class _GridSkeleton extends StatelessWidget {
       label: AppLocalizations.of(context).groupsLoading,
       child: Shimmer(
         child: GridView.count(
-          crossAxisCount: 2,
+          crossAxisCount: GroupCoverCard.columnsFor(
+            context,
+            (MediaQuery.sizeOf(context).width - 2 * AppSpacing.screen).clamp(
+              0.0,
+              AppSpacing.maxContent,
+            ),
+          ),
           shrinkWrap: true,
           padding: EdgeInsets.zero,
           physics: const NeverScrollableScrollPhysics(),

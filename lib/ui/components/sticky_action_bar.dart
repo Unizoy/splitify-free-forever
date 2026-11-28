@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:splitify/ui/components/content_width.dart';
 import 'package:splitify/ui/theme/theme.dart';
 
 /// Bottom action bar (712): page-coloured bar with a top divider, a summary
@@ -31,36 +32,39 @@ class StickyActionBar extends StatelessWidget {
             AppSpacing.screen,
             AppSpacing.s1,
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              if (summary != null) ...[
-                DefaultTextStyle(
-                  style: context.text.body.w(600).copyWith(color: c.textSecondary),
-                  child: summary!,
-                ),
-                const SizedBox(height: AppSpacing.s3),
+          // On tablets the bar spans the screen and its buttons line up with the content (S-444).
+          child: ContentWidth(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (summary != null) ...[
+                  DefaultTextStyle(
+                    style: context.text.body.w(600).copyWith(color: c.textSecondary),
+                    child: summary!,
+                  ),
+                  const SizedBox(height: AppSpacing.s3),
+                ],
+                if (secondary == null)
+                  primary
+                else if (large)
+                  Column(
+                    children: [
+                      primary,
+                      const SizedBox(height: AppSpacing.s2),
+                      secondary!,
+                    ],
+                  )
+                else
+                  Row(
+                    children: [
+                      Expanded(child: secondary!),
+                      const SizedBox(width: AppSpacing.s3),
+                      Expanded(flex: 2, child: primary),
+                    ],
+                  ),
               ],
-              if (secondary == null)
-                primary
-              else if (large)
-                Column(
-                  children: [
-                    primary,
-                    const SizedBox(height: AppSpacing.s2),
-                    secondary!,
-                  ],
-                )
-              else
-                Row(
-                  children: [
-                    Expanded(child: secondary!),
-                    const SizedBox(width: AppSpacing.s3),
-                    Expanded(flex: 2, child: primary),
-                  ],
-                ),
-            ],
+            ),
           ),
         ),
       ),

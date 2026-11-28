@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:splitify/ui/components/content_width.dart';
 import 'package:splitify/ui/theme/theme.dart';
 
 /// Status-bar icons over a hero or its scrim: light in both themes (the hero is dark in both).
@@ -148,7 +149,8 @@ class OverlapSheet extends StatelessWidget {
                 AppSpacing.screen,
                 bottom + AppSpacing.s6,
               ),
-          child: child,
+          // The sheet fills the screen; its content keeps phone proportions on tablets (S-444).
+          child: ContentWidth(child: child),
         ),
       ),
     );

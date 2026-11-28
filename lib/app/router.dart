@@ -166,163 +166,165 @@ class AuthGate extends ChangeNotifier {
   }
 }
 
-final _rootKey = GlobalKey<NavigatorState>(debugLabel: 'root');
-
 /// Builds the app router. [initialLocation] is for tests; without a [gate]
 /// there are no auth redirects (screenshots, widget tests). [pendingJoin] keeps an invite through sign-in (S-283).
 GoRouter buildRouter({
   String initialLocation = Routes.welcome,
   AuthGate? gate,
   PendingJoin? pendingJoin,
-}) => GoRouter(
-  navigatorKey: _rootKey,
-  initialLocation: initialLocation,
-  refreshListenable: gate,
-  redirect: (context, state) => gate == null
-      ? linkRedirect(state.uri)
-      : authRedirect(state.uri, signedIn: gate.signedIn, pendingJoin: pendingJoin),
-  errorBuilder: (context, state) => const NotFoundScreen(),
-  routes: [
-    AppRoute(path: Routes.welcome, builder: (context, state) => const WelcomeScreen()),
-    AppRoute(
-      path: Routes.signIn,
-      builder: (context, state) => const SignInScreen(),
-      routes: [
-        AppRoute(
-          path: 'code',
-          builder: (context, state) => CodeScreen(email: state.uri.queryParameters['email']),
-        ),
-        AppRoute(path: 'profile', builder: (context, state) => const ProfileConfirmScreen()),
-      ],
-    ),
-    AppRoute(
-      path: Routes.join,
-      builder: (context, state) => JoinScreen(code: state.uri.queryParameters['code']),
-      routes: [
-        AppRoute(
-          path: ':code',
-          builder: (context, state) => JoinScreen(code: state.pathParameters['code']),
-        ),
-      ],
-    ),
-    // Tabs keep their state (like indexedStack) and fade through on a switch (S-263).
-    StatefulShellRoute(
-      // A page too, so it shifts back under a page pushed over the tabs (S-288).
-      pageBuilder: (context, state, shell) => appPage(state, AppShell(shell: shell)),
-      navigatorContainerBuilder: (context, shell, children) =>
-          FadeThroughStack(index: shell.currentIndex, children: children),
-      branches: [
-        StatefulShellBranch(
-          routes: [
-            AppRoute(
-              path: Routes.groups,
-              builder: (context, state) => const GroupsHomeScreen(),
-              routes: [
-                AppRoute(
-                  path: 'new',
-                  parentNavigatorKey: _rootKey,
-                  builder: (context, state) => const GroupFormScreen(),
-                ),
-                AppRoute(
-                  path: ':id',
-                  parentNavigatorKey: _rootKey,
-                  builder: (context, state) => GroupDetailScreen(
-                    groupId: state.pathParameters['id']!,
-                    initialTab: state.uri.queryParameters['tab'],
-                  ),
-                  routes: [
-                    AppRoute(
-                      path: 'edit',
-                      parentNavigatorKey: _rootKey,
-                      builder: (context, state) =>
-                          GroupFormScreen(groupId: state.pathParameters['id']),
-                    ),
-                    AppRoute(
-                      path: 'settings',
-                      parentNavigatorKey: _rootKey,
-                      builder: (context, state) =>
-                          GroupSettingsScreen(groupId: state.pathParameters['id']!),
-                    ),
-                    // The group notes (whiteboard, D-034 C5).
-                    AppRoute(
-                      path: 'notes',
-                      parentNavigatorKey: _rootKey,
-                      builder: (context, state) =>
-                          GroupNotesScreen(groupId: state.pathParameters['id']!),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ],
-        ),
-        StatefulShellBranch(
-          routes: [
-            AppRoute(path: Routes.friends, builder: (context, state) => const FriendsScreen()),
-          ],
-        ),
-        StatefulShellBranch(
-          routes: [
-            AppRoute(path: Routes.activity, builder: (context, state) => const ActivityScreen()),
-          ],
-        ),
-        StatefulShellBranch(
-          routes: [
-            AppRoute(
-              path: Routes.account,
-              builder: (context, state) => const AccountScreen(),
-              routes: [
-                // A sheet on the Account list since D-033; the old page link lands on Account.
-                AppRoute(path: 'appearance', redirect: (context, state) => Routes.account),
-                AppRoute(
-                  path: 'profile',
-                  parentNavigatorKey: _rootKey,
-                  builder: (context, state) => const ProfileEditScreen(),
-                ),
-                AppRoute(
-                  path: 'delete',
-                  parentNavigatorKey: _rootKey,
-                  builder: (context, state) => const DeleteAccountScreen(),
-                ),
-                AppRoute(
-                  path: 'sync',
-                  parentNavigatorKey: _rootKey,
-                  builder: (context, state) => const SyncStorageScreen(),
-                ),
-                AppRoute(
-                  path: 'about',
-                  parentNavigatorKey: _rootKey,
-                  builder: (context, state) => const AboutScreen(),
-                ),
-                AppRoute(
-                  path: 'deleted-groups',
-                  parentNavigatorKey: _rootKey,
-                  builder: (context, state) => const DeletedGroupsScreen(),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ],
-    ),
-    ...expenseRoutes(),
-    ...historyRoutes(),
-    ...paymentRoutes(),
-    ...insightsRoutes(),
-    ...friendRoutes(),
-    ...searchRoutes(),
-    ...notificationRoutes(),
-    ...importRoutes(),
-    ...securityRoutes(),
-    if (kDebugMode) ...[
-      AppRoute(path: Routes.gallery, builder: (context, state) => const GalleryScreen()),
+}) {
+  // One root navigator per router, not a global key: goldens put several apps side by side (R3-A, S-440).
+  final rootKey = GlobalKey<NavigatorState>(debugLabel: 'root');
+  return GoRouter(
+    navigatorKey: rootKey,
+    initialLocation: initialLocation,
+    refreshListenable: gate,
+    redirect: (context, state) => gate == null
+        ? linkRedirect(state.uri)
+        : authRedirect(state.uri, signedIn: gate.signedIn, pendingJoin: pendingJoin),
+    errorBuilder: (context, state) => const NotFoundScreen(),
+    routes: [
+      AppRoute(path: Routes.welcome, builder: (context, state) => const WelcomeScreen()),
       AppRoute(
-        path: Routes.devLogin,
-        builder: (context, state) => DevLoginScreen(user: state.uri.queryParameters['user']),
+        path: Routes.signIn,
+        builder: (context, state) => const SignInScreen(),
+        routes: [
+          AppRoute(
+            path: 'code',
+            builder: (context, state) => CodeScreen(email: state.uri.queryParameters['email']),
+          ),
+          AppRoute(path: 'profile', builder: (context, state) => const ProfileConfirmScreen()),
+        ],
       ),
+      AppRoute(
+        path: Routes.join,
+        builder: (context, state) => JoinScreen(code: state.uri.queryParameters['code']),
+        routes: [
+          AppRoute(
+            path: ':code',
+            builder: (context, state) => JoinScreen(code: state.pathParameters['code']),
+          ),
+        ],
+      ),
+      // Tabs keep their state (like indexedStack) and fade through on a switch (S-263).
+      StatefulShellRoute(
+        // A page too, so it shifts back under a page pushed over the tabs (S-288).
+        pageBuilder: (context, state, shell) => appPage(state, AppShell(shell: shell)),
+        navigatorContainerBuilder: (context, shell, children) =>
+            FadeThroughStack(index: shell.currentIndex, children: children),
+        branches: [
+          StatefulShellBranch(
+            routes: [
+              AppRoute(
+                path: Routes.groups,
+                builder: (context, state) => const GroupsHomeScreen(),
+                routes: [
+                  AppRoute(
+                    path: 'new',
+                    parentNavigatorKey: rootKey,
+                    builder: (context, state) => const GroupFormScreen(),
+                  ),
+                  AppRoute(
+                    path: ':id',
+                    parentNavigatorKey: rootKey,
+                    builder: (context, state) => GroupDetailScreen(
+                      groupId: state.pathParameters['id']!,
+                      initialTab: state.uri.queryParameters['tab'],
+                    ),
+                    routes: [
+                      AppRoute(
+                        path: 'edit',
+                        parentNavigatorKey: rootKey,
+                        builder: (context, state) =>
+                            GroupFormScreen(groupId: state.pathParameters['id']),
+                      ),
+                      AppRoute(
+                        path: 'settings',
+                        parentNavigatorKey: rootKey,
+                        builder: (context, state) =>
+                            GroupSettingsScreen(groupId: state.pathParameters['id']!),
+                      ),
+                      // The group notes (whiteboard, D-034 C5).
+                      AppRoute(
+                        path: 'notes',
+                        parentNavigatorKey: rootKey,
+                        builder: (context, state) =>
+                            GroupNotesScreen(groupId: state.pathParameters['id']!),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              AppRoute(path: Routes.friends, builder: (context, state) => const FriendsScreen()),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              AppRoute(path: Routes.activity, builder: (context, state) => const ActivityScreen()),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              AppRoute(
+                path: Routes.account,
+                builder: (context, state) => const AccountScreen(),
+                routes: [
+                  // A sheet on the Account list since D-033; the old page link lands on Account.
+                  AppRoute(path: 'appearance', redirect: (context, state) => Routes.account),
+                  AppRoute(
+                    path: 'profile',
+                    parentNavigatorKey: rootKey,
+                    builder: (context, state) => const ProfileEditScreen(),
+                  ),
+                  AppRoute(
+                    path: 'delete',
+                    parentNavigatorKey: rootKey,
+                    builder: (context, state) => const DeleteAccountScreen(),
+                  ),
+                  AppRoute(
+                    path: 'sync',
+                    parentNavigatorKey: rootKey,
+                    builder: (context, state) => const SyncStorageScreen(),
+                  ),
+                  AppRoute(
+                    path: 'about',
+                    parentNavigatorKey: rootKey,
+                    builder: (context, state) => const AboutScreen(),
+                  ),
+                  AppRoute(
+                    path: 'deleted-groups',
+                    parentNavigatorKey: rootKey,
+                    builder: (context, state) => const DeletedGroupsScreen(),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ],
+      ),
+      ...expenseRoutes(),
+      ...historyRoutes(),
+      ...paymentRoutes(),
+      ...insightsRoutes(),
+      ...friendRoutes(),
+      ...searchRoutes(),
+      ...notificationRoutes(),
+      ...importRoutes(),
+      ...securityRoutes(),
+      if (kDebugMode) ...[
+        AppRoute(path: Routes.gallery, builder: (context, state) => const GalleryScreen()),
+        AppRoute(
+          path: Routes.devLogin,
+          builder: (context, state) => DevLoginScreen(user: state.uri.queryParameters['user']),
+        ),
+      ],
     ],
-  ],
-);
+  );
+}
 
 /// App router, one per app run, redirecting by auth state.
 final routerProvider = Provider<GoRouter>((ref) {

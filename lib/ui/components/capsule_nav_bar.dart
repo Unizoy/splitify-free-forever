@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart' show OverflowBoxFit;
 import 'package:flutter/services.dart';
+import 'package:splitify/ui/components/content_width.dart';
 import 'package:splitify/ui/components/pressable.dart';
 import 'package:splitify/ui/theme/theme.dart';
 
@@ -56,66 +57,70 @@ class CapsuleNavBar extends StatelessWidget {
         AppSpacing.navSide,
         AppSpacing.navBottom + bottom,
       ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Container(
-              constraints: const BoxConstraints(minHeight: AppSpacing.navHeight),
-              padding: const EdgeInsets.all(AppSpacing.s2),
-              decoration: BoxDecoration(
-                color: c.surface,
-                borderRadius: AppRadii.allPill,
-                border: Border.all(color: dark ? c.border : c.surface),
-                boxShadow: AppShadows.float(c, dark: dark),
-              ),
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  final others = items.length - 1;
-                  // Compact (S-400): too narrow for the labelled pill, so the other buttons shrink to the
-                  // 48 dp touch size and the active pill shows its icon only (its label stays for screen
-                  // readers).
-                  final compact =
-                      constraints.maxWidth - _inactiveWidth * others < _labelledMinWidth;
-                  final inactiveWidth = compact ? AppSpacing.minTouch : _inactiveWidth;
-                  final activeWidth = constraints.maxWidth - inactiveWidth * others;
-                  // While the pills swap, the spring curve overshoots and the widths can add up to a
-                  // pixel or two more than the bar: lay them out unbounded and clip instead of overflowing.
-                  return ClipRect(
-                    child: OverflowBox(
-                      alignment: AlignmentDirectional.centerStart,
-                      maxWidth: double.infinity,
-                      fit: OverflowBoxFit.deferToChild,
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          for (var i = 0; i < items.length; i++)
-                            AnimatedContainer(
-                              duration: context.motion.showcase,
-                              curve: context.motion.spring,
-                              width: i == currentIndex ? activeWidth : inactiveWidth,
-                              child: _NavButton(
-                                item: items[i],
-                                active: i == currentIndex,
-                                showLabel: !compact,
-                                onTap: () {
-                                  if (i != currentIndex) HapticFeedback.selectionClick();
-                                  onSelected(i);
-                                },
+      // Tablets: a phone-sized capsule in the middle, not a screen-wide one (S-444).
+      child: ContentWidth(
+        maxWidth: AppSpacing.maxNav,
+        child: Row(
+          children: [
+            Expanded(
+              child: Container(
+                constraints: const BoxConstraints(minHeight: AppSpacing.navHeight),
+                padding: const EdgeInsets.all(AppSpacing.s2),
+                decoration: BoxDecoration(
+                  color: c.surface,
+                  borderRadius: AppRadii.allPill,
+                  border: Border.all(color: dark ? c.border : c.surface),
+                  boxShadow: AppShadows.float(c, dark: dark),
+                ),
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    final others = items.length - 1;
+                    // Compact (S-400): too narrow for the labelled pill, so the other buttons shrink to the
+                    // 48 dp touch size and the active pill shows its icon only (its label stays for screen
+                    // readers).
+                    final compact =
+                        constraints.maxWidth - _inactiveWidth * others < _labelledMinWidth;
+                    final inactiveWidth = compact ? AppSpacing.minTouch : _inactiveWidth;
+                    final activeWidth = constraints.maxWidth - inactiveWidth * others;
+                    // While the pills swap, the spring curve overshoots and the widths can add up to a
+                    // pixel or two more than the bar: lay them out unbounded and clip instead of overflowing.
+                    return ClipRect(
+                      child: OverflowBox(
+                        alignment: AlignmentDirectional.centerStart,
+                        maxWidth: double.infinity,
+                        fit: OverflowBoxFit.deferToChild,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            for (var i = 0; i < items.length; i++)
+                              AnimatedContainer(
+                                duration: context.motion.showcase,
+                                curve: context.motion.spring,
+                                width: i == currentIndex ? activeWidth : inactiveWidth,
+                                child: _NavButton(
+                                  item: items[i],
+                                  active: i == currentIndex,
+                                  showLabel: !compact,
+                                  onTap: () {
+                                    if (i != currentIndex) HapticFeedback.selectionClick();
+                                    onSelected(i);
+                                  },
+                                ),
                               ),
-                            ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                  );
-                },
+                    );
+                  },
+                ),
               ),
             ),
-          ),
-          if (onAdd != null) ...[
-            const SizedBox(width: AppSpacing.s3),
-            _AddButton(onTap: onAdd!, label: addLabel ?? ''),
+            if (onAdd != null) ...[
+              const SizedBox(width: AppSpacing.s3),
+              _AddButton(onTap: onAdd!, label: addLabel ?? ''),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }

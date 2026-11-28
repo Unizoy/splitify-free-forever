@@ -44,6 +44,14 @@ class GroupCoverCard extends StatelessWidget {
   final bool unsynced;
   final VoidCallback? onTap;
 
+  /// Grid columns for a grid [width] dp wide (R3-A, S-444): two on phones, three once every card can stay
+  /// at least 170 dp wide (open foldables, tablets); at large text sizes cards need 220 dp.
+  static int columnsFor(BuildContext context, double width) {
+    final minCard = MediaQuery.textScalerOf(context).scale(1) >= 1.3 ? 220.0 : 170.0;
+    final fit = ((width + AppSpacing.gutter) / (minCard + AppSpacing.gutter)).floor();
+    return fit < 2 ? 2 : fit;
+  }
+
   /// Grid aspect ratio (width / height): 0.62, taller at large text sizes.
   static double aspectRatioFor(BuildContext context) {
     final scale = MediaQuery.textScalerOf(context).scale(1);
@@ -142,7 +150,6 @@ class GroupCoverCard extends StatelessWidget {
                               style: context.text.labelCaps.copyWith(
                                 color: c.onHero.withValues(alpha: 0.7),
                                 letterSpacing: 1.2,
-                                fontSize: 11,
                               ),
                             ),
                             amount: amountText == null

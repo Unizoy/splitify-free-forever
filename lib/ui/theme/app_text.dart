@@ -26,6 +26,10 @@ class AppText extends ThemeExtension<AppText> {
     required this.amountHero,
     required this.amount,
     required this.button,
+    required this.displayLarge,
+    required this.amountLarge,
+    required this.labelCapsLarge,
+    required this.input,
   });
 
   /// Builds the scale with [primary] as the default colour.
@@ -43,6 +47,11 @@ class AppText extends ThemeExtension<AppText> {
     amountHero: _sans(34, 38, 700, -0.8, primary, tabular: true),
     amount: _sans(15, 20, 600, -0.1, primary, tabular: true),
     button: _sans(16, 20, 600, -0.1, primary),
+    // R3-A (S-442): the few sizes features used to set by hand, now named once.
+    displayLarge: _serif(42, 44, -0.6, primary),
+    amountLarge: _sans(26, 30, 700, -0.6, primary, tabular: true),
+    labelCapsLarge: _sans(13, 16, 700, 1.8, primary),
+    input: _sans(16, 22, 400, -0.1, primary),
   );
 
   /// Serif display: hero headlines, lowercase sentences.
@@ -70,6 +79,18 @@ class AppText extends ThemeExtension<AppText> {
   /// Tabular list amount.
   final TextStyle amount;
   final TextStyle button;
+
+  /// Serif statement (welcome headline, settle-up celebration).
+  final TextStyle displayLarge;
+
+  /// Mid-size tabular number (stat tiles, sign-in code boxes).
+  final TextStyle amountLarge;
+
+  /// Bigger letter-spaced caps (showpiece card headers, wallet brand and status).
+  final TextStyle labelCapsLarge;
+
+  /// Text typed into fields.
+  final TextStyle input;
 
   /// Serif hero text never scales beyond this factor (§3).
   static const maxSerifScale = 1.6;
@@ -114,6 +135,10 @@ class AppText extends ThemeExtension<AppText> {
     amountHero,
     amount,
     button,
+    displayLarge,
+    amountLarge,
+    labelCapsLarge,
+    input,
   ];
 
   /// Material text theme built from the same styles, so stock widgets match.
@@ -156,6 +181,10 @@ class AppText extends ThemeExtension<AppText> {
       amountHero: v[9],
       amount: v[10],
       button: v[11],
+      displayLarge: v[12],
+      amountLarge: v[13],
+      labelCapsLarge: v[14],
+      input: v[15],
     );
   }
 }

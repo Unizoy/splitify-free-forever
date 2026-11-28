@@ -24,11 +24,8 @@ class TagChip extends StatelessWidget {
           Text(
             label.toUpperCase(),
             maxLines: 1,
-            style: context.text.labelCaps.copyWith(
-              color: c.onPrimaryContainer,
-              fontSize: 10,
-              letterSpacing: 1,
-            ),
+            // 11 sp at least (R3-A, S-442): the old 10 sp tag was the smallest text in the app.
+            style: context.text.labelCaps.copyWith(color: c.onPrimaryContainer, letterSpacing: 1),
           ),
         ],
       ),

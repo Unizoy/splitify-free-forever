@@ -14,6 +14,7 @@ export 'brand_mark.dart';
 export 'capsule_nav_bar.dart';
 export 'category_icon.dart';
 export 'celebration.dart';
+export 'content_width.dart';
 export 'dashed_circle_button.dart';
 export 'dashed_divider.dart';
 export 'dashed_list_row.dart';

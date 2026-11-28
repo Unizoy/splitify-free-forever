@@ -54,11 +54,7 @@ class StatGrid extends StatelessWidget {
                                   child: Text(
                                     rows[r][i].value,
                                     maxLines: 1,
-                                    style: context.text.amountHero.copyWith(
-                                      color: valueColor,
-                                      fontSize: 28,
-                                      height: 1.15,
-                                    ),
+                                    style: context.text.amountLarge.copyWith(color: valueColor),
                                   ),
                                 ),
                                 const SizedBox(height: AppSpacing.s1),
@@ -111,11 +107,7 @@ class ShowcaseCardHeader extends StatelessWidget {
                 header: true,
                 child: Text(
                   title.toUpperCase(),
-                  style: context.text.labelCaps.copyWith(
-                    color: color,
-                    fontSize: 14,
-                    letterSpacing: 1.8,
-                  ),
+                  style: context.text.labelCapsLarge.copyWith(color: color),
                 ),
               ),
             ),

@@ -92,9 +92,9 @@ class WalletCard extends StatelessWidget {
                           Flexible(
                             child: Text(
                               statusLabel.toUpperCase(),
-                              style: context.text.labelCaps.copyWith(
+                              style: context.text.labelCapsLarge.copyWith(
                                 color: c.onMoney,
-                                fontSize: 13,
+                                letterSpacing: 1.4,
                               ),
                             ),
                           ),
@@ -149,9 +149,8 @@ class _GoldCard extends StatelessWidget {
                 Expanded(
                   child: Text(
                     brandLabel,
-                    style: context.text.labelCaps.copyWith(
+                    style: context.text.labelCapsLarge.copyWith(
                       color: c.onGold,
-                      fontSize: 14,
                       letterSpacing: 2.4,
                     ),
                   ),

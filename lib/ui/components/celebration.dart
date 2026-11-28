@@ -135,7 +135,7 @@ class _CelebrationState extends State<Celebration> with SingleTickerProviderStat
                           ],
                         ),
                         textAlign: TextAlign.center,
-                        style: context.text.heroDisplay.copyWith(color: c.onHero, fontSize: 42),
+                        style: context.text.displayLarge.copyWith(color: c.onHero),
                       ),
                     ),
                     if (widget.message != null) ...[

@@ -55,11 +55,7 @@ class AuthPage extends StatelessWidget {
                 child: Text(
                   title,
                   textAlign: TextAlign.center,
-                  style: context.text.heroDisplay.copyWith(
-                    color: c.textPrimary,
-                    fontSize: 34,
-                    height: 1.1,
-                  ),
+                  style: context.text.heroDisplay.copyWith(color: c.textPrimary),
                 ),
               ),
             ),

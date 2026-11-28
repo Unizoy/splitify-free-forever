@@ -203,7 +203,7 @@ class CodeBoxes extends StatelessWidget {
                               maxScaleFactor: 1.4,
                               child: Text(
                                 i < text.length ? text[i] : '',
-                                style: context.text.amount.copyWith(fontSize: wide ? 22 : 26),
+                                style: wide ? context.text.headline : context.text.amountLarge,
                               ),
                             ),
                           ),

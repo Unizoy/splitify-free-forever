@@ -79,7 +79,7 @@ class WithRow extends ConsumerWidget {
               child: Text(
                 l.expWithMissing,
                 key: const Key('with-error'),
-                style: context.text.caption.copyWith(color: c.oweText, fontSize: 13),
+                style: context.text.bodySmall.w(500).copyWith(color: c.oweText),
               ),
             ),
           ],
@@ -670,7 +670,7 @@ class _AmountFieldState extends State<AmountField> {
             child: Text(
               error,
               key: const Key('amount-error'),
-              style: context.text.caption.copyWith(color: c.oweText, fontSize: 13),
+              style: context.text.bodySmall.w(500).copyWith(color: c.oweText),
             ),
           ),
         ],

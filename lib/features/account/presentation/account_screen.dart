@@ -116,13 +116,13 @@ class AccountScreen extends ConsumerWidget {
                   child: Text(
                     profile?.displayName ?? l.yourAccount,
                     textAlign: TextAlign.center,
-                    style: context.text.headline.copyWith(fontSize: 22, height: 1.2),
+                    style: context.text.headline,
                   ),
                 ),
                 const SizedBox(height: AppSpacing.s1),
                 Text(
                   l.you.toUpperCase(),
-                  style: context.text.labelCaps.copyWith(color: c.textSecondary, fontSize: 12),
+                  style: context.text.labelCaps.copyWith(color: c.textSecondary),
                 ),
                 const SizedBox(height: AppSpacing.s8),
                 WalletCard(

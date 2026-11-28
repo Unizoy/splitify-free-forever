@@ -26,6 +26,10 @@ final _literalString = RegExp(
 // text styles outside lib/ui/theme/.
 final _literalStyle = RegExp(r'\bColor\(0x|\bColor\.from(ARGB|RGBO)\(|\bColors\.|\bTextStyle\(');
 
+// One type scale (R3-A, S-442): no hand-set font sizes outside lib/ui/theme/ (sizes computed from a
+// component's own size, like avatar initials, are fine).
+final _literalFontSize = RegExp(r'\bfontSize:\s*[\d_]');
+
 String _norm(String p) => p.replaceAll('\\', '/');
 
 Iterable<File> _files(String dir, {String ext = '.dart'}) sync* {
@@ -71,6 +75,9 @@ void main() {
       }
       if (!inTheme && _literalStyle.hasMatch(l)) {
         out.add(Violation('ui-tokens-only', path, i + 1, l));
+      }
+      if (!inTheme && _literalFontSize.hasMatch(l)) {
+        out.add(Violation('type-scale-only', path, i + 1, l));
       }
       if (inWidgets && _literalString.hasMatch(l)) {
         out.add(Violation('l10n-no-literal', path, i + 1, l));
