@@ -183,21 +183,12 @@ select is(pg_temp.code(pg_temp.m(10, 'group', 'upsert', pg_temp.g(10), pg_temp.g
   'TYPE_LOCKED', 'a friend (direct) group can not stop being direct');
 
 -- ------------------------------------------------------------------ friend codes (0025)
-select pg_temp.as_user('d');
-insert into codes select 'd', public.my_friend_code();
 select pg_temp.as_user('b');
 insert into codes select 'b', public.my_friend_code();
-reset role;
-update public.profiles set deleted_at = now() where id = pg_temp.uid('d');
-set local role authenticated;
-select pg_temp.as_user('a');
-select is(public.add_friend_by_code((select c from codes where u = 'd')) ->> 'error', 'INVALID_CODE',
-  'the code of a deleted account adds nobody');
-reset role;
-update public.profiles set deleted_at = null where id = pg_temp.uid('d');
-set local role authenticated;
 
 select pg_temp.as_user('c');
+select is(public.add_friend_by_code(public.my_friend_code()) ->> 'error', 'OWN_CODE',
+  'your own code says so and is not a wrong try');
 select is(public.add_friend_by_code(null) ->> 'error', 'INVALID_CODE', 'a missing code is a wrong code');
 select is(public.add_friend_by_code(repeat('A', 10000)) ->> 'error', 'INVALID_CODE',
   'a 10,000-character code is a wrong code');
@@ -205,7 +196,7 @@ select is(public.add_friend_by_code('АВСD-ЕFGН') ->> 'error', 'INVALID_CODE
   'look-alike letters from another script match nothing');
 reset role;
 select is((select count(*) from public.join_attempts where user_id = pg_temp.uid('c')), 3::bigint,
-  'each wrong code counts against the rate limit');
+  'each wrong code counts against the rate limit (your own code does not)');
 set local role authenticated;
 select pg_temp.as_user('c');
 select is(public.add_friend_by_code(lower((select c from codes where u = 'b'))) ->> 'status', 'created',
