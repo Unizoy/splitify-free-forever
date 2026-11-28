@@ -81,20 +81,16 @@ String? authRedirect(
   final link = linkRedirect(uri);
   if (link != null) return link;
   if (debug && (path == '/login' || path == '/dev/login')) {
-    return Uri(
-      path: Routes.devLogin,
-      queryParameters: uri.queryParameters.isEmpty ? null : uri.queryParameters,
-    ).toString();
+    final query = _query(uri);
+    return Uri(path: Routes.devLogin, queryParameters: query.isEmpty ? null : query).toString();
   }
   final public =
       path == Routes.welcome || path.startsWith(Routes.signIn) || path.startsWith('/debug/');
   if (!signedIn) {
     if (public) return null;
     if (pendingJoin != null && (path == Routes.join || path.startsWith('${Routes.join}/'))) {
-      final segments = uri.pathSegments;
-      pendingJoin.remember(
-        uri.queryParameters['code'] ?? (segments.length > 1 ? segments[1] : null),
-      );
+      final segments = _segments(uri);
+      pendingJoin.remember(_query(uri)['code'] ?? (segments.length > 1 ? segments[1] : null));
       return Routes.signIn;
     }
     // A friend-code link waits for sign-in the same way (S-404).
@@ -130,9 +126,10 @@ String? linkRedirect(Uri uri) {
   // does not exist shows [NotFoundScreen] (final QA, S-250). `splitify://dev/…` stays for the debug sign-in.
   if (uri.scheme == 'splitify' && uri.host.isNotEmpty && uri.host != 'dev') {
     final page = uri.host == 'group' ? 'groups' : uri.host;
+    final query = _query(uri);
     return Uri(
       path: '/$page${path == '/' ? '' : path}',
-      queryParameters: uri.queryParameters.isEmpty ? null : uri.queryParameters,
+      queryParameters: query.isEmpty ? null : query,
     ).toString();
   }
   if (uri.host.isEmpty && (path.isEmpty || path == '/')) return Routes.groups;
@@ -140,8 +137,33 @@ String? linkRedirect(Uri uri) {
 }
 
 Map<String, String>? _code(Uri uri) {
-  final code = uri.queryParameters['code'];
+  final code = _query(uri)['code'];
   return code == null ? null : {'code': code};
+}
+
+/// [uri]'s query parameters, or none when a hand-made link has broken percent-escapes (`?code=%E0%A4`):
+/// decoding them throws, and a redirect that throws crashes the navigation (R4, S-474).
+Map<String, String> _query(Uri uri) {
+  try {
+    return uri.queryParameters;
+  } on FormatException {
+    return const {};
+    // ignore: avoid_catching_errors, Uri decoding reports a bad escape as an ArgumentError.
+  } on ArgumentError {
+    return const {};
+  }
+}
+
+/// [uri]'s decoded path segments, or none when their percent-escapes are broken (see [_query]).
+List<String> _segments(Uri uri) {
+  try {
+    return uri.pathSegments;
+  } on FormatException {
+    return const [];
+    // ignore: avoid_catching_errors, Uri decoding reports a bad escape as an ArgumentError.
+  } on ArgumentError {
+    return const [];
+  }
 }
 
 /// Auth state for the router: the current answer plus a change signal.

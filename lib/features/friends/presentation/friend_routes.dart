@@ -26,9 +26,10 @@ List<RouteBase> friendRoutes() => [
       ),
     ],
   ),
+  // go_router already decodes path parameters; decoding the key again threw on a link like `/friends/%25ZZ`
+  // (R4, S-474).
   AppRoute(
     path: '/friends/:key',
-    builder: (context, state) =>
-        FriendPage(friendKey: Uri.decodeComponent(state.pathParameters['key']!)),
+    builder: (context, state) => FriendPage(friendKey: state.pathParameters['key']!),
   ),
 ];
