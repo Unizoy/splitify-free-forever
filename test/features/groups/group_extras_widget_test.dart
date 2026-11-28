@@ -502,6 +502,8 @@ void main() {
   testWidgets('C6 the search icon opens search for this group', (tester) async {
     final db = await _db(tester);
     final h = await pumpGroups(tester, '/groups/g1', db: db);
+    // It searches payments and comments too (D-034 D2), so it says "Search" (final QA S-414).
+    expect(find.byTooltip('Search'), findsOneWidget);
     await _tap(tester, _key('group-search'));
     expect(h.location, '/search?group=g1');
   });

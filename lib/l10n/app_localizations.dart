@@ -6347,7 +6347,7 @@ abstract class AppLocalizations {
   /// No description provided for @searchTooltip.
   ///
   /// In en, this message translates to:
-  /// **'Search expenses'**
+  /// **'Search'**
   String get searchTooltip;
 
   /// No description provided for @searchFieldHint.

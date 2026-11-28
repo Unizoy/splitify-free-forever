@@ -3860,7 +3860,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get searchTooltip => 'Search expenses';
+  String get searchTooltip => 'Search';
 
   @override
   String get searchFieldHint => 'Search expenses';

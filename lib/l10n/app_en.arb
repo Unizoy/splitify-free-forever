@@ -1343,7 +1343,7 @@
   "@actRecurringCopy": {"placeholders": {"description": {"type": "String"}}},
   "actRecurringStoppedAuto": "“{description}” stopped repeating",
   "@actRecurringStoppedAuto": {"placeholders": {"description": {"type": "String"}}},
-  "searchTooltip": "Search expenses",
+  "searchTooltip": "Search",
   "searchFieldHint": "Search expenses",
   "searchClear": "Clear search",
   "searchFilterGroup": "Group",
