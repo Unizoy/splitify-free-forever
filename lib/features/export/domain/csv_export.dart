@@ -229,8 +229,10 @@ String csvEscape(String cell) {
 }
 
 /// User text: a leading `=`, `+`, `-`, `@`, tab or CR gets an apostrophe so spreadsheet apps
-/// show it as text instead of running it as a formula (CSV injection).
-String _text(String value) => value.startsWith(RegExp('[=+\\-@\t\r]')) ? "'$value" : value;
+/// show it as text instead of running it as a formula (CSV injection). Text that already starts with
+/// apostrophes before such a character gets one more, so the importer's undo (strip one) gives it back
+/// unchanged (R4, S-475: `'=x` came back as `=x`).
+String _text(String value) => value.startsWith(RegExp("'*[=+\\-@\t\r]")) ? "'$value" : value;
 
 String _line(List<String> cells) => '${cells.map(csvEscape).join(',')}\r\n';
 

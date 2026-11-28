@@ -278,7 +278,8 @@ SplitwiseCsv parseSplitwiseCsv(String text, {String paymentCategory = splitwiseP
         members[m]: parseMinorCell(cell[5 + m], exponent, row, members[m]),
     };
 
-    if (cell[1].toLowerCase() == splitwiseTotalsDescription.toLowerCase()) {
+    // The footer has no cost; an expense someone called "Total balance" has one (R4, S-475).
+    if (cell[1].toLowerCase() == splitwiseTotalsDescription.toLowerCase() && cell[3].isEmpty) {
       if (totals.containsKey(currency)) throw DuplicateTotals(row, currency);
       totals[currency] = nets;
       continue;

@@ -15,7 +15,9 @@ enum ImportFormat { splitwise, splitify }
 typedef ImportCsv = ({ImportFormat format, SplitwiseCsv file});
 
 final _currency = RegExp(r'^[A-Z]{3}$');
-final _formulaGuard = RegExp('^\'[=+\\-@\t\r]');
+
+/// The export's formula guard: one apostrophe added in front of `'*[=+-@\t\r]` (R4, S-475).
+final _formulaGuard = RegExp("^'+[=+\\-@\t\r]");
 
 /// Parses [text] in either format. Throws a [SplitwiseCsvError] ([BadHeader] when the header is
 /// neither format's). [categoryKeys] maps a lower-case category label, as Splitify's export writes
