@@ -61,117 +61,124 @@ class GroupSettingsScreen extends ConsumerWidget {
     final direct = GroupRules.isHidden(group.type);
     return Scaffold(
       appBar: back,
-      body: SafeArea(
-        top: false,
-        child: ListView(
-          padding: const EdgeInsets.fromLTRB(
-            AppSpacing.screen,
-            AppSpacing.s3,
-            AppSpacing.screen,
-            AppSpacing.s10,
-          ),
-          children: [
-            _GroupHeader(
-              group: group,
-              onTap: direct ? null : () => context.push('/groups/$groupId/edit'),
+      body: PageBody(
+        child: SafeArea(
+          top: false,
+          child: ListView(
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.screen,
+              AppSpacing.s3,
+              AppSpacing.screen,
+              AppSpacing.s10,
             ),
-            const SizedBox(height: AppSpacing.s6),
-            SectionLabel('${l.membersSection}\u00A0· ${members.length}'),
-            DashedListRow(
-              key: const Key('settings-add-member'),
-              icon: AppIcons.userPlus,
-              label: l.settingsAddPeople,
-              onTap: () => unawaited(_addMember(context, ref, members.length)),
-            ),
-            DashedListRow(
-              key: const Key('settings-invite'),
-              icon: AppIcons.qr,
-              label: l.settingsInviteLink,
-              onTap: () => unawaited(showInviteSheet(context, groupId)),
-            ),
-            for (final m in members)
-              _MemberRow(
-                member: m,
-                me: me,
-                onTap: () => unawaited(_memberActions(context, ref, m, me)),
+            children: [
+              _GroupHeader(
+                group: group,
+                onTap: direct ? null : () => context.push('/groups/$groupId/edit'),
               ),
-            const SizedBox(height: AppSpacing.s8),
-            SectionLabel(l.settingsSectionSettings),
-            // #35: new expenses start with this split (phase 08).
-            DashedListRow(
-              key: const Key('settings-default-split'),
-              icon: AppIcons.stepSplit,
-              label: l.expDefaultSplitTitle,
-              value: l.splitKind(DefaultSplit.decode(group.defaultSplit)?.kind ?? SplitKind.equal),
-              showDivider: false,
-              onTap: () => unawaited(showDefaultSplitSheet(context, groupId)),
-            ),
-            // #17: simplify debts (phase 11); friend (direct) groups have only two people.
-            if (!direct) SimplifySettingRow(group: group),
-            // D-034 C5: the group notes (whiteboard).
-            if (!direct)
+              const SizedBox(height: AppSpacing.s6),
+              SectionLabel('${l.membersSection}\u00A0· ${members.length}'),
               DashedListRow(
-                key: const Key('settings-notes'),
-                icon: AppIcons.notes,
-                label: l.boardTitle,
+                key: const Key('settings-add-member'),
+                icon: AppIcons.userPlus,
+                label: l.settingsAddPeople,
+                onTap: () => unawaited(_addMember(context, ref, members.length)),
+              ),
+              DashedListRow(
+                key: const Key('settings-invite'),
+                icon: AppIcons.qr,
+                label: l.settingsInviteLink,
+                onTap: () => unawaited(showInviteSheet(context, groupId)),
+              ),
+              for (final m in members)
+                _MemberRow(
+                  member: m,
+                  me: me,
+                  onTap: () => unawaited(_memberActions(context, ref, m, me)),
+                ),
+              const SizedBox(height: AppSpacing.s8),
+              SectionLabel(l.settingsSectionSettings),
+              // #35: new expenses start with this split (phase 08).
+              DashedListRow(
+                key: const Key('settings-default-split'),
+                icon: AppIcons.stepSplit,
+                label: l.expDefaultSplitTitle,
+                value: l.splitKind(
+                  DefaultSplit.decode(group.defaultSplit)?.kind ?? SplitKind.equal,
+                ),
                 showDivider: false,
-                onTap: () => context.push(GroupRoutes.notes(groupId)),
+                onTap: () => unawaited(showDefaultSplitSheet(context, groupId)),
               ),
-            const SizedBox(height: AppSpacing.s8),
-            SectionLabel(l.settingsSectionData),
-            // #22: every expense and payment as a CSV file, through the share sheet (phase 17).
-            DashedListRow(
-              key: const Key('settings-export'),
-              icon: AppIcons.share,
-              label: l.totExportCsv,
-              onTap: () => unawaited(exportGroupCsv(context, ref, groupId)),
-            ),
-            // X1: import a Splitwise (or Splitify) CSV into this group (phase 18).
-            if (!archived)
+              // #17: simplify debts (phase 11); friend (direct) groups have only two people.
+              if (!direct) SimplifySettingRow(group: group),
+              // D-034 C5: the group notes (whiteboard).
+              if (!direct)
+                DashedListRow(
+                  key: const Key('settings-notes'),
+                  icon: AppIcons.notes,
+                  label: l.boardTitle,
+                  showDivider: false,
+                  onTap: () => context.push(GroupRoutes.notes(groupId)),
+                ),
+              const SizedBox(height: AppSpacing.s8),
+              SectionLabel(l.settingsSectionData),
+              // #22: every expense and payment as a CSV file, through the share sheet (phase 17).
               DashedListRow(
-                key: const Key('settings-import'),
-                icon: AppIcons.fileImport,
-                label: l.impTitle,
-                onTap: () => context.push(ImportRoutes.forGroup(groupId)),
+                key: const Key('settings-export'),
+                icon: AppIcons.share,
+                label: l.totExportCsv,
+                onTap: () => unawaited(exportGroupCsv(context, ref, groupId)),
               ),
-            // #20: deleted expenses and payments, restorable by any member (phase 12).
-            DashedListRow(
-              key: const Key('settings-deleted-items'),
-              icon: AppIcons.restore,
-              label: l.delTitle,
-              showDivider: false,
-              onTap: () => context.push(HistoryRoutes.deleted(groupId)),
-            ),
-            const SizedBox(height: AppSpacing.s8),
-            DashedListRow(
-              key: const Key('settings-archive'),
-              icon: AppIcons.archive,
-              label: archived ? l.unarchiveGroup : l.archiveGroup,
-              onTap: () async {
-                await ref.read(groupActionsProvider).setArchived(groupId, archived: !archived);
-                if (context.mounted) {
-                  showGroupMessage(context, archived ? l.groupUnarchivedDone : l.groupArchivedDone);
-                }
-              },
-            ),
-            DashedListRow(
-              key: const Key('settings-leave'),
-              icon: AppIcons.leave,
-              label: l.leaveGroup,
-              destructive: true,
-              showDivider: isCreator,
-              onTap: () => unawaited(_leave(context, ref)),
-            ),
-            if (isCreator)
+              // X1: import a Splitwise (or Splitify) CSV into this group (phase 18).
+              if (!archived)
+                DashedListRow(
+                  key: const Key('settings-import'),
+                  icon: AppIcons.fileImport,
+                  label: l.impTitle,
+                  onTap: () => context.push(ImportRoutes.forGroup(groupId)),
+                ),
+              // #20: deleted expenses and payments, restorable by any member (phase 12).
               DashedListRow(
-                key: const Key('settings-delete'),
-                icon: AppIcons.trash,
-                label: l.deleteGroup,
+                key: const Key('settings-deleted-items'),
+                icon: AppIcons.restore,
+                label: l.delTitle,
+                showDivider: false,
+                onTap: () => context.push(HistoryRoutes.deleted(groupId)),
+              ),
+              const SizedBox(height: AppSpacing.s8),
+              DashedListRow(
+                key: const Key('settings-archive'),
+                icon: AppIcons.archive,
+                label: archived ? l.unarchiveGroup : l.archiveGroup,
+                onTap: () async {
+                  await ref.read(groupActionsProvider).setArchived(groupId, archived: !archived);
+                  if (context.mounted) {
+                    showGroupMessage(
+                      context,
+                      archived ? l.groupUnarchivedDone : l.groupArchivedDone,
+                    );
+                  }
+                },
+              ),
+              DashedListRow(
+                key: const Key('settings-leave'),
+                icon: AppIcons.leave,
+                label: l.leaveGroup,
                 destructive: true,
-                showDivider: false,
-                onTap: () => unawaited(_delete(context, ref)),
+                showDivider: isCreator,
+                onTap: () => unawaited(_leave(context, ref)),
               ),
-          ],
+              if (isCreator)
+                DashedListRow(
+                  key: const Key('settings-delete'),
+                  icon: AppIcons.trash,
+                  label: l.deleteGroup,
+                  destructive: true,
+                  showDivider: false,
+                  onTap: () => unawaited(_delete(context, ref)),
+                ),
+            ],
+          ),
         ),
       ),
     );

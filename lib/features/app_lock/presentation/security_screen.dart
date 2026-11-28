@@ -34,96 +34,100 @@ class SecurityScreen extends ConsumerWidget {
         title: Text(l.lockSecurity),
       ),
       // One screen (D-033): the switch, and once it is on, when to lock, in the same card.
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(
-          AppSpacing.screen,
-          AppSpacing.s4,
-          AppSpacing.screen,
-          AppSpacing.s8,
-        ),
-        children: [
-          SettingsSection(
-            key: const Key('security-section'),
-            children: [
-              ToggleRow(
-                key: const Key('security-app-lock'),
-                icon: AppIcons.lock,
-                title: l.lockAppLock,
-                subtitle: l.lockAppLockSub,
-                value: s.enabled,
-                showDivider: s.enabled,
-                onChanged: s.authenticating
-                    ? null
-                    : (on) => unawaited(
-                        ref.read(appLockProvider.notifier).setEnabled(on: on, reason: l.lockReason),
-                      ),
-              ),
-              if (s.enabled)
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: AppSpacing.s4),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Text(
-                        l.lockAfter.toUpperCase(),
-                        style: context.text.labelCaps.copyWith(color: c.textSecondary),
-                      ),
-                      const SizedBox(height: AppSpacing.s3),
-                      SegmentedPill<LockTimeout>(
-                        key: const Key('security-timeout'),
-                        value: s.timeout,
-                        onChanged: (t) =>
-                            unawaited(ref.read(appLockProvider.notifier).setTimeout(t)),
-                        items: [
-                          for (final t in LockTimeout.values)
-                            SegmentedPillItem(
-                              value: t,
-                              label: l.lockMinutesShort(t.minutes),
-                              semanticLabel: l.lockMinutes(t.minutes),
-                            ),
-                        ],
-                      ),
-                      const SizedBox(height: AppSpacing.s3),
-                      Text(
-                        l.lockAfterSub,
-                        style: context.text.bodySmall.copyWith(color: c.textSecondary),
-                      ),
-                    ],
-                  ),
-                ),
-            ],
+      body: PageBody(
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.screen,
+            AppSpacing.s4,
+            AppSpacing.screen,
+            AppSpacing.s8,
           ),
-          if (notice != null) ...[
-            const SizedBox(height: AppSpacing.s3),
-            Semantics(
-              liveRegion: true,
-              child: Text(
-                notice,
-                key: const Key('security-notice'),
-                style: context.text.bodySmall.copyWith(color: c.oweText),
-              ),
-            ),
-          ],
-          if (s.enabled) ...[
-            const SizedBox(height: AppSpacing.s5),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SettingsSection(
+              key: const Key('security-section'),
               children: [
-                Padding(
-                  padding: const EdgeInsets.only(top: 2),
-                  child: Icon(AppIcons.eyeSlash, size: 18, color: c.textSecondary),
+                ToggleRow(
+                  key: const Key('security-app-lock'),
+                  icon: AppIcons.lock,
+                  title: l.lockAppLock,
+                  subtitle: l.lockAppLockSub,
+                  value: s.enabled,
+                  showDivider: s.enabled,
+                  onChanged: s.authenticating
+                      ? null
+                      : (on) => unawaited(
+                          ref
+                              .read(appLockProvider.notifier)
+                              .setEnabled(on: on, reason: l.lockReason),
+                        ),
                 ),
-                const SizedBox(width: AppSpacing.s2),
-                Expanded(
-                  child: Text(
-                    l.lockRecentsNote,
-                    style: context.text.bodySmall.copyWith(color: c.textSecondary),
+                if (s.enabled)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: AppSpacing.s4),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Text(
+                          l.lockAfter.toUpperCase(),
+                          style: context.text.labelCaps.copyWith(color: c.textSecondary),
+                        ),
+                        const SizedBox(height: AppSpacing.s3),
+                        SegmentedPill<LockTimeout>(
+                          key: const Key('security-timeout'),
+                          value: s.timeout,
+                          onChanged: (t) =>
+                              unawaited(ref.read(appLockProvider.notifier).setTimeout(t)),
+                          items: [
+                            for (final t in LockTimeout.values)
+                              SegmentedPillItem(
+                                value: t,
+                                label: l.lockMinutesShort(t.minutes),
+                                semanticLabel: l.lockMinutes(t.minutes),
+                              ),
+                          ],
+                        ),
+                        const SizedBox(height: AppSpacing.s3),
+                        Text(
+                          l.lockAfterSub,
+                          style: context.text.bodySmall.copyWith(color: c.textSecondary),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
               ],
             ),
+            if (notice != null) ...[
+              const SizedBox(height: AppSpacing.s3),
+              Semantics(
+                liveRegion: true,
+                child: Text(
+                  notice,
+                  key: const Key('security-notice'),
+                  style: context.text.bodySmall.copyWith(color: c.oweText),
+                ),
+              ),
+            ],
+            if (s.enabled) ...[
+              const SizedBox(height: AppSpacing.s5),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(top: 2),
+                    child: Icon(AppIcons.eyeSlash, size: 18, color: c.textSecondary),
+                  ),
+                  const SizedBox(width: AppSpacing.s2),
+                  Expanded(
+                    child: Text(
+                      l.lockRecentsNote,
+                      style: context.text.bodySmall.copyWith(color: c.textSecondary),
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }

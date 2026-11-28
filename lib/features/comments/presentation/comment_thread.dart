@@ -309,7 +309,8 @@ class _CommentComposerState extends ConsumerState<CommentComposer> {
               AppSpacing.screen,
               AppSpacing.s1,
             ),
-            child: child,
+            // The bar spans the screen; the field lines up with the page column on tablets (S-444).
+            child: ContentWidth(child: child),
           ),
         ),
       ),

@@ -34,46 +34,48 @@ class _GroupActivityScreenState extends ConsumerState<GroupActivityScreen> {
     final items = async.value;
     final shown = items == null ? null : filterActivity(items, _filter);
     return Scaffold(
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(
-            AppSpacing.screen,
-            AppSpacing.s2,
-            AppSpacing.screen,
-            AppSpacing.s8,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Align(
-                alignment: AlignmentDirectional.centerStart,
-                child: AppIconButton(
-                  tooltip: l.back,
-                  icon: const Icon(AppIcons.back),
-                  onPressed: () => Navigator.of(context).maybePop(),
-                ),
-              ),
-              const SizedBox(height: AppSpacing.s2),
-              PageTitle(title: l.actTitle, subtitle: group?.name),
-              const SizedBox(height: AppSpacing.s6),
-              ActivityFilters(value: _filter, onChanged: (f) => setState(() => _filter = f)),
-              const SizedBox(height: AppSpacing.s4),
-              if (shown == null)
-                async.hasError
-                    ? EmptyState(icon: AppIcons.warning, title: l.authErrorUnknown)
-                    : const FeedSkeleton()
-              else if (shown.isEmpty)
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: AppSpacing.s8),
-                  child: EmptyState(
-                    icon: AppIcons.activity,
-                    title: l.actEmptyFilteredTitle,
-                    message: l.actEmptyFilteredBody,
+      body: PageBody(
+        child: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.screen,
+              AppSpacing.s2,
+              AppSpacing.screen,
+              AppSpacing.s8,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: AppIconButton(
+                    tooltip: l.back,
+                    icon: const Icon(AppIcons.back),
+                    onPressed: () => Navigator.of(context).maybePop(),
                   ),
-                )
-              else
-                ActivityFeed(items: shown, showGroup: false),
-            ],
+                ),
+                const SizedBox(height: AppSpacing.s2),
+                PageTitle(title: l.actTitle, subtitle: group?.name),
+                const SizedBox(height: AppSpacing.s6),
+                ActivityFilters(value: _filter, onChanged: (f) => setState(() => _filter = f)),
+                const SizedBox(height: AppSpacing.s4),
+                if (shown == null)
+                  async.hasError
+                      ? EmptyState(icon: AppIcons.warning, title: l.authErrorUnknown)
+                      : const FeedSkeleton()
+                else if (shown.isEmpty)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: AppSpacing.s8),
+                    child: EmptyState(
+                      icon: AppIcons.activity,
+                      title: l.actEmptyFilteredTitle,
+                      message: l.actEmptyFilteredBody,
+                    ),
+                  )
+                else
+                  ActivityFeed(items: shown, showGroup: false),
+              ],
+            ),
           ),
         ),
       ),

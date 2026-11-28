@@ -78,42 +78,47 @@ class _InsightsScreenState extends ConsumerState<InsightsScreen> {
           onPressed: () => Navigator.of(context).maybePop(),
         ),
       ),
-      body: SafeArea(
-        top: false,
-        child: ListView(
-          key: const Key('insights-list'),
-          padding: const EdgeInsets.fromLTRB(
-            AppSpacing.screen,
-            AppSpacing.s2,
-            AppSpacing.screen,
-            AppSpacing.s10,
-          ),
-          children: [
-            PageTitle(title: l.insTitle, subtitle: v == null ? null : l.insSpendingIn(v.currency)),
-            const SizedBox(height: AppSpacing.s6),
-            Semantics(
-              label: l.insModeLabel,
-              container: true,
-              child: SegmentedPill<InsightsMode>(
-                key: const Key('insights-mode'),
-                items: [
-                  SegmentedPillItem(
-                    value: InsightsMode.group,
-                    label: l.insModeGroup,
-                    icon: AppIcons.groups,
-                  ),
-                  SegmentedPillItem(
-                    value: InsightsMode.me,
-                    label: l.insModeMe,
-                    icon: AppIcons.user,
-                  ),
-                ],
-                value: _mode,
-                onChanged: _setMode,
-              ),
+      body: PageBody(
+        child: SafeArea(
+          top: false,
+          child: ListView(
+            key: const Key('insights-list'),
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.screen,
+              AppSpacing.s2,
+              AppSpacing.screen,
+              AppSpacing.s10,
             ),
-            ..._body(context, async, v),
-          ],
+            children: [
+              PageTitle(
+                title: l.insTitle,
+                subtitle: v == null ? null : l.insSpendingIn(v.currency),
+              ),
+              const SizedBox(height: AppSpacing.s6),
+              Semantics(
+                label: l.insModeLabel,
+                container: true,
+                child: SegmentedPill<InsightsMode>(
+                  key: const Key('insights-mode'),
+                  items: [
+                    SegmentedPillItem(
+                      value: InsightsMode.group,
+                      label: l.insModeGroup,
+                      icon: AppIcons.groups,
+                    ),
+                    SegmentedPillItem(
+                      value: InsightsMode.me,
+                      label: l.insModeMe,
+                      icon: AppIcons.user,
+                    ),
+                  ],
+                  value: _mode,
+                  onChanged: _setMode,
+                ),
+              ),
+              ..._body(context, async, v),
+            ],
+          ),
         ),
       ),
     );

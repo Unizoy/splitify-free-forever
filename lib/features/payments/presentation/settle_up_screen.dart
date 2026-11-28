@@ -305,101 +305,103 @@ class _SettleUpScreenState extends ConsumerState<SettleUpScreen> {
           ),
           title: Text(d.isEdit ? l.settleEditTitle : l.settleRecordTitle),
         ),
-        body: Column(
-          children: [
-            Expanded(
-              child: ListView(
-                key: const Key('settle-form'),
-                keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-                padding: const EdgeInsets.fromLTRB(
-                  AppSpacing.screen,
-                  AppSpacing.s3,
-                  AppSpacing.screen,
-                  AppSpacing.s6,
-                ),
-                children: [
-                  GroupLine(name: d.groupName, type: d.groupType, offline: offline),
-                  const SizedBox(height: AppSpacing.s6),
-                  _People(draft: d, onEdit: _edit),
-                  const SizedBox(height: AppSpacing.s6),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsetsDirectional.only(
-                          top: AppSpacing.s4,
-                          end: AppSpacing.s3,
+        body: PageBody(
+          child: Column(
+            children: [
+              Expanded(
+                child: ListView(
+                  key: const Key('settle-form'),
+                  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                  padding: const EdgeInsets.fromLTRB(
+                    AppSpacing.screen,
+                    AppSpacing.s3,
+                    AppSpacing.screen,
+                    AppSpacing.s6,
+                  ),
+                  children: [
+                    GroupLine(name: d.groupName, type: d.groupType, offline: offline),
+                    const SizedBox(height: AppSpacing.s6),
+                    _People(draft: d, onEdit: _edit),
+                    const SizedBox(height: AppSpacing.s6),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsetsDirectional.only(
+                            top: AppSpacing.s4,
+                            end: AppSpacing.s3,
+                          ),
+                          child: CurrencyChip(
+                            key: const Key('settle-currency'),
+                            code: d.currency,
+                            onTap: () => unawaited(_pickCurrency(d)),
+                          ),
                         ),
-                        child: CurrencyChip(
-                          key: const Key('settle-currency'),
-                          code: d.currency,
-                          onTap: () => unawaited(_pickCurrency(d)),
+                        Expanded(
+                          child: AmountField(
+                            key: const Key('settle-amount'),
+                            controller: _amount,
+                            focusNode: _amountFocus,
+                            currency: d.currency,
+                            errorText: amountError,
+                            onChanged: (t) => _edit((c) => c.setAmountText(t)),
+                            onSubmitted: (_) => _amountFocus.unfocus(),
+                          ),
                         ),
-                      ),
-                      Expanded(
-                        child: AmountField(
-                          key: const Key('settle-amount'),
-                          controller: _amount,
-                          focusNode: _amountFocus,
-                          currency: d.currency,
-                          errorText: amountError,
-                          onChanged: (t) => _edit((c) => c.setAmountText(t)),
-                          onSubmitted: (_) => _amountFocus.unfocus(),
+                      ],
+                    ),
+                    const SizedBox(height: AppSpacing.s6),
+                    OwedSummaryPill(owed: d.owed, amount: d.amount, currency: d.currency),
+                    if (d.owed > 0 && d.amount != d.owed) ...[
+                      const SizedBox(height: AppSpacing.s3),
+                      Align(
+                        alignment: AlignmentDirectional.centerStart,
+                        child: IconChip(
+                          key: const Key('settle-use-owed'),
+                          label: l.settleUseOwed(listMoney(d.owed, d.currency)),
+                          icon: AppIcons.checkCircle,
+                          onTap: () => _edit((c) => c.useOwed()),
                         ),
                       ),
                     ],
-                  ),
-                  const SizedBox(height: AppSpacing.s6),
-                  OwedSummaryPill(owed: d.owed, amount: d.amount, currency: d.currency),
-                  if (d.owed > 0 && d.amount != d.owed) ...[
-                    const SizedBox(height: AppSpacing.s3),
-                    Align(
-                      alignment: AlignmentDirectional.centerStart,
-                      child: IconChip(
-                        key: const Key('settle-use-owed'),
-                        label: l.settleUseOwed(listMoney(d.owed, d.currency)),
-                        icon: AppIcons.checkCircle,
-                        onTap: () => _edit((c) => c.useOwed()),
-                      ),
-                    ),
                   ],
-                ],
-              ),
-            ),
-            // In the body (not bottomNavigationBar): the Scaffold lifts it above the keyboard.
-            if (!_saved)
-              StickyActionBar(
-                summary: SettleToolbar(
-                  date: d.date,
-                  note: d.note,
-                  method: d.method,
-                  today: today,
-                  onDate: () => unawaited(_pickDate(d)),
-                  onNote: () => unawaited(_openNote()),
-                  onMethod: () => unawaited(_pickMethod(d)),
                 ),
-                primary: !upi
-                    ? record
-                    : Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          PillButton(
-                            key: const Key('settle-upi'),
-                            label: d.amount == null
-                                ? l.settlePayUpi
-                                : l.upiPay(listMoney(d.amount!, d.currency)),
-                            icon: AppIcons.qr,
-                            variant: PillVariant.money,
-                            loading: _saving,
-                            onPressed: () => unawaited(_payByUpi(vpa!, payeeName)),
-                          ),
-                          const SizedBox(height: AppSpacing.s1),
-                          record,
-                        ],
-                      ),
               ),
-          ],
+              // In the body (not bottomNavigationBar): the Scaffold lifts it above the keyboard.
+              if (!_saved)
+                StickyActionBar(
+                  summary: SettleToolbar(
+                    date: d.date,
+                    note: d.note,
+                    method: d.method,
+                    today: today,
+                    onDate: () => unawaited(_pickDate(d)),
+                    onNote: () => unawaited(_openNote()),
+                    onMethod: () => unawaited(_pickMethod(d)),
+                  ),
+                  primary: !upi
+                      ? record
+                      : Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            PillButton(
+                              key: const Key('settle-upi'),
+                              label: d.amount == null
+                                  ? l.settlePayUpi
+                                  : l.upiPay(listMoney(d.amount!, d.currency)),
+                              icon: AppIcons.qr,
+                              variant: PillVariant.money,
+                              loading: _saving,
+                              onPressed: () => unawaited(_payByUpi(vpa!, payeeName)),
+                            ),
+                            const SizedBox(height: AppSpacing.s1),
+                            record,
+                          ],
+                        ),
+                ),
+            ],
+          ),
         ),
       ),
     );

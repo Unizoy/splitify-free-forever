@@ -126,9 +126,12 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
             SliverToBoxAdapter(child: header),
             if (feed != null) ...[
               EntranceScope(
-                child: SliverPadding(
-                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
-                  sliver: feed,
+                child: SliverContentWidth(
+                  maxWidth: AppSpacing.maxPage,
+                  sliver: SliverPadding(
+                    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
+                    sliver: feed,
+                  ),
                 ),
               ),
               const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.navReserve)),

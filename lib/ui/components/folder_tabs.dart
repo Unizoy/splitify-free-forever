@@ -34,6 +34,22 @@ class FolderTabs extends StatelessWidget {
   /// Narrower tabs show their label only.
   static const _iconMinTab = 104.0;
 
+  /// Width of the widest of [labels] at the reader's text size.
+  static double _widest(BuildContext context, List<String> labels, TextStyle style) {
+    var widest = 0.0;
+    for (final label in labels) {
+      final painter = TextPainter(
+        text: TextSpan(text: label, style: style),
+        textDirection: Directionality.of(context),
+        textScaler: MediaQuery.textScalerOf(context),
+        maxLines: 1,
+      )..layout();
+      if (painter.width > widest) widest = painter.width;
+      painter.dispose();
+    }
+    return widest;
+  }
+
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
@@ -41,13 +57,16 @@ class FolderTabs extends StatelessWidget {
       builder: (context, constraints) {
         final n = tabs.length;
         final tabWidth = (constraints.maxWidth - _slant) / n;
-        // Narrow tabs (a 320 dp phone) drop their icons, so the labels keep one shared, readable size
-        // instead of each shrinking on its own (R3-A, S-446).
-        final icons = tabWidth >= _iconMinTab;
+        // Icons only while every label still fits beside them at the reader's text size; otherwise the
+        // icons go first, so labels keep one shared, readable size instead of shrinking (R3-A, S-446).
+        final style = context.text.body.w(700);
+        final icons =
+            tabWidth >= _iconMinTab &&
+            _widest(context, [for (final t in tabs) t.label], style) <= tabWidth - _labelChrome;
         final scaler = sharedLabelScaler(
           context,
           labels: [for (final t in tabs) t.label],
-          style: context.text.body.w(700),
+          style: style,
           maxWidth: tabWidth - (icons ? _labelChrome : _labelChrome - _iconChrome),
           minFactor: 0.7,
         );

@@ -92,75 +92,77 @@ class _SyncStorageScreenState extends ConsumerState<SyncStorageScreen> {
           onPressed: () => Navigator.of(context).maybePop(),
         ),
       ),
-      body: ListView(
-        padding: EdgeInsets.fromLTRB(
-          AppSpacing.screen,
-          AppSpacing.s2,
-          AppSpacing.screen,
-          MediaQuery.paddingOf(context).bottom + AppSpacing.s8,
-        ),
-        children: [
-          Semantics(
-            header: true,
-            child: MediaQuery.withClampedTextScaling(
-              maxScaleFactor: AppText.maxSerifScale,
-              child: Text(l.syncStorage, style: context.text.sheetTitle),
+      body: PageBody(
+        child: ListView(
+          padding: EdgeInsets.fromLTRB(
+            AppSpacing.screen,
+            AppSpacing.s2,
+            AppSpacing.screen,
+            MediaQuery.paddingOf(context).bottom + AppSpacing.s8,
+          ),
+          children: [
+            Semantics(
+              header: true,
+              child: MediaQuery.withClampedTextScaling(
+                maxScaleFactor: AppText.maxSerifScale,
+                child: Text(l.syncStorage, style: context.text.sheetTitle),
+              ),
             ),
-          ),
-          const SizedBox(height: AppSpacing.s2),
-          Text(l.syncStorageHint, style: context.text.body.copyWith(color: c.textSecondary)),
-          const SizedBox(height: AppSpacing.s6),
-          if (status.hasError && s == null)
-            EmptyState(icon: AppIcons.warning, title: l.syncStateError)
-          else
-            SyncStatusCard(status: s, now: ref.watch(clockProvider).now(), uploads: uploads),
-          const SizedBox(height: AppSpacing.s5),
-          PillButton(
-            key: const Key('sync-now'),
-            label: l.syncNow,
-            icon: AppIcons.sync,
-            loading: syncing,
-            onPressed: syncing ? null : () => unawaited(_syncNow()),
-          ),
-          if (issues.isNotEmpty) ...[
-            const SizedBox(height: AppSpacing.s8),
-            _SectionLabel(l.syncIssuesTitle),
-            for (final i in issues) ...[
+            const SizedBox(height: AppSpacing.s2),
+            Text(l.syncStorageHint, style: context.text.body.copyWith(color: c.textSecondary)),
+            const SizedBox(height: AppSpacing.s6),
+            if (status.hasError && s == null)
+              EmptyState(icon: AppIcons.warning, title: l.syncStateError)
+            else
+              SyncStatusCard(status: s, now: ref.watch(clockProvider).now(), uploads: uploads),
+            const SizedBox(height: AppSpacing.s5),
+            PillButton(
+              key: const Key('sync-now'),
+              label: l.syncNow,
+              icon: AppIcons.sync,
+              loading: syncing,
+              onPressed: syncing ? null : () => unawaited(_syncNow()),
+            ),
+            if (issues.isNotEmpty) ...[
+              const SizedBox(height: AppSpacing.s8),
+              _SectionLabel(l.syncIssuesTitle),
+              for (final i in issues) ...[
+                const SizedBox(height: AppSpacing.s3),
+                SyncIssueCard(
+                  key: ValueKey('sync-issue-${i.seq}'),
+                  issue: i,
+                  busy: _busy.contains(i.seq),
+                  onEdit: switch (syncIssueRoute(i)) {
+                    final route? => () => unawaited(context.push(route)),
+                    null => null,
+                  },
+                  onRetry: () => unawaited(_run(i.seq, (r) => r.retry(i.seq))),
+                  onDiscard: () => unawaited(_discard(i)),
+                ),
+              ],
+            ],
+            if (uploads.isNotEmpty) ...[
+              const SizedBox(height: AppSpacing.s8),
+              _SectionLabel('${l.syncUploadsTitle}\u00A0· ${l.syncUploadsWaiting(uploads.length)}'),
               const SizedBox(height: AppSpacing.s3),
-              SyncIssueCard(
-                key: ValueKey('sync-issue-${i.seq}'),
-                issue: i,
-                busy: _busy.contains(i.seq),
-                onEdit: switch (syncIssueRoute(i)) {
-                  final route? => () => unawaited(context.push(route)),
-                  null => null,
-                },
-                onRetry: () => unawaited(_run(i.seq, (r) => r.retry(i.seq))),
-                onDiscard: () => unawaited(_discard(i)),
+              SyncUploadsCard(
+                uploads: uploads,
+                busy: _uploadBusy,
+                onRetry: (u) => unawaited(_retryUpload(u)),
               ),
             ],
-          ],
-          if (uploads.isNotEmpty) ...[
             const SizedBox(height: AppSpacing.s8),
-            _SectionLabel('${l.syncUploadsTitle}\u00A0· ${l.syncUploadsWaiting(uploads.length)}'),
-            const SizedBox(height: AppSpacing.s3),
-            SyncUploadsCard(
-              uploads: uploads,
-              busy: _uploadBusy,
-              onRetry: (u) => unawaited(_retryUpload(u)),
+            _SectionLabel(l.onThisPhone),
+            const SizedBox(height: AppSpacing.s1),
+            DashedListRow(
+              key: const Key('export-debug-log'),
+              icon: AppIcons.share,
+              label: l.exportDebugLog,
+              showDivider: false,
+              onTap: () => unawaited(_export()),
             ),
           ],
-          const SizedBox(height: AppSpacing.s8),
-          _SectionLabel(l.onThisPhone),
-          const SizedBox(height: AppSpacing.s1),
-          DashedListRow(
-            key: const Key('export-debug-log'),
-            icon: AppIcons.share,
-            label: l.exportDebugLog,
-            showDivider: false,
-            onTap: () => unawaited(_export()),
-          ),
-        ],
+        ),
       ),
     );
   }

@@ -216,23 +216,25 @@ class _JoinScreenState extends ConsumerState<JoinScreen> {
           ),
           title: Text(l.joinGroup),
         ),
-        body: Column(
-          children: [
-            Expanded(
-              child: ListView(
-                keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-                padding: const EdgeInsets.fromLTRB(
-                  AppSpacing.screen,
-                  AppSpacing.s3,
-                  AppSpacing.screen,
-                  AppSpacing.s8,
+        body: PageBody(
+          child: Column(
+            children: [
+              Expanded(
+                child: ListView(
+                  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                  padding: const EdgeInsets.fromLTRB(
+                    AppSpacing.screen,
+                    AppSpacing.s3,
+                    AppSpacing.screen,
+                    AppSpacing.s8,
+                  ),
+                  children: preview == null ? _enterStep(context) : _previewStep(context, preview),
                 ),
-                children: preview == null ? _enterStep(context) : _previewStep(context, preview),
               ),
-            ),
-            // In the body (not bottomNavigationBar): the Scaffold lifts it above the keyboard (D-032).
-            _submitBar(context, preview),
-          ],
+              // In the body (not bottomNavigationBar): the Scaffold lifts it above the keyboard (D-032).
+              _submitBar(context, preview),
+            ],
+          ),
         ),
       ),
     );

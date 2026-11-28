@@ -149,74 +149,76 @@ class _FriendCodeScreenState extends ConsumerState<FriendCodeScreen> {
         leading: AppIconButton(tooltip: l.back, icon: const Icon(AppIcons.back), onPressed: _back),
         title: Text(l.friendCodeAddTitle),
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView(
-              key: const Key('friend-code-form'),
-              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-              padding: const EdgeInsets.fromLTRB(
-                AppSpacing.screen,
-                AppSpacing.s3,
-                AppSpacing.screen,
-                AppSpacing.s8,
+      body: PageBody(
+        child: Column(
+          children: [
+            Expanded(
+              child: ListView(
+                key: const Key('friend-code-form'),
+                keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                padding: const EdgeInsets.fromLTRB(
+                  AppSpacing.screen,
+                  AppSpacing.s3,
+                  AppSpacing.screen,
+                  AppSpacing.s8,
+                ),
+                children: [
+                  Text(
+                    l.friendCodeAddBody,
+                    style: context.text.body.copyWith(color: c.textSecondary),
+                  ),
+                  const SizedBox(height: AppSpacing.s6),
+                  UnderlineField(
+                    key: const Key('friend-code-field'),
+                    label: l.friendCodeField,
+                    hint: l.inviteCodeHint,
+                    controller: _field,
+                    focusNode: _focus,
+                    keyboardType: TextInputType.visiblePassword,
+                    textInputAction: TextInputAction.go,
+                    inputFormatters: [_FriendCodeFormatter(onPasted: _take)],
+                    errorText: _error,
+                    onChanged: (_) {
+                      if (_error != null) setState(() => _error = null);
+                    },
+                    onSubmitted: (_) => _submit(),
+                  ),
+                  const SizedBox(height: AppSpacing.s4),
+                  Wrap(
+                    spacing: AppSpacing.s2,
+                    runSpacing: AppSpacing.s2,
+                    children: [
+                      ToolChip(
+                        key: const Key('friend-code-paste'),
+                        icon: AppIcons.copy,
+                        label: l.joinPaste,
+                        semanticLabel: l.joinPaste,
+                        onTap: _busy ? null : () => unawaited(_paste()),
+                      ),
+                      ToolChip(
+                        key: const Key('friend-code-scan'),
+                        icon: AppIcons.scan,
+                        label: l.scanQr,
+                        semanticLabel: l.scanQr,
+                        onTap: _busy ? null : () => unawaited(_scan()),
+                      ),
+                    ],
+                  ),
+                ],
               ),
-              children: [
-                Text(
-                  l.friendCodeAddBody,
-                  style: context.text.body.copyWith(color: c.textSecondary),
-                ),
-                const SizedBox(height: AppSpacing.s6),
-                UnderlineField(
-                  key: const Key('friend-code-field'),
-                  label: l.friendCodeField,
-                  hint: l.inviteCodeHint,
-                  controller: _field,
-                  focusNode: _focus,
-                  keyboardType: TextInputType.visiblePassword,
-                  textInputAction: TextInputAction.go,
-                  inputFormatters: [_FriendCodeFormatter(onPasted: _take)],
-                  errorText: _error,
-                  onChanged: (_) {
-                    if (_error != null) setState(() => _error = null);
-                  },
-                  onSubmitted: (_) => _submit(),
-                ),
-                const SizedBox(height: AppSpacing.s4),
-                Wrap(
-                  spacing: AppSpacing.s2,
-                  runSpacing: AppSpacing.s2,
-                  children: [
-                    ToolChip(
-                      key: const Key('friend-code-paste'),
-                      icon: AppIcons.copy,
-                      label: l.joinPaste,
-                      semanticLabel: l.joinPaste,
-                      onTap: _busy ? null : () => unawaited(_paste()),
-                    ),
-                    ToolChip(
-                      key: const Key('friend-code-scan'),
-                      icon: AppIcons.scan,
-                      label: l.scanQr,
-                      semanticLabel: l.scanQr,
-                      onTap: _busy ? null : () => unawaited(_scan()),
-                    ),
-                  ],
-                ),
-              ],
             ),
-          ),
-          // In the body (not bottomNavigationBar): the Scaffold lifts it above the keyboard (D-032).
-          StickyActionBar(
-            primary: PillButton(
-              key: const Key('friend-code-add'),
-              label: l.addFriend,
-              icon: AppIcons.userPlus,
-              loading: _busy,
-              onPressed: _submit,
+            // In the body (not bottomNavigationBar): the Scaffold lifts it above the keyboard (D-032).
+            StickyActionBar(
+              primary: PillButton(
+                key: const Key('friend-code-add'),
+                label: l.addFriend,
+                icon: AppIcons.userPlus,
+                loading: _busy,
+                onPressed: _submit,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

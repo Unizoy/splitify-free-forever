@@ -719,159 +719,168 @@ class _ExpenseEditorScreenState extends ConsumerState<ExpenseEditorScreen> {
             ),
           ],
         ),
-        body: Stack(
-          children: [
-            Column(
-              children: [
-                Expanded(
-                  child: ListView(
-                    key: const Key('expense-form'),
-                    keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-                    padding: const EdgeInsets.fromLTRB(
-                      AppSpacing.screen,
-                      AppSpacing.s3,
-                      AppSpacing.screen,
-                      AppSpacing.s6,
-                    ),
-                    children: [
-                      WithRow(
-                        draft: draft,
-                        offline: offline,
-                        onPick: draft.isEdit || draft.isTemplate
-                            ? null
-                            : () => unawaited(_pickWith()),
-                        onQuickPick: (id) => unawaited(_moveTo(id)),
-                        onAddPerson: draft.isEdit || draft.isTemplate
-                            ? null
-                            : () => unawaited(_addPerson()),
-                        onRemovePerson: draft.isEdit || draft.isTemplate
-                            ? null
-                            : (f) => unawaited(_removePerson(f)),
-                        showError: _showErrors && !draft.hasGroup,
+        body: PageBody(
+          child: Stack(
+            children: [
+              Column(
+                children: [
+                  Expanded(
+                    child: ListView(
+                      key: const Key('expense-form'),
+                      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                      padding: const EdgeInsets.fromLTRB(
+                        AppSpacing.screen,
+                        AppSpacing.s3,
+                        AppSpacing.screen,
+                        AppSpacing.s6,
                       ),
-                      const SizedBox(height: AppSpacing.s6),
-                      // Icon column (category, currency) sized to the wider of the two, so both fields
-                      // start at the same edge at any text size.
-                      Table(
-                        columnWidths: const {0: IntrinsicColumnWidth(), 1: FlexColumnWidth()},
-                        children: [
-                          TableRow(
-                            children: [
-                              Padding(
-                                padding: const EdgeInsetsDirectional.only(end: AppSpacing.s3),
-                                child: Center(
-                                  child: CategoryButton(
-                                    category: draft.category,
-                                    auto: draft.categoryIsAuto,
-                                    onTap: () => unawaited(_pickCategory()),
+                      children: [
+                        WithRow(
+                          draft: draft,
+                          offline: offline,
+                          onPick: draft.isEdit || draft.isTemplate
+                              ? null
+                              : () => unawaited(_pickWith()),
+                          onQuickPick: (id) => unawaited(_moveTo(id)),
+                          onAddPerson: draft.isEdit || draft.isTemplate
+                              ? null
+                              : () => unawaited(_addPerson()),
+                          onRemovePerson: draft.isEdit || draft.isTemplate
+                              ? null
+                              : (f) => unawaited(_removePerson(f)),
+                          showError: _showErrors && !draft.hasGroup,
+                        ),
+                        const SizedBox(height: AppSpacing.s6),
+                        // Icon column (category, currency) sized to the wider of the two, so both fields
+                        // start at the same edge at any text size.
+                        Table(
+                          columnWidths: const {0: IntrinsicColumnWidth(), 1: FlexColumnWidth()},
+                          children: [
+                            TableRow(
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsetsDirectional.only(end: AppSpacing.s3),
+                                  child: Center(
+                                    child: CategoryButton(
+                                      category: draft.category,
+                                      auto: draft.categoryIsAuto,
+                                      onTap: () => unawaited(_pickCategory()),
+                                    ),
                                   ),
                                 ),
-                              ),
-                              UnderlineField(
-                                key: const Key('expense-description'),
-                                label: l.expDescriptionLabel,
-                                hint: l.expDescriptionHint,
-                                required: true,
-                                controller: description,
-                                focusNode: _descriptionFocus,
-                                autofocus:
-                                    !draft.isEdit && !draft.isTemplate && draft.description.isEmpty,
-                                errorText: descriptionError,
-                                textInputAction: TextInputAction.next,
-                                textCapitalization: TextCapitalization.sentences,
-                                inputFormatters: [
-                                  LengthLimitingTextInputFormatter(maxDescription + 20),
-                                ],
-                                onChanged: _described,
-                                onSubmitted: (_) => _amountFocus.requestFocus(),
-                              ),
-                            ],
-                          ),
-                          TableRow(
-                            children: [
-                              Padding(
-                                padding: const EdgeInsetsDirectional.only(
-                                  top: AppSpacing.s5 + AppSpacing.s4,
-                                  end: AppSpacing.s3,
+                                UnderlineField(
+                                  key: const Key('expense-description'),
+                                  label: l.expDescriptionLabel,
+                                  hint: l.expDescriptionHint,
+                                  required: true,
+                                  controller: description,
+                                  focusNode: _descriptionFocus,
+                                  autofocus:
+                                      !draft.isEdit &&
+                                      !draft.isTemplate &&
+                                      draft.description.isEmpty,
+                                  errorText: descriptionError,
+                                  textInputAction: TextInputAction.next,
+                                  // A long description wraps to a second line instead of being cut
+                                  // mid-word (R3-A, S-446); Next still moves on (no new lines).
+                                  keyboardType: TextInputType.text,
+                                  maxLines: 2,
+                                  textCapitalization: TextCapitalization.sentences,
+                                  inputFormatters: [
+                                    LengthLimitingTextInputFormatter(maxDescription + 20),
+                                    FilteringTextInputFormatter.deny(RegExp(r'[\r\n]')),
+                                  ],
+                                  onChanged: _described,
+                                  onSubmitted: (_) => _amountFocus.requestFocus(),
                                 ),
-                                child: Center(
-                                  child: CurrencyChip(
-                                    key: const Key('expense-currency'),
-                                    code: draft.currency,
-                                    onTap: () => unawaited(_pickCurrency(draft)),
+                              ],
+                            ),
+                            TableRow(
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsetsDirectional.only(
+                                    top: AppSpacing.s5 + AppSpacing.s4,
+                                    end: AppSpacing.s3,
+                                  ),
+                                  child: Center(
+                                    child: CurrencyChip(
+                                      key: const Key('expense-currency'),
+                                      code: draft.currency,
+                                      onTap: () => unawaited(_pickCurrency(draft)),
+                                    ),
                                   ),
                                 ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.only(top: AppSpacing.s5),
-                                child: AmountField(
-                                  key: const Key('expense-amount'),
-                                  controller: amount,
-                                  focusNode: _amountFocus,
-                                  currency: draft.currency,
-                                  errorText: amountError,
-                                  onChanged: (t) => _edit((d) => d.copyWith(amountText: t)),
-                                  onSubmitted: (_) => _amountFocus.unfocus(),
+                                Padding(
+                                  padding: const EdgeInsets.only(top: AppSpacing.s5),
+                                  child: AmountField(
+                                    key: const Key('expense-amount'),
+                                    controller: amount,
+                                    focusNode: _amountFocus,
+                                    currency: draft.currency,
+                                    errorText: amountError,
+                                    onChanged: (t) => _edit((d) => d.copyWith(amountText: t)),
+                                    onSubmitted: (_) => _amountFocus.unfocus(),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: AppSpacing.s6),
+                        // Nobody picked yet: the pill says the default and asks for the group first.
+                        PaidSplitPill(
+                          summary: draft.hasGroup
+                              ? paidSplitSummary(l, draft)
+                              : l.expPillSummary(l.expPillPaidBy(l.you), l.expPillSplitEqual),
+                          footer: draft.hasGroup
+                              ? splitSheetFooter(l, draft)
+                              : (text: l.expWithChooseFirst, error: false),
+                          onTap: () => unawaited(draft.hasGroup ? _openPaidSplit() : _pickWith()),
+                        ),
+                        if (draft.isTemplate) ...[
+                          const SizedBox(height: AppSpacing.s5),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Icon(AppIcons.info, size: 18, color: c.textSecondary),
+                              const SizedBox(width: AppSpacing.s2),
+                              Expanded(
+                                child: Text(
+                                  l.recurringEditNote,
+                                  key: const Key('template-note'),
+                                  style: context.text.bodySmall.copyWith(color: c.textSecondary),
                                 ),
                               ),
                             ],
                           ),
                         ],
-                      ),
-                      const SizedBox(height: AppSpacing.s6),
-                      // Nobody picked yet: the pill says the default and asks for the group first.
-                      PaidSplitPill(
-                        summary: draft.hasGroup
-                            ? paidSplitSummary(l, draft)
-                            : l.expPillSummary(l.expPillPaidBy(l.you), l.expPillSplitEqual),
-                        footer: draft.hasGroup
-                            ? splitSheetFooter(l, draft)
-                            : (text: l.expWithChooseFirst, error: false),
-                        onTap: () => unawaited(draft.hasGroup ? _openPaidSplit() : _pickWith()),
-                      ),
-                      if (draft.isTemplate) ...[
-                        const SizedBox(height: AppSpacing.s5),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Icon(AppIcons.info, size: 18, color: c.textSecondary),
-                            const SizedBox(width: AppSpacing.s2),
-                            Expanded(
-                              child: Text(
-                                l.recurringEditNote,
-                                key: const Key('template-note'),
-                                style: context.text.bodySmall.copyWith(color: c.textSecondary),
-                              ),
-                            ),
-                          ],
-                        ),
                       ],
-                    ],
-                  ),
-                ),
-                // In the body (not bottomNavigationBar): the Scaffold lifts it above the keyboard.
-                if (!_saved)
-                  StickyActionBar(
-                    summary: _Toolbar(
-                      draft: draft,
-                      today: ref.read(clockProvider).today(),
-                      onDate: () => unawaited(_pickDate(draft)),
-                      onNotes: () => unawaited(_openNotes()),
-                      onReceipt: () => unawaited(_openReceipt()),
-                      onRepeat: () => unawaited(_openRepeat()),
-                    ),
-                    primary: PillButton(
-                      key: const Key('expense-save'),
-                      label: draft.isTemplate ? l.expSave : l.expSaveExpense,
-                      variant: PillVariant.money,
-                      loading: _saving,
-                      onPressed: () => unawaited(_save()),
                     ),
                   ),
-              ],
-            ),
-            if (_saved) const Positioned.fill(child: _SavedCheck()),
-          ],
+                  // In the body (not bottomNavigationBar): the Scaffold lifts it above the keyboard.
+                  if (!_saved)
+                    StickyActionBar(
+                      summary: _Toolbar(
+                        draft: draft,
+                        today: ref.read(clockProvider).today(),
+                        onDate: () => unawaited(_pickDate(draft)),
+                        onNotes: () => unawaited(_openNotes()),
+                        onReceipt: () => unawaited(_openReceipt()),
+                        onRepeat: () => unawaited(_openRepeat()),
+                      ),
+                      primary: PillButton(
+                        key: const Key('expense-save'),
+                        label: draft.isTemplate ? l.expSave : l.expSaveExpense,
+                        variant: PillVariant.money,
+                        loading: _saving,
+                        onPressed: () => unawaited(_save()),
+                      ),
+                    ),
+                ],
+              ),
+              if (_saved) const Positioned.fill(child: _SavedCheck()),
+            ],
+          ),
         ),
       ),
     );

@@ -286,146 +286,148 @@ class _SettleAllScreenState extends ConsumerState<SettleAllScreen> {
           ),
           title: Text(l.settleRecordTitle),
         ),
-        body: Column(
-          children: [
-            Expanded(
-              child: ListView(
-                key: const Key('settle-all-form'),
-                keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-                padding: const EdgeInsets.fromLTRB(
-                  AppSpacing.screen,
-                  AppSpacing.s3,
-                  AppSpacing.screen,
-                  AppSpacing.s6,
-                ),
-                children: [
-                  _FriendLine(
-                    draft: d,
-                    offline: offline,
-                    onBreakdown: () => unawaited(showSettleAllBreakdown(context, d)),
+        body: PageBody(
+          child: Column(
+            children: [
+              Expanded(
+                child: ListView(
+                  key: const Key('settle-all-form'),
+                  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                  padding: const EdgeInsets.fromLTRB(
+                    AppSpacing.screen,
+                    AppSpacing.s3,
+                    AppSpacing.screen,
+                    AppSpacing.s6,
                   ),
-                  const SizedBox(height: AppSpacing.s6),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: SettlePerson(
-                          key: const Key('settle-from'),
-                          member: fromFriend ? d.friend : d.me,
-                          name: name(fromFriend),
-                          tooltip: name(fromFriend),
-                          onTap: null,
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(top: AppSpacing.s6),
-                        child: Icon(AppIcons.arrowRight, size: 20, color: context.colors.ink),
-                      ),
-                      Expanded(
-                        child: SettlePerson(
-                          key: const Key('settle-to'),
-                          member: fromFriend ? d.me : d.friend,
-                          name: name(!fromFriend),
-                          tooltip: name(!fromFriend),
-                          onTap: null,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: AppSpacing.s3),
-                  Text(
-                    l.settlePaidSentence(name(fromFriend), name(!fromFriend, start: false)),
-                    key: const Key('settle-sentence'),
-                    textAlign: TextAlign.center,
-                    style: context.text.title.w(600),
-                  ),
-                  const SizedBox(height: AppSpacing.s6),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsetsDirectional.only(
-                          top: AppSpacing.s4,
-                          end: AppSpacing.s3,
-                        ),
-                        // One currency per batch (rule 4): the chip only names it.
-                        child: CurrencyChip(
-                          key: const Key('settle-currency'),
-                          code: d.currency,
-                          onTap: null,
-                        ),
-                      ),
-                      Expanded(
-                        child: AmountField(
-                          key: const Key('settle-amount'),
-                          controller: _amount,
-                          focusNode: _amountFocus,
-                          currency: d.currency,
-                          errorText: amountError,
-                          onChanged: (t) => _edit((c) => c.setAmountText(t)),
-                          onSubmitted: (_) => _amountFocus.unfocus(),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: AppSpacing.s6),
-                  OwedSummaryPill(
-                    owed: d.total,
-                    amount: d.amount,
-                    currency: d.currency,
-                    overIsError: true,
-                  ),
-                  if (d.amount != d.total) ...[
-                    const SizedBox(height: AppSpacing.s3),
-                    Align(
-                      alignment: AlignmentDirectional.centerStart,
-                      child: IconChip(
-                        key: const Key('settle-use-owed'),
-                        label: l.settleUseOwed(money),
-                        icon: AppIcons.checkCircle,
-                        onTap: () {
-                          _edit((c) => c.useTotal());
-                          _amount.text = _draft?.amountText ?? _amount.text;
-                        },
-                      ),
+                  children: [
+                    _FriendLine(
+                      draft: d,
+                      offline: offline,
+                      onBreakdown: () => unawaited(showSettleAllBreakdown(context, d)),
                     ),
-                  ],
-                ],
-              ),
-            ),
-            if (!_saved)
-              StickyActionBar(
-                summary: SettleToolbar(
-                  date: d.date,
-                  note: d.note,
-                  method: d.method,
-                  today: today,
-                  onDate: () => unawaited(_pickDate(d)),
-                  onNote: () => unawaited(_openNote()),
-                  onMethod: () => unawaited(_pickMethod(d)),
-                ),
-                primary: !upi
-                    ? record
-                    : Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          PillButton(
-                            key: const Key('settle-upi'),
-                            label: d.amount == null
-                                ? l.settlePayUpi
-                                : l.upiPay(listMoney(d.amount!, d.currency)),
-                            icon: AppIcons.qr,
-                            variant: PillVariant.money,
-                            loading: _saving,
-                            onPressed: () => unawaited(_payByUpi(vpa!)),
+                    const SizedBox(height: AppSpacing.s6),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: SettlePerson(
+                            key: const Key('settle-from'),
+                            member: fromFriend ? d.friend : d.me,
+                            name: name(fromFriend),
+                            tooltip: name(fromFriend),
+                            onTap: null,
                           ),
-                          const SizedBox(height: AppSpacing.s1),
-                          record,
-                        ],
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(top: AppSpacing.s6),
+                          child: Icon(AppIcons.arrowRight, size: 20, color: context.colors.ink),
+                        ),
+                        Expanded(
+                          child: SettlePerson(
+                            key: const Key('settle-to'),
+                            member: fromFriend ? d.me : d.friend,
+                            name: name(!fromFriend),
+                            tooltip: name(!fromFriend),
+                            onTap: null,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: AppSpacing.s3),
+                    Text(
+                      l.settlePaidSentence(name(fromFriend), name(!fromFriend, start: false)),
+                      key: const Key('settle-sentence'),
+                      textAlign: TextAlign.center,
+                      style: context.text.title.w(600),
+                    ),
+                    const SizedBox(height: AppSpacing.s6),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsetsDirectional.only(
+                            top: AppSpacing.s4,
+                            end: AppSpacing.s3,
+                          ),
+                          // One currency per batch (rule 4): the chip only names it.
+                          child: CurrencyChip(
+                            key: const Key('settle-currency'),
+                            code: d.currency,
+                            onTap: null,
+                          ),
+                        ),
+                        Expanded(
+                          child: AmountField(
+                            key: const Key('settle-amount'),
+                            controller: _amount,
+                            focusNode: _amountFocus,
+                            currency: d.currency,
+                            errorText: amountError,
+                            onChanged: (t) => _edit((c) => c.setAmountText(t)),
+                            onSubmitted: (_) => _amountFocus.unfocus(),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: AppSpacing.s6),
+                    OwedSummaryPill(
+                      owed: d.total,
+                      amount: d.amount,
+                      currency: d.currency,
+                      overIsError: true,
+                    ),
+                    if (d.amount != d.total) ...[
+                      const SizedBox(height: AppSpacing.s3),
+                      Align(
+                        alignment: AlignmentDirectional.centerStart,
+                        child: IconChip(
+                          key: const Key('settle-use-owed'),
+                          label: l.settleUseOwed(money),
+                          icon: AppIcons.checkCircle,
+                          onTap: () {
+                            _edit((c) => c.useTotal());
+                            _amount.text = _draft?.amountText ?? _amount.text;
+                          },
+                        ),
                       ),
+                    ],
+                  ],
+                ),
               ),
-          ],
+              if (!_saved)
+                StickyActionBar(
+                  summary: SettleToolbar(
+                    date: d.date,
+                    note: d.note,
+                    method: d.method,
+                    today: today,
+                    onDate: () => unawaited(_pickDate(d)),
+                    onNote: () => unawaited(_openNote()),
+                    onMethod: () => unawaited(_pickMethod(d)),
+                  ),
+                  primary: !upi
+                      ? record
+                      : Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            PillButton(
+                              key: const Key('settle-upi'),
+                              label: d.amount == null
+                                  ? l.settlePayUpi
+                                  : l.upiPay(listMoney(d.amount!, d.currency)),
+                              icon: AppIcons.qr,
+                              variant: PillVariant.money,
+                              loading: _saving,
+                              onPressed: () => unawaited(_payByUpi(vpa!)),
+                            ),
+                            const SizedBox(height: AppSpacing.s1),
+                            record,
+                          ],
+                        ),
+                ),
+            ],
+          ),
         ),
       ),
     );

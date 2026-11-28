@@ -79,81 +79,87 @@ class _NotificationSettingsScreenState extends ConsumerState<NotificationSetting
         ),
         title: Text(l.notifications),
       ),
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(
-          AppSpacing.screen,
-          AppSpacing.s2,
-          AppSpacing.screen,
-          AppSpacing.s8,
-        ),
-        children: [
-          Text(
-            l.notifSettingsHint,
-            style: context.text.body.copyWith(color: context.colors.textSecondary),
+      body: PageBody(
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.screen,
+            AppSpacing.s2,
+            AppSpacing.screen,
+            AppSpacing.s8,
           ),
-          if (pending) ...[const SizedBox(height: AppSpacing.s3), const SyncMarker()],
-          if (push != null && (!push.available || push.permission != PushPermission.granted)) ...[
-            const SizedBox(height: AppSpacing.s5),
-            _PushBanner(available: push.available, permission: push.permission),
+          children: [
+            Text(
+              l.notifSettingsHint,
+              style: context.text.body.copyWith(color: context.colors.textSecondary),
+            ),
+            if (pending) ...[const SizedBox(height: AppSpacing.s3), const SyncMarker()],
+            if (push != null && (!push.available || push.permission != PushPermission.granted)) ...[
+              const SizedBox(height: AppSpacing.s5),
+              _PushBanner(available: push.available, permission: push.permission),
+            ],
+            const SizedBox(height: AppSpacing.s6),
+            SettingsSection(
+              key: const Key('notif-section-push'),
+              title: l.notifSectionPush,
+              children: kindRows(NotificationChannel.push),
+            ),
+            const SizedBox(height: AppSpacing.s6),
+            // W2-Y (F14): the monthly summary is opt-in (off until switched on).
+            SettingsSection(
+              key: const Key('notif-section-summary'),
+              title: l.w2yNotifMonthly,
+              children: [
+                ToggleRow(
+                  key: const Key('notif-push-summary'),
+                  icon: kindIcon(NotificationKind.summary),
+                  title: kindLabel(l, NotificationKind.summary),
+                  subtitle: kindHint(l, NotificationKind.summary),
+                  value: prefs.isOn(NotificationKind.summary, NotificationChannel.push),
+                  showDivider: false,
+                  onChanged: pushOff
+                      ? null
+                      : (on) => unawaited(
+                          actions.setKind(
+                            NotificationKind.summary,
+                            NotificationChannel.push,
+                            on: on,
+                          ),
+                        ),
+                ),
+              ],
+            ),
+            const SizedBox(height: AppSpacing.s6),
+            SettingsSection(
+              key: const Key('notif-section-inapp'),
+              title: l.notifSectionInApp,
+              children: kindRows(NotificationChannel.inapp),
+            ),
+            const SizedBox(height: AppSpacing.s6),
+            SettingsSection(
+              key: const Key('notif-section-muted'),
+              title: l.notifSectionMuted,
+              footer: l.notifMutedHint,
+              children: [
+                if (groups.isEmpty)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: AppSpacing.s4),
+                    child: Text(l.notifMutedEmpty, style: context.text.body),
+                  )
+                else
+                  for (var i = 0; i < groups.length; i++)
+                    ToggleRow(
+                      key: Key('notif-mute-${groups[i].id}'),
+                      leading: GroupThumb(group: groups[i]),
+                      title: groups[i].name,
+                      subtitle: prefs.isMuted(groups[i].id) ? l.notifMutedOn : l.notifMutedOff,
+                      value: prefs.isMuted(groups[i].id),
+                      showDivider: i < groups.length - 1,
+                      onChanged: (muted) => unawaited(actions.setMuted(groups[i].id, muted: muted)),
+                    ),
+              ],
+            ),
           ],
-          const SizedBox(height: AppSpacing.s6),
-          SettingsSection(
-            key: const Key('notif-section-push'),
-            title: l.notifSectionPush,
-            children: kindRows(NotificationChannel.push),
-          ),
-          const SizedBox(height: AppSpacing.s6),
-          // W2-Y (F14): the monthly summary is opt-in (off until switched on).
-          SettingsSection(
-            key: const Key('notif-section-summary'),
-            title: l.w2yNotifMonthly,
-            children: [
-              ToggleRow(
-                key: const Key('notif-push-summary'),
-                icon: kindIcon(NotificationKind.summary),
-                title: kindLabel(l, NotificationKind.summary),
-                subtitle: kindHint(l, NotificationKind.summary),
-                value: prefs.isOn(NotificationKind.summary, NotificationChannel.push),
-                showDivider: false,
-                onChanged: pushOff
-                    ? null
-                    : (on) => unawaited(
-                        actions.setKind(NotificationKind.summary, NotificationChannel.push, on: on),
-                      ),
-              ),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.s6),
-          SettingsSection(
-            key: const Key('notif-section-inapp'),
-            title: l.notifSectionInApp,
-            children: kindRows(NotificationChannel.inapp),
-          ),
-          const SizedBox(height: AppSpacing.s6),
-          SettingsSection(
-            key: const Key('notif-section-muted'),
-            title: l.notifSectionMuted,
-            footer: l.notifMutedHint,
-            children: [
-              if (groups.isEmpty)
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: AppSpacing.s4),
-                  child: Text(l.notifMutedEmpty, style: context.text.body),
-                )
-              else
-                for (var i = 0; i < groups.length; i++)
-                  ToggleRow(
-                    key: Key('notif-mute-${groups[i].id}'),
-                    leading: GroupThumb(group: groups[i]),
-                    title: groups[i].name,
-                    subtitle: prefs.isMuted(groups[i].id) ? l.notifMutedOn : l.notifMutedOff,
-                    value: prefs.isMuted(groups[i].id),
-                    showDivider: i < groups.length - 1,
-                    onChanged: (muted) => unawaited(actions.setMuted(groups[i].id, muted: muted)),
-                  ),
-            ],
-          ),
-        ],
+        ),
       ),
     );
   }

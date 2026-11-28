@@ -64,60 +64,62 @@ class _DeleteAccountScreenState extends ConsumerState<DeleteAccountScreen> {
           onPressed: () => Navigator.of(context).maybePop(),
         ),
       ),
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(
-          AppSpacing.screen,
-          AppSpacing.s2,
-          AppSpacing.screen,
-          AppSpacing.s8,
-        ),
-        children: [
-          Semantics(
-            header: true,
-            child: MediaQuery.withClampedTextScaling(
-              maxScaleFactor: AppText.maxSerifScale,
-              child: Text(l.deleteAccountTitle, style: context.text.sheetTitle),
-            ),
+      body: PageBody(
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.screen,
+            AppSpacing.s2,
+            AppSpacing.screen,
+            AppSpacing.s8,
           ),
-          const SizedBox(height: AppSpacing.s6),
-          DecoratedBox(
-            decoration: BoxDecoration(color: c.surfaceMuted, borderRadius: AppRadii.all16),
-            child: Padding(
-              padding: const EdgeInsets.all(AppSpacing.s5),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Icon(AppIcons.warning, color: c.oweText, size: 28),
-                  const SizedBox(height: AppSpacing.s3),
-                  Text(l.deleteAccountBody, style: context.text.body),
-                  const SizedBox(height: AppSpacing.s3),
-                  Text(
-                    l.deleteAccountWarning,
-                    style: context.text.bodySmall.copyWith(color: c.textSecondary),
-                  ),
-                ],
+          children: [
+            Semantics(
+              header: true,
+              child: MediaQuery.withClampedTextScaling(
+                maxScaleFactor: AppText.maxSerifScale,
+                child: Text(l.deleteAccountTitle, style: context.text.sheetTitle),
               ),
             ),
-          ),
-          const SizedBox(height: AppSpacing.s8),
-          UnderlineField(
-            key: const Key('delete-confirm'),
-            label: l.typeDeleteLabel,
-            hint: l.deleteWord,
-            controller: _confirm,
-            onChanged: (_) => setState(() {}),
-            errorText: _failed ? (_offline ? l.needsInternet : l.deleteAccountFailed) : null,
-          ),
-          const SizedBox(height: AppSpacing.s8),
-          PillButton(
-            key: const Key('delete-account'),
-            label: l.deleteAccountButton,
-            icon: AppIcons.trash,
-            variant: PillVariant.danger,
-            loading: _busy,
-            onPressed: armed ? () => unawaited(_delete()) : null,
-          ),
-        ],
+            const SizedBox(height: AppSpacing.s6),
+            DecoratedBox(
+              decoration: BoxDecoration(color: c.surfaceMuted, borderRadius: AppRadii.all16),
+              child: Padding(
+                padding: const EdgeInsets.all(AppSpacing.s5),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(AppIcons.warning, color: c.oweText, size: 28),
+                    const SizedBox(height: AppSpacing.s3),
+                    Text(l.deleteAccountBody, style: context.text.body),
+                    const SizedBox(height: AppSpacing.s3),
+                    Text(
+                      l.deleteAccountWarning,
+                      style: context.text.bodySmall.copyWith(color: c.textSecondary),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: AppSpacing.s8),
+            UnderlineField(
+              key: const Key('delete-confirm'),
+              label: l.typeDeleteLabel,
+              hint: l.deleteWord,
+              controller: _confirm,
+              onChanged: (_) => setState(() {}),
+              errorText: _failed ? (_offline ? l.needsInternet : l.deleteAccountFailed) : null,
+            ),
+            const SizedBox(height: AppSpacing.s8),
+            PillButton(
+              key: const Key('delete-account'),
+              label: l.deleteAccountButton,
+              icon: AppIcons.trash,
+              variant: PillVariant.danger,
+              loading: _busy,
+              onPressed: armed ? () => unawaited(_delete()) : null,
+            ),
+          ],
+        ),
       ),
     );
   }

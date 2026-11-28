@@ -36,38 +36,40 @@ class AuthPage extends StatelessWidget {
             : AppIconButton(tooltip: l.back, icon: const Icon(AppIcons.back), onPressed: onBack),
         automaticallyImplyLeading: false,
       ),
-      body: SafeArea(
-        top: false,
-        child: ListView(
-          padding: const EdgeInsets.fromLTRB(
-            AppSpacing.screen,
-            AppSpacing.s2,
-            AppSpacing.screen,
-            AppSpacing.s8,
-          ),
-          children: [
-            Center(child: leading ?? const BrandMark(size: 44, tile: true)),
-            const SizedBox(height: AppSpacing.s6),
-            Semantics(
-              header: true,
-              child: MediaQuery.withClampedTextScaling(
-                maxScaleFactor: AppText.maxSerifScale,
-                child: Text(
-                  title,
-                  textAlign: TextAlign.center,
-                  style: context.text.heroDisplay.copyWith(color: c.textPrimary),
+      body: PageBody(
+        child: SafeArea(
+          top: false,
+          child: ListView(
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.screen,
+              AppSpacing.s2,
+              AppSpacing.screen,
+              AppSpacing.s8,
+            ),
+            children: [
+              Center(child: leading ?? const BrandMark(size: 44, tile: true)),
+              const SizedBox(height: AppSpacing.s6),
+              Semantics(
+                header: true,
+                child: MediaQuery.withClampedTextScaling(
+                  maxScaleFactor: AppText.maxSerifScale,
+                  child: Text(
+                    title,
+                    textAlign: TextAlign.center,
+                    style: context.text.heroDisplay.copyWith(color: c.textPrimary),
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: AppSpacing.s3),
-            Text(
-              subtitle,
-              textAlign: TextAlign.center,
-              style: context.text.body.copyWith(color: c.textSecondary),
-            ),
-            const SizedBox(height: AppSpacing.s8),
-            ...children,
-          ],
+              const SizedBox(height: AppSpacing.s3),
+              Text(
+                subtitle,
+                textAlign: TextAlign.center,
+                style: context.text.body.copyWith(color: c.textSecondary),
+              ),
+              const SizedBox(height: AppSpacing.s8),
+              ...children,
+            ],
+          ),
         ),
       ),
     );

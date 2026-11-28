@@ -66,16 +66,23 @@ class GroupBalanceLines extends ConsumerWidget {
     if (b == null || lines.isEmpty) return pill;
     final l = AppLocalizations.of(context);
     final c = context.colors;
-    final collapsed = ref.watch(groupLinesCollapsedProvider(b.groupId));
+    // Short phones start folded (session only); taller ones keep the choice stored on this phone.
+    final short = MediaQuery.sizeOf(context).height < 700;
+    final collapsed = short
+        ? !ref.watch(groupLinesOpenedShortProvider(b.groupId))
+        : ref.watch(groupLinesCollapsedProvider(b.groupId));
+    void toggleLines() => short
+        ? ref.read(groupLinesOpenedShortProvider(b.groupId).notifier).toggle()
+        : ref.read(groupLinesCollapsedProvider(b.groupId).notifier).toggle();
     final toggle = Semantics(
       button: true,
       expanded: !collapsed,
       label: collapsed ? l.groupLinesShow : l.groupLinesHide,
       excludeSemantics: true,
-      onTap: () => ref.read(groupLinesCollapsedProvider(b.groupId).notifier).toggle(),
+      onTap: toggleLines,
       child: Pressable(
         key: const Key('group-lines-toggle'),
-        onTap: () => ref.read(groupLinesCollapsedProvider(b.groupId).notifier).toggle(),
+        onTap: toggleLines,
         circle: true,
         scale: 0.9,
         child: SizedBox.square(
@@ -100,8 +107,7 @@ class GroupBalanceLines extends ConsumerWidget {
     );
     // Short phones (< 700 dp tall) show one line and "+N more", so the list still shows below the hero
     // (R3-A, S-446).
-    final short = MediaQuery.sizeOf(context).height < 700;
-    final shown = lines.take(short ? 1 : groupLinesShown).toList();
+    final shown = lines.take(groupLinesShown).toList();
     final more = lines.length - shown.length;
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -166,12 +172,30 @@ class _Line extends StatelessWidget {
         TextSpan(
           children: [
             TextSpan(text: '$words '),
-            TextSpan(
-              text: amount,
-              style: context.text.body.w(700).copyWith(color: tone.onDarkColor(c)),
+            // The amount on its own dark chip, like the status pill above: coral or lime straight on the
+            // lavender hero was about 2:1 (R3-A, S-445).
+            WidgetSpan(
+              alignment: PlaceholderAlignment.middle,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s2, vertical: 1),
+                decoration: BoxDecoration(
+                  color: line.iOwe ? c.chipDarkRed : c.chipDarkGreen,
+                  borderRadius: AppRadii.allPill,
+                ),
+                child: Text(
+                  amount,
+                  style: context.text.body
+                      .w(700)
+                      .copyWith(
+                        color: line.iOwe ? c.onChipDarkRed : c.onChipDarkGreen,
+                        fontFeatures: AppText.tabularFigures,
+                      ),
+                ),
+              ),
             ),
           ],
         ),
+        semanticsLabel: '$words $amount',
         textAlign: TextAlign.center,
         style: context.text.body.copyWith(color: c.onHero),
       ),

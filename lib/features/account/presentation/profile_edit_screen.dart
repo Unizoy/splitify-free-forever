@@ -120,43 +120,45 @@ class _ProfileEditScreenState extends ConsumerState<ProfileEditScreen> {
         ),
         title: Text(l.profileTitle),
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView(
-              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-              padding: const EdgeInsets.fromLTRB(
-                AppSpacing.screen,
-                AppSpacing.s3,
-                AppSpacing.screen,
-                AppSpacing.s8,
-              ),
-              children: [
-                Center(
-                  child: PhotoAvatarButton(
-                    key: const Key('profile-photo'),
-                    name: name.isEmpty ? l.you : name,
-                    seed: profile?.id ?? 'me',
-                    image: image,
-                    tooltip: l.profilePhotoTooltip,
-                    onTap: () => unawaited(_pickPhoto()),
-                  ),
+      body: PageBody(
+        child: Column(
+          children: [
+            Expanded(
+              child: ListView(
+                keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                padding: const EdgeInsets.fromLTRB(
+                  AppSpacing.screen,
+                  AppSpacing.s3,
+                  AppSpacing.screen,
+                  AppSpacing.s8,
                 ),
-                const SizedBox(height: AppSpacing.s6),
-                ProfileFields(draft: draft, onSubmitted: () => unawaited(_save())),
-              ],
+                children: [
+                  Center(
+                    child: PhotoAvatarButton(
+                      key: const Key('profile-photo'),
+                      name: name.isEmpty ? l.you : name,
+                      seed: profile?.id ?? 'me',
+                      image: image,
+                      tooltip: l.profilePhotoTooltip,
+                      onTap: () => unawaited(_pickPhoto()),
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.s6),
+                  ProfileFields(draft: draft, onSubmitted: () => unawaited(_save())),
+                ],
+              ),
             ),
-          ),
-          // In the body (not bottomNavigationBar): the Scaffold lifts it above the keyboard (D-032).
-          StickyActionBar(
-            primary: PillButton(
-              key: const Key('profile-save'),
-              label: l.saveLabel,
-              loading: _saving,
-              onPressed: () => unawaited(_save()),
+            // In the body (not bottomNavigationBar): the Scaffold lifts it above the keyboard (D-032).
+            StickyActionBar(
+              primary: PillButton(
+                key: const Key('profile-save'),
+                label: l.saveLabel,
+                loading: _saving,
+                onPressed: () => unawaited(_save()),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

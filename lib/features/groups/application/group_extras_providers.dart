@@ -63,6 +63,23 @@ class GroupLinesCollapsed extends Notifier<bool> {
   }
 }
 
+/// Short phones (< 700 dp tall) start with the "who owes whom" lines folded, so the list shows below the
+/// hero (R3-A, S-446); this is whether the reader opened them there, for this run of the app only.
+final groupLinesOpenedShortProvider = NotifierProvider.family<GroupLinesOpenedShort, bool, String>(
+  GroupLinesOpenedShort.new,
+);
+
+class GroupLinesOpenedShort extends Notifier<bool> {
+  GroupLinesOpenedShort(this.groupId);
+
+  final String groupId;
+
+  @override
+  bool build() => false;
+
+  void toggle() => state = !state;
+}
+
 /// Who last changed a group's notes and when (D-034 C5): the newest `whiteboard_updated` activity, or my own
 /// change still in the outbox ([pending]).
 typedef NotesEdit = ({String? memberId, String? userId, DateTime at, bool pending});

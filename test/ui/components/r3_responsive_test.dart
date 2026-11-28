@@ -36,14 +36,21 @@ const _probe = Key('probe');
 void main() {
   group('ContentWidth', () {
     testWidgets('fills a phone', (t) async {
-      await _pump(t, const Scaffold(body: ContentWidth(child: SizedBox(key: _probe, height: 10))));
+      await _pump(
+        t,
+        const Scaffold(
+          body: ContentWidth(child: SizedBox(key: _probe, height: 10)),
+        ),
+      );
       expect(t.getSize(find.byKey(_probe)).width, 393);
     });
 
     testWidgets('keeps phone proportions on a tablet, centred', (t) async {
       await _pump(
         t,
-        const Scaffold(body: ContentWidth(child: SizedBox(key: _probe, height: 10))),
+        const Scaffold(
+          body: ContentWidth(child: SizedBox(key: _probe, height: 10)),
+        ),
         size: const Size(840, 1200),
       );
       final r = t.getRect(find.byKey(_probe));
@@ -101,7 +108,10 @@ void main() {
       const Scaffold(
         body: Align(
           alignment: Alignment.bottomCenter,
-          child: AppSheet(title: 'Settle up', child: SizedBox(key: _probe, height: 40)),
+          child: AppSheet(
+            title: 'Settle up',
+            child: SizedBox(key: _probe, height: 40),
+          ),
         ),
       ),
       size: const Size(840, 1200),
@@ -155,7 +165,9 @@ void main() {
       return s;
     }
 
-    testWidgets('small phone at 1.3 stacks, big phone at 1.5 does not, tablets keep rows', (t) async {
+    testWidgets('small phone at 1.3 stacks, big phone at 1.5 does not, tablets keep rows', (
+      t,
+    ) async {
       expect(await stacked(t, const Size(320, 568), 1), isFalse);
       expect(await stacked(t, const Size(320, 568), 1.3), isTrue);
       expect(await stacked(t, const Size(412, 915), 1.3), isFalse);

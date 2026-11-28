@@ -152,71 +152,79 @@ class CodeBoxes extends StatelessWidget {
     final text = controller.text;
     // Eight or more boxes get a tighter gap and digit so they still fit a 360 dp phone.
     final wide = length > 6;
-    return Semantics(
-      label: l.codeBoxes(text.length, length),
-      child: Stack(
-        children: [
-          Opacity(
-            opacity: 0,
-            child: TextField(
-              key: const Key('code-input'),
-              controller: controller,
-              focusNode: focusNode,
-              autofocus: true,
-              keyboardType: TextInputType.number,
-              autofillHints: const [AutofillHints.oneTimeCode],
-              inputFormatters: [
-                FilteringTextInputFormatter.digitsOnly,
-                LengthLimitingTextInputFormatter(length),
-              ],
-              onChanged: onChanged,
-              showCursor: false,
-            ),
-          ),
-          GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: focusNode.requestFocus,
-            child: ExcludeSemantics(
-              child: Row(
-                children: [
-                  for (var i = 0; i < length; i++) ...[
-                    if (i > 0) SizedBox(width: wide ? AppSpacing.s1 : AppSpacing.s2),
-                    Expanded(
-                      child: AspectRatio(
-                        aspectRatio: 0.82,
-                        child: DecoratedBox(
-                          decoration: BoxDecoration(
-                            color: c.surface,
-                            borderRadius: wide
-                                ? BorderRadius.circular(AppRadii.r12)
-                                : AppRadii.all16,
-                            border: Border.all(
-                              color: error
-                                  ? c.oweText
-                                  : i == text.length
-                                  ? c.primary
-                                  : c.border,
-                              width: error || i == text.length ? 2 : 1,
-                            ),
-                          ),
-                          child: Center(
-                            child: MediaQuery.withClampedTextScaling(
-                              maxScaleFactor: 1.4,
-                              child: Text(
-                                i < text.length ? text[i] : '',
-                                style: wide ? context.text.headline : context.text.amountLarge,
+    // Boxes stop growing at 60 dp (about the size of a large phone's), centred: on a tablet six full-width
+    // boxes were 86 dp wide and 105 tall (R3-A, S-444).
+    final maxRow = length * 60.0 + (length - 1) * (wide ? AppSpacing.s1 : AppSpacing.s2);
+    return Center(
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: maxRow),
+        child: Semantics(
+          label: l.codeBoxes(text.length, length),
+          child: Stack(
+            children: [
+              Opacity(
+                opacity: 0,
+                child: TextField(
+                  key: const Key('code-input'),
+                  controller: controller,
+                  focusNode: focusNode,
+                  autofocus: true,
+                  keyboardType: TextInputType.number,
+                  autofillHints: const [AutofillHints.oneTimeCode],
+                  inputFormatters: [
+                    FilteringTextInputFormatter.digitsOnly,
+                    LengthLimitingTextInputFormatter(length),
+                  ],
+                  onChanged: onChanged,
+                  showCursor: false,
+                ),
+              ),
+              GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: focusNode.requestFocus,
+                child: ExcludeSemantics(
+                  child: Row(
+                    children: [
+                      for (var i = 0; i < length; i++) ...[
+                        if (i > 0) SizedBox(width: wide ? AppSpacing.s1 : AppSpacing.s2),
+                        Expanded(
+                          child: AspectRatio(
+                            aspectRatio: 0.82,
+                            child: DecoratedBox(
+                              decoration: BoxDecoration(
+                                color: c.surface,
+                                borderRadius: wide
+                                    ? BorderRadius.circular(AppRadii.r12)
+                                    : AppRadii.all16,
+                                border: Border.all(
+                                  color: error
+                                      ? c.oweText
+                                      : i == text.length
+                                      ? c.primary
+                                      : c.border,
+                                  width: error || i == text.length ? 2 : 1,
+                                ),
+                              ),
+                              child: Center(
+                                child: MediaQuery.withClampedTextScaling(
+                                  maxScaleFactor: 1.4,
+                                  child: Text(
+                                    i < text.length ? text[i] : '',
+                                    style: wide ? context.text.headline : context.text.amountLarge,
+                                  ),
+                                ),
                               ),
                             ),
                           ),
                         ),
-                      ),
-                    ),
-                  ],
-                ],
+                      ],
+                    ],
+                  ),
+                ),
               ),
-            ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

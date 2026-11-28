@@ -171,11 +171,14 @@ class _FriendPageState extends ConsumerState<FriendPage> {
           ),
           if (rows.isNotEmpty)
             EntranceScope(
-              child: SliverPadding(
-                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
-                sliver: SliverList.builder(
-                  itemCount: rows.length,
-                  itemBuilder: (context, i) => Entrance(index: i, child: rows[i]),
+              child: SliverContentWidth(
+                maxWidth: AppSpacing.maxPage,
+                sliver: SliverPadding(
+                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
+                  sliver: SliverList.builder(
+                    itemCount: rows.length,
+                    itemBuilder: (context, i) => Entrance(index: i, child: rows[i]),
+                  ),
                 ),
               ),
             ),

@@ -262,9 +262,10 @@ class _ProfileRow extends StatelessWidget {
                     const SizedBox(width: AppSpacing.s2),
                     Text(
                       l.settingsEdit,
-                      style: context.text.bodySmall.w(600).copyWith(color: c.primary),
+                      // The same value style and chevron as the rows below (S-448).
+                      style: context.text.body.w(600).copyWith(color: c.primary),
                     ),
-                    Icon(AppIcons.chevronRight, size: 18, color: c.textTertiary),
+                    Icon(AppIcons.chevronRight, size: 18, color: c.textPrimary),
                   ],
                 ),
               ),

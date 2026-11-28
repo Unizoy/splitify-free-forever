@@ -93,56 +93,58 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     final groups = ref.watch(searchGroupsProvider).value ?? const <LocalGroup>[];
     final groupName = groups.where((g) => g.id == s.groupId).firstOrNull?.name;
     return Scaffold(
-      body: SafeArea(
-        bottom: false,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(
-                AppSpacing.s2,
-                AppSpacing.s3,
-                AppSpacing.screen,
-                AppSpacing.s2,
-              ),
-              child: Row(
-                children: [
-                  AppIconButton(
-                    key: const Key('search-back'),
-                    tooltip: l.back,
-                    icon: const Icon(AppIcons.back),
-                    onPressed: () => Navigator.of(context).maybePop(),
-                  ),
-                  const SizedBox(width: AppSpacing.s1),
-                  Expanded(
-                    child: _SearchField(
-                      controller: _text,
-                      focusNode: _focus,
-                      hint: groupName == null ? l.search2FieldHint : l.search2HintIn(groupName),
-                      onChanged: _ctrl.setText,
-                      onSubmitted: (_) => _remember(),
-                      onClear: () {
-                        _text.clear();
-                        _ctrl.setText('');
-                        _focus.requestFocus();
-                      },
+      body: PageBody(
+        child: SafeArea(
+          bottom: false,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  AppSpacing.s2,
+                  AppSpacing.s3,
+                  AppSpacing.screen,
+                  AppSpacing.s2,
+                ),
+                child: Row(
+                  children: [
+                    AppIconButton(
+                      key: const Key('search-back'),
+                      tooltip: l.back,
+                      icon: const Icon(AppIcons.back),
+                      onPressed: () => Navigator.of(context).maybePop(),
                     ),
-                  ),
-                ],
+                    const SizedBox(width: AppSpacing.s1),
+                    Expanded(
+                      child: _SearchField(
+                        controller: _text,
+                        focusNode: _focus,
+                        hint: groupName == null ? l.search2FieldHint : l.search2HintIn(groupName),
+                        onChanged: _ctrl.setText,
+                        onSubmitted: (_) => _remember(),
+                        onClear: () {
+                          _text.clear();
+                          _ctrl.setText('');
+                          _focus.requestFocus();
+                        },
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            _Filters(state: s, groupKey: widget.groupId, today: _today),
-            Expanded(
-              child: _Results(
-                state: s,
-                results: results,
-                groupName: groupName,
-                onClear: _ctrl.clearFilters,
-                onKind: _ctrl.setKind,
-                onRecent: _useRecent,
+              _Filters(state: s, groupKey: widget.groupId, today: _today),
+              Expanded(
+                child: _Results(
+                  state: s,
+                  results: results,
+                  groupName: groupName,
+                  onClear: _ctrl.clearFilters,
+                  onKind: _ctrl.setKind,
+                  onRecent: _useRecent,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

@@ -56,116 +56,120 @@ class AccountScreen extends ConsumerWidget {
         statusBarColor: AppPalette.clear,
       ),
       child: Scaffold(
-        body: SafeArea(
-          bottom: false,
-          child: SingleChildScrollView(
-            padding: EdgeInsets.fromLTRB(
-              AppSpacing.screen,
-              AppSpacing.s2,
-              AppSpacing.screen,
-              bottom + AppSpacing.navReserve,
-            ),
-            child: Column(
-              children: [
-                const SizedBox(height: AppSpacing.s6),
-                if (profile == null)
-                  Container(
-                    width: 96,
-                    height: 96,
-                    decoration: BoxDecoration(
-                      color: c.primaryContainer,
-                      shape: BoxShape.circle,
-                      boxShadow: AppShadows.float(c, dark: context.isDark),
-                    ),
-                    child: Icon(AppIcons.user, size: 42, color: c.onPrimaryContainer),
-                  )
-                else
-                  Row(
-                    key: const Key('account-avatars'),
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      for (final f in [
-                        for (var i = frequent.length - 1; i >= 0; i--)
-                          if (i.isOdd) frequent[i],
-                      ])
-                        _FriendAvatar(friend: f),
-                      Semantics(
-                        button: true,
-                        child: Pressable(
-                          onTap: () => context.push('/account/profile'),
-                          scale: AppMotion.rowPressScale,
-                          child: Avatar(
-                            name: profile.displayName,
-                            seed: profile.id,
-                            size: AvatarSize.s96,
-                            ring: true,
-                            image: photo == null ? null : ResizeImage(FileImage(photo), width: 288),
+        body: PageBody(
+          child: SafeArea(
+            bottom: false,
+            child: SingleChildScrollView(
+              padding: EdgeInsets.fromLTRB(
+                AppSpacing.screen,
+                AppSpacing.s2,
+                AppSpacing.screen,
+                bottom + AppSpacing.navReserve,
+              ),
+              child: Column(
+                children: [
+                  const SizedBox(height: AppSpacing.s6),
+                  if (profile == null)
+                    Container(
+                      width: 96,
+                      height: 96,
+                      decoration: BoxDecoration(
+                        color: c.primaryContainer,
+                        shape: BoxShape.circle,
+                        boxShadow: AppShadows.float(c, dark: context.isDark),
+                      ),
+                      child: Icon(AppIcons.user, size: 42, color: c.onPrimaryContainer),
+                    )
+                  else
+                    Row(
+                      key: const Key('account-avatars'),
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        for (final f in [
+                          for (var i = frequent.length - 1; i >= 0; i--)
+                            if (i.isOdd) frequent[i],
+                        ])
+                          _FriendAvatar(friend: f),
+                        Semantics(
+                          button: true,
+                          child: Pressable(
+                            onTap: () => context.push('/account/profile'),
+                            scale: AppMotion.rowPressScale,
+                            child: Avatar(
+                              name: profile.displayName,
+                              seed: profile.id,
+                              size: AvatarSize.s96,
+                              ring: true,
+                              image: photo == null
+                                  ? null
+                                  : ResizeImage(FileImage(photo), width: 288),
+                            ),
                           ),
                         ),
-                      ),
-                      for (final f in [
-                        for (var i = 0; i < frequent.length; i++)
-                          if (i.isEven) frequent[i],
-                      ])
-                        _FriendAvatar(friend: f),
-                    ],
-                  ),
-                const SizedBox(height: AppSpacing.s5),
-                Semantics(
-                  header: true,
-                  child: Text(
-                    profile?.displayName ?? l.yourAccount,
-                    textAlign: TextAlign.center,
-                    style: context.text.headline,
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.s1),
-                Text(
-                  l.you.toUpperCase(),
-                  style: context.text.labelCaps.copyWith(color: c.textSecondary),
-                ),
-                const SizedBox(height: AppSpacing.s8),
-                WalletCard(
-                  key: const Key('account-wallet'),
-                  brandLabel: l.walletBrand,
-                  amounts: codes.isEmpty
-                      ? [listMoney(0, first)]
-                      : [
-                          for (final code in codes)
-                            mixed
-                                ? signedMoney(totals[code]!, code)
-                                : listMoney(totals[code]!.abs(), code),
-                        ],
-                  statusLabel: status == BalanceStatus.settled
-                      ? l.allSettled
-                      : statusText(l, status),
-                  caption: l.acrossGroups(stats?.groups ?? 0),
-                  onTap: () => showWalletBreakdown(context),
-                ),
-                // Rule 3: overall balances come from local rows; say so while some are not on the server.
-                if (ref.watch(anyUnsyncedProvider).value ?? false) ...[
-                  const SizedBox(height: AppSpacing.s3),
-                  const SyncMarker(key: Key('account-sync-marker')),
-                ],
-                const SizedBox(height: AppSpacing.s5),
-                DotMatrixCard(
-                  key: const Key('account-spending'),
-                  title: l.yourSpending,
-                  leadRow: true,
-                  stats: [
-                    (
-                      value: listMoney(stats?.spentThisMonth ?? 0, stats?.currency ?? first),
-                      label: l.statThisMonth,
+                        for (final f in [
+                          for (var i = 0; i < frequent.length; i++)
+                            if (i.isEven) frequent[i],
+                        ])
+                          _FriendAvatar(friend: f),
+                      ],
                     ),
-                    (value: '${stats?.groups ?? 0}', label: l.statGroups),
-                    (value: '${stats?.people ?? 0}', label: l.statPeople),
+                  const SizedBox(height: AppSpacing.s5),
+                  Semantics(
+                    header: true,
+                    child: Text(
+                      profile?.displayName ?? l.yourAccount,
+                      textAlign: TextAlign.center,
+                      style: context.text.headline,
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.s1),
+                  Text(
+                    l.you.toUpperCase(),
+                    style: context.text.labelCaps.copyWith(color: c.textSecondary),
+                  ),
+                  const SizedBox(height: AppSpacing.s8),
+                  WalletCard(
+                    key: const Key('account-wallet'),
+                    brandLabel: l.walletBrand,
+                    amounts: codes.isEmpty
+                        ? [listMoney(0, first)]
+                        : [
+                            for (final code in codes)
+                              mixed
+                                  ? signedMoney(totals[code]!, code)
+                                  : listMoney(totals[code]!.abs(), code),
+                          ],
+                    statusLabel: status == BalanceStatus.settled
+                        ? l.allSettled
+                        : statusText(l, status),
+                    caption: l.acrossGroups(stats?.groups ?? 0),
+                    onTap: () => showWalletBreakdown(context),
+                  ),
+                  // Rule 3: overall balances come from local rows; say so while some are not on the server.
+                  if (ref.watch(anyUnsyncedProvider).value ?? false) ...[
+                    const SizedBox(height: AppSpacing.s3),
+                    const SyncMarker(key: Key('account-sync-marker')),
                   ],
-                  onTap: () => context.push(InsightsRoutes.me),
-                ),
-                const SizedBox(height: AppSpacing.s8),
-                // Settings right here, like Splitwise (D-033): no gear, no settings sheet.
-                const AccountSettingsList(),
-              ],
+                  const SizedBox(height: AppSpacing.s5),
+                  DotMatrixCard(
+                    key: const Key('account-spending'),
+                    title: l.yourSpending,
+                    leadRow: true,
+                    stats: [
+                      (
+                        value: listMoney(stats?.spentThisMonth ?? 0, stats?.currency ?? first),
+                        label: l.statThisMonth,
+                      ),
+                      (value: '${stats?.groups ?? 0}', label: l.statGroups),
+                      (value: '${stats?.people ?? 0}', label: l.statPeople),
+                    ],
+                    onTap: () => context.push(InsightsRoutes.me),
+                  ),
+                  const SizedBox(height: AppSpacing.s8),
+                  // Settings right here, like Splitwise (D-033): no gear, no settings sheet.
+                  const AccountSettingsList(),
+                ],
+              ),
             ),
           ),
         ),

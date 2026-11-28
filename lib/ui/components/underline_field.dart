@@ -68,20 +68,42 @@ class _UnderlineFieldState extends State<UnderlineField> {
   FocusNode? _ownFocus;
   FocusNode get _focus => widget.focusNode ?? (_ownFocus ??= FocusNode());
 
+  /// Whether the field is empty: only then may a long hint wrap (a wrapped hint keeps its height while
+  /// hidden, which left an empty line under typed text; R3-A, S-446).
+  bool _empty = true;
+
   @override
   void initState() {
     super.initState();
     _focus.addListener(_onFocus);
+    _empty = widget.controller?.text.isEmpty ?? true;
+    widget.controller?.addListener(_onText);
+  }
+
+  @override
+  void didUpdateWidget(UnderlineField old) {
+    super.didUpdateWidget(old);
+    if (old.controller != widget.controller) {
+      old.controller?.removeListener(_onText);
+      widget.controller?.addListener(_onText);
+      _empty = widget.controller?.text.isEmpty ?? true;
+    }
   }
 
   @override
   void dispose() {
     _focus.removeListener(_onFocus);
+    widget.controller?.removeListener(_onText);
     _ownFocus?.dispose();
     super.dispose();
   }
 
   void _onFocus() => setState(() {});
+
+  void _onText() {
+    final empty = widget.controller?.text.isEmpty ?? true;
+    if (empty != _empty) setState(() => _empty = empty);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -142,8 +164,9 @@ class _UnderlineFieldState extends State<UnderlineField> {
                         contentPadding: const EdgeInsets.symmetric(vertical: AppSpacing.s4),
                         hintText: widget.hint,
                         hintStyle: inputStyle.copyWith(color: c.textSecondary),
-                        // A long hint wraps instead of ending in "Type a name, t…" at large text (S-446).
-                        hintMaxLines: 3,
+                        // A long hint wraps instead of ending in "Type a name, t…" at large text, but
+                        // only while it shows (S-446).
+                        hintMaxLines: _empty ? 3 : 1,
                       ),
                     ),
                   ),

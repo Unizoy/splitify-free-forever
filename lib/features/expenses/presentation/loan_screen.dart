@@ -274,141 +274,147 @@ class _LoanScreenState extends ConsumerState<LoanScreen> {
       },
       child: Scaffold(
         appBar: _bar(l, title, () => unawaited(_back())),
-        body: Column(
-          children: [
-            Expanded(
-              child: ListView(
-                key: const Key('loan-form'),
-                keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-                padding: const EdgeInsets.fromLTRB(
-                  AppSpacing.screen,
-                  AppSpacing.s3,
-                  AppSpacing.screen,
-                  AppSpacing.s6,
-                ),
-                children: [
-                  GroupLine(name: d.groupName, type: d.groupType, offline: offline),
-                  const SizedBox(height: AppSpacing.s6),
-                  Table(
-                    columnWidths: const {0: IntrinsicColumnWidth(), 1: FlexColumnWidth()},
-                    children: [
-                      TableRow(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsetsDirectional.only(end: AppSpacing.s3),
-                            child: Center(
-                              child: ExcludeSemantics(
-                                child: TintedIcon(icon: AppIcons.loan, color: c.primary, size: 56),
-                              ),
-                            ),
-                          ),
-                          UnderlineField(
-                            key: const Key('loan-note'),
-                            label: l.loanWhatFor,
-                            hint: l.loanWhatForHint,
-                            controller: note,
-                            focusNode: _noteFocus,
-                            textInputAction: TextInputAction.next,
-                            textCapitalization: TextCapitalization.sentences,
-                            errorText: d.noteTooLong ? l.expDescriptionTooLong : null,
-                            inputFormatters: [
-                              LengthLimitingTextInputFormatter(maxDescription + 20),
-                            ],
-                            onChanged: (t) => _edit((x) => x.copyWith(note: t)),
-                            onSubmitted: (_) => _amountFocus.requestFocus(),
-                          ),
-                        ],
-                      ),
-                      TableRow(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsetsDirectional.only(
-                              top: AppSpacing.s5 + AppSpacing.s4,
-                              end: AppSpacing.s3,
-                            ),
-                            child: Center(
-                              child: CurrencyChip(
-                                key: const Key('loan-currency'),
-                                code: d.currency,
-                                onTap: () => unawaited(_pickCurrency(d)),
-                              ),
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(top: AppSpacing.s5),
-                            child: AmountField(
-                              key: const Key('loan-amount'),
-                              controller: amount,
-                              focusNode: _amountFocus,
-                              currency: d.currency,
-                              errorText: amountError,
-                              onChanged: (t) => _edit((x) => x.copyWith(amountText: t)),
-                              onSubmitted: (_) => _amountFocus.unfocus(),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
+        body: PageBody(
+          child: Column(
+            children: [
+              Expanded(
+                child: ListView(
+                  key: const Key('loan-form'),
+                  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                  padding: const EdgeInsets.fromLTRB(
+                    AppSpacing.screen,
+                    AppSpacing.s3,
+                    AppSpacing.screen,
+                    AppSpacing.s6,
                   ),
-                  const SizedBox(height: AppSpacing.s6),
-                  _WhoPill(draft: d, showErrors: _showErrors, onTap: () => unawaited(_openWho())),
-                  const SizedBox(height: AppSpacing.s4),
-                  Row(
-                    children: [
-                      Icon(AppIcons.info, size: 16, color: c.textTertiary),
-                      const SizedBox(width: AppSpacing.s2),
-                      Expanded(
-                        child: Text(
-                          l.loanNotSpending,
-                          style: context.text.caption.copyWith(color: c.textSecondary),
+                  children: [
+                    GroupLine(name: d.groupName, type: d.groupType, offline: offline),
+                    const SizedBox(height: AppSpacing.s6),
+                    Table(
+                      columnWidths: const {0: IntrinsicColumnWidth(), 1: FlexColumnWidth()},
+                      children: [
+                        TableRow(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsetsDirectional.only(end: AppSpacing.s3),
+                              child: Center(
+                                child: ExcludeSemantics(
+                                  child: TintedIcon(
+                                    icon: AppIcons.loan,
+                                    color: c.primary,
+                                    size: 56,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            UnderlineField(
+                              key: const Key('loan-note'),
+                              label: l.loanWhatFor,
+                              hint: l.loanWhatForHint,
+                              controller: note,
+                              focusNode: _noteFocus,
+                              textInputAction: TextInputAction.next,
+                              textCapitalization: TextCapitalization.sentences,
+                              errorText: d.noteTooLong ? l.expDescriptionTooLong : null,
+                              inputFormatters: [
+                                LengthLimitingTextInputFormatter(maxDescription + 20),
+                              ],
+                              onChanged: (t) => _edit((x) => x.copyWith(note: t)),
+                              onSubmitted: (_) => _amountFocus.requestFocus(),
+                            ),
+                          ],
                         ),
-                      ),
-                    ],
-                  ),
-                ],
+                        TableRow(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsetsDirectional.only(
+                                top: AppSpacing.s5 + AppSpacing.s4,
+                                end: AppSpacing.s3,
+                              ),
+                              child: Center(
+                                child: CurrencyChip(
+                                  key: const Key('loan-currency'),
+                                  code: d.currency,
+                                  onTap: () => unawaited(_pickCurrency(d)),
+                                ),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(top: AppSpacing.s5),
+                              child: AmountField(
+                                key: const Key('loan-amount'),
+                                controller: amount,
+                                focusNode: _amountFocus,
+                                currency: d.currency,
+                                errorText: amountError,
+                                onChanged: (t) => _edit((x) => x.copyWith(amountText: t)),
+                                onSubmitted: (_) => _amountFocus.unfocus(),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: AppSpacing.s6),
+                    _WhoPill(draft: d, showErrors: _showErrors, onTap: () => unawaited(_openWho())),
+                    const SizedBox(height: AppSpacing.s4),
+                    Row(
+                      children: [
+                        Icon(AppIcons.info, size: 16, color: c.textTertiary),
+                        const SizedBox(width: AppSpacing.s2),
+                        Expanded(
+                          child: Text(
+                            l.loanNotSpending,
+                            style: context.text.caption.copyWith(color: c.textSecondary),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-            ),
-            // In the body (not bottomNavigationBar): the Scaffold lifts it above the keyboard.
-            if (!_saved)
-              StickyActionBar(
-                summary: SingleChildScrollView(
-                  key: const Key('loan-toolbar'),
-                  scrollDirection: Axis.horizontal,
-                  // Chips scroll on to the screen edge instead of being cut at the 20 dp margin (R3-A, S-446).
-                  clipBehavior: Clip.none,
-                  child: Row(
-                    children: [
-                      ToolChip(
-                        key: const Key('loan-date'),
-                        icon: AppIcons.calendar,
-                        label: dayLabel(context, d.date, today),
-                        semanticLabel: l.expToolDate(shortDate(context, d.date)),
-                        active: !DateUtils.isSameDay(d.date, today),
-                        onTap: () => unawaited(_pickDate(d)),
-                      ),
-                      const SizedBox(width: AppSpacing.s2),
-                      ToolChip(
-                        key: const Key('loan-notes-chip'),
-                        icon: AppIcons.notes,
-                        label: l.expNotesLabel,
-                        semanticLabel: d.notes.trim().isNotEmpty
-                            ? l.expToolNotesAdded
-                            : l.expNotesLabel,
-                        active: d.notes.trim().isNotEmpty,
-                        onTap: () => unawaited(_openNotes()),
-                      ),
-                    ],
+              // In the body (not bottomNavigationBar): the Scaffold lifts it above the keyboard.
+              if (!_saved)
+                StickyActionBar(
+                  summary: SingleChildScrollView(
+                    key: const Key('loan-toolbar'),
+                    scrollDirection: Axis.horizontal,
+                    // Chips scroll on to the screen edge instead of being cut at the 20 dp margin (R3-A, S-446).
+                    clipBehavior: Clip.none,
+                    child: Row(
+                      children: [
+                        ToolChip(
+                          key: const Key('loan-date'),
+                          icon: AppIcons.calendar,
+                          label: dayLabel(context, d.date, today),
+                          semanticLabel: l.expToolDate(shortDate(context, d.date)),
+                          active: !DateUtils.isSameDay(d.date, today),
+                          onTap: () => unawaited(_pickDate(d)),
+                        ),
+                        const SizedBox(width: AppSpacing.s2),
+                        ToolChip(
+                          key: const Key('loan-notes-chip'),
+                          icon: AppIcons.notes,
+                          label: l.expNotesLabel,
+                          semanticLabel: d.notes.trim().isNotEmpty
+                              ? l.expToolNotesAdded
+                              : l.expNotesLabel,
+                          active: d.notes.trim().isNotEmpty,
+                          onTap: () => unawaited(_openNotes()),
+                        ),
+                      ],
+                    ),
+                  ),
+                  primary: PillButton(
+                    key: const Key('loan-save'),
+                    label: l.loanSave,
+                    variant: PillVariant.money,
+                    loading: _saving,
+                    onPressed: () => unawaited(_save()),
                   ),
                 ),
-                primary: PillButton(
-                  key: const Key('loan-save'),
-                  label: l.loanSave,
-                  variant: PillVariant.money,
-                  loading: _saving,
-                  onPressed: () => unawaited(_save()),
-                ),
-              ),
-          ],
+            ],
+          ),
         ),
       ),
     );

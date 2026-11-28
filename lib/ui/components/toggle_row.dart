@@ -38,12 +38,9 @@ class ToggleRow extends StatelessWidget {
         leading ??
         (icon == null
             ? null
-            : Container(
-                width: 36,
-                height: 36,
-                decoration: BoxDecoration(color: c.primaryContainer, shape: BoxShape.circle),
-                child: Icon(icon, size: 18, color: c.onPrimaryContainer),
-              ));
+            // A plain 24 dp line icon like DashedListRow's, so titles share one column in mixed settings
+            // lists (R3-A, S-448).
+            : Icon(icon, size: 24, color: enabled ? c.textPrimary : c.textSecondary));
     return Semantics(
       toggled: value,
       enabled: enabled,
@@ -67,7 +64,10 @@ class ToggleRow extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(vertical: AppSpacing.s3),
                 child: Row(
                   children: [
-                    if (lead != null) ...[lead, const SizedBox(width: AppSpacing.s3)],
+                    if (lead != null) ...[
+                      lead,
+                      SizedBox(width: leading == null ? AppSpacing.s4 : AppSpacing.s3),
+                    ],
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,

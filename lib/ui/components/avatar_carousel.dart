@@ -101,11 +101,13 @@ class _AvatarCarouselState extends State<AvatarCarousel> {
                     AnimatedContainer(
                       duration: context.motion.fast,
                       margin: const EdgeInsets.symmetric(horizontal: 3),
-                      width: 6,
-                      height: 6,
+                      // 8 dp, the current one a longer pill; the others 3:1 against the white (they
+                      // were 6 dp in the ring's grey, easy to miss: "there is someone else", S-446).
+                      width: i == _index ? 18 : 8,
+                      height: 8,
                       decoration: BoxDecoration(
-                        color: i == _index ? c.ink : c.divider,
-                        shape: BoxShape.circle,
+                        color: i == _index ? c.ink : c.textSecondary,
+                        borderRadius: AppRadii.allPill,
                       ),
                     ),
                 ],

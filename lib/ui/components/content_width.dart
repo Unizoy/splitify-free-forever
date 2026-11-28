@@ -53,3 +53,21 @@ double pageSidePadding(BuildContext context, {double maxWidth = AppSpacing.maxCo
   final width = MediaQuery.sizeOf(context).width;
   return math.max(AppSpacing.screen, (width - maxWidth) / 2);
 }
+
+/// A page body (a scroll view or column that brings its own 20 dp side margins) at most
+/// [AppSpacing.maxPage] wide, centred, full height (R3-A, S-444): forms and lists keep phone proportions on
+/// tablets and open foldables. On phones it changes nothing.
+class PageBody extends StatelessWidget {
+  const PageBody({required this.child, super.key});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => Align(
+    alignment: Alignment.topCenter,
+    child: ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: AppSpacing.maxPage),
+      child: child,
+    ),
+  );
+}

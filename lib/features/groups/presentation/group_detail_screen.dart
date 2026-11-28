@@ -142,14 +142,20 @@ class _GroupDetailScreenState extends ConsumerState<GroupDetailScreen> {
             FadeIn(
               key: const ValueKey(0),
               sliver: true,
-              child: SliverPadding(
-                padding: sides,
-                sliver: ExpenseListSliver(groupId: group.id),
+              child: SliverContentWidth(
+                maxWidth: AppSpacing.maxPage,
+                sliver: SliverPadding(
+                  padding: sides,
+                  sliver: ExpenseListSliver(groupId: group.id),
+                ),
               ),
             ),
-            SliverPadding(
-              padding: sides,
-              sliver: SliverToBoxAdapter(child: GroupActivitySection(groupId: group.id)),
+            SliverContentWidth(
+              maxWidth: AppSpacing.maxPage,
+              sliver: SliverPadding(
+                padding: sides,
+                sliver: SliverToBoxAdapter(child: GroupActivitySection(groupId: group.id)),
+              ),
             ),
           ],
           SliverToBoxAdapter(child: SizedBox(height: bottomSpace)),
@@ -196,7 +202,8 @@ class _ActionBar extends StatelessWidget {
       variant: PillVariant.money,
       onPressed: () => unawaited(context.push(ExpenseRoutes.add(groupId))),
     );
-    final large = MediaQuery.textScalerOf(context).scale(1) > 1.4;
+    // Stacked when side by side would wrap "Add expense" (S-446).
+    final large = StickyActionBar.stacks(context);
     return StickyActionBar(
       primary: large
           ? Column(

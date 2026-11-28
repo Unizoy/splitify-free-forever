@@ -41,6 +41,9 @@ abstract final class AppSpacing {
   /// (R3-A, S-444).
   static const double maxContent = 560;
 
+  /// A whole page body with its 20 dp side margins: [maxContent] plus the margins.
+  static const double maxPage = maxContent + 2 * screen;
+
   /// Widest a bottom sheet gets (Material 3's bottom-sheet width).
   static const double maxSheet = 640;
 

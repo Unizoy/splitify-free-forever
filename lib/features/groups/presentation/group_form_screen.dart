@@ -420,213 +420,215 @@ class _GroupFormScreenState extends ConsumerState<GroupFormScreen> {
           ),
           title: Text(_isEdit ? l.editGroup : l.newGroup),
         ),
-        body: Column(
-          children: [
-            Expanded(
-              child: ListView(
-                key: const Key('group-form'),
-                controller: _scroll,
-                keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-                padding: const EdgeInsets.fromLTRB(
-                  AppSpacing.screen,
-                  AppSpacing.s3,
-                  AppSpacing.screen,
-                  AppSpacing.s8,
-                ),
-                children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      _CoverButton(
-                        seed: _seed,
-                        type: _type,
-                        photo: coverPhoto,
-                        onTap: () => unawaited(_openCover()),
-                      ),
-                      const SizedBox(width: AppSpacing.s4),
-                      Expanded(
-                        child: UnderlineField(
-                          key: const Key('group-name'),
-                          label: l.groupNameLabel,
-                          hint: l.groupNameHint,
-                          required: true,
-                          controller: _name,
-                          focusNode: _nameFocus,
-                          autofocus: !_isEdit,
-                          textCapitalization: TextCapitalization.words,
-                          textInputAction: TextInputAction.next,
-                          inputFormatters: [
-                            LengthLimitingTextInputFormatter(GroupRules.nameMax + 20),
-                          ],
-                          errorText: _nameError(l),
-                          onChanged: (_) => _change(() {}),
-                          onSubmitted: (_) => _personFocus.requestFocus(),
-                        ),
-                      ),
-                    ],
+        body: PageBody(
+          child: Column(
+            children: [
+              Expanded(
+                child: ListView(
+                  key: const Key('group-form'),
+                  controller: _scroll,
+                  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                  padding: const EdgeInsets.fromLTRB(
+                    AppSpacing.screen,
+                    AppSpacing.s3,
+                    AppSpacing.screen,
+                    AppSpacing.s8,
                   ),
-                  const SizedBox(height: AppSpacing.s6),
-                  SectionLabel(l.groupTypeLabel),
-                  const SizedBox(height: AppSpacing.s3),
-                  Wrap(
-                    spacing: AppSpacing.s2,
-                    runSpacing: AppSpacing.s2,
-                    children: [
-                      for (final t in GroupRules.types)
-                        IconChip(
-                          key: Key('group-type-$t'),
-                          label: groupTypeLabel(l, t),
-                          icon: GroupCoverCard.iconFor(coverFamilyFor(t)),
-                          selected: _type == t,
-                          onTap: () => _change(() => _type = t),
-                        ),
-                    ],
-                  ),
-                  const SizedBox(height: AppSpacing.s4),
-                  DashedListRow(
-                    key: const Key('group-currency'),
-                    icon: AppIcons.coins,
-                    label: l.mainCurrency,
-                    value: '${cur.code} · ${cur.symbol}',
-                    valueColor: c.textSecondary,
-                    showDivider: false,
-                    onTap: () => unawaited(_pickCurrency(currency)),
-                  ),
-                  const SizedBox(height: AppSpacing.s6),
-                  SectionLabel('${l.membersSection} · $count'),
-                  const SizedBox(height: AppSpacing.s1),
-                  if (_isEdit)
-                    for (final m in members)
-                      _PersonRow(
-                        key: Key('group-member-${m.id}'),
-                        name: memberName(l, m, me),
-                        label: m.userId != null && m.userId == me && memberName(l, m, me) != l.you
-                            ? l.memberYouSuffix(memberName(l, m, me))
-                            : null,
-                        seed: m.id,
-                        tint: m.tint,
-                        caption: m.role == 'owner'
-                            ? l.memberOwner
-                            : m.userId == null
-                            ? l.memberNameOnly
-                            : m.claimedAt != null
-                            ? l.memberClaimed
-                            : null,
-                      )
-                  else
-                    _PersonRow(
-                      key: const Key('group-member-me'),
-                      name: myName.isEmpty ? l.you : myName,
-                      label: myName.isEmpty ? l.you : l.memberYouSuffix(myName),
-                      seed: me ?? 'me',
-                      caption: l.memberOwner,
-                    ),
-                  for (final (i, p) in _people.indexed)
-                    _PersonRow(
-                      key: Key('group-new-person-$i'),
-                      name: p.name,
-                      seed: 'new-${p.name}',
-                      tint: p.tint,
-                      caption: l.memberNameOnly,
-                      onRemove: () => _change(() => _people.removeAt(i)),
-                      removeTooltip: l.groupFormRemovePerson(p.name),
-                    ),
-                  const SizedBox(height: AppSpacing.s3),
-                  UnderlineField(
-                    key: const Key('group-add-person'),
-                    label: l.groupFormPeopleLabel,
-                    hint: l.groupFormPeopleHint,
-                    controller: _person,
-                    focusNode: _personFocus,
-                    textCapitalization: TextCapitalization.words,
-                    textInputAction: TextInputAction.done,
-                    inputFormatters: [
-                      LengthLimitingTextInputFormatter(GroupRules.memberNameMax + 20),
-                    ],
-                    errorText: _personError ? l.memberNameInvalid : _limitError,
-                    onChanged: (_) {
-                      _dirty = true;
-                      if (_personError || _limitError != null) {
-                        setState(() {
-                          _personError = false;
-                          _limitError = null;
-                        });
-                      }
-                    },
-                    onSubmitted: (_) => _addPerson(),
-                    suffix: Row(
-                      mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        // W2-X F15: a name from the phone's contacts (system picker, no permission).
-                        AppIconButton(
-                          key: const Key('group-from-contacts'),
-                          tooltip: l.w2xFromContacts,
-                          icon: Icon(AppIcons.contacts, color: c.textSecondary),
-                          onPressed: () => unawaited(_fromContacts()),
+                        _CoverButton(
+                          seed: _seed,
+                          type: _type,
+                          photo: coverPhoto,
+                          onTap: () => unawaited(_openCover()),
                         ),
-                        AppIconButton(
-                          key: const Key('group-add-person-button'),
-                          tooltip: l.groupFormAddPerson,
-                          icon: Icon(AppIcons.plus, color: c.primary),
-                          onPressed: _addPerson,
+                        const SizedBox(width: AppSpacing.s4),
+                        Expanded(
+                          child: UnderlineField(
+                            key: const Key('group-name'),
+                            label: l.groupNameLabel,
+                            hint: l.groupNameHint,
+                            required: true,
+                            controller: _name,
+                            focusNode: _nameFocus,
+                            autofocus: !_isEdit,
+                            textCapitalization: TextCapitalization.words,
+                            textInputAction: TextInputAction.next,
+                            inputFormatters: [
+                              LengthLimitingTextInputFormatter(GroupRules.nameMax + 20),
+                            ],
+                            errorText: _nameError(l),
+                            onChanged: (_) => _change(() {}),
+                            onSubmitted: (_) => _personFocus.requestFocus(),
+                          ),
                         ),
                       ],
                     ),
-                  ),
-                  const SizedBox(height: AppSpacing.s2),
-                  Text(
-                    l.groupFormPeopleNote,
-                    style: context.text.bodySmall.copyWith(color: c.textSecondary),
-                  ),
-                  const SizedBox(height: AppSpacing.s4),
-                  DashedListRow(
-                    key: const Key('group-invite'),
-                    icon: AppIcons.qr,
-                    label: l.groupFormInvite,
-                    showDivider: false,
-                    onTap: () => _invite(currency),
-                  ),
-                  if (!_isEdit)
-                    Padding(
-                      padding: const EdgeInsetsDirectional.only(
-                        start: AppSpacing.s10 + AppSpacing.s2,
+                    const SizedBox(height: AppSpacing.s6),
+                    SectionLabel(l.groupTypeLabel),
+                    const SizedBox(height: AppSpacing.s3),
+                    Wrap(
+                      spacing: AppSpacing.s2,
+                      runSpacing: AppSpacing.s2,
+                      children: [
+                        for (final t in GroupRules.types)
+                          IconChip(
+                            key: Key('group-type-$t'),
+                            label: groupTypeLabel(l, t),
+                            icon: GroupCoverCard.iconFor(coverFamilyFor(t)),
+                            selected: _type == t,
+                            onTap: () => _change(() => _type = t),
+                          ),
+                      ],
+                    ),
+                    const SizedBox(height: AppSpacing.s4),
+                    DashedListRow(
+                      key: const Key('group-currency'),
+                      icon: AppIcons.coins,
+                      label: l.mainCurrency,
+                      value: '${cur.code} · ${cur.symbol}',
+                      valueColor: c.textSecondary,
+                      showDivider: false,
+                      onTap: () => unawaited(_pickCurrency(currency)),
+                    ),
+                    const SizedBox(height: AppSpacing.s6),
+                    SectionLabel('${l.membersSection} · $count'),
+                    const SizedBox(height: AppSpacing.s1),
+                    if (_isEdit)
+                      for (final m in members)
+                        _PersonRow(
+                          key: Key('group-member-${m.id}'),
+                          name: memberName(l, m, me),
+                          label: m.userId != null && m.userId == me && memberName(l, m, me) != l.you
+                              ? l.memberYouSuffix(memberName(l, m, me))
+                              : null,
+                          seed: m.id,
+                          tint: m.tint,
+                          caption: m.role == 'owner'
+                              ? l.memberOwner
+                              : m.userId == null
+                              ? l.memberNameOnly
+                              : m.claimedAt != null
+                              ? l.memberClaimed
+                              : null,
+                        )
+                    else
+                      _PersonRow(
+                        key: const Key('group-member-me'),
+                        name: myName.isEmpty ? l.you : myName,
+                        label: myName.isEmpty ? l.you : l.memberYouSuffix(myName),
+                        seed: me ?? 'me',
+                        caption: l.memberOwner,
                       ),
-                      child: Text(
-                        l.groupFormInviteNew,
-                        style: context.text.bodySmall.copyWith(color: c.textSecondary),
+                    for (final (i, p) in _people.indexed)
+                      _PersonRow(
+                        key: Key('group-new-person-$i'),
+                        name: p.name,
+                        seed: 'new-${p.name}',
+                        tint: p.tint,
+                        caption: l.memberNameOnly,
+                        onRemove: () => _change(() => _people.removeAt(i)),
+                        removeTooltip: l.groupFormRemovePerson(p.name),
+                      ),
+                    const SizedBox(height: AppSpacing.s3),
+                    UnderlineField(
+                      key: const Key('group-add-person'),
+                      label: l.groupFormPeopleLabel,
+                      hint: l.groupFormPeopleHint,
+                      controller: _person,
+                      focusNode: _personFocus,
+                      textCapitalization: TextCapitalization.words,
+                      textInputAction: TextInputAction.done,
+                      inputFormatters: [
+                        LengthLimitingTextInputFormatter(GroupRules.memberNameMax + 20),
+                      ],
+                      errorText: _personError ? l.memberNameInvalid : _limitError,
+                      onChanged: (_) {
+                        _dirty = true;
+                        if (_personError || _limitError != null) {
+                          setState(() {
+                            _personError = false;
+                            _limitError = null;
+                          });
+                        }
+                      },
+                      onSubmitted: (_) => _addPerson(),
+                      suffix: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          // W2-X F15: a name from the phone's contacts (system picker, no permission).
+                          AppIconButton(
+                            key: const Key('group-from-contacts'),
+                            tooltip: l.w2xFromContacts,
+                            icon: Icon(AppIcons.contacts, color: c.textSecondary),
+                            onPressed: () => unawaited(_fromContacts()),
+                          ),
+                          AppIconButton(
+                            key: const Key('group-add-person-button'),
+                            tooltip: l.groupFormAddPerson,
+                            icon: Icon(AppIcons.plus, color: c.primary),
+                            onPressed: _addPerson,
+                          ),
+                        ],
                       ),
                     ),
-                  // Trip dates for trips, settle-up reminders for every group (D-034 C4): rows at the
-                  // end of the form (optional, after the people), never a dialog on save.
-                  if (_type == 'trip')
-                    TripDatesRows(
-                      key: _tripKey,
-                      start: _tripStart,
-                      end: _tripEnd,
+                    const SizedBox(height: AppSpacing.s2),
+                    Text(
+                      l.groupFormPeopleNote,
+                      style: context.text.bodySmall.copyWith(color: c.textSecondary),
+                    ),
+                    const SizedBox(height: AppSpacing.s4),
+                    DashedListRow(
+                      key: const Key('group-invite'),
+                      icon: AppIcons.qr,
+                      label: l.groupFormInvite,
+                      showDivider: false,
+                      onTap: () => _invite(currency),
+                    ),
+                    if (!_isEdit)
+                      Padding(
+                        padding: const EdgeInsetsDirectional.only(
+                          start: AppSpacing.s10 + AppSpacing.s2,
+                        ),
+                        child: Text(
+                          l.groupFormInviteNew,
+                          style: context.text.bodySmall.copyWith(color: c.textSecondary),
+                        ),
+                      ),
+                    // Trip dates for trips, settle-up reminders for every group (D-034 C4): rows at the
+                    // end of the form (optional, after the people), never a dialog on save.
+                    if (_type == 'trip')
+                      TripDatesRows(
+                        key: _tripKey,
+                        start: _tripStart,
+                        end: _tripEnd,
+                        today: today,
+                        onStart: () => unawaited(_pickTripDay(start: true)),
+                        onEnd: () => unawaited(_pickTripDay(start: false)),
+                      ),
+                    SettleReminderRow(
+                      value: _reminder,
                       today: today,
-                      onStart: () => unawaited(_pickTripDay(start: true)),
-                      onEnd: () => unawaited(_pickTripDay(start: false)),
+                      createdDay: createdDay,
+                      tripEndsOn: _type == 'trip' ? _tripEnd : null,
+                      onChanged: (r) => _change(() => _reminder = r),
                     ),
-                  SettleReminderRow(
-                    value: _reminder,
-                    today: today,
-                    createdDay: createdDay,
-                    tripEndsOn: _type == 'trip' ? _tripEnd : null,
-                    onChanged: (r) => _change(() => _reminder = r),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-            // In the body (not bottomNavigationBar): the Scaffold lifts it above the keyboard (D-032).
-            StickyActionBar(
-              primary: PillButton(
-                key: const Key('group-save'),
-                label: _isEdit ? l.saveLabel : l.createGroupButton,
-                loading: _saving,
-                onPressed: () => unawaited(_save(currency)),
+              // In the body (not bottomNavigationBar): the Scaffold lifts it above the keyboard (D-032).
+              StickyActionBar(
+                primary: PillButton(
+                  key: const Key('group-save'),
+                  label: _isEdit ? l.saveLabel : l.createGroupButton,
+                  loading: _saving,
+                  onPressed: () => unawaited(_save(currency)),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

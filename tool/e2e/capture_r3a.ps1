@@ -1,20 +1,24 @@
 # R3-A device screenshots (integration_test/r3a_capture_test.dart) of the key screens at font scale 1.0, 0.85,
-# 1.3 and 2.0 and on a small display (720 x 1280 px at 360 dpi = 320 x 569 dp) at 1.0 and 1.3.
+# 1.3 and 2.0, or with -Small on a small display (720 x 1280 px at 360 dpi = 320 x 569 dp) at 1.0 and 1.3.
 # Run from the repo root while holding the emulator lock:
 #   powershell -Command ". tool\env.ps1; & tool\e2e\capture_r3a.ps1 -Prefix before"
+#   powershell -Command ". tool\env.ps1; & tool\e2e\capture_r3a.ps1 -Prefix before -Small"
 # - Built side by side as com.unizoy.splitify.qa (SPLITIFY_APP_ID_SUFFIX, S-310) with --no-uninstall: the owner's
 #   store build com.unizoy.splitify is never replaced or uninstalled (package list before and after).
 # - Each `UI-CAPTURE <name>` becomes splitify-artifacts\screenshots\r3a-<Prefix>-<name>-<variant>.png.
-# - The font scale, display size and density are ALWAYS reset at the end (finally), also when the run fails.
+# - The small display is set once before the app starts (switching size and density for every screen froze the
+#   emulator twice). Font scale, display size and density are ALWAYS reset at the end (finally).
 param(
   [string]$Prefix = 'after',
-  [int]$Hold = 26,
+  [switch]$Small,
+  [int]$Hold = 16,
   [string]$Device = 'emulator-5554',
   [string]$Out = 'C:\Users\mohit\OneDrive\Desktop\theCode\splitify-artifacts\screenshots'
 )
 $adb = "$env:LOCALAPPDATA\Android\Sdk\platform-tools\adb.exe"
 New-Item -ItemType Directory -Force $Out | Out-Null
-$log = Join-Path $Out "r3a-$Prefix-test.log"
+$tag = if ($Small) { "$Prefix-small" } else { $Prefix }
+$log = Join-Path $Out "r3a-$tag-test.log"
 $supabaseHost = ([Uri](Get-Content secrets\env.dev.json -Raw | ConvertFrom-Json).SUPABASE_URL).Host
 $ip = (Resolve-DnsName $supabaseHost -Type A | Where-Object IPAddress | Select-Object -First 1).IPAddress
 $env:SPLITIFY_APP_ID_SUFFIX = '.qa'
@@ -33,19 +37,20 @@ function Save-Shot([string]$name) {
   & $adb -s $Device pull /sdcard/r3a.png (Join-Path $Out "r3a-$Prefix-$name.png") 2>$null | Out-Null
 }
 
-# Variants per state: font scale, small display or not.
-$variants = @(
-  @{ n = '100'; f = '1.0'; small = $false },
-  @{ n = '085'; f = '0.85'; small = $false },
-  @{ n = '130'; f = '1.3'; small = $false },
-  @{ n = '200'; f = '2.0'; small = $false },
-  @{ n = 'small-100'; f = '1.0'; small = $true },
-  @{ n = 'small-130'; f = '1.3'; small = $true }
-)
+$variants = if ($Small) {
+  @(@{ n = 'small-100'; f = '1.0' }, @{ n = 'small-130'; f = '1.3' })
+} else {
+  @(@{ n = '100'; f = '1.0' }, @{ n = '085'; f = '0.85' }, @{ n = '130'; f = '1.3' }, @{ n = '200'; f = '2.0' })
+}
 
 try {
   Reset-Display
   & $adb -s $Device shell cmd uimode night no | Out-Null
+  if ($Small) {
+    & $adb -s $Device shell wm size 720x1280
+    & $adb -s $Device shell wm density 360
+    Start-Sleep -Seconds 4
+  }
   $p = Start-Process -FilePath 'flutter.bat' -NoNewWindow -PassThru -RedirectStandardOutput $log `
     -ArgumentList @('test', 'integration_test/r3a_capture_test.dart', '-d', $Device, '--no-uninstall',
     '--dart-define-from-file=secrets/env.dev.json', "--dart-define=UI_HOLD=$Hold", "--dart-define=PIN_HOST_IP=$ip")
@@ -64,18 +69,12 @@ try {
       $name = $m.Groups[1].Value
       if ($done.ContainsKey($name)) { continue }
       $done[$name] = $true
-      $small = $false
       foreach ($v in $variants) {
-        if ($v.small -and -not $small) {
-          & $adb -s $Device shell wm size 720x1280
-          & $adb -s $Device shell wm density 360
-          $small = $true
-        }
         & $adb -s $Device shell settings put system font_scale $v.f
-        Start-Sleep -Milliseconds 1700
+        Start-Sleep -Milliseconds 1800
         Save-Shot "$name-$($v.n)"
       }
-      Reset-Display
+      & $adb -s $Device shell settings put system font_scale 1.0
       Write-Output "captured $name"
     }
   }
@@ -89,6 +88,8 @@ Get-Content $log | Select-String -Pattern 'R3A-CAPTURE|All tests passed|Some tes
   ForEach-Object { Write-Output "  $_" }
 $after = & $adb -s $Device shell pm list packages | Select-String -Pattern 'splitify|Splitwise'
 Write-Output "packages after: $($after -join ', ')"
-if (($before -match 'package:com.unizoy.splitify$') -and -not ($after -match 'package:com.unizoy.splitify$')) {
+if (-not $after) {
+  Write-Output 'WARNING: no package list after the run (device gone?) - check the owner app by hand'
+} elseif (($before -match 'package:com.unizoy.splitify$') -and -not ($after -match 'package:com.unizoy.splitify$')) {
   Write-Output 'ALARM: the owner''s store build com.unizoy.splitify is gone'
 }

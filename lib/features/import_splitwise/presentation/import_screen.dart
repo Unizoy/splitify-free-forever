@@ -132,21 +132,23 @@ class _ImportScreenState extends ConsumerState<ImportScreen> {
           automaticallyImplyLeading: false,
           title: Text(s.step == ImportStep.preview ? l.impStepPreview : l.impTitle),
         ),
-        body: Column(
-          children: [
-            Expanded(
-              child: AnimatedSwitcher(
-                duration: context.motion.base,
-                switchInCurve: AppMotion.standard,
-                child: KeyedSubtree(
-                  key: ValueKey(s.step == ImportStep.group ? ImportStep.people : s.step),
-                  child: body,
+        body: PageBody(
+          child: Column(
+            children: [
+              Expanded(
+                child: AnimatedSwitcher(
+                  duration: context.motion.base,
+                  switchInCurve: AppMotion.standard,
+                  child: KeyedSubtree(
+                    key: ValueKey(s.step == ImportStep.group ? ImportStep.people : s.step),
+                    child: body,
+                  ),
                 ),
               ),
-            ),
-            // In the body: the Scaffold lifts it above the keyboard (the group name field, D-032).
-            ?bar,
-          ],
+              // In the body: the Scaffold lifts it above the keyboard (the group name field, D-032).
+              ?bar,
+            ],
+          ),
         ),
       ),
     );

@@ -104,76 +104,79 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
       content = NotificationList(items: items, onTap: _open);
     }
     return Scaffold(
-      body: SafeArea(
-        child: RefreshIndicator(
-          onRefresh: _refresh,
-          child: ListView(
-            padding: const EdgeInsets.fromLTRB(
-              AppSpacing.screen,
-              AppSpacing.s2,
-              AppSpacing.screen,
-              AppSpacing.s8,
-            ),
-            children: [
-              Row(
-                children: [
-                  AppIconButton(
-                    tooltip: l.back,
-                    icon: const Icon(AppIcons.back),
-                    onPressed: () => Navigator.of(context).maybePop(),
-                  ),
-                  const Spacer(),
-                  AppIconButton(
-                    key: const Key('notifications-settings'),
-                    tooltip: l.notifSettingsTooltip,
-                    icon: const Icon(AppIcons.settings),
-                    onPressed: () => unawaited(context.push('/account/notifications')),
-                  ),
-                ],
+      body: PageBody(
+        child: SafeArea(
+          child: RefreshIndicator(
+            onRefresh: _refresh,
+            child: ListView(
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.screen,
+                AppSpacing.s2,
+                AppSpacing.screen,
+                AppSpacing.s8,
               ),
-              const SizedBox(height: AppSpacing.s2),
-              PageTitle(
-                title: l.notifications,
-                subtitle: items == null || items.isEmpty
-                    ? null
-                    : unread > 0
-                    ? l.notifUnreadCount(unread)
-                    : l.notifAllCaughtUp,
-              ),
-              if (unread > 0) ...[
-                const SizedBox(height: AppSpacing.s4),
-                Align(
-                  alignment: AlignmentDirectional.centerStart,
-                  child: PillButton(
-                    key: const Key('notifications-mark-all'),
-                    label: l.notifMarkAllRead,
-                    icon: AppIcons.check,
-                    variant: PillVariant.outline,
-                    size: PillSize.medium,
-                    expand: false,
-                    onPressed: () => unawaited(ref.read(notificationActionsProvider).markAllRead()),
-                  ),
-                ),
-              ],
-              if (_offline) ...[
-                const SizedBox(height: AppSpacing.s4),
+              children: [
                 Row(
-                  key: const Key('notifications-offline'),
                   children: [
-                    Icon(AppIcons.unsynced, size: 18, color: c.unsynced),
-                    const SizedBox(width: AppSpacing.s2),
-                    Expanded(
-                      child: Text(
-                        l.notifOffline,
-                        style: context.text.bodySmall.copyWith(color: c.textSecondary),
-                      ),
+                    AppIconButton(
+                      tooltip: l.back,
+                      icon: const Icon(AppIcons.back),
+                      onPressed: () => Navigator.of(context).maybePop(),
+                    ),
+                    const Spacer(),
+                    AppIconButton(
+                      key: const Key('notifications-settings'),
+                      tooltip: l.notifSettingsTooltip,
+                      icon: const Icon(AppIcons.settings),
+                      onPressed: () => unawaited(context.push('/account/notifications')),
                     ),
                   ],
                 ),
+                const SizedBox(height: AppSpacing.s2),
+                PageTitle(
+                  title: l.notifications,
+                  subtitle: items == null || items.isEmpty
+                      ? null
+                      : unread > 0
+                      ? l.notifUnreadCount(unread)
+                      : l.notifAllCaughtUp,
+                ),
+                if (unread > 0) ...[
+                  const SizedBox(height: AppSpacing.s4),
+                  Align(
+                    alignment: AlignmentDirectional.centerStart,
+                    child: PillButton(
+                      key: const Key('notifications-mark-all'),
+                      label: l.notifMarkAllRead,
+                      icon: AppIcons.check,
+                      variant: PillVariant.outline,
+                      size: PillSize.medium,
+                      expand: false,
+                      onPressed: () =>
+                          unawaited(ref.read(notificationActionsProvider).markAllRead()),
+                    ),
+                  ),
+                ],
+                if (_offline) ...[
+                  const SizedBox(height: AppSpacing.s4),
+                  Row(
+                    key: const Key('notifications-offline'),
+                    children: [
+                      Icon(AppIcons.unsynced, size: 18, color: c.unsynced),
+                      const SizedBox(width: AppSpacing.s2),
+                      Expanded(
+                        child: Text(
+                          l.notifOffline,
+                          style: context.text.bodySmall.copyWith(color: c.textSecondary),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+                const SizedBox(height: AppSpacing.s4),
+                content,
               ],
-              const SizedBox(height: AppSpacing.s4),
-              content,
-            ],
+            ),
           ),
         ),
       ),

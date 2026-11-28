@@ -101,20 +101,23 @@ class _Body extends StatelessWidget {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     final c = context.colors;
-    // Short for the text size (320 x 568 at 1.0, 360 x 640 at 1.3): the preview illustration is left out, so
-    // "Get started" is on the first screen without scrolling (R3-A, S-446).
-    final preview = height / MediaQuery.textScalerOf(context).scale(1) >= 600;
+    // The preview illustration only when it still gets its floor height next to the words and buttons
+    // (about 120 dp fixed + 360 dp of text per unit of text scale): on a short phone for the text size
+    // (320 x 568, 360 x 640 at 1.3) it is left out, so "Get started" is on the first screen (R3-A, S-446).
+    final preview = height - 120 - 360 * MediaQuery.textScalerOf(context).scale(1) >= _previewFloor;
     return SingleChildScrollView(
       child: ConstrainedBox(
         constraints: BoxConstraints(minHeight: height),
         // Spacers need a bounded height inside the scroll view; the preview answers the intrinsic pass
         // itself (its covers measure with a LayoutBuilder).
         child: IntrinsicHeight(
+          // Side padding, not a max-width box: inside IntrinsicHeight a ConstrainedBox would measure the
+          // words at the full width (LEARNINGS, welcome). Tablets get the 560 dp column (S-444).
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(
-              AppSpacing.screen,
+            padding: EdgeInsets.fromLTRB(
+              pageSidePadding(context),
               AppSpacing.s2,
-              AppSpacing.screen,
+              pageSidePadding(context),
               AppSpacing.s4,
             ),
             child: Column(

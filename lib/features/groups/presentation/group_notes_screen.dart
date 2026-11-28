@@ -125,112 +125,114 @@ class _GroupNotesScreenState extends ConsumerState<GroupNotesScreen> {
           ),
           title: Text(l.boardTitle),
         ),
-        body: group == null || group.deletedAt != null
-            ? EmptyState(icon: AppIcons.groups, title: l.groupNotFound)
-            : Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(
-                      AppSpacing.screen,
-                      AppSpacing.s2,
-                      AppSpacing.screen,
-                      0,
+        body: PageBody(
+          child: group == null || group.deletedAt != null
+              ? EmptyState(icon: AppIcons.groups, title: l.groupNotFound)
+              : Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(
+                        AppSpacing.screen,
+                        AppSpacing.s2,
+                        AppSpacing.screen,
+                        0,
+                      ),
+                      child: _EditedLine(group: group),
                     ),
-                    child: _EditedLine(group: group),
-                  ),
-                  Expanded(
-                    child: Container(
-                      margin: const EdgeInsets.fromLTRB(
-                        AppSpacing.screen,
-                        AppSpacing.s3,
-                        AppSpacing.screen,
-                        AppSpacing.s3,
-                      ),
-                      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s4),
-                      decoration: BoxDecoration(
-                        color: c.surfaceMuted,
-                        borderRadius: AppRadii.all16,
-                      ),
-                      child: TextField(
-                        key: const Key('board-text'),
-                        controller: _text,
-                        focusNode: _focus,
-                        readOnly: readOnly,
-                        expands: true,
-                        maxLines: null,
-                        minLines: null,
-                        textAlignVertical: TextAlignVertical.top,
-                        keyboardType: TextInputType.multiline,
-                        textCapitalization: TextCapitalization.sentences,
-                        style: context.text.body.copyWith(color: c.textPrimary, height: 1.5),
-                        decoration: InputDecoration(
-                          hintText: l.boardHint,
-                          hintMaxLines: 3,
-                          border: InputBorder.none,
-                          enabledBorder: InputBorder.none,
-                          focusedBorder: InputBorder.none,
-                          filled: false,
-                          contentPadding: const EdgeInsets.symmetric(vertical: AppSpacing.s4),
+                    Expanded(
+                      child: Container(
+                        margin: const EdgeInsets.fromLTRB(
+                          AppSpacing.screen,
+                          AppSpacing.s3,
+                          AppSpacing.screen,
+                          AppSpacing.s3,
                         ),
-                        onChanged: (_) => setState(() {
-                          _dirty = true;
-                          if (!_tooLong) _showError = false;
-                        }),
+                        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s4),
+                        decoration: BoxDecoration(
+                          color: c.surfaceMuted,
+                          borderRadius: AppRadii.all16,
+                        ),
+                        child: TextField(
+                          key: const Key('board-text'),
+                          controller: _text,
+                          focusNode: _focus,
+                          readOnly: readOnly,
+                          expands: true,
+                          maxLines: null,
+                          minLines: null,
+                          textAlignVertical: TextAlignVertical.top,
+                          keyboardType: TextInputType.multiline,
+                          textCapitalization: TextCapitalization.sentences,
+                          style: context.text.body.copyWith(color: c.textPrimary, height: 1.5),
+                          decoration: InputDecoration(
+                            hintText: l.boardHint,
+                            hintMaxLines: 3,
+                            border: InputBorder.none,
+                            enabledBorder: InputBorder.none,
+                            focusedBorder: InputBorder.none,
+                            filled: false,
+                            contentPadding: const EdgeInsets.symmetric(vertical: AppSpacing.s4),
+                          ),
+                          onChanged: (_) => setState(() {
+                            _dirty = true;
+                            if (!_tooLong) _showError = false;
+                          }),
+                        ),
                       ),
                     ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: Semantics(
-                            liveRegion: error != null,
-                            child: Text(
-                              error ?? (readOnly ? l.boardReadOnly : l.boardHelp),
-                              key: const Key('board-help'),
-                              style: context.text.bodySmall.copyWith(
-                                color: error != null ? c.oweText : c.textSecondary,
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: Semantics(
+                              liveRegion: error != null,
+                              child: Text(
+                                error ?? (readOnly ? l.boardReadOnly : l.boardHelp),
+                                key: const Key('board-help'),
+                                style: context.text.bodySmall.copyWith(
+                                  color: error != null ? c.oweText : c.textSecondary,
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                        // The count shows once the notes get long (or too long).
-                        if (count * 5 > whiteboardMax * 4)
-                          Padding(
-                            padding: const EdgeInsets.only(left: AppSpacing.s3),
-                            child: Text(
-                              l.boardCount(
-                                _number(context, count),
-                                _number(context, whiteboardMax),
+                          // The count shows once the notes get long (or too long).
+                          if (count * 5 > whiteboardMax * 4)
+                            Padding(
+                              padding: const EdgeInsets.only(left: AppSpacing.s3),
+                              child: Text(
+                                l.boardCount(
+                                  _number(context, count),
+                                  _number(context, whiteboardMax),
+                                ),
+                                key: const Key('board-count'),
+                                style: context.text.bodySmall
+                                    .w(600)
+                                    .copyWith(
+                                      color: count > whiteboardMax ? c.oweText : c.textSecondary,
+                                    ),
                               ),
-                              key: const Key('board-count'),
-                              style: context.text.bodySmall
-                                  .w(600)
-                                  .copyWith(
-                                    color: count > whiteboardMax ? c.oweText : c.textSecondary,
-                                  ),
                             ),
-                          ),
-                      ],
-                    ),
-                  ),
-                  if (!readOnly)
-                    // In the body (not bottomNavigationBar): the Scaffold lifts it above the keyboard (D-032).
-                    StickyActionBar(
-                      primary: PillButton(
-                        key: const Key('board-save'),
-                        label: l.saveLabel,
-                        loading: _saving,
-                        onPressed: () => unawaited(_save()),
+                        ],
                       ),
-                    )
-                  else
-                    SizedBox(height: AppSpacing.s6 + MediaQuery.paddingOf(context).bottom),
-                ],
-              ),
+                    ),
+                    if (!readOnly)
+                      // In the body (not bottomNavigationBar): the Scaffold lifts it above the keyboard (D-032).
+                      StickyActionBar(
+                        primary: PillButton(
+                          key: const Key('board-save'),
+                          label: l.saveLabel,
+                          loading: _saving,
+                          onPressed: () => unawaited(_save()),
+                        ),
+                      )
+                    else
+                      SizedBox(height: AppSpacing.s6 + MediaQuery.paddingOf(context).bottom),
+                  ],
+                ),
+        ),
       ),
     );
   }

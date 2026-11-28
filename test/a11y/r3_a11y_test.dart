@@ -36,7 +36,8 @@ void _expectReadingOrder(WidgetTester tester, String name) {
       expect(
         sameRow || r.top >= previous.top - 1,
         isTrue,
-        reason: '$name: "${node.label}" at ${r.top.round()} comes after a node at ${previous.top.round()}',
+        reason:
+            '$name: "${node.label}" at ${r.top.round()} comes after a node at ${previous.top.round()}',
       );
     }
     previous = r;
@@ -89,37 +90,40 @@ void main() {
     handle.dispose();
   });
 
-  testWidgets('saves and messages are announced: the snackbar and the sheet toast are live regions', (
-    tester,
-  ) async {
-    final handle = tester.ensureSemantics();
-    usePhone(tester);
-    late BuildContext page;
-    await tester.pumpWidget(
-      MaterialApp(
-        theme: AppTheme.light(),
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
-        home: Scaffold(
-          body: Builder(
-            builder: (c) {
-              page = c;
-              return const SizedBox.expand();
-            },
+  testWidgets(
+    'saves and messages are announced: the snackbar and the sheet toast are live regions',
+    (tester) async {
+      final handle = tester.ensureSemantics();
+      usePhone(tester);
+      late BuildContext page;
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: AppTheme.light(),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: Scaffold(
+            body: Builder(
+              builder: (c) {
+                page = c;
+                return const SizedBox.expand();
+              },
+            ),
           ),
         ),
-      ),
-    );
-    showAppMessage(page, 'Expense saved');
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 400));
-    expect(
-      find.ancestor(
-        of: find.text('Expense saved'),
-        matching: find.byWidgetPredicate((w) => w is Semantics && (w.properties.liveRegion ?? false)),
-      ),
-      findsWidgets,
-    );
-    handle.dispose();
-  });
+      );
+      showAppMessage(page, 'Expense saved');
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(
+        find.ancestor(
+          of: find.text('Expense saved'),
+          matching: find.byWidgetPredicate(
+            (w) => w is Semantics && (w.properties.liveRegion ?? false),
+          ),
+        ),
+        findsWidgets,
+      );
+      handle.dispose();
+    },
+  );
 }

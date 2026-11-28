@@ -224,7 +224,8 @@ class LegendChip extends StatelessWidget {
     final large = context.stackRows;
     final fg = selected ? c.onInk : c.textPrimary;
     final sub = selected ? c.onInk.withValues(alpha: 0.72) : c.textSecondary;
-    final name = Text(
+    // Never "Entertainmen/t": the name shrinks a little rather than break inside the word (S-446).
+    final name = WordFitText(
       l.category(part.category),
       style: context.text.body.w(600).copyWith(color: fg),
     );
@@ -285,8 +286,10 @@ class LegendChip extends StatelessWidget {
                           .w(600)
                           .copyWith(color: fg, fontFeatures: AppText.tabularFigures),
                     ),
+                    // A gap before the share, so "₹31,850" and "55%" never touch at large text (S-446).
+                    const SizedBox(width: AppSpacing.s2),
                     ConstrainedBox(
-                      constraints: const BoxConstraints(minWidth: 48),
+                      constraints: const BoxConstraints(minWidth: 40),
                       child: Text(
                         percent,
                         textAlign: TextAlign.end,

@@ -110,7 +110,14 @@ class CapsuleNavBar extends StatelessWidget {
                       inactiveWidth = AppSpacing.minTouch;
                       labelled = true;
                     }
-                    final activeWidth = constraints.maxWidth - inactiveWidth * others;
+                    var activeWidth = constraints.maxWidth - inactiveWidth * others;
+                    // A wide bar (large phones, tablets): the labelled pill keeps its own size and the
+                    // other buttons share the rest evenly, instead of one stretched black pill (S-447).
+                    final roomy = needed + AppSpacing.s6;
+                    if (labelled && others > 0 && activeWidth > roomy) {
+                      activeWidth = roomy;
+                      inactiveWidth = (constraints.maxWidth - roomy) / others;
+                    }
                     // While the pills swap, the spring curve overshoots and the widths can add up to a
                     // pixel or two more than the bar: lay them out unbounded and clip instead of overflowing.
                     return ClipRect(

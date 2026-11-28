@@ -31,54 +31,56 @@ class DeletedItemsScreen extends ConsumerWidget {
           onPressed: () => Navigator.of(context).maybePop(),
         ),
       ),
-      body: SafeArea(
-        top: false,
-        child: ListView(
-          padding: const EdgeInsets.fromLTRB(
-            AppSpacing.screen,
-            AppSpacing.s2,
-            AppSpacing.screen,
-            AppSpacing.s10,
-          ),
-          children: [
-            PageTitle(title: l.delTitle, subtitle: l.delSubtitle),
-            const SizedBox(height: AppSpacing.s6),
-            if (archived && (view?.items.isNotEmpty ?? false)) ...[
-              Text(
-                l.delArchivedNote,
-                key: const Key('deleted-archived-note'),
-                style: context.text.bodySmall.copyWith(color: context.colors.textSecondary),
-              ),
-              const SizedBox(height: AppSpacing.s3),
-            ],
-            if (view == null)
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: AppSpacing.s10),
-                child: Center(
-                  child: DotsPulse(color: context.colors.primary, semanticLabel: l.loading),
+      body: PageBody(
+        child: SafeArea(
+          top: false,
+          child: ListView(
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.screen,
+              AppSpacing.s2,
+              AppSpacing.screen,
+              AppSpacing.s10,
+            ),
+            children: [
+              PageTitle(title: l.delTitle, subtitle: l.delSubtitle),
+              const SizedBox(height: AppSpacing.s6),
+              if (archived && (view?.items.isNotEmpty ?? false)) ...[
+                Text(
+                  l.delArchivedNote,
+                  key: const Key('deleted-archived-note'),
+                  style: context.text.bodySmall.copyWith(color: context.colors.textSecondary),
                 ),
-              )
-            else if (view.items.isEmpty)
-              EmptyState(
-                key: const Key('deleted-empty'),
-                icon: AppIcons.restore,
-                title: l.delEmptyTitle,
-                message: l.delEmptyBody,
-              )
-            else
-              for (final item in view.items) ...[
-                _DeletedItemRow(
-                  item: item,
-                  view: view,
-                  enabled: !archived,
-                  onRestore: () async {
-                    await ref.read(deletedItemActionsProvider).restore(item);
-                    if (context.mounted) showGroupMessage(context, l.delRestored);
-                  },
-                ),
-                const DashedDivider(),
+                const SizedBox(height: AppSpacing.s3),
               ],
-          ],
+              if (view == null)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: AppSpacing.s10),
+                  child: Center(
+                    child: DotsPulse(color: context.colors.primary, semanticLabel: l.loading),
+                  ),
+                )
+              else if (view.items.isEmpty)
+                EmptyState(
+                  key: const Key('deleted-empty'),
+                  icon: AppIcons.restore,
+                  title: l.delEmptyTitle,
+                  message: l.delEmptyBody,
+                )
+              else
+                for (final item in view.items) ...[
+                  _DeletedItemRow(
+                    item: item,
+                    view: view,
+                    enabled: !archived,
+                    onRestore: () async {
+                      await ref.read(deletedItemActionsProvider).restore(item);
+                      if (context.mounted) showGroupMessage(context, l.delRestored);
+                    },
+                  ),
+                  const DashedDivider(),
+                ],
+            ],
+          ),
         ),
       ),
     );

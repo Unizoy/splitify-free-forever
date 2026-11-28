@@ -25,38 +25,40 @@ class DeletedGroupsScreen extends ConsumerWidget {
           onPressed: () => Navigator.of(context).maybePop(),
         ),
       ),
-      body: SafeArea(
-        top: false,
-        child: ListView(
-          padding: const EdgeInsets.fromLTRB(
-            AppSpacing.screen,
-            AppSpacing.s2,
-            AppSpacing.screen,
-            AppSpacing.s10,
-          ),
-          children: [
-            PageTitle(title: l.deletedGroups, subtitle: l.deletedGroupsBody),
-            const SizedBox(height: AppSpacing.s6),
-            if (groups.isEmpty)
-              EmptyState(
-                icon: AppIcons.restore,
-                title: l.deletedGroupsEmpty,
-                message: l.deletedGroupsEmptyBody,
-              ),
-            for (final g in groups) ...[
-              _DeletedRow(
-                name: g.name,
-                id: g.id,
-                type: g.type,
-                daysLeft: restoreDaysLeft(g.deletedAt!, now),
-                onRestore: () async {
-                  await ref.read(groupActionsProvider).restore(g.id);
-                  if (context.mounted) showGroupMessage(context, l.groupRestoredDone);
-                },
-              ),
-              const DashedDivider(),
+      body: PageBody(
+        child: SafeArea(
+          top: false,
+          child: ListView(
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.screen,
+              AppSpacing.s2,
+              AppSpacing.screen,
+              AppSpacing.s10,
+            ),
+            children: [
+              PageTitle(title: l.deletedGroups, subtitle: l.deletedGroupsBody),
+              const SizedBox(height: AppSpacing.s6),
+              if (groups.isEmpty)
+                EmptyState(
+                  icon: AppIcons.restore,
+                  title: l.deletedGroupsEmpty,
+                  message: l.deletedGroupsEmptyBody,
+                ),
+              for (final g in groups) ...[
+                _DeletedRow(
+                  name: g.name,
+                  id: g.id,
+                  type: g.type,
+                  daysLeft: restoreDaysLeft(g.deletedAt!, now),
+                  onRestore: () async {
+                    await ref.read(groupActionsProvider).restore(g.id);
+                    if (context.mounted) showGroupMessage(context, l.groupRestoredDone);
+                  },
+                ),
+                const DashedDivider(),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );

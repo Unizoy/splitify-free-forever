@@ -115,19 +115,21 @@ class HistoryScreen extends ConsumerWidget {
           onPressed: () => Navigator.of(context).maybePop(),
         ),
       ),
-      body: SafeArea(
-        top: false,
-        child: RefreshIndicator(
-          onRefresh: retry,
-          child: ListView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            padding: const EdgeInsets.fromLTRB(
-              AppSpacing.screen,
-              AppSpacing.s2,
-              AppSpacing.screen,
-              AppSpacing.s10,
+      body: PageBody(
+        child: SafeArea(
+          top: false,
+          child: RefreshIndicator(
+            onRefresh: retry,
+            child: ListView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.screen,
+                AppSpacing.s2,
+                AppSpacing.screen,
+                AppSpacing.s10,
+              ),
+              children: children,
             ),
-            children: children,
           ),
         ),
       ),
