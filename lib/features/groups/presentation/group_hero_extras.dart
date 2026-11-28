@@ -164,7 +164,6 @@ class _Line extends StatelessWidget {
     final who = personName(l, b, line.other, start: !line.iOwe);
     final words = line.iOwe ? l.balYouOwePerson(who) : l.balPairOwes(who, l.youLower);
     final amount = listMoney(line.amount, line.currency);
-    final tone = line.iOwe ? MoneyTone.owe : MoneyTone.owed;
     return Padding(
       key: Key('group-line-${line.currency}-${line.other}'),
       padding: const EdgeInsets.symmetric(vertical: 2),
