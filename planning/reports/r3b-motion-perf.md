@@ -63,6 +63,31 @@ agents build in parallel).
 | RSS before → after opening group, editor, Insights 20× (max) | 389 → 387 MB (404) | 359 → 353 MB (367) |
 | Cold start (runs 2–6, median): main → runApp / main → first frame / `am start -W` | 252 / 597 / 2,256 ms | 194 / 445 / 1,953 ms |
 
-## Tests
+Single samples: the group page's "first rows" (192 → 470 ms) and search results (97 → 173 ms) moved the other
+way with no related change (shared PC under load); a second before/after sample was started but stopped by the
+memory reaper. Startup on the `.qa` build has no Firebase, so the push/crash deferral is not in these numbers
+(the store build gains more). `process_to_first_frame` read -1 on the device (`/proc` not readable there).
 
-See the final section (filled at the end of the session).
+## Tests and gates
+
+| Gate | Result |
+| --- | --- |
+| `dart format --set-exit-if-changed` | pass |
+| `flutter analyze` / `dart analyze lib test integration_test tool` | 0 errors, 0 warnings |
+| `dart run tool/guards.dart` (new rule `haptics-helper-only`) | OK |
+| New tests (TC-R3B-01..04) | motion kit 17 + insert 16 + success 12 + tokens 4 + haptics 5 + streams 15 + startup gate 9 + deferred 16 + startup trace 3 + perf regressions 6: pass |
+| Goldens (`test/goldens`, 999) | 993 pass + 6 `d034c_group_lines` fixed (folding sections keep their width) and re-run: pass. No golden re-recorded: resting states are unchanged |
+| Full suite `--coverage --concurrency=1` | STOPPED by the memory reaper at 51 min: 3,400 passed, 8 failed (7 `join_screen_test`: a switcher key equal to a screen key; 1 `settle_up_screen_test`: the error now folds out over 220 ms) — both fixed, both files re-run: 76 pass. Not yet run in this pass: `test/features` after `payments`, `test/tool`; `coverage_check` not run |
+| Device perf (`perf_r3.ps1`) | before + after done (numbers above); pm list before/after: owner app, `.qa`, Splitwise all installed |
+| Device motion capture (`capture_r3b.ps1`) | first run stopped at step 2 (lazy grid: card not built, fixed); retries waited > 40 min for the emulator lock (R3-A), then were stopped by the memory reaper; the emulator is now down. `screenshots/r3b-start.png`, `r3b-group-card-hero.png`, `r3b-motion.mp4` (first 4 s) only |
+| pgTAP / Edge Functions | SKIPPED: no SQL or function changes |
+
+## Screen edits (motion wiring only, for R3-A)
+
+`groups_home_screen` (lazy sliver grid + total switcher + filter-keyed entrance), `group_detail_screen` (pill
+switcher), `group_hero_extras` (AppExpand), `group_form_screen`, `group_notes_screen`, `join_screen`,
+`friend_page`, `activity_screen`, `activity_feed`, `balances_tab`, `expense_list`, `expense_detail_screen`,
+`editor/expense_editor_screen`, `editor/editor_fields`, `editor/paid_split_sheet`, `editor/items_editor`,
+`loan_screen`, `settle_up_screen`, `settle_all_screen`, `payment_detail_screen`, `scan_flow`, `photo_viewer_screen`,
+`attachment_widgets`, `attachment_flows`, `friend_code_screen`, `comment_thread`, `conversion_sheet`,
+`recurring_tile`, haptic one-liners elsewhere. No spacing, type or colour changes.
