@@ -513,7 +513,7 @@ class _PersonRow extends StatelessWidget {
       style: context.text.amount.w(emphasis ? 700 : 600).copyWith(color: c.textPrimary),
     );
     // Large text (phase 19 polish): the amount goes under the name, so names never break inside a word.
-    final stacked = MediaQuery.textScalerOf(context).scale(1) > 1.4;
+    final stacked = context.stackRows;
     final line = caption;
     final title = line == null
         ? Text(name, style: context.text.body.w(600))

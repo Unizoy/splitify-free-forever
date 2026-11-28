@@ -189,7 +189,7 @@ class _MonthCalendarState extends State<MonthCalendar> {
                   child: Text(
                     names[(firstWeekday + i) % 7],
                     textAlign: TextAlign.center,
-                    style: context.text.bodySmall.w(600).copyWith(color: c.textTertiary),
+                    style: context.text.bodySmall.w(600).copyWith(color: c.textSecondary),
                   ),
                 ),
               ),

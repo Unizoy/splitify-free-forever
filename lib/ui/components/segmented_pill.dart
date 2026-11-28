@@ -31,6 +31,9 @@ class SegmentedPill<T> extends StatelessWidget {
     super.key,
   });
 
+  /// Narrower segments show their label only.
+  static const _iconMinSegment = 104.0;
+
   final List<SegmentedPillItem<T>> items;
   final T value;
   final ValueChanged<T> onChanged;
@@ -43,19 +46,28 @@ class SegmentedPill<T> extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final segment = (constraints.maxWidth - 2 * AppSpacing.s1) / items.length;
-        final hasIcon = items.any((i) => i.icon != null);
+        // Narrow segments (a 320 dp phone) drop their icons so one-word labels never wrap mid-word
+        // ("Syste/m", R3-A S-446).
+        final hasIcon = items.any((i) => i.icon != null) && segment >= _iconMinSegment;
         final scaler = sharedLabelScaler(
           context,
           labels: [for (final i in items) i.label],
           style: context.text.body.w(600),
           maxWidth: segment - 2 * AppSpacing.s3 - (hasIcon ? 18 + AppSpacing.s2 : 0),
+          minFactor: 0.7,
         );
-        return _track(context, c, x, scaler);
+        return _track(context, c, x, scaler, icons: hasIcon);
       },
     );
   }
 
-  Widget _track(BuildContext context, AppColors c, double x, TextScaler scaler) {
+  Widget _track(
+    BuildContext context,
+    AppColors c,
+    double x,
+    TextScaler scaler, {
+    required bool icons,
+  }) {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.s1),
       decoration: BoxDecoration(color: c.surfaceMuted, borderRadius: AppRadii.allPill),
@@ -86,6 +98,7 @@ class SegmentedPill<T> extends StatelessWidget {
                   child: _Segment(
                     item: item,
                     scaler: scaler,
+                    icon: icons,
                     selected: item.value == value,
                     onTap: () {
                       if (item.value == value) return;
@@ -108,9 +121,11 @@ class _Segment<T> extends StatelessWidget {
     required this.selected,
     required this.onTap,
     required this.scaler,
+    required this.icon,
   });
 
   final SegmentedPillItem<T> item;
+  final bool icon;
   final TextScaler scaler;
   final bool selected;
   final VoidCallback onTap;
@@ -137,7 +152,7 @@ class _Segment<T> extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                if (item.icon != null) ...[
+                if (icon && item.icon != null) ...[
                   Icon(item.icon, size: 18, color: color),
                   const SizedBox(width: AppSpacing.s2),
                 ],
@@ -145,6 +160,9 @@ class _Segment<T> extends StatelessWidget {
                   child: Text(
                     item.label,
                     textAlign: TextAlign.center,
+                    maxLines: 1,
+                    softWrap: false,
+                    overflow: TextOverflow.fade,
                     textScaler: scaler,
                     style: context.text.body.w(selected ? 600 : 500).copyWith(color: color),
                   ),

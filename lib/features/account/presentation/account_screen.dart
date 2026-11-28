@@ -151,6 +151,7 @@ class AccountScreen extends ConsumerWidget {
                 DotMatrixCard(
                   key: const Key('account-spending'),
                   title: l.yourSpending,
+                  leadRow: true,
                   stats: [
                     (
                       value: listMoney(stats?.spentThisMonth ?? 0, stats?.currency ?? first),

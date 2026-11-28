@@ -95,6 +95,10 @@ class AppText extends ThemeExtension<AppText> {
   /// Serif hero text never scales beyond this factor (§3).
   static const maxSerifScale = 1.6;
 
+  /// Tabular figures for an amount drawn in a non-amount style (`style.copyWith(fontFeatures: …)`), so
+  /// amounts line up (R3-A, S-443).
+  static const tabularFigures = [FontFeature.tabularFigures()];
+
   static TextStyle _serif(double size, double line, double spacing, Color color) => TextStyle(
     fontFamily: AppFonts.serif,
     fontSize: size,

@@ -141,7 +141,9 @@ class _UnderlineFieldState extends State<UnderlineField> {
                         border: InputBorder.none,
                         contentPadding: const EdgeInsets.symmetric(vertical: AppSpacing.s4),
                         hintText: widget.hint,
-                        hintStyle: inputStyle.copyWith(color: c.textTertiary),
+                        hintStyle: inputStyle.copyWith(color: c.textSecondary),
+                        // A long hint wraps instead of ending in "Type a name, t…" at large text (S-446).
+                        hintMaxLines: 3,
                       ),
                     ),
                   ),

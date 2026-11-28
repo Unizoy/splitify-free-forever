@@ -239,46 +239,51 @@ class _CommentComposerState extends ConsumerState<CommentComposer> {
             ),
             const SizedBox(height: AppSpacing.s2),
           ],
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Expanded(
-                child: Container(
-                  constraints: const BoxConstraints(minHeight: AppSpacing.buttonLarge),
-                  padding: const EdgeInsetsDirectional.fromSTEB(
-                    AppSpacing.s5,
-                    AppSpacing.s1,
-                    AppSpacing.s4,
-                    AppSpacing.s1,
-                  ),
-                  decoration: BoxDecoration(
-                    color: c.surface,
-                    borderRadius: BorderRadius.circular(AppRadii.r28),
-                    border: Border.all(color: c.border),
-                  ),
-                  alignment: AlignmentDirectional.centerStart,
-                  child: TextField(
-                    key: const Key('comment-field'),
-                    controller: _text,
-                    minLines: 1,
-                    maxLines: 4,
-                    keyboardType: TextInputType.multiline,
-                    textCapitalization: TextCapitalization.sentences,
-                    style: context.text.body.copyWith(color: c.textPrimary),
-                    cursorColor: c.primary,
-                    decoration: pillInputDecoration(
-                      context: context,
-                      hint: l.cmtHint,
-                      style: context.text.body,
-                      hintStyle: context.text.body.copyWith(color: c.textSecondary),
+          // The composer stays one line tall on a small phone at 200 % text: its text and hint scale to
+          // 1.5x at most (R3-A, S-446; the thread above still scales fully).
+          MediaQuery.withClampedTextScaling(
+            maxScaleFactor: 1.5,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Expanded(
+                  child: Container(
+                    constraints: const BoxConstraints(minHeight: AppSpacing.buttonLarge),
+                    padding: const EdgeInsetsDirectional.fromSTEB(
+                      AppSpacing.s5,
+                      AppSpacing.s1,
+                      AppSpacing.s4,
+                      AppSpacing.s1,
                     ),
-                    onChanged: (_) => setState(() {}),
+                    decoration: BoxDecoration(
+                      color: c.surface,
+                      borderRadius: BorderRadius.circular(AppRadii.r28),
+                      border: Border.all(color: c.border),
+                    ),
+                    alignment: AlignmentDirectional.centerStart,
+                    child: TextField(
+                      key: const Key('comment-field'),
+                      controller: _text,
+                      minLines: 1,
+                      maxLines: 4,
+                      keyboardType: TextInputType.multiline,
+                      textCapitalization: TextCapitalization.sentences,
+                      style: context.text.body.copyWith(color: c.textPrimary),
+                      cursorColor: c.primary,
+                      decoration: pillInputDecoration(
+                        context: context,
+                        hint: l.cmtHint,
+                        style: context.text.body,
+                        hintStyle: context.text.body.copyWith(color: c.textSecondary),
+                      ),
+                      onChanged: (_) => setState(() {}),
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(width: AppSpacing.s2),
-              _SendButton(enabled: canSend, label: l.cmtSend, onPressed: _send),
-            ],
+                const SizedBox(width: AppSpacing.s2),
+                _SendButton(enabled: canSend, label: l.cmtSend, onPressed: _send),
+              ],
+            ),
           ),
         ],
       );

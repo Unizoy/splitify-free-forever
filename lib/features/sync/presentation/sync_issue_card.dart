@@ -94,7 +94,7 @@ class SyncIssueCard extends StatelessWidget {
                       const SizedBox(height: AppSpacing.s1),
                       Text(
                         l.syncIssueTries(issue.attempts),
-                        style: context.text.caption.copyWith(color: c.textTertiary),
+                        style: context.text.caption.copyWith(color: c.textSecondary),
                       ),
                     ],
                   ),

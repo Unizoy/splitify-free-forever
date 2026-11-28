@@ -4,8 +4,8 @@ import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/components/avatar.dart';
 import 'package:splitify/ui/theme/theme.dart';
 
-/// Swipeable avatars inside a light ring (602): the centred avatar is full
-/// size, neighbours shrink to 70 %; dots below show the position.
+/// Swipeable avatars inside a light ring (602): one full-size avatar at a time (it shrinks a little
+/// while swiping); dots below show the position.
 class AvatarCarousel extends StatefulWidget {
   const AvatarCarousel({
     required this.people,
@@ -27,7 +27,9 @@ class AvatarCarousel extends StatefulWidget {
 }
 
 class _AvatarCarouselState extends State<AvatarCarousel> {
-  late final _controller = PageController(viewportFraction: 0.42, initialPage: widget.initialIndex);
+  // One person at a time, full size; the dots say there are more. A neighbour peeking in at 42 % was cut
+  // by the ring and read as broken (R3-A, S-446).
+  late final _controller = PageController(initialPage: widget.initialIndex);
   late int _index = widget.initialIndex;
 
   @override

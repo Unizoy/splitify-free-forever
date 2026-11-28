@@ -66,6 +66,23 @@ class _Unknown implements Exception {
   const _Unknown();
 }
 
+/// Something to read: a letter or a digit (not just spaces or zero-width break hints).
+final _letters = RegExp(r'[\p{L}\p{N}]', unicode: true);
+
+/// Whether [element] sits in a control marked disabled for accessibility services.
+bool _insideDisabled(Element element) {
+  var disabled = false;
+  element.visitAncestorElements((e) {
+    final w = e.widget;
+    if (w is Semantics && w.properties.enabled == false) {
+      disabled = true;
+      return false;
+    }
+    return true;
+  });
+  return disabled;
+}
+
 Evaluation _check(RenderParagraph p, Set<Color> exempt) {
   if (!p.hasSize || p.size.isEmpty) return const Evaluation.pass();
   // Only the app's own text (under the app theme), not a test frame's labels.
@@ -73,6 +90,8 @@ Evaluation _check(RenderParagraph p, Set<Color> exempt) {
   if (creator is DebugCreator && Theme.of(creator.element).extension<AppColors>() == null) {
     return const Evaluation.pass();
   }
+  // Text of a disabled control is exempt (WCAG 1.4.3: inactive user interface components).
+  if (creator is DebugCreator && _insideDisabled(creator.element)) return const Evaluation.pass();
   final Color bg;
   final double opacity;
   try {
@@ -85,11 +104,9 @@ Evaluation _check(RenderParagraph p, Set<Color> exempt) {
     final style = parent == null ? span.style : parent.merge(span.style);
     if (span is TextSpan) {
       final text = span.text?.trim() ?? '';
+      final readable = _letters.hasMatch(text);
       final color = style?.color;
-      if (text.isNotEmpty &&
-          color != null &&
-          style?.foreground == null &&
-          !exempt.contains(color)) {
+      if (readable && color != null && style?.foreground == null && !exempt.contains(color)) {
         final fg = Color.alphaBlend(color.withValues(alpha: color.a * opacity), bg);
         final size = style?.fontSize ?? 14;
         final bold = (style?.fontWeight?.value ?? 400) >= 700;
@@ -199,7 +216,12 @@ class _TabularAmounts extends AccessibilityGuideline {
           }
 
           walk(node.text, null);
-          if (!tabular) result += Evaluation.fail('"$text" is an amount without tabular figures');
+          if (!tabular) {
+            final where = node.debugCreator is DebugCreator
+                ? (node.debugCreator! as DebugCreator).element.debugGetCreatorChain(6)
+                : '';
+            result += Evaluation.fail('"$text" is an amount without tabular figures ($where)');
+          }
         }
         return;
       }

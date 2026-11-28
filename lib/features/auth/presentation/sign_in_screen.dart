@@ -99,7 +99,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
               padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s3),
               child: Text(
                 l.orDivider.toUpperCase(),
-                style: context.text.labelCaps.copyWith(color: c.textTertiary),
+                style: context.text.labelCaps.copyWith(color: c.textSecondary),
               ),
             ),
             Expanded(child: DashedDivider(color: c.border)),

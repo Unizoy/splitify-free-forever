@@ -154,7 +154,8 @@ class AppColors extends ThemeExtension<AppColors> {
     border: Color(0xFFE3E8EF),
     divider: Color(0xFFCDD5DF),
     textPrimary: Color(0xFF121926),
-    textSecondary: Color(0xFF697586),
+    // 4.5:1 also on chip / surfaceMuted fills (was #697586, 4.2:1 there; R3-A S-445).
+    textSecondary: Color(0xFF616F7F),
     textTertiary: Color(0xFF9AA4B2),
     primary: Color(0xFF5057EA),
     primaryPressed: Color(0xFF3F45D6),
@@ -174,7 +175,7 @@ class AppColors extends ThemeExtension<AppColors> {
     oweAccent: Color(0xFFEA5050),
     owedOnDark: Color(0xFFA3E635),
     oweOnDark: Color(0xFFF87171),
-    settled: Color(0xFF697586),
+    settled: Color(0xFF616F7F),
     info: Color(0xFF3B82F6),
     infoContainer: Color(0xFFEAF3FF),
     unsynced: Color(0xFFB45309),
@@ -359,6 +360,21 @@ class AppColors extends ThemeExtension<AppColors> {
     ('textPrimary/surface', textPrimary, surface, 4.5),
     ('textSecondary/bg', textSecondary, bg, 4.5),
     ('textSecondary/surface', textSecondary, surface, 4.5),
+    // R3-A (S-445): text on every neutral fill it is drawn on (bands, muted cards, chips, tracks).
+    ('textPrimary/bgSubtle', textPrimary, bgSubtle, 4.5),
+    ('textPrimary/surfaceMuted', textPrimary, surfaceMuted, 4.5),
+    ('textPrimary/chip', textPrimary, chip, 4.5),
+    ('textPrimary/primaryContainer', textPrimary, primaryContainer, 4.5),
+    ('textSecondary/bgSubtle', textSecondary, bgSubtle, 4.5),
+    ('textSecondary/surfaceMuted', textSecondary, surfaceMuted, 4.5),
+    ('textSecondary/chip', textSecondary, chip, 4.5),
+    ('primary/surface', primary, surface, 4.5),
+    ('primary/surfaceMuted', primary, surfaceMuted, 4.5),
+    ('owedText/surface', owedText, surface, 4.5),
+    ('oweText/surface', oweText, surface, 4.5),
+    ('settled/surface', settled, surface, 4.5),
+    ('unsynced/surface', unsynced, surface, 4.5),
+    ('owedText/surfaceMuted', owedText, surfaceMuted, 4.5),
     ('primary/bg', primary, bg, 4.5),
     ('onPrimaryContainer/primaryContainer', onPrimaryContainer, primaryContainer, 4.5),
     ('onPrimaryFill/primaryFill', onPrimaryFill, primaryFill, 4.5),
@@ -400,8 +416,9 @@ abstract final class AppPalette {
   /// `stableHash(id) % 5`.
   static const List<AvatarTint> avatarLight = [
     (bg: Color(0xFFE8E8F8), fg: Color(0xFF6D35D9)),
-    (bg: Color(0xFFFAF6EE), fg: Color(0xFFB86A1F)),
-    (bg: Color(0xFFF4FCF4), fg: Color(0xFF3F8F3F)),
+    // Peach and mint initials darkened to 4.5:1 (were 3.8:1; S-445).
+    (bg: Color(0xFFFAF6EE), fg: Color(0xFFA35A17)),
+    (bg: Color(0xFFF4FCF4), fg: Color(0xFF347C34)),
     (bg: Color(0xFFEAF3FF), fg: Color(0xFF1D5FC9)),
     (bg: Color(0xFFFDF0F3), fg: Color(0xFFB4335A)),
   ];

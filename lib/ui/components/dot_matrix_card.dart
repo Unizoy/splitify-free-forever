@@ -12,6 +12,7 @@ class DotMatrixCard extends StatelessWidget {
     required this.stats,
     this.icon = AppIcons.chart,
     this.onTap,
+    this.leadRow = false,
     super.key,
   });
 
@@ -19,6 +20,9 @@ class DotMatrixCard extends StatelessWidget {
   final IconData icon;
   final List<StatItem> stats;
   final VoidCallback? onTap;
+
+  /// The first stat (an amount) on a row of its own ([StatGrid.leadRow]).
+  final bool leadRow;
 
   @override
   Widget build(BuildContext context) {
@@ -75,6 +79,7 @@ class DotMatrixCard extends StatelessWidget {
                         widthFactor: MediaQuery.textScalerOf(context).scale(1) >= 1.6 ? 1 : 0.72,
                         child: StatGrid(
                           stats: stats,
+                          leadRow: leadRow,
                           valueColor: c.onHero,
                           labelColor: c.onHero.withValues(alpha: 0.62),
                         ),

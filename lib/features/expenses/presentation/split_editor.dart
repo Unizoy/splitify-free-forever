@@ -433,7 +433,7 @@ class _ValueFieldState extends State<ValueField> {
                     border: InputBorder.none,
                     contentPadding: const EdgeInsets.symmetric(vertical: AppSpacing.s3),
                     hintText: 0.toString(),
-                    hintStyle: style.copyWith(color: c.textTertiary),
+                    hintStyle: style.copyWith(color: c.textSecondary),
                   ),
                 ),
               ),

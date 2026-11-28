@@ -81,7 +81,8 @@ class _CodeScreenState extends ConsumerState<CodeScreen> {
     final failure = state.failure;
     return AuthPage(
       title: l.codeTitle(length),
-      subtitle: l.codeSentTo(email),
+      // An address never breaks mid-word on a small phone or at large text: only after "@" and "." (S-446).
+      subtitle: l.codeSentTo(email.replaceAllMapped(RegExp(r'[@.]'), (m) => '${m[0]}\u200B')),
       onBack: () => context.go('/sign-in'),
       children: [
         CodeBoxes(

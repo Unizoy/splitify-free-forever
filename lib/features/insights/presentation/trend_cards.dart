@@ -75,7 +75,7 @@ class CategoryTrendCard extends StatelessWidget {
               listMoney(amount, view.currency),
               key: const Key('trend-category-amount'),
               maxLines: 1,
-              style: context.text.title.w(700).copyWith(color: c.textPrimary),
+              style: context.text.amount.w(700).copyWith(color: c.textPrimary),
             ),
           ),
           const SizedBox(height: AppSpacing.s4),
@@ -189,7 +189,9 @@ class WhoPaidCard extends StatelessWidget {
               listMoney(trend.share, view.currency),
             ),
             key: const Key('trend-who-total'),
-            style: context.text.bodySmall.w(600).copyWith(color: c.textPrimary),
+            style: context.text.bodySmall
+                .w(600)
+                .copyWith(color: c.textPrimary, fontFeatures: AppText.tabularFigures),
           ),
           const SizedBox(height: AppSpacing.s1),
           Text(l.trendWhoPaidHint, style: context.text.bodySmall.copyWith(color: c.textSecondary)),
@@ -221,7 +223,7 @@ class _Stat extends StatelessWidget {
             FittedBox(
               fit: BoxFit.scaleDown,
               alignment: AlignmentDirectional.centerStart,
-              child: Text(amount, maxLines: 1, style: context.text.title.w(700)),
+              child: Text(amount, maxLines: 1, style: context.text.amount.w(700)),
             ),
           ],
         ),
@@ -408,7 +410,7 @@ class PaidShareBars extends StatelessWidget {
                       maxLines: 1,
                       style: context.text.caption
                           .w(m.month == selected ? 700 : 500)
-                          .copyWith(color: m.month == selected ? c.textPrimary : c.textTertiary),
+                          .copyWith(color: m.month == selected ? c.textPrimary : c.textSecondary),
                     ),
                   ),
                 ),

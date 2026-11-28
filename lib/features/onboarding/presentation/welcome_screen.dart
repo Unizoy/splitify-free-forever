@@ -101,6 +101,9 @@ class _Body extends StatelessWidget {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     final c = context.colors;
+    // Short for the text size (320 x 568 at 1.0, 360 x 640 at 1.3): the preview illustration is left out, so
+    // "Get started" is on the first screen without scrolling (R3-A, S-446).
+    final preview = height / MediaQuery.textScalerOf(context).scale(1) >= 600;
     return SingleChildScrollView(
       child: ConstrainedBox(
         constraints: BoxConstraints(minHeight: height),
@@ -122,15 +125,18 @@ class _Body extends StatelessWidget {
                 // The preview takes the free height: fanned covers when there is room, else the glass
                 // card alone. Its text keeps its size (an illustration, skipped by screen readers), so
                 // large text grows the words around it and the page scrolls (S-285).
-                Expanded(
-                  child: _IntrinsicFloor(
-                    height: _previewFloor,
-                    child: MediaQuery.withNoTextScaling(
-                      child: LayoutBuilder(builder: (context, box) => _Preview(size: box.biggest)),
+                if (preview)
+                  Expanded(
+                    child: _IntrinsicFloor(
+                      height: _previewFloor,
+                      child: MediaQuery.withNoTextScaling(
+                        child: LayoutBuilder(
+                          builder: (context, box) => _Preview(size: box.biggest),
+                        ),
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(height: AppSpacing.s6),
+                if (preview) const SizedBox(height: AppSpacing.s6) else const Spacer(),
                 const _Headline(),
                 const SizedBox(height: AppSpacing.s3),
                 Text(

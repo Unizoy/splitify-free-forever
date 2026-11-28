@@ -45,6 +45,22 @@ class CapsuleNavBar extends StatelessWidget {
   /// would overflow (a 320 dp phone), so the bar goes compact (S-400).
   static const _labelledMinWidth = 52.0;
 
+  /// Nav labels scale at most this much (planning/06-design-system.md, S-015).
+  static const _labelMaxScale = 1.15;
+
+  /// Width of [label] as the active pill draws it.
+  static double _labelWidth(BuildContext context, String label) {
+    final painter = TextPainter(
+      text: TextSpan(text: label, style: context.text.button),
+      textDirection: Directionality.of(context),
+      textScaler: MediaQuery.textScalerOf(context).clamp(maxScaleFactor: _labelMaxScale),
+      maxLines: 1,
+    )..layout();
+    final width = painter.width;
+    painter.dispose();
+    return width;
+  }
+
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
@@ -80,7 +96,20 @@ class CapsuleNavBar extends StatelessWidget {
                     // readers).
                     final compact =
                         constraints.maxWidth - _inactiveWidth * others < _labelledMinWidth;
-                    final inactiveWidth = compact ? AppSpacing.minTouch : _inactiveWidth;
+                    // The active label shows only when it fits whole: first with roomy 56 dp buttons, then
+                    // with the others at the 48 dp touch size; else icon only. A cut-off "Frie…" reads as
+                    // broken (R3-A, S-447); the screen-reader label is there either way.
+                    final needed =
+                        _labelledMinWidth + _labelWidth(context, items[currentIndex].label);
+                    var inactiveWidth = compact ? AppSpacing.minTouch : _inactiveWidth;
+                    var labelled =
+                        !compact && constraints.maxWidth - inactiveWidth * others >= needed;
+                    if (!compact &&
+                        !labelled &&
+                        constraints.maxWidth - AppSpacing.minTouch * others >= needed) {
+                      inactiveWidth = AppSpacing.minTouch;
+                      labelled = true;
+                    }
                     final activeWidth = constraints.maxWidth - inactiveWidth * others;
                     // While the pills swap, the spring curve overshoots and the widths can add up to a
                     // pixel or two more than the bar: lay them out unbounded and clip instead of overflowing.
@@ -100,7 +129,7 @@ class CapsuleNavBar extends StatelessWidget {
                                 child: _NavButton(
                                   item: items[i],
                                   active: i == currentIndex,
-                                  showLabel: !compact,
+                                  showLabel: labelled,
                                   onTap: () {
                                     if (i != currentIndex) HapticFeedback.selectionClick();
                                     onSelected(i);
@@ -179,7 +208,7 @@ class _NavButton extends StatelessWidget {
                       const SizedBox(width: AppSpacing.s2),
                       Flexible(
                         child: MediaQuery.withClampedTextScaling(
-                          maxScaleFactor: 1.15,
+                          maxScaleFactor: CapsuleNavBar._labelMaxScale,
                           child: Text(
                             item.label,
                             maxLines: 1,

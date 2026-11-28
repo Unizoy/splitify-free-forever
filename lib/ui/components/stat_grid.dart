@@ -11,6 +11,7 @@ class StatGrid extends StatelessWidget {
     required this.valueColor,
     required this.labelColor,
     this.columns = 2,
+    this.leadRow = false,
     super.key,
   });
 
@@ -19,12 +20,18 @@ class StatGrid extends StatelessWidget {
   final Color labelColor;
   final int columns;
 
+  /// The first stat (an amount) gets a row of its own; the rest share the columns (R3-A, S-446:
+  /// "₹12,345.50" next to "2" was cramped).
+  final bool leadRow;
+
   @override
   Widget build(BuildContext context) {
     final large = MediaQuery.textScalerOf(context).scale(1) >= 1.6;
     final columns = large ? 1 : this.columns;
     final rows = <List<StatItem>>[];
-    for (var i = 0; i < stats.length; i += columns) {
+    final first = leadRow && stats.isNotEmpty ? 1 : 0;
+    if (first == 1) rows.add([stats.first]);
+    for (var i = first; i < stats.length; i += columns) {
       rows.add(stats.sublist(i, (i + columns).clamp(0, stats.length)));
     }
     return Column(
@@ -35,13 +42,13 @@ class StatGrid extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              for (var i = 0; i < columns; i++)
+              for (var i = 0; i < (first == 1 && r == 0 ? 1 : columns); i++)
                 Expanded(
                   child: i < rows[r].length
                       ? Padding(
                           // A gap between columns, so a shrunk amount never touches its neighbour.
                           padding: EdgeInsetsDirectional.only(
-                            end: i < columns - 1 ? AppSpacing.s3 : 0,
+                            end: i < rows[r].length - 1 ? AppSpacing.s3 : 0,
                           ),
                           child: MergeSemantics(
                             child: Column(

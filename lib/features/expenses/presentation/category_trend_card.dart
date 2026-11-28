@@ -112,7 +112,7 @@ class CategoryTrendView extends StatelessWidget {
                             style: context.text.caption
                                 .w(600)
                                 .copyWith(
-                                  color: m.minor == 0 ? c.textTertiary : c.textPrimary,
+                                  color: m.minor == 0 ? c.textSecondary : c.textPrimary,
                                   fontFeatures: const [FontFeature.tabularFigures()],
                                 ),
                           ),

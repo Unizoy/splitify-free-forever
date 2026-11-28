@@ -49,7 +49,7 @@ class AmountRow extends StatelessWidget {
     final color = tone.textColor(c);
     final sign = tone.sign;
     final signed = sign.isEmpty ? amountText : '$sign$amountText';
-    final large = MediaQuery.textScalerOf(context).scale(1) > 1.4;
+    final large = context.stackRows;
 
     final left = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -77,7 +77,8 @@ class AmountRow extends StatelessWidget {
       crossAxisAlignment: large ? CrossAxisAlignment.start : CrossAxisAlignment.end,
       children: [
         if (amountText.isNotEmpty)
-          Text(signed, style: context.text.title.w(700).copyWith(color: color)),
+          // The list-amount token: tabular figures, so amounts line up row to row (S-443).
+          Text(signed, style: context.text.amount.w(700).copyWith(color: color)),
         if (amountCaption != null)
           Text(amountCaption!, style: context.text.caption.copyWith(color: color)),
       ],

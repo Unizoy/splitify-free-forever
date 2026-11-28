@@ -27,6 +27,7 @@ class HeroHeader extends StatelessWidget {
     this.photo,
     this.overlap = AppSpacing.sheetOverlap,
     this.heroTag,
+    this.taglineTitle = false,
     super.key,
   });
 
@@ -56,13 +57,18 @@ class HeroHeader extends StatelessWidget {
   /// The background flies in from a card with this tag ([AppHeroTags.group]).
   final Object? heroTag;
 
+  /// The title is a tagline ("split it. settle it."), not the page's subject: on short phones it is left
+  /// out (kept for screen readers), so the card and the first rows fit (R3-A, S-446).
+  final bool taglineTitle;
+
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
     final topInset = MediaQuery.viewPaddingOf(context).top;
     // Short phones (≤ 700 dp tall, e.g. 360 × 640): tighter gaps, so the overlap sheet with the first rows
     // still shows below the hero (R3-A, S-446).
-    final gap = MediaQuery.sizeOf(context).height < 700 ? AppSpacing.s5 : AppSpacing.s8;
+    final short = MediaQuery.sizeOf(context).height < 700;
+    final gap = short ? AppSpacing.s5 : AppSpacing.s8;
     final headline =
         titleWidget ??
         (title == null
@@ -112,7 +118,9 @@ class HeroHeader extends StatelessWidget {
                     ),
                   ),
                   if (top != null) ...[const SizedBox(height: AppSpacing.s4), top!],
-                  if (headline != null) ...[
+                  if (headline != null && short && taglineTitle)
+                    Semantics(header: true, label: title, child: const SizedBox.shrink())
+                  else if (headline != null) ...[
                     SizedBox(height: gap),
                     Semantics(
                       header: true,

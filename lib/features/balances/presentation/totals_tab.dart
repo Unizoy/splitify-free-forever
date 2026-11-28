@@ -237,7 +237,7 @@ class _SpentCard extends StatelessWidget {
             child: Text(
               listMoney(value, totals.currency),
               maxLines: 1,
-              style: context.text.title.w(700),
+              style: context.text.amount.w(700),
             ),
           ),
         ],

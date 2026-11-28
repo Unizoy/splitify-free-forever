@@ -74,6 +74,7 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
     final header = OverlapColumn(
       top: HeroHeader(
         title: l.activityHero,
+        taglineTitle: true,
         art: (seed: 'activity-home', family: CoverFamily.trip),
         actions: [
           HeroIconButton(

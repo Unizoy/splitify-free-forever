@@ -278,7 +278,7 @@ class _NameFieldState extends State<_NameField> {
             context: context,
             hint: l.entryItemHint,
             style: style,
-            hintStyle: style.copyWith(color: c.textTertiary),
+            hintStyle: style.copyWith(color: c.textSecondary),
           ),
         ),
       ),
@@ -339,10 +339,9 @@ class _PersonToggle extends StatelessWidget {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Opacity(
-                    opacity: selected ? 1 : 0.5,
-                    child: Avatar(name: member.name, seed: member.id, size: AvatarSize.s32),
-                  ),
+                  // Full colour either way (the half-faded initials fell below 3:1, S-445); the
+                  // filled black chip is what says "in".
+                  Avatar(name: member.name, seed: member.id, size: AvatarSize.s32),
                   const SizedBox(width: AppSpacing.s1),
                   Flexible(
                     child: Text(

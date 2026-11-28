@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -595,6 +597,21 @@ class _AmountFieldState extends State<AmountField> {
 
   void _onFocus() => setState(() {});
 
+  /// [style] shrunk (down to half) so [text] fits [width] on one line, leaving room for the cursor.
+  static TextStyle _fitted(BuildContext context, TextStyle style, String text, double width) {
+    final painter = TextPainter(
+      text: TextSpan(text: text, style: style),
+      textDirection: Directionality.of(context),
+      textScaler: MediaQuery.textScalerOf(context),
+      maxLines: 1,
+    )..layout();
+    final needed = painter.width + AppSpacing.s3;
+    painter.dispose();
+    if (!width.isFinite || needed <= width) return style;
+    final size = style.fontSize ?? 34;
+    return style.copyWith(fontSize: size * math.max(0.5, width / needed));
+  }
+
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
@@ -629,27 +646,41 @@ class _AmountFieldState extends State<AmountField> {
                 semanticsLabel: spoken,
                 style: context.text.labelCaps.copyWith(color: c.textSecondary),
               ),
-              // Big digits, but not so big at 200 % text that a lakh no longer fits.
+              // Big digits, but they shrink to fit the field rather than run out of it ("12345.5|" on a
+              // 320 dp phone at 130 % text; R3-A, S-446).
               MediaQuery.withClampedTextScaling(
                 maxScaleFactor: 1.5,
-                child: TextField(
-                  key: const Key('expense-amount-input'),
-                  controller: widget.controller,
-                  focusNode: widget.focusNode,
-                  keyboardType: TextInputType.numberWithOptions(decimal: exponent > 0),
-                  textInputAction: TextInputAction.done,
-                  inputFormatters: [_AmountFormatter(exponent)],
-                  autocorrect: false,
-                  enableSuggestions: false,
-                  style: style,
-                  onChanged: widget.onChanged,
-                  onSubmitted: widget.onSubmitted,
-                  decoration: InputDecoration(
-                    isDense: true,
-                    border: InputBorder.none,
-                    contentPadding: const EdgeInsets.symmetric(vertical: AppSpacing.s2),
-                    hintText: hint,
-                    hintStyle: style.copyWith(color: c.textTertiary),
+                child: LayoutBuilder(
+                  builder: (context, box) => ListenableBuilder(
+                    listenable: widget.controller,
+                    builder: (context, _) {
+                      final fitted = _fitted(
+                        context,
+                        style,
+                        widget.controller.text.isEmpty ? hint : widget.controller.text,
+                        box.maxWidth,
+                      );
+                      return TextField(
+                        key: const Key('expense-amount-input'),
+                        controller: widget.controller,
+                        focusNode: widget.focusNode,
+                        keyboardType: TextInputType.numberWithOptions(decimal: exponent > 0),
+                        textInputAction: TextInputAction.done,
+                        inputFormatters: [_AmountFormatter(exponent)],
+                        autocorrect: false,
+                        enableSuggestions: false,
+                        style: fitted,
+                        onChanged: widget.onChanged,
+                        onSubmitted: widget.onSubmitted,
+                        decoration: InputDecoration(
+                          isDense: true,
+                          border: InputBorder.none,
+                          contentPadding: const EdgeInsets.symmetric(vertical: AppSpacing.s2),
+                          hintText: hint,
+                          hintStyle: fitted.copyWith(color: c.textSecondary),
+                        ),
+                      );
+                    },
                   ),
                 ),
               ),
@@ -736,7 +767,8 @@ class PaidSplitPill extends StatelessWidget {
             AppSpacing.s3,
           ),
           decoration: BoxDecoration(
-            color: c.primaryContainer,
+            // An error shows on white: red text on the lavender fill was 4.0:1 (S-445).
+            color: error ? c.surface : c.primaryContainer,
             borderRadius: AppRadii.all24,
             border: Border.all(color: error ? c.oweText : AppPalette.clear, width: 1.5),
           ),
@@ -760,8 +792,8 @@ class PaidSplitPill extends StatelessWidget {
                       style: context.text.bodySmall
                           .w(600)
                           .copyWith(
-                            color: error ? c.oweText : c.textSecondary,
-                            fontFeatures: const [FontFeature.tabularFigures()],
+                            color: error ? c.oweText : c.onPrimaryContainer,
+                            fontFeatures: AppText.tabularFigures,
                           ),
                     ),
                   ],

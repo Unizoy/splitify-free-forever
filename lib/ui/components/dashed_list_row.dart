@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:splitify/ui/components/dashed_divider.dart';
 import 'package:splitify/ui/components/pressable.dart';
+import 'package:splitify/ui/components/word_fit_text.dart';
 import 'package:splitify/ui/theme/theme.dart';
 
 /// Settings-style row (614): icon, label, optional value and chevron, with a
@@ -31,7 +32,7 @@ class DashedListRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.colors;
     final fg = destructive ? c.oweText : c.textPrimary;
-    final stacked = value != null && MediaQuery.textScalerOf(context).scale(1) >= 1.3;
+    final stacked = value != null && context.stackRows;
     final valueText = value == null
         ? null
         : Text(value!, style: context.text.amount.copyWith(color: valueColor ?? c.primary));
@@ -56,12 +57,15 @@ class DashedListRow extends StatelessWidget {
                           ? Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(label, style: context.text.body.w(600).copyWith(color: fg)),
+                                WordFitText(
+                                  label,
+                                  style: context.text.body.w(600).copyWith(color: fg),
+                                ),
                                 const SizedBox(height: 2),
                                 valueText!,
                               ],
                             )
-                          : Text(label, style: context.text.body.w(600).copyWith(color: fg)),
+                          : WordFitText(label, style: context.text.body.w(600).copyWith(color: fg)),
                     ),
                     if (valueText != null && !stacked) ...[
                       const SizedBox(width: AppSpacing.s3),

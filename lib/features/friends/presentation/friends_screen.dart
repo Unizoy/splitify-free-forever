@@ -102,6 +102,7 @@ class _FriendsScreenState extends ConsumerState<FriendsScreen> {
           child: OverlapColumn(
             top: HeroHeader(
               title: l.friendsHero,
+              taglineTitle: true,
               actions: [
                 HeroIconButton(
                   key: const Key('friends-add'),

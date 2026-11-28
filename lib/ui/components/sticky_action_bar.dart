@@ -16,8 +16,17 @@ class StickyActionBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
-    final large = MediaQuery.textScalerOf(context).scale(1) > 1.4;
-    return DecoratedBox(
+    final scale = MediaQuery.textScalerOf(context).scale(1);
+    // Side by side the primary gets two thirds of the bar: stacked when that would wrap its label — large
+    // text, or a narrow phone (320 dp at 1.0, 393 dp at 1.3) where "Add expense" broke mid-word (S-446).
+    const margins = 2 * AppSpacing.screen;
+    final content =
+        MediaQuery.sizeOf(context).width.clamp(margins, AppSpacing.maxContent + margins) - margins;
+    final large = scale > 1.4 || content / scale < 320;
+    // On a short phone the pinned bar keeps its text at 1.5x at most, so at 200 % it no longer covers half
+    // the screen (320 x 568: about 290 of 568 dp; R3-A, S-446). The page above scales fully.
+    final short = MediaQuery.sizeOf(context).height < 700;
+    final bar = DecoratedBox(
       decoration: BoxDecoration(
         color: c.bg,
         border: Border(top: BorderSide(color: c.border)),
@@ -69,5 +78,6 @@ class StickyActionBar extends StatelessWidget {
         ),
       ),
     );
+    return short ? MediaQuery.withClampedTextScaling(maxScaleFactor: 1.5, child: bar) : bar;
   }
 }

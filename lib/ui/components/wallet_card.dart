@@ -139,7 +139,8 @@ class _GoldCard extends StatelessWidget {
           AppSpacing.s6,
           AppSpacing.s5,
           AppSpacing.s5,
-          WalletCard._hidden + AppSpacing.s4,
+          // Clear of the sleeve's raised ears too: at 480 dp they covered the "₹" (R3-A, S-446).
+          WalletCard._hidden + WalletCard._ear + AppSpacing.s1,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

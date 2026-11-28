@@ -239,7 +239,7 @@ class TransferRow extends StatelessWidget {
         ? l.balYouOwePerson(personName(l, b, t.to, start: false))
         : l.balPairOwes(personName(l, b, t.from), personName(l, b, t.to, start: false));
     final amount = listMoney(t.amount, currency);
-    final large = MediaQuery.textScalerOf(context).scale(1) > 1.4;
+    final large = context.stackRows;
     void open() {
       final custom = onSettle;
       if (custom != null) return custom();
@@ -274,7 +274,7 @@ class TransferRow extends StatelessWidget {
         const SizedBox(height: 2),
         Text(
           amount,
-          style: context.text.title
+          style: context.text.amount
               .w(700)
               .copyWith(color: tone == MoneyTone.settled ? c.textPrimary : tone.textColor(c)),
         ),

@@ -316,7 +316,13 @@ class _ItemsRow extends StatelessWidget {
             SizedBox(width: 28, child: Icon(AppIcons.receipt, size: 20, color: c.primary)),
             const SizedBox(width: AppSpacing.s4),
             Expanded(child: Text(l.entryScanItemsFound(count), style: context.text.body.w(600))),
-            Text(sum, style: context.text.body.copyWith(color: c.textSecondary)),
+            Text(
+              sum,
+              style: context.text.body.copyWith(
+                color: c.textSecondary,
+                fontFeatures: AppText.tabularFigures,
+              ),
+            ),
           ],
         ),
       ),

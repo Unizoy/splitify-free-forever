@@ -121,7 +121,8 @@ class AvatarStack extends StatelessWidget {
     final shown = people.take(max).toList();
     final extra = people.length - shown.length;
     final d = size.dp;
-    final step = d * 0.68;
+    // 16 % overlap: the next ring stops short of the second initial ("MB" read as "ME" at 32 %, S-446).
+    final step = d * 0.84;
     final count = shown.length + (extra > 0 ? 1 : 0);
     final l = AppLocalizations.of(context);
     return SizedBox(

@@ -404,7 +404,7 @@ class _SearchBox extends StatelessWidget {
                 context: context,
                 hint: hint ?? l.expWithSearchHint,
                 style: context.text.body,
-                hintStyle: context.text.body.copyWith(color: c.textTertiary),
+                hintStyle: context.text.body.copyWith(color: c.textSecondary),
               ),
               onChanged: onChanged,
             ),

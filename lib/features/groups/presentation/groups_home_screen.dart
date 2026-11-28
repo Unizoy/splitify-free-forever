@@ -238,6 +238,7 @@ class _Hero extends ConsumerWidget {
     ].join('\u00A0· ');
     return HeroHeader(
       title: l.groupsHero,
+      taglineTitle: true,
       art: (seed: 'groups-home', family: CoverFamily.other),
       actions: [
         HeroIconButton(

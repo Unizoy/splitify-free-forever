@@ -98,7 +98,10 @@ class GroupBalanceLines extends ConsumerWidget {
         ),
       ),
     );
-    final shown = lines.take(groupLinesShown).toList();
+    // Short phones (< 700 dp tall) show one line and "+N more", so the list still shows below the hero
+    // (R3-A, S-446).
+    final short = MediaQuery.sizeOf(context).height < 700;
+    final shown = lines.take(short ? 1 : groupLinesShown).toList();
     final more = lines.length - shown.length;
     return Column(
       mainAxisSize: MainAxisSize.min,

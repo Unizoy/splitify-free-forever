@@ -100,7 +100,8 @@ class FormPill extends StatelessWidget {
         AppSpacing.s3,
       ),
       decoration: BoxDecoration(
-        color: c.primaryContainer,
+        // An error shows on white: red text on the lavender fill was 4.0:1 (S-445).
+        color: error ? c.surface : c.primaryContainer,
         borderRadius: AppRadii.all24,
         border: Border.all(color: error ? c.oweText : AppPalette.clear, width: 1.5),
       ),
@@ -125,7 +126,7 @@ class FormPill extends StatelessWidget {
                     style: context.text.bodySmall
                         .w(600)
                         .copyWith(
-                          color: error ? c.oweText : c.textSecondary,
+                          color: error ? c.oweText : c.onPrimaryContainer,
                           fontFeatures: const [FontFeature.tabularFigures()],
                         ),
                   ),

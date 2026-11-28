@@ -130,7 +130,7 @@ class _Row extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
-    final large = MediaQuery.textScalerOf(context).scale(1) >= 1.4;
+    final large = context.stackRows;
     final label = Text(row.label, style: context.text.body.w(600));
     final value = row.value == null
         ? null

@@ -28,6 +28,12 @@ class FolderTabs extends StatelessWidget {
   /// Start/end padding, icon and gap around a tab label.
   static const _labelChrome = 48.0;
 
+  /// The icon and its gap inside [_labelChrome].
+  static const _iconChrome = 28.0;
+
+  /// Narrower tabs show their label only.
+  static const _iconMinTab = 104.0;
+
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
@@ -35,11 +41,15 @@ class FolderTabs extends StatelessWidget {
       builder: (context, constraints) {
         final n = tabs.length;
         final tabWidth = (constraints.maxWidth - _slant) / n;
+        // Narrow tabs (a 320 dp phone) drop their icons, so the labels keep one shared, readable size
+        // instead of each shrinking on its own (R3-A, S-446).
+        final icons = tabWidth >= _iconMinTab;
         final scaler = sharedLabelScaler(
           context,
           labels: [for (final t in tabs) t.label],
           style: context.text.body.w(700),
-          maxWidth: tabWidth - _labelChrome,
+          maxWidth: tabWidth - (icons ? _labelChrome : _labelChrome - _iconChrome),
+          minFactor: 0.7,
         );
         final order = [
           for (var i = 0; i < n; i++)
@@ -67,6 +77,7 @@ class FolderTabs extends StatelessWidget {
                     tab: tabs[i],
                     active: i == index,
                     scaler: scaler,
+                    icon: icons,
                     onTap: () {
                       if (i == index) return;
                       HapticFeedback.selectionClick();
@@ -82,7 +93,7 @@ class FolderTabs extends StatelessWidget {
                   child: ExcludeSemantics(
                     child: SizedBox(
                       width: tabWidth,
-                      child: _TabLabel(tab: tabs[index], active: true, scaler: scaler),
+                      child: _TabLabel(tab: tabs[index], active: true, scaler: scaler, icon: icons),
                     ),
                   ),
                 ),
@@ -96,12 +107,19 @@ class FolderTabs extends StatelessWidget {
 }
 
 class _Tab extends StatelessWidget {
-  const _Tab({required this.tab, required this.active, required this.onTap, required this.scaler});
+  const _Tab({
+    required this.tab,
+    required this.active,
+    required this.onTap,
+    required this.scaler,
+    required this.icon,
+  });
 
   final FolderTab tab;
   final bool active;
   final VoidCallback onTap;
   final TextScaler scaler;
+  final bool icon;
 
   @override
   Widget build(BuildContext context) {
@@ -125,7 +143,7 @@ class _Tab extends StatelessWidget {
             ),
             child: child,
           ),
-          child: _TabLabel(tab: tab, active: active, scaler: scaler),
+          child: _TabLabel(tab: tab, active: active, scaler: scaler, icon: icon),
         ),
       ),
     );
@@ -133,11 +151,17 @@ class _Tab extends StatelessWidget {
 }
 
 class _TabLabel extends StatelessWidget {
-  const _TabLabel({required this.tab, required this.active, required this.scaler});
+  const _TabLabel({
+    required this.tab,
+    required this.active,
+    required this.scaler,
+    required this.icon,
+  });
 
   final FolderTab tab;
   final bool active;
   final TextScaler scaler;
+  final bool icon;
 
   @override
   Widget build(BuildContext context) {
@@ -149,8 +173,10 @@ class _TabLabel extends StatelessWidget {
         padding: const EdgeInsetsDirectional.fromSTEB(AppSpacing.s4, 14, AppSpacing.s1, 14),
         child: Row(
           children: [
-            Icon(tab.icon, size: 20, color: active ? c.primary : c.textSecondary),
-            const SizedBox(width: AppSpacing.s2),
+            if (icon) ...[
+              Icon(tab.icon, size: 20, color: active ? c.primary : c.textSecondary),
+              const SizedBox(width: AppSpacing.s2),
+            ],
             Expanded(
               child: FittedBox(
                 fit: BoxFit.scaleDown,

@@ -76,7 +76,7 @@ class UpiResultSheet extends StatelessWidget {
               const SizedBox(height: AppSpacing.s1),
               Text(
                 listMoney(amountMinor, UpiLinkBuilder.currency),
-                style: context.text.title.w(700).copyWith(color: c.textPrimary),
+                style: context.text.amount.w(700).copyWith(color: c.textPrimary),
               ),
               const SizedBox(height: AppSpacing.s1),
               Text(

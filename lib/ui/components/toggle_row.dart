@@ -77,7 +77,8 @@ class ToggleRow extends StatelessWidget {
                             title,
                             style: context.text.title
                                 .w(500)
-                                .copyWith(color: enabled ? c.textPrimary : c.textTertiary),
+                                // Disabled: secondary, never lighter than its own subtitle (S-446).
+                                .copyWith(color: enabled ? c.textPrimary : c.textSecondary),
                           ),
                           if (subtitle != null) ...[
                             const SizedBox(height: 2),

@@ -64,7 +64,7 @@ class InsightsCard extends StatelessWidget {
                   style: context.text.labelCaps.copyWith(color: c.textSecondary),
                 ),
               ),
-              Text(trailing, style: context.text.caption.copyWith(color: c.textTertiary)),
+              Text(trailing, style: context.text.caption.copyWith(color: c.textSecondary)),
             ],
           ),
           const SizedBox(height: AppSpacing.s4),
@@ -221,7 +221,7 @@ class LegendChip extends StatelessWidget {
     final l = AppLocalizations.of(context);
     final c = context.colors;
     final cat = categoryOfKey(part.category);
-    final large = MediaQuery.textScalerOf(context).scale(1) >= 1.3;
+    final large = context.stackRows;
     final fg = selected ? c.onInk : c.textPrimary;
     final sub = selected ? c.onInk.withValues(alpha: 0.72) : c.textSecondary;
     final name = Text(
@@ -462,7 +462,7 @@ class MonthBars extends StatelessWidget {
                       maxLines: 1,
                       style: context.text.caption
                           .w(m.month == selected ? 700 : 500)
-                          .copyWith(color: m.month == selected ? c.textPrimary : c.textTertiary),
+                          .copyWith(color: m.month == selected ? c.textPrimary : c.textSecondary),
                     ),
                   ),
                 ),
