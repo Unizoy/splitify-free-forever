@@ -80,11 +80,11 @@ class _BalancesTabState extends ConsumerState<BalancesTab> {
         MotionSwitcher(
           child: inMain
               ? ConvertedBalancesView(
-                  key: const ValueKey('balances-in-main'),
+                  key: const ValueKey('motion-balances-in-main'),
                   groupId: widget.groupId,
                 )
               : Column(
-                  key: ValueKey('balances-by-currency-$simplified'),
+                  key: ValueKey('motion-balances-by-currency-$simplified'),
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     for (final c in b.currencies) ...[

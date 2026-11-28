@@ -272,14 +272,14 @@ class _Body extends StatelessWidget {
           grow: true,
           child: view.deleted
               ? Column(
-                  key: const ValueKey('expense-deleted'),
+                  key: const ValueKey('motion-expense-deleted'),
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     _DeletedNote(expense: e, archived: archived),
                     const SizedBox(height: AppSpacing.s6),
                   ],
                 )
-              : const SizedBox(key: ValueKey('expense-live'), width: double.infinity),
+              : const SizedBox(key: ValueKey('motion-expense-live'), width: double.infinity),
         ),
         SectionLabel(view.isLoan ? l.loanLentBy : l.expPaidByLabel),
         for (var i = 0; i < payers.length; i++)

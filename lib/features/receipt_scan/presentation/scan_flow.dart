@@ -70,15 +70,15 @@ Future<ScanResult?> scanReceipt(
             scale: false,
             child: switch ((snap.hasError, snap.data)) {
               (true, _) => _Failed(
-                key: const ValueKey('scan-failed'),
+                key: const ValueKey('motion-scan-failed'),
                 onRetry: () {
                   retry = true;
                   Navigator.of(sheet).pop();
                 },
               ),
-              (_, null) => const ScanReading(key: ValueKey('scan-reading')),
+              (_, null) => const ScanReading(key: ValueKey('motion-scan-reading')),
               (_, final ScanOutcome outcome) => ScanReviewPanel(
-                key: const ValueKey('scan-found'),
+                key: const ValueKey('motion-scan-found'),
                 outcome: outcome,
                 draft: draft,
                 onDone: (d) => Navigator.of(sheet).pop(d),

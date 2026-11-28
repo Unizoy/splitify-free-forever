@@ -241,7 +241,7 @@ class _JoinScreenState extends ConsumerState<JoinScreen> {
                   MotionSwitcher(
                     scale: false,
                     child: Column(
-                      key: ValueKey(preview == null ? 'join-enter' : 'join-preview'),
+                      key: ValueKey(preview == null ? 'motion-join-enter' : 'motion-join-preview'),
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: preview == null
                           ? _enterStep(context)

@@ -77,9 +77,9 @@ class WithRow extends ConsumerWidget {
             grow: true,
             alignment: AlignmentDirectional.topStart,
             child: !showError
-                ? const SizedBox(key: ValueKey('with-ok'), width: double.infinity)
+                ? const SizedBox(key: ValueKey('motion-with-ok'), width: double.infinity)
                 : Padding(
-                    key: const ValueKey('with-error'),
+                    key: const ValueKey('motion-with-error'),
                     padding: const EdgeInsets.only(top: AppSpacing.s1),
                     child: Semantics(
                       liveRegion: true,
@@ -690,9 +690,9 @@ class _AmountFieldState extends State<AmountField> {
           grow: true,
           alignment: AlignmentDirectional.topStart,
           child: error == null
-              ? const SizedBox(key: ValueKey('amount-ok'), width: double.infinity)
+              ? const SizedBox(key: ValueKey('motion-amount-ok'), width: double.infinity)
               : Padding(
-                  key: ValueKey('amount-error-$error'),
+                  key: ValueKey('motion-amount-error-$error'),
                   padding: const EdgeInsets.only(top: AppSpacing.s1),
                   child: Semantics(
                     liveRegion: true,

@@ -328,7 +328,7 @@ class _Hero extends ConsumerWidget {
               alignment: AlignmentDirectional.centerStart,
               child: converted != null
                   ? FittedBox(
-                      key: const ValueKey('overall-converted'),
+                      key: const ValueKey('motion-overall-converted'),
                       fit: BoxFit.scaleDown,
                       alignment: AlignmentDirectional.centerStart,
                       child: AnimatedAmount(
@@ -344,7 +344,7 @@ class _Hero extends ConsumerWidget {
                       ),
                     )
                   : Column(
-                      key: const ValueKey('overall-by-currency'),
+                      key: const ValueKey('motion-overall-by-currency'),
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         FittedBox(

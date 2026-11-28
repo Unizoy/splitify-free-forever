@@ -113,7 +113,7 @@ class PaidSplitPanel extends StatelessWidget {
             scale: false,
             child: d.split.isItems
                 ? ItemsEditor(
-                    key: const ValueKey('split-body-items'),
+                    key: const ValueKey('motion-split-items'),
                     split: d.split,
                     members: d.members,
                     currency: d.currency,
@@ -121,7 +121,7 @@ class PaidSplitPanel extends StatelessWidget {
                     onChanged: onSplit,
                   )
                 : SplitMemberRows(
-                    key: ValueKey('split-body-${d.split.kind.name}'),
+                    key: ValueKey('motion-split-${d.split.kind.name}'),
                     split: d.split,
                     members: d.members,
                     currency: d.currency,

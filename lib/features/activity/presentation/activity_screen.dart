@@ -106,9 +106,9 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
             MotionSwitcher(
               grow: true,
               child: month == null
-                  ? const SizedBox(key: ValueKey('month-none'), width: double.infinity)
+                  ? const SizedBox(key: ValueKey('motion-month-none'), width: double.infinity)
                   : Column(
-                      key: ValueKey('month-${month.key}'),
+                      key: ValueKey('motion-month-${month.key}'),
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         MonthlySummaryCard(summary: month),
