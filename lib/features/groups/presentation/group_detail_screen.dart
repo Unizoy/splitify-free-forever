@@ -334,6 +334,14 @@ class _StatusPill extends StatelessWidget {
       return StatusPill(label: l.archivedLabel, icon: AppIcons.archive, tone: StatusPillTone.glass);
     }
     final amounts = amountsText(mine);
+    // A new balance (an expense saved, a payment, a sync) cross-fades the pill in place (S-451).
+    return MotionSwitcher(
+      alignment: Alignment.center,
+      child: KeyedSubtree(key: ValueKey('group-pill-$amounts'), child: _pill(l, amounts)),
+    );
+  }
+
+  Widget _pill(AppLocalizations l, String amounts) {
     return switch (balanceStatusOf(mine.values)) {
       BalanceStatus.owed => StatusPill(
         key: const Key('group-status-owed'),

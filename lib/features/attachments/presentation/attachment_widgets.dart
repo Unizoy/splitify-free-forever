@@ -173,6 +173,13 @@ class AttachmentTile extends ConsumerWidget {
       ),
       _ => _PdfFace(item: item),
     };
+    // A photo flies from its tile into the viewer (S-451).
+    final photoTile = switch (item) {
+      PickedAttachment(:final file) => file.image != null,
+      SavedAttachment(:final row) => row.kind != AttachmentKind.pdf.wire,
+      LegacyReceipt() => true,
+    };
+    final face = photoTile ? Hero(tag: AppHeroTags.attachment(item.key), child: body) : body;
     return SizedBox.square(
       dimension: side,
       child: Stack(
@@ -197,7 +204,7 @@ class AttachmentTile extends ConsumerWidget {
                       borderRadius: AppRadii.all16,
                       border: Border.all(color: c.border),
                     ),
-                    child: body,
+                    child: face,
                   ),
                 ),
               ),

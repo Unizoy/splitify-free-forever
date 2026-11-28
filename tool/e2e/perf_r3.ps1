@@ -55,7 +55,8 @@ if (-not $NoLock) {
 }
 $log = Join-Path $out "perf-$Label.log"
 try {
-  "pm before: $((& $adb shell pm list packages) -match 'splitify|Splitwise' -join ' ')" | Tee-Object -FilePath $log
+  $pm = (& $adb shell pm list packages) -match 'splitify|Splitwise'
+  "pm before: $($pm -join ' ')" | Tee-Object -FilePath $log -Append
   if ($Only -ne 'startup' -and (Test-Path $screensApk)) {
     & $adb install -r $screensApk | Out-Null
     & $adb shell am force-stop $app
@@ -65,6 +66,13 @@ try {
     $done = $false
     while (-not $done -and (Get-Date) -lt $deadline) {
       Start-Sleep 10
+      # A frame only comes while the app is in front: bring it back if something covered it (a calendar
+      # reminder did on the first run); singleTop brings the running task forward without restarting it.
+      $top = (& $adb shell dumpsys activity activities) -match 'topResumedActivity'
+      if (-not ($top -match [regex]::Escape($app))) {
+        Write-Host "app not in front ($top): bringing it back"
+        & $adb shell am start -n $component | Out-Null
+      }
       $lines = & $adb logcat -d -s flutter:I
       if ($lines -match 'R3PERF-DONE|Some tests failed|EXCEPTION CAUGHT') { $done = $true }
     }
@@ -92,7 +100,8 @@ try {
     & $adb shell rm /sdcard/r3b.png
     & $adb shell am force-stop $app
   }
-  "pm after: $((& $adb shell pm list packages) -match 'splitify|Splitwise' -join ' ')" | Tee-Object -FilePath $log -Append
+  $pm = (& $adb shell pm list packages) -match 'splitify|Splitwise'
+  "pm after: $($pm -join ' ')" | Tee-Object -FilePath $log -Append
 } finally {
   if (-not $NoLock -and (Test-Path $lock)) { Remove-Item $lock -Force; Write-Host 'emulator lock released' }
 }

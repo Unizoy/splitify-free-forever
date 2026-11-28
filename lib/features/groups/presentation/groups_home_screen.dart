@@ -109,7 +109,9 @@ class _GroupsHomeScreenState extends ConsumerState<GroupsHomeScreen> {
       );
     } else {
       // The cards rise in once, when the list first shows (S-265); a new group grows in (S-451).
+      // A new filter replays the cards' rise, so the change reads at a glance.
       sliver = EntranceScope(
+        key: ValueKey(filter),
         child: InsertMotionScope(
           ids: [
             for (final g in active) g.id,
