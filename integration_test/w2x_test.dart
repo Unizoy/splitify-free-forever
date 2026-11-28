@@ -22,6 +22,7 @@ import 'package:splitify/core/config/preferences.dart';
 import 'package:splitify/data/data_providers.dart';
 import 'package:splitify/data/local/app_database.dart';
 import 'package:splitify/data/remote/balances_remote.dart';
+import 'package:splitify/data/remote/friends_remote.dart';
 import 'package:splitify/data/remote/remote_providers.dart';
 import 'package:splitify/data/remote/supabase_client.dart';
 import 'package:splitify/data/remote/supabase_remote_api.dart';
@@ -91,6 +92,7 @@ void main() {
         remoteApiProvider.overrideWithValue(SupabaseRemoteApi.client(client)),
         balancesRemoteProvider.overrideWithValue(SupabaseBalancesRemote.fromClient(client)),
         groupsRemoteProvider.overrideWithValue(services.groups),
+        friendsRemoteProvider.overrideWithValue(SupabaseFriendsRemote.fromClient(client)),
         authRepositoryProvider.overrideWithValue(services.auth),
         profileRemoteProvider.overrideWithValue(services.profiles),
       ],
@@ -125,6 +127,15 @@ void main() {
     });
     final bina = (await t.runAsync(() => HarnessUser.signIn(env, 'e2e-w2x-$stamp')))!;
     addTearDown(() => t.runAsync(bina.dispose));
+    // Friends show by their profile name (rule 8): give the fresh account a findable one.
+    await t.runAsync(
+      () => bina.rpc('update_profile', {
+        'p_display_name': 'Bina $tag',
+        'p_upi_id': null,
+        'p_default_currency': 'INR',
+        'p_avatar_path': null,
+      }),
+    );
     final code =
         (await t.runAsync(
               () => client.from('groups').select('invite_code').eq('id', tripId).single(),
@@ -217,10 +228,9 @@ void main() {
       db.groupMembers,
     )..where((m) => m.groupId.equals(adhocId))).get();
     expect(adhocMembers.length, 3);
-    expect(
-      adhocMembers.map((m) => m.id),
-      containsAll([derivedMemberId(binaId, adhocId), derivedMemberId(rahulId, adhocId)]),
-    );
+    // Rahul (name only) is derived from his trip member; Bina from her member in our new direct group.
+    expect(adhocMembers.map((m) => m.id), contains(derivedMemberId(rahulId, adhocId)));
+    expect(adhocMembers.where((m) => m.userId == bina.id).length, 1);
     await sync();
     final synced = await (db.select(db.expenses)..where((e) => e.id.equals(saved.id))).getSingle();
     expect(synced.syncState, SyncState.synced, reason: '${engine.lastError}');
@@ -235,14 +245,15 @@ void main() {
     ))!;
     expect(row['is_adhoc'], isTrue);
     expect(row['type'], 'other');
-    final binaRow = (await t.runAsync(
+    // The phone never sends user_id: the server linked Bina's account from her origin member (0028).
+    final linked = (await t.runAsync(
       () => client
           .from('group_members')
-          .select('user_id')
-          .eq('id', derivedMemberId(binaId, adhocId))
-          .single(),
+          .select('id, display_name')
+          .eq('group_id', adhocId)
+          .eq('user_id', bina.id),
     ))!;
-    expect(binaRow['user_id'], bina.id);
+    expect(linked.length, 1, reason: 'Bina linked to her account');
     final seen = (await t.runAsync(
       () => bina.client.from('groups').select('id, is_adhoc').eq('id', adhocId),
     ))!;
@@ -295,7 +306,8 @@ void main() {
     router.go('/expense/new?group=$tripId');
     await _waitFor(t, find.byKey(const Key('split-summary')), reason: 'next editor');
     expect(find.textContaining('Paid by Bina $tag'), findsOneWidget);
-    await t.binding.handlePopRoute();
+    // The editor is the only page here (router.go): leave through the router, a system Back would close the app.
+    router.go(Routes.groups);
     await _pumpFor(t, const Duration(seconds: 1));
 
     // ---- P-9: a dollar expense with its saved conversion; "Show in INR" on Home counts it.
