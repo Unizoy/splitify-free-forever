@@ -13,6 +13,7 @@ import 'package:splitify/domain/rules/group_rules.dart';
 import 'package:splitify/features/auth/application/auth_providers.dart';
 import 'package:splitify/features/currency/presentation/currency_picker_sheet.dart';
 import 'package:splitify/features/expenses/presentation/editor/pickers.dart' show MonthCalendar;
+import 'package:splitify/features/friends/application/contact_picker.dart';
 import 'package:splitify/features/groups/application/groups_providers.dart';
 import 'package:splitify/features/groups/domain/group_extras.dart';
 import 'package:splitify/features/groups/presentation/group_trip_rows.dart';
@@ -125,6 +126,21 @@ class _GroupFormScreenState extends ConsumerState<GroupFormScreen> {
     });
     if (keepFocus) _personFocus.requestFocus();
     return true;
+  }
+
+  /// "From contacts" (W2-X F15): the picked contact's name joins the people, like a typed one.
+  Future<void> _fromContacts() async {
+    final l = AppLocalizations.of(context);
+    final String? name;
+    try {
+      name = await ref.read(contactPickerProvider).pickName();
+    } on ContactPickFailed {
+      if (mounted) showGroupMessage(context, l.w2xContactsUnavailable);
+      return;
+    }
+    if (name == null || !mounted) return;
+    _person.text = name;
+    _addPerson(keepFocus: false);
   }
 
   Future<void> _save(String currency, {bool invite = false}) async {
@@ -551,6 +567,12 @@ class _GroupFormScreenState extends ConsumerState<GroupFormScreen> {
                     style: context.text.bodySmall.copyWith(color: c.textSecondary),
                   ),
                   const SizedBox(height: AppSpacing.s4),
+                  DashedListRow(
+                    key: const Key('group-from-contacts'),
+                    icon: AppIcons.contacts,
+                    label: l.w2xFromContacts,
+                    onTap: () => unawaited(_fromContacts()),
+                  ),
                   DashedListRow(
                     key: const Key('group-invite'),
                     icon: AppIcons.qr,

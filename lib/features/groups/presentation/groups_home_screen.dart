@@ -10,6 +10,8 @@ import 'package:splitify/features/auth/application/auth_providers.dart' show pro
 import 'package:splitify/features/balances/application/balance_views.dart';
 import 'package:splitify/features/balances/application/balances_providers.dart';
 import 'package:splitify/features/balances/presentation/balance_copy.dart';
+import 'package:splitify/features/currency/application/in_currency_providers.dart';
+import 'package:splitify/features/currency/presentation/show_in_currency.dart';
 import 'package:splitify/features/groups/application/group_extras_providers.dart';
 import 'package:splitify/features/groups/application/groups_providers.dart';
 import 'package:splitify/features/groups/domain/group_extras.dart';
@@ -221,6 +223,12 @@ class _Hero extends ConsumerWidget {
     final mixed = status == BalanceStatus.mixed;
     String amount(String code) =>
         mixed ? signedMoney(totals[code]!, code) : listMoney(totals[code]!.abs(), code);
+    // "Show in INR" (W2-X P-9): offered once another currency is in the total; saved conversions only.
+    final convertible = codes.any((code) => code != first);
+    final showIn = convertible && ref.watch(showInHomeCurrencyProvider);
+    final inFirst = showIn ? ref.watch(myTotalInProvider(first)) : null;
+    final converted = inFirst != null && inFirst.counted ? inFirst : null;
+    final convertedStatus = converted == null ? status : balanceStatusOf([converted.amount]);
     final owing = b?.peopleOwingMe ?? 0;
     final owed = b?.peopleIOwe ?? 0;
     final caption = [
@@ -281,34 +289,64 @@ class _Hero extends ConsumerWidget {
               ],
             ),
             const SizedBox(height: AppSpacing.s4),
-            FittedBox(
-              fit: BoxFit.scaleDown,
-              alignment: AlignmentDirectional.centerStart,
-              child: AnimatedAmount(
-                textKey: const Key('groups-overall-amount'),
-                // Counts to a new total when a change lands (S-264).
-                minor: codes.isEmpty
-                    ? 0
-                    : (mixed ? totals[codes.first]! : totals[codes.first]!.abs()),
-                currency: codes.isEmpty ? first : codes.first,
-                format: (m) => codes.isEmpty
-                    ? listMoney(m, first)
-                    : (mixed ? signedMoney(m, codes.first) : listMoney(m, codes.first)),
-                style: context.text.amountHero.copyWith(
-                  color: codes.isEmpty || mixed ? c.onHero : toneOf(status).onDarkColor(c),
+            if (converted != null)
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: AlignmentDirectional.centerStart,
+                child: AnimatedAmount(
+                  textKey: const Key('groups-overall-converted'),
+                  minor: converted.amount.abs(),
+                  currency: first,
+                  format: (m) => listMoney(m, first),
+                  style: context.text.amountHero.copyWith(
+                    color: convertedStatus == BalanceStatus.settled
+                        ? c.onHero
+                        : toneOf(convertedStatus).onDarkColor(c),
+                  ),
+                ),
+              )
+            else ...[
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: AlignmentDirectional.centerStart,
+                child: AnimatedAmount(
+                  textKey: const Key('groups-overall-amount'),
+                  // Counts to a new total when a change lands (S-264).
+                  minor: codes.isEmpty
+                      ? 0
+                      : (mixed ? totals[codes.first]! : totals[codes.first]!.abs()),
+                  currency: codes.isEmpty ? first : codes.first,
+                  format: (m) => codes.isEmpty
+                      ? listMoney(m, first)
+                      : (mixed ? signedMoney(m, codes.first) : listMoney(m, codes.first)),
+                  style: context.text.amountHero.copyWith(
+                    color: codes.isEmpty || mixed ? c.onHero : toneOf(status).onDarkColor(c),
+                  ),
                 ),
               ),
-            ),
-            if (codes.length > 1)
-              Text(
-                [for (final code in codes.skip(1)) amount(code)].join('\u00A0· '),
-                style: context.text.amount.w(700).copyWith(color: c.onHero),
-              ),
+              if (codes.length > 1)
+                Text(
+                  [for (final code in codes.skip(1)) amount(code)].join('\u00A0· '),
+                  style: context.text.amount.w(700).copyWith(color: c.onHero),
+                ),
+            ],
+            if (showIn && inFirst != null) ...[
+              const SizedBox(height: AppSpacing.s1),
+              InCurrencyNote(value: inFirst),
+            ],
             const SizedBox(height: AppSpacing.s1),
             Text(
               groupCount == 0 ? l.glassEmptyHint : caption,
               style: context.text.body.copyWith(color: c.onHero.withValues(alpha: 0.78)),
             ),
+            if (convertible) ...[
+              const SizedBox(height: AppSpacing.s3),
+              ShowInCurrencyChip(
+                currency: first,
+                on: showIn,
+                onChanged: (on) => ref.read(showInHomeCurrencyProvider.notifier).set(on: on),
+              ),
+            ],
             if (b?.unsynced ?? false) ...[
               const SizedBox(height: AppSpacing.s3),
               const _GlassSyncMarker(),

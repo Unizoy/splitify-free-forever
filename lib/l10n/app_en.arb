@@ -1885,7 +1885,7 @@
   "w2xShowByCurrency": "By currency",
   "w2xInSavedRates": "In {currency} · saved rates",
   "@w2xInSavedRates": {"placeholders": {"currency": {"type": "String"}}},
-  "w2xNotConverted": "+ {amounts} not converted",
+  "w2xNotConverted": "Also {amounts} not converted",
   "@w2xNotConverted": {"placeholders": {"amounts": {"type": "String"}}},
   "w2xNothingConverted": "No saved {currency} rates for these yet",
   "@w2xNothingConverted": {"placeholders": {"currency": {"type": "String"}}}

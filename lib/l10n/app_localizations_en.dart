@@ -5530,7 +5530,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String w2xNotConverted(String amounts) {
-    return '+ $amounts not converted';
+    return 'Also $amounts not converted';
   }
 
   @override

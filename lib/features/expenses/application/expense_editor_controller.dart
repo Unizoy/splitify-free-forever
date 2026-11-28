@@ -144,7 +144,8 @@ class ExpenseEditorController extends AsyncNotifier<ExpenseDraft> {
     final meId = active.where((m) => uid != null && m.userId == uid).map((m) => m.id).firstOrNull;
     final activeIds = [for (final m in active) m.id];
     final currency = group.mainCurrency.trim();
-    final preset = DefaultSplit.decode(group.defaultSplit)?.resolve(activeIds);
+    final stored = DefaultSplit.decode(group.defaultSplit);
+    final preset = stored?.resolve(activeIds);
     return ExpenseDraft(
       groupId: groupId,
       groupName: group.name,
@@ -153,7 +154,8 @@ class ExpenseEditorController extends AsyncNotifier<ExpenseDraft> {
       members: _people(active, meId),
       split: SplitDraft.initial(activeIds, Currencies.exponentOf(currency), preset: preset),
       date: ref.read(clockProvider).today(),
-      payerId: meId ?? activeIds.firstOrNull,
+      // The group's default payer (P-10) while they are still in it; else you.
+      payerId: stored?.payerIn(activeIds) ?? meId ?? activeIds.firstOrNull,
       payers: const {},
       category: ExpenseCategories.normalize(
         await expenses.lastCategory(groupId) ?? ExpenseCategories.defaultKey,

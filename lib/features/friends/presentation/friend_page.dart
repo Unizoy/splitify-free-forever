@@ -9,6 +9,9 @@ import 'package:splitify/features/auth/application/auth_providers.dart' show pro
 import 'package:splitify/features/balances/application/balance_views.dart';
 import 'package:splitify/features/balances/presentation/balance_copy.dart';
 import 'package:splitify/features/balances/presentation/balances_tab.dart' show TransferRow;
+import 'package:splitify/features/currency/application/in_currency_providers.dart';
+import 'package:splitify/features/currency/domain/in_currency.dart' show InCurrency;
+import 'package:splitify/features/currency/presentation/show_in_currency.dart';
 import 'package:splitify/features/expenses/application/expense_draft.dart' show parseIsoDate;
 import 'package:splitify/features/expenses/presentation/expense_copy.dart' show monthHeader;
 import 'package:splitify/features/friends/application/friends_providers.dart';
@@ -212,7 +215,7 @@ class _FriendPageState extends ConsumerState<FriendPage> {
   }
 }
 
-class _Hero extends StatelessWidget {
+class _Hero extends ConsumerWidget {
   const _Hero({required this.friend, required this.firstCurrency, required this.onLoan});
 
   final Friend friend;
@@ -222,12 +225,20 @@ class _Hero extends StatelessWidget {
   final VoidCallback onLoan;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context);
     final f = friend;
     final direct = f.directGroupId;
-    final amounts = f.balances.isEmpty ? '' : friendAmounts(f.balances, firstCurrency);
-    final pill = switch (f.status) {
+    // "Show in INR" (W2-X P-9): one total from saved conversions, the rest in its own currency.
+    final convertible = f.balances.keys.any((code) => code != firstCurrency);
+    final showIn = convertible && ref.watch(showInHomeCurrencyProvider);
+    final inFirst = showIn ? friendTotalIn(firstCurrency, f) : null;
+    final converted = inFirst != null && inFirst.counted ? inFirst : null;
+    final shown = converted == null
+        ? f.balances
+        : {if (converted.amount != 0) firstCurrency: converted.amount, ...converted.notConverted};
+    final amounts = shown.isEmpty ? '' : friendAmounts(shown, firstCurrency);
+    final pill = switch (converted == null ? f.status : balanceStatusOf(shown.values)) {
       BalanceStatus.owed => StatusPill(
         key: const Key('friend-status-owed'),
         label: l.friendPillOwed(f.name, amounts),
@@ -279,11 +290,33 @@ class _Hero extends StatelessWidget {
         child: Avatar(name: f.name, seed: f.seed, tint: f.tint, size: AvatarSize.s56, ring: true),
       ),
       title: f.name,
-      child: Center(
-        child: MediaQuery.withClampedTextScaling(
-          maxScaleFactor: AppText.maxSerifScale,
-          child: pill,
-        ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Center(
+            child: MediaQuery.withClampedTextScaling(
+              maxScaleFactor: AppText.maxSerifScale,
+              child: pill,
+            ),
+          ),
+          if (showIn && inFirst != null) ...[
+            const SizedBox(height: AppSpacing.s2),
+            InCurrencyNote(
+              value: InCurrency(currency: firstCurrency, counted: inFirst.counted),
+              center: true,
+            ),
+          ],
+          if (convertible) ...[
+            const SizedBox(height: AppSpacing.s3),
+            Center(
+              child: ShowInCurrencyChip(
+                currency: firstCurrency,
+                on: showIn,
+                onChanged: (on) => ref.read(showInHomeCurrencyProvider.notifier).set(on: on),
+              ),
+            ),
+          ],
+        ],
       ),
     );
   }

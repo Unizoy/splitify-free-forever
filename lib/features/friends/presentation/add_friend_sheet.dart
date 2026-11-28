@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:splitify/data/remote/groups_remote.dart';
 import 'package:splitify/features/expenses/presentation/expense_routes.dart';
+import 'package:splitify/features/friends/application/contact_picker.dart';
 import 'package:splitify/features/friends/application/friends_providers.dart';
 import 'package:splitify/features/friends/application/friends_view.dart';
 import 'package:splitify/domain/rules/group_rules.dart';
@@ -68,10 +69,12 @@ Future<void> showAddFriendSheet(BuildContext context, WidgetRef ref) async {
   final router = GoRouter.of(context);
   final messenger = ScaffoldMessenger.of(context);
   final rootNavigator = Navigator.of(context, rootNavigator: true);
+  final contacts = ref.read(contactPickerProvider);
   final result = await showAppSheet<({String name, bool invite})>(
     context,
     title: l.addFriendTitle,
     builder: (sheet) => AddFriendForm(
+      contacts: contacts,
       onShowCode: () {
         Navigator.of(sheet).pop();
         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -100,11 +103,14 @@ Future<void> showAddFriendSheet(BuildContext context, WidgetRef ref) async {
 
 /// The add-friend sheet body: the name (inline error, never cleared), Add friend, Add and invite.
 class AddFriendForm extends StatefulWidget {
-  const AddFriendForm({this.onShowCode, this.onScanCode, super.key});
+  const AddFriendForm({this.onShowCode, this.onScanCode, this.contacts, super.key});
 
   /// "Show my code" / "Scan a friend's code" rows (shown when set).
   final VoidCallback? onShowCode;
   final VoidCallback? onScanCode;
+
+  /// "From contacts" fills the name (W2-X F15; hidden when null).
+  final ContactPicker? contacts;
 
   @override
   State<AddFriendForm> createState() => _AddFriendFormState();
@@ -118,6 +124,22 @@ class _AddFriendFormState extends State<AddFriendForm> {
   void dispose() {
     _name.dispose();
     super.dispose();
+  }
+
+  Future<void> _fromContacts(ContactPicker contacts) async {
+    final l = AppLocalizations.of(context);
+    final String? name;
+    try {
+      name = await contacts.pickName();
+    } on ContactPickFailed {
+      if (mounted) showGroupMessage(context, l.w2xContactsUnavailable);
+      return;
+    }
+    if (name == null || !mounted) return;
+    setState(() {
+      _name.text = name!;
+      _showError = false;
+    });
   }
 
   void _submit({required bool invite}) {
@@ -153,6 +175,21 @@ class _AddFriendFormState extends State<AddFriendForm> {
             },
             onSubmitted: (_) => _submit(invite: false),
           ),
+          if (widget.contacts case final contacts?) ...[
+            const SizedBox(height: AppSpacing.s3),
+            Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: PillButton(
+                key: const Key('add-friend-contacts'),
+                label: l.w2xFromContacts,
+                icon: AppIcons.contacts,
+                variant: PillVariant.outline,
+                size: PillSize.medium,
+                expand: false,
+                onPressed: () => unawaited(_fromContacts(contacts)),
+              ),
+            ),
+          ],
           const SizedBox(height: AppSpacing.s3),
           Text(l.addFriendNewHint, style: context.text.bodySmall.copyWith(color: c.textSecondary)),
           const SizedBox(height: AppSpacing.s6),

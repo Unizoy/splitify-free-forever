@@ -8801,7 +8801,7 @@ abstract class AppLocalizations {
   /// No description provided for @w2xNotConverted.
   ///
   /// In en, this message translates to:
-  /// **'+ {amounts} not converted'**
+  /// **'Also {amounts} not converted'**
   String w2xNotConverted(String amounts);
 
   /// No description provided for @w2xNothingConverted.

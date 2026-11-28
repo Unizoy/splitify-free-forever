@@ -12,6 +12,8 @@ import 'package:splitify/domain/rules/expense_categories.dart';
 import 'package:splitify/features/currency/presentation/currency_picker_sheet.dart'
     show CurrencyChip, pickGroupCurrency, showCurrencyPicker;
 import 'package:splitify/features/expenses/application/category_providers.dart';
+import 'package:splitify/features/expenses/application/default_split_controller.dart'
+    show defaultFromDraft, saveDraftAsDefaultProvider;
 import 'package:splitify/features/expenses/application/expense_draft.dart';
 import 'package:splitify/features/expenses/application/expense_editor_controller.dart';
 import 'package:splitify/features/expenses/application/two_person.dart';
@@ -91,6 +93,9 @@ class _ExpenseEditorScreenState extends ConsumerState<ExpenseEditorScreen> {
   /// The shared payload was taken (once per screen).
   bool _shareTaken = false;
 
+  /// "Save as group default" is ticked in the paid/split sheet (W2-X P-10): saved with the expense.
+  final _saveDefault = ValueNotifier<bool>(false);
+
   ExpenseEditorArgs get _args => (groupId: widget.groupId, expenseId: widget.expenseId);
 
   AsyncNotifierProvider<ExpenseEditorController, ExpenseDraft> get _provider =>
@@ -108,6 +113,7 @@ class _ExpenseEditorScreenState extends ConsumerState<ExpenseEditorScreen> {
     _notes?.dispose();
     _descriptionFocus.dispose();
     _amountFocus.dispose();
+    _saveDefault.dispose();
     super.dispose();
   }
 
@@ -289,19 +295,28 @@ class _ExpenseEditorScreenState extends ConsumerState<ExpenseEditorScreen> {
       builder: (sheet) => _live(
         (context, d) => Padding(
           padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
-          child: PaidSplitPanel(
-            draft: d,
-            onPayer: (id) => _edit((x) => x.withSinglePayer(id)),
-            onMultiple: () => _edit((x) => x.withMultiplePayers()),
-            onPayerText: (id, t) => _edit((x) => x.withPayerText(id, t)),
-            onSplit: (s) => _edit((x) => x.copyWith(split: s)),
-            onUseTotal: _useTotal,
-            onDone: () => Navigator.of(sheet).pop(),
+          child: ValueListenableBuilder<bool>(
+            valueListenable: _saveDefault,
+            builder: (context, saveDefault, _) => PaidSplitPanel(
+              draft: d,
+              onPayer: (id) => _edit((x) => x.withSinglePayer(id)),
+              onMultiple: () => _edit((x) => x.withMultiplePayers()),
+              onPayerText: (id, t) => _edit((x) => x.withPayerText(id, t)),
+              onSplit: (s) => _edit((x) => x.copyWith(split: s)),
+              onUseTotal: _useTotal,
+              saveAsDefault: _canSaveDefault(d) ? saveDefault : null,
+              onSaveAsDefault: (on) => _saveDefault.value = on,
+              onDone: () => Navigator.of(sheet).pop(),
+            ),
           ),
         ),
       ),
     );
   }
+
+  /// A normal or friend group's expense whose payer and split can be a group default (P-10).
+  bool _canSaveDefault(ExpenseDraft d) =>
+      !d.isTemplate && d.hasGroup && d.groupType != 'adhoc' && defaultFromDraft(d) != null;
 
   /// "Use items total": the amount field takes what the lines come to.
   void _useTotal(int total) {
@@ -590,6 +605,9 @@ class _ExpenseEditorScreenState extends ConsumerState<ExpenseEditorScreen> {
       setState(() => _saving = false);
       return;
     }
+    // "Save as group default" (P-10): the payer and split this expense used, through the outbox.
+    if (_saveDefault.value && _canSaveDefault(d)) await ref.read(saveDraftAsDefaultProvider)(d);
+    if (!mounted) return;
     unawaited(HapticFeedback.mediumImpact());
     setState(() {
       _saving = false;

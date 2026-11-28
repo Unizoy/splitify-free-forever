@@ -4,6 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:splitify/domain/rules/default_split.dart';
 import 'package:splitify/features/expenses/application/default_split_controller.dart';
+import 'package:splitify/features/expenses/presentation/editor/paid_split_sheet.dart'
+    show PayerChip;
+import 'package:splitify/features/expenses/presentation/editor/step_body.dart' show SectionLabel;
 import 'package:splitify/features/expenses/presentation/expense_copy.dart';
 import 'package:splitify/features/expenses/presentation/split_editor.dart';
 import 'package:splitify/l10n/app_localizations.dart';
@@ -95,6 +98,31 @@ class _DefaultSplitSheetState extends ConsumerState<DefaultSplitSheet> {
             style: context.text.body.copyWith(color: c.textSecondary),
           ),
           const SizedBox(height: AppSpacing.s5),
+          // W2-X P-10: who pays by default (none = whoever adds the expense).
+          SectionLabel(l.expPaidByLabel),
+          Wrap(
+            key: const Key('default-payer'),
+            spacing: AppSpacing.s2,
+            runSpacing: AppSpacing.s2,
+            children: [
+              IconChip(
+                key: const Key('default-payer-anyone'),
+                label: l.w2xDefaultPayerAnyone,
+                icon: AppIcons.groups,
+                selected: s.payer == null,
+                onTap: () => controller.setPayer(null),
+              ),
+              for (final m in s.members)
+                PayerChip(
+                  key: Key('default-payer-${m.id}'),
+                  member: m,
+                  selected: s.payer == m.id,
+                  onTap: () => controller.setPayer(m.id),
+                ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.s5),
+          SectionLabel(l.expSplitSectionLabel),
           SplitKindPicker(
             value: s.split.kind,
             kinds: DefaultSplit.kinds,

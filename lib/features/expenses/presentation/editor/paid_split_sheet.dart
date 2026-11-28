@@ -29,6 +29,8 @@ class PaidSplitPanel extends StatelessWidget {
     required this.onSplit,
     required this.onDone,
     this.onUseTotal,
+    this.saveAsDefault,
+    this.onSaveAsDefault,
     super.key,
   });
 
@@ -41,6 +43,10 @@ class PaidSplitPanel extends StatelessWidget {
 
   /// "Use items total": the amount becomes what the lines come to (minor units). Null hides it.
   final ValueChanged<int>? onUseTotal;
+
+  /// "Save as group default" (W2-X P-10): ticked or not; null hides the row (the split can't be a default).
+  final bool? saveAsDefault;
+  final ValueChanged<bool>? onSaveAsDefault;
 
   @override
   Widget build(BuildContext context) {
@@ -57,7 +63,7 @@ class PaidSplitPanel extends StatelessWidget {
           runSpacing: AppSpacing.s2,
           children: [
             for (final m in people)
-              _PayerChip(
+              PayerChip(
                 key: Key('payer-${m.id}'),
                 member: m,
                 selected: d.payerId == m.id,
@@ -123,6 +129,18 @@ class PaidSplitPanel extends StatelessWidget {
             ),
           ),
         ],
+        if (saveAsDefault case final on?) ...[
+          const SizedBox(height: AppSpacing.s4),
+          ToggleRow(
+            key: const Key('paid-split-save-default'),
+            icon: AppIcons.check,
+            title: l.w2xSaveAsDefault,
+            subtitle: l.w2xSaveAsDefaultHint,
+            value: on,
+            showDivider: false,
+            onChanged: onSaveAsDefault,
+          ),
+        ],
         const SizedBox(height: AppSpacing.s6),
         PillButton(key: const Key('paid-split-done'), label: l.loanAmountDone, onPressed: onDone),
       ],
@@ -139,8 +157,8 @@ int? _itemsTotal(ExpenseDraft d) {
 }
 
 /// A person to pick as the one payer: avatar and name on a pill (filled ink when chosen).
-class _PayerChip extends StatelessWidget {
-  const _PayerChip({required this.member, required this.selected, required this.onTap, super.key});
+class PayerChip extends StatelessWidget {
+  const PayerChip({required this.member, required this.selected, required this.onTap, super.key});
 
   final EditorMember member;
   final bool selected;
