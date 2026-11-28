@@ -41,7 +41,7 @@ class _CelebrationState extends State<Celebration> with SingleTickerProviderStat
     if (context.motion.reduced) {
       _c.value = 1;
     } else {
-      HapticFeedback.mediumImpact();
+      AppHaptics.success();
       _c.forward();
     }
   }
@@ -52,11 +52,9 @@ class _CelebrationState extends State<Celebration> with SingleTickerProviderStat
     super.dispose();
   }
 
+  // A tween on the controller (a CurvedAnimation made in build would never be disposed, S-457).
   Animation<double> _interval(double a, double b, [Curve curve = AppMotion.standard]) =>
-      CurvedAnimation(
-        parent: _c,
-        curve: Interval(a, b, curve: curve),
-      );
+      _c.drive(CurveTween(curve: Interval(a, b, curve: curve)));
 
   @override
   Widget build(BuildContext context) {

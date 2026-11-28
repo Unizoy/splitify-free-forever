@@ -153,3 +153,29 @@ class CrashReportsSetting extends Notifier<bool> {
 final crashReportsSettingProvider = NotifierProvider<CrashReportsSetting, bool>(
   CrashReportsSetting.new,
 );
+
+/// Crash reports that start after the first frame (R3-B, S-456): until [complete] the switch is hidden
+/// ([available] false), and a choice or a report made meanwhile waits for the real reporter.
+class DeferredCrashReporter implements CrashReporter {
+  DeferredCrashReporter();
+
+  final _impl = Completer<CrashReporter>();
+  CrashReporter? _ready;
+
+  /// Sets the real reporter (once).
+  void complete(CrashReporter reporter) {
+    if (_impl.isCompleted) return;
+    _ready = reporter;
+    _impl.complete(reporter);
+  }
+
+  @override
+  bool get available => _ready?.available ?? false;
+
+  @override
+  Future<void> setEnabled(bool on) async => (await _impl.future).setEnabled(on);
+
+  @override
+  Future<void> report(Object error, StackTrace? stack, {required bool fatal}) async =>
+      (await _impl.future).report(error, stack, fatal: fatal);
+}

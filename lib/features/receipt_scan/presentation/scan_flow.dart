@@ -61,27 +61,35 @@ Future<ScanResult?> scanReceipt(
       title: l.entryScanTitle,
       builder: (sheet) => FutureBuilder<ScanOutcome>(
         future: reading,
-        builder: (context, snap) {
-          if (snap.hasError) {
-            return _Failed(
-              onRetry: () {
-                retry = true;
-                Navigator.of(sheet).pop();
-              },
-            );
-          }
-          final outcome = snap.data;
-          if (outcome == null) return const ScanReading();
-          return ScanReviewPanel(
-            outcome: outcome,
-            draft: draft,
-            onDone: (d) => Navigator.of(sheet).pop(d),
-            onRetry: () {
-              retry = true;
-              Navigator.of(sheet).pop();
+        // Reading → what was found (or the failure) folds in place; the sheet's height follows (S-451).
+        builder: (context, snap) => AnimatedSize(
+          duration: context.motion.expand,
+          curve: AppMotion.standard,
+          alignment: Alignment.topCenter,
+          child: MotionSwitcher(
+            scale: false,
+            child: switch ((snap.hasError, snap.data)) {
+              (true, _) => _Failed(
+                key: const ValueKey('motion-scan-failed'),
+                onRetry: () {
+                  retry = true;
+                  Navigator.of(sheet).pop();
+                },
+              ),
+              (_, null) => const ScanReading(key: ValueKey('motion-scan-reading')),
+              (_, final ScanOutcome outcome) => ScanReviewPanel(
+                key: const ValueKey('motion-scan-found'),
+                outcome: outcome,
+                draft: draft,
+                onDone: (d) => Navigator.of(sheet).pop(d),
+                onRetry: () {
+                  retry = true;
+                  Navigator.of(sheet).pop();
+                },
+              ),
             },
-          );
-        },
+          ),
+        ),
       ),
     );
     if (decision != null) {
@@ -135,7 +143,7 @@ class _ScanSource extends StatelessWidget {
 }
 
 class _Failed extends StatelessWidget {
-  const _Failed({required this.onRetry});
+  const _Failed({required this.onRetry, super.key});
 
   final VoidCallback onRetry;
 

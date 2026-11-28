@@ -177,7 +177,7 @@ class _SettleUpScreenState extends ConsumerState<SettleUpScreen> {
   bool _check(SettleDraft d) {
     if (d.canSave) return true;
     setState(() => _showErrors = true);
-    unawaited(HapticFeedback.lightImpact());
+    AppHaptics.error();
     if (d.amount == null) {
       _amountFocus.requestFocus();
     } else if (d.noteTooLong) {
@@ -201,7 +201,7 @@ class _SettleUpScreenState extends ConsumerState<SettleUpScreen> {
       setState(() => _saving = false);
       return;
     }
-    unawaited(HapticFeedback.mediumImpact());
+    AppHaptics.success();
     setState(() {
       _saving = false;
       _saved = true;
@@ -210,7 +210,7 @@ class _SettleUpScreenState extends ConsumerState<SettleUpScreen> {
     _close(d.groupId);
     messenger
       ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text(d.isEdit ? l.settleSaved : l.settleRecorded)));
+      ..showSnackBar(successSnackBar(d.isEdit ? l.settleSaved : l.settleRecorded));
     // Over the page below (the form is already closed): short, and a tap or Back skips it. After the
     // next frame, so it sits on the page the router shows then (a dialog pushed on top of a page that is
     // being replaced would go with it).

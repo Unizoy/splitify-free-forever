@@ -6,24 +6,24 @@ import 'package:go_router/go_router.dart';
 import 'package:splitify/core/time/clock.dart';
 import 'package:splitify/data/data_providers.dart';
 import 'package:splitify/data/local/app_database.dart';
+import 'package:splitify/features/activity/presentation/group_activity_screen.dart';
 import 'package:splitify/features/balances/application/balance_views.dart';
 import 'package:splitify/features/balances/application/balances_providers.dart';
 import 'package:splitify/features/balances/presentation/balance_copy.dart';
-import 'package:splitify/features/groups/application/groups_providers.dart';
-import 'package:splitify/features/activity/presentation/group_activity_screen.dart';
 import 'package:splitify/features/expenses/presentation/expense_list.dart';
+import 'package:splitify/features/expenses/presentation/expense_routes.dart';
+import 'package:splitify/features/groups/application/groups_providers.dart';
 import 'package:splitify/features/groups/presentation/group_hero_extras.dart';
 import 'package:splitify/features/groups/presentation/group_notes_screen.dart' show GroupRoutes;
 import 'package:splitify/features/groups/presentation/group_tabs.dart';
-import 'package:splitify/features/search/presentation/search_screen.dart' show SearchRoutes;
 import 'package:splitify/features/groups/presentation/group_visuals.dart';
 import 'package:splitify/features/groups/presentation/invite_sheet.dart';
+import 'package:splitify/features/payments/presentation/settle_picker.dart';
+import 'package:splitify/features/search/presentation/search_screen.dart' show SearchRoutes;
+import 'package:splitify/features/sync/presentation/sync_refresh.dart';
 import 'package:splitify/l10n/app_localizations.dart';
 import 'package:splitify/ui/components/components.dart';
 import 'package:splitify/ui/theme/theme.dart';
-import 'package:splitify/features/expenses/presentation/expense_routes.dart';
-import 'package:splitify/features/payments/presentation/settle_picker.dart';
-import 'package:splitify/features/sync/presentation/sync_refresh.dart';
 
 /// Group detail (`/groups/:id`, 455 hero + 712 tabs): generated cover hero with back, invite and settings,
 /// serif name, status pill, avatar stack; FolderTabs Expenses · Balances · Totals; sticky Add expense /
@@ -341,6 +341,14 @@ class _StatusPill extends StatelessWidget {
       return StatusPill(label: l.archivedLabel, icon: AppIcons.archive, tone: StatusPillTone.glass);
     }
     final amounts = amountsText(mine);
+    // A new balance (an expense saved, a payment, a sync) cross-fades the pill in place (S-451).
+    return MotionSwitcher(
+      alignment: Alignment.center,
+      child: KeyedSubtree(key: ValueKey('group-pill-$amounts'), child: _pill(l, amounts)),
+    );
+  }
+
+  Widget _pill(AppLocalizations l, String amounts) {
     return switch (balanceStatusOf(mine.values)) {
       BalanceStatus.owed => StatusPill(
         key: const Key('group-status-owed'),

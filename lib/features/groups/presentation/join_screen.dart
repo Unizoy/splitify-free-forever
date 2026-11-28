@@ -94,7 +94,10 @@ class _JoinScreenState extends ConsumerState<JoinScreen> {
         _newHere = p.unclaimed.isEmpty ? true : null;
       });
     } on GroupFailure catch (e) {
-      if (mounted) setState(() => _error = _failureText(l, e.code));
+      if (mounted) {
+        AppHaptics.error();
+        setState(() => _error = _failureText(l, e.code));
+      }
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -104,6 +107,7 @@ class _JoinScreenState extends ConsumerState<JoinScreen> {
     final l = AppLocalizations.of(context);
     final code = InviteCode.parse(_field.text);
     if (code == null) {
+      AppHaptics.error();
       setState(() => _error = l.joinInvalidCode);
       return;
     }
@@ -128,6 +132,7 @@ class _JoinScreenState extends ConsumerState<JoinScreen> {
     if (!mounted) return;
     final code = data?.text == null ? null : InviteCode.find(data!.text!);
     if (code == null) {
+      AppHaptics.error();
       setState(() => _error = l.joinPasteEmpty);
       return;
     }
@@ -141,6 +146,7 @@ class _JoinScreenState extends ConsumerState<JoinScreen> {
     if (raw == null || !mounted) return;
     final code = InviteCode.parse(raw);
     if (code == null) {
+      AppHaptics.error();
       setState(() => _error = l.joinQrInvalid);
       return;
     }
@@ -174,7 +180,10 @@ class _JoinScreenState extends ConsumerState<JoinScreen> {
       final message = _failureText(l, e.code);
       // Someone else took the spot: refresh the list of free spots, then keep the message on screen.
       if (e.code == GroupFailureCode.alreadyClaimed) await _lookup(_code!);
-      if (mounted) setState(() => _error = message);
+      if (mounted) {
+        AppHaptics.error();
+        setState(() => _error = message);
+      }
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -228,7 +237,21 @@ class _JoinScreenState extends ConsumerState<JoinScreen> {
                     AppSpacing.screen,
                     AppSpacing.s8,
                   ),
-                  children: preview == null ? _enterStep(context) : _previewStep(context, preview),
+                  children: [
+                    // Code → the group's preview (and back) cross-fade in place (S-451).
+                    MotionSwitcher(
+                      scale: false,
+                      child: Column(
+                        key: ValueKey(
+                          preview == null ? 'motion-join-enter' : 'motion-join-preview',
+                        ),
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: preview == null
+                            ? _enterStep(context)
+                            : _previewStep(context, preview),
+                      ),
+                    ),
+                  ],
                 ),
               ),
               // In the body (not bottomNavigationBar): the Scaffold lifts it above the keyboard (D-032).

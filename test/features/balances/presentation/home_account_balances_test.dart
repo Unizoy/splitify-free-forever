@@ -83,6 +83,13 @@ String _pill(WidgetTester t, String key) => t.widget<StatusPill>(_key(key)).labe
 
 GroupCoverCard _card(WidgetTester t, String id) => t.widget<GroupCoverCard>(_key('group-card-$id'));
 
+/// Scrolls the page up by about one card row: the grid is lazy (S-454), so cards past the first screen
+/// are only built once they come near it.
+Future<void> _showSecondRow(WidgetTester t) async {
+  await t.drag(find.byType(Scrollable).first, const Offset(0, -400));
+  await settle(t);
+}
+
 void main() {
   group('Groups home glass card', () {
     // TC-15-01
@@ -149,6 +156,7 @@ void main() {
         '/groups',
         overrides: _data(groups: [_goa, _flat, _calm], my: myOwed),
       );
+      await _showSecondRow(t);
       expect(_card(t, gid).statusLabel, 'You are owed');
       expect(_card(t, gid).amountText, '₹900');
       expect(_card(t, flatGid).amountText, '₹500');
@@ -185,6 +193,7 @@ void main() {
         '/groups',
         overrides: _data(groups: [_calm, _goa, _flat], my: myOwed),
       );
+      await _showSecondRow(t);
       Offset at(String id) => t.getTopLeft(_key('group-card-$id'));
       // Grid of two columns: goa top-left, flat top-right, the settled group on the second row.
       expect(at(gid).dy, at(flatGid).dy);

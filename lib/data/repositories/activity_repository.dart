@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:drift/drift.dart';
 import 'package:splitify/data/local/app_database.dart';
+import 'package:splitify/data/local/stream_ext.dart';
 import 'package:splitify/data/sync/sync_types.dart';
 
 /// What the activity feed is built from (#18): the server's activity rows (pulled), this phone's own
@@ -61,7 +62,8 @@ class ActivityRepository {
         },
       )
       .watch()
-      .asyncMap((_) => load(groupId: groupId));
+      // A sync's pull pages collapse into one more load (S-455).
+      .asyncMapLatest((_) => load(groupId: groupId));
 
   Future<ActivitySources> load({String? groupId}) async {
     final activity =

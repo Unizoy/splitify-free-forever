@@ -2,6 +2,7 @@ import 'package:drift/drift.dart';
 import 'package:splitify/core/utils/member_tints.dart';
 import 'package:splitify/core/utils/uuid.dart';
 import 'package:splitify/data/local/app_database.dart';
+import 'package:splitify/data/local/stream_ext.dart';
 import 'package:splitify/data/sync/local_writer.dart';
 import 'package:splitify/data/sync/sync_types.dart';
 import 'package:splitify/domain/rules/group_rules.dart';
@@ -47,10 +48,11 @@ class GroupsRepository extends _Repo {
       (db.select(db.groups)
             ..where((g) => g.deletedAt.isNull() & g.type.isNotIn(GroupRules.hiddenTypes))
             ..orderBy([(g) => OrderingTerm.desc(g.createdAt), (g) => OrderingTerm.desc(g.id)]))
-          .watch();
+          .watch()
+          .distinctRows();
 
   Stream<LocalGroup?> watchOne(String id) =>
-      (db.select(db.groups)..where((g) => g.id.equals(id))).watchSingleOrNull();
+      (db.select(db.groups)..where((g) => g.id.equals(id))).watchSingleOrNull().distinct();
 
   /// New group with the creator as owner member (the server creates the same member, TC-1-02). [id] lets
   /// the form preview the generated cover before saving. [extra] holds more group columns set on the form
@@ -176,7 +178,8 @@ class MembersRepository extends _Repo {
             )
             ..orderBy([(m) => OrderingTerm.asc(m.position)]))
           .watch()
-          .map(rememberTints);
+          .map(rememberTints)
+          .distinctRows();
 
   /// Active members of all groups (avatar stacks on the Groups tab).
   Stream<List<LocalMember>> watchAllActive() =>
@@ -184,7 +187,8 @@ class MembersRepository extends _Repo {
             ..where((m) => m.deletedAt.isNull() & m.status.equals('active'))
             ..orderBy([(m) => OrderingTerm.asc(m.position)]))
           .watch()
-          .map(rememberTints);
+          .map(rememberTints)
+          .distinctRows();
 
   /// Name-only member (rule 8) at the next position, with an optional avatar tint 0..4.
   Future<String> addNameOnly(String groupId, String name, {int? tint}) async {
@@ -210,14 +214,16 @@ class ExpensesRepository extends _Repo {
       (db.select(db.expenses)
             ..where((e) => e.groupId.equals(groupId) & e.deletedAt.isNull())
             ..orderBy([(e) => OrderingTerm.desc(e.date), (e) => OrderingTerm.desc(e.id)]))
-          .watch();
+          .watch()
+          // A sync writing other groups re-runs this query; equal rows send nothing (S-455).
+          .distinctRows();
 
   Stream<LocalExpense?> watchOne(String id) =>
-      (db.select(db.expenses)..where((e) => e.id.equals(id))).watchSingleOrNull();
+      (db.select(db.expenses)..where((e) => e.id.equals(id))).watchSingleOrNull().distinct();
 
   /// Per-member parts of a group's live expenses (local balances, 04 §5).
   Stream<List<ExpensePart>> watchParts(String groupId) =>
-      (db.select(db.expenseParts)..where((p) => p.groupId.equals(groupId))).watch();
+      (db.select(db.expenseParts)..where((p) => p.groupId.equals(groupId))).watch().distinctRows();
 }
 
 class PaymentsRepository extends _Repo {
@@ -227,7 +233,8 @@ class PaymentsRepository extends _Repo {
       (db.select(db.payments)
             ..where((p) => p.groupId.equals(groupId) & p.deletedAt.isNull())
             ..orderBy([(p) => OrderingTerm.desc(p.date), (p) => OrderingTerm.desc(p.id)]))
-          .watch();
+          .watch()
+          .distinctRows();
 }
 
 class CommentsRepository extends _Repo {
@@ -237,7 +244,8 @@ class CommentsRepository extends _Repo {
       (db.select(db.comments)
             ..where((c) => c.targetId.equals(targetId) & c.deletedAt.isNull())
             ..orderBy([(c) => OrderingTerm.asc(c.createdAt), (c) => OrderingTerm.asc(c.id)]))
-          .watch();
+          .watch()
+          .distinctRows();
 }
 
 /// True while any row of the group is not on the server yet (drives the `SyncMarker`, 04 §5).

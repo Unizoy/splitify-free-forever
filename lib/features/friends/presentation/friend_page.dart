@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:splitify/core/money/balances.dart' show Transfer;
 import 'package:splitify/data/data_providers.dart';
+import 'package:splitify/data/remote/notifications_remote.dart';
 import 'package:splitify/features/auth/application/auth_providers.dart' show profileProvider;
 import 'package:splitify/features/balances/application/balance_views.dart';
 import 'package:splitify/features/balances/presentation/balance_copy.dart';
@@ -20,7 +21,6 @@ import 'package:splitify/features/friends/presentation/add_friend_sheet.dart';
 import 'package:splitify/features/friends/presentation/friend_widgets.dart';
 import 'package:splitify/features/groups/presentation/group_visuals.dart' show SectionLabel;
 import 'package:splitify/features/groups/presentation/invite_sheet.dart';
-import 'package:splitify/data/remote/notifications_remote.dart';
 import 'package:splitify/features/notifications/application/reminders.dart';
 import 'package:splitify/features/notifications/presentation/remind_button.dart';
 import 'package:splitify/features/payments/application/settle_all_controller.dart'
@@ -170,14 +170,22 @@ class _FriendPageState extends ConsumerState<FriendPage> {
             ),
           ),
           if (rows.isNotEmpty)
-            EntranceScope(
-              child: SliverContentWidth(
-                maxWidth: AppSpacing.maxPage,
-                sliver: SliverPadding(
-                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
-                  sliver: SliverList.builder(
-                    itemCount: rows.length,
-                    itemBuilder: (context, i) => Entrance(index: i, child: rows[i]),
+            InsertMotionScope(
+              maxBatch: null,
+              ids: [
+                for (final item in open) item.id,
+                if (_showSettled)
+                  for (final item in items.sublist(open.length)) item.id,
+              ],
+              child: EntranceScope(
+                child: SliverContentWidth(
+                  maxWidth: AppSpacing.maxPage,
+                  sliver: SliverPadding(
+                    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screen),
+                    sliver: SliverList.builder(
+                      itemCount: rows.length,
+                      itemBuilder: (context, i) => Entrance(index: i, child: rows[i]),
+                    ),
                   ),
                 ),
               ),
@@ -212,7 +220,13 @@ class _FriendPageState extends ConsumerState<FriendPage> {
       }
       final nextSame =
           i + 1 < items.length && monthHeader(context, parseIsoDate(items[i + 1].date)) == header;
-      out.add(FriendItemRow(item: items[i], friendName: friend.name, showDivider: nextSame));
+      // Records that arrive while the page is open (saved, synced, settled history unfolding) grow in (S-451).
+      out.add(
+        InsertMotion(
+          id: items[i].id,
+          child: FriendItemRow(item: items[i], friendName: friend.name, showDivider: nextSame),
+        ),
+      );
     }
     return out;
   }
@@ -299,7 +313,11 @@ class _Hero extends ConsumerWidget {
           Center(
             child: MediaQuery.withClampedTextScaling(
               maxScaleFactor: AppText.maxSerifScale,
-              child: pill,
+              // A new total or "Show in INR" cross-fades the pill in place (S-451).
+              child: MotionSwitcher(
+                alignment: Alignment.center,
+                child: KeyedSubtree(key: ValueKey('friend-pill-${pill.key}-$amounts'), child: pill),
+              ),
             ),
           ),
           if (showIn && inFirst != null) ...[

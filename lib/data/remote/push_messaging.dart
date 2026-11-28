@@ -239,3 +239,60 @@ class FirebasePushMessaging implements PushMessaging {
     }
   }
 }
+
+/// Push that starts after the first frame (R3-B, S-456): bootstrap hands out this proxy at once and
+/// [complete]s it when Firebase and the notification channels are set up. Until then [available] is false;
+/// callers that act on [available] at start wait for [whenPushReady] first. Calls made meanwhile wait.
+class DeferredPushMessaging implements PushMessaging {
+  DeferredPushMessaging();
+
+  final _impl = Completer<PushMessaging>();
+  PushMessaging? _ready;
+
+  /// Completes when the real push is known (Firebase or disabled).
+  Future<void> get ready => _impl.future;
+
+  /// Sets the real push (once).
+  void complete(PushMessaging push) {
+    if (_impl.isCompleted) return;
+    _ready = push;
+    _impl.complete(push);
+  }
+
+  Future<PushMessaging> get _push => _impl.future;
+
+  @override
+  bool get available => _ready?.available ?? false;
+
+  @override
+  Future<PushPermission> permission() async => (await _push).permission();
+
+  @override
+  Future<PushPermission> requestPermission() async => (await _push).requestPermission();
+
+  @override
+  Future<String?> token() async => (await _push).token();
+
+  @override
+  Stream<String> get tokenRefresh => Stream.fromFuture(_push).asyncExpand((p) => p.tokenRefresh);
+
+  @override
+  Future<void> deleteToken() async => (await _push).deleteToken();
+
+  @override
+  Stream<PushMessage> get foreground => Stream.fromFuture(_push).asyncExpand((p) => p.foreground);
+
+  @override
+  Stream<PushMessage> get opened => Stream.fromFuture(_push).asyncExpand((p) => p.opened);
+
+  @override
+  Future<PushMessage?> launchMessage() async => (await _push).launchMessage();
+
+  @override
+  Future<void> show(PushMessage m) async => (await _push).show(m);
+}
+
+/// Waits until [push] knows whether it is [PushMessaging.available] (a [DeferredPushMessaging] after the
+/// first frame; any other push at once).
+Future<void> whenPushReady(PushMessaging push) =>
+    push is DeferredPushMessaging ? push.ready : Future<void>.value();

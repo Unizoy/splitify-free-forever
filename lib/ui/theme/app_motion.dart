@@ -34,6 +34,11 @@ class AppMotion {
   static const _shimmer = Duration(milliseconds: 1200);
   static const _intro = Duration(milliseconds: 350);
   static const _float = Duration(seconds: 4);
+  static const _expand = Duration(milliseconds: 220);
+  static const _insert = Duration(milliseconds: 240);
+  static const _swap = Duration(milliseconds: 180);
+  static const _success = Duration(milliseconds: 280);
+  static const _successHold = Duration(milliseconds: 420);
 
   /// How far a pressed control shrinks (Pressable, PillButton, cards, chips).
   static const double pressScale = 0.97;
@@ -91,6 +96,27 @@ class AppMotion {
   /// One loop of an idle float (±3–4 dp; the welcome preview, S-281). Callers never start it when reduced.
   Duration get float => _float;
 
+  /// A section opening or closing in place (settled history, who owes whom, filters, the monthly card), S-451.
+  Duration get expand => reduced ? Duration.zero : _expand;
+
+  /// A row that arrives while its list is on screen (a saved expense, a new comment, a chip), S-451.
+  Duration get insert => reduced ? Duration.zero : _insert;
+
+  /// A value that changes in place (Show in INR, simplified / original, a split mode's body), S-451.
+  Duration get swap => reduced ? Duration.zero : _swap;
+
+  /// The success check drawing itself (saved, paid), S-452.
+  Duration get success => reduced ? Duration.zero : _success;
+
+  /// How long the editor's saved check stays before the page closes (was 700 ms, S-452).
+  Duration get successHold => reduced ? Duration.zero : _successHold;
+
+  /// Chips and pills changing between their resting and selected looks.
+  Duration get select => fast;
+
+  /// Bottom sheets rising (closing takes [fast]); never over 350 ms.
+  Duration get sheet => slow;
+
   /// Curve for presses and toggles.
   Curve get fastCurve => Curves.easeOut;
 
@@ -114,15 +140,33 @@ class SpringCurve extends Curve {
   double transformInternal(double t) => _sim.x(t * 0.8);
 }
 
-/// Haptics (§5): light ticks on toggles, tabs and primary actions, a firmer one on Save and Mark as paid.
-/// Never heavy.
+/// Haptics (§5, S-453): one helper for every tick, never heavy.
+///
+/// * [selection]: toggles, steps, tab switches, chips.
+/// * [light]: primary buttons and the + button.
+/// * [success]: a save or a payment went through (Android 11+ CONFIRM; a firmer tick before).
+/// * [error]: Save found a problem (Android 11+ REJECT; two quick ticks before).
+///
+/// [success] and [error] go through `splitify/haptics` (MainActivity) so phones older than Android 11 still
+/// feel them; without that channel (tests, other platforms) Flutter's notification haptics play.
 abstract final class AppHaptics {
-  /// Toggles, steps, tab switches, chips.
+  static const channel = MethodChannel('splitify/haptics');
+
   static void selection() => unawaited(HapticFeedback.selectionClick());
 
-  /// Primary buttons and FABs.
   static void light() => unawaited(HapticFeedback.lightImpact());
 
-  /// Successful save, Mark as paid.
-  static void success() => unawaited(HapticFeedback.mediumImpact());
+  static void success() => unawaited(_notify('success', HapticFeedback.successNotification));
+
+  static void error() => unawaited(_notify('error', HapticFeedback.errorNotification));
+
+  static Future<void> _notify(String kind, Future<void> Function() fallback) async {
+    try {
+      await channel.invokeMethod<void>(kind);
+    } on MissingPluginException {
+      await fallback();
+    } on PlatformException {
+      await fallback();
+    }
+  }
 }

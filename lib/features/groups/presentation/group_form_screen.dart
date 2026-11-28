@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:splitify/core/time/clock.dart';
 import 'package:splitify/core/money/currencies.dart';
+import 'package:splitify/core/time/clock.dart';
 import 'package:splitify/core/utils/uuid.dart';
 import 'package:splitify/data/local/app_database.dart';
 import 'package:splitify/domain/entities/prepared_image.dart';
@@ -54,6 +54,20 @@ class _GroupFormScreenState extends ConsumerState<GroupFormScreen> {
   String _type = 'trip';
   String? _currency;
   final _people = <NewPerson>[];
+
+  /// Stable ids for the added people (name + colour, numbered when repeated), so removing one doesn't make
+  /// the rows after it look new.
+  List<String> _personIds() {
+    final seen = <String, int>{};
+    return [
+      for (final p in _people)
+        () {
+          final base = '${p.name}|${p.tint}';
+          final n = seen[base] = (seen[base] ?? 0) + 1;
+          return '$base|$n';
+        }(),
+    ];
+  }
 
   /// 'generated' or 'photo'; [_photo] is a newly picked cover.
   String _coverKind = 'generated';
@@ -151,6 +165,7 @@ class _GroupFormScreenState extends ConsumerState<GroupFormScreen> {
     if (_saving) return;
     if (GroupRules.name(_name.text) != null) {
       setState(() => _showErrors = true);
+      AppHaptics.error();
       // The name sits at the top of a long, lazy list: bring it back first, then focus it.
       if (_scroll.hasClients && _scroll.offset > 0) _scroll.jumpTo(0);
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -201,8 +216,9 @@ class _GroupFormScreenState extends ConsumerState<GroupFormScreen> {
       }
       await _saveCover(id);
       _saved = true;
+      AppHaptics.success();
       if (_isEdit) {
-        messenger.showSnackBar(SnackBar(content: Text(l.groupSaved)));
+        messenger.showSnackBar(successSnackBar(l.groupSaved));
         if (mounted) router.pop();
       } else {
         // First group: the shell may ask about push notifications (08 #19).
@@ -522,16 +538,28 @@ class _GroupFormScreenState extends ConsumerState<GroupFormScreen> {
                         seed: me ?? 'me',
                         caption: l.memberOwner,
                       ),
-                    for (final (i, p) in _people.indexed)
-                      _PersonRow(
-                        key: Key('group-new-person-$i'),
-                        name: p.name,
-                        seed: 'new-${p.name}',
-                        tint: p.tint,
-                        caption: l.memberNameOnly,
-                        onRemove: () => _change(() => _people.removeAt(i)),
-                        removeTooltip: l.groupFormRemovePerson(p.name),
+                    // A person added grows in under the others (S-451).
+                    InsertMotionScope(
+                      ids: _personIds(),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          for (final (i, p) in _people.indexed)
+                            InsertMotion(
+                              id: _personIds()[i],
+                              child: _PersonRow(
+                                key: Key('group-new-person-$i'),
+                                name: p.name,
+                                seed: 'new-${p.name}',
+                                tint: p.tint,
+                                caption: l.memberNameOnly,
+                                onRemove: () => _change(() => _people.removeAt(i)),
+                                removeTooltip: l.groupFormRemovePerson(p.name),
+                              ),
+                            ),
+                        ],
                       ),
+                    ),
                     const SizedBox(height: AppSpacing.s3),
                     UnderlineField(
                       key: const Key('group-add-person'),

@@ -116,6 +116,8 @@ String _fieldText(WidgetTester t) => t.widget<TextField>(_amount()).controller!.
 Future<void> _type(WidgetTester t, String text) async {
   await t.enterText(_amount(), text);
   await t.pump();
+  // An inline error folds in or out over 220 ms (S-451).
+  await t.pump(const Duration(milliseconds: 250));
 }
 
 String _sentence(WidgetTester t) => t.widget<Text>(find.byKey(const Key('settle-sentence'))).data!;

@@ -29,6 +29,8 @@ final _literalStyle = RegExp(r'\bColor\(0x|\bColor\.from(ARGB|RGBO)\(|\bColors\.
 // One type scale (R3-A, S-442): no hand-set font sizes outside lib/ui/theme/ (sizes computed from a
 // component's own size, like avatar initials, are fine).
 final _literalFontSize = RegExp(r'\bfontSize:\s*[\d_]');
+// One haptics helper (S-453): `AppHaptics` in lib/ui/theme/app_motion.dart, never `HapticFeedback` directly.
+final _rawHaptic = RegExp(r'HapticFeedback\.');
 
 String _norm(String p) => p.replaceAll('\\', '/');
 
@@ -72,6 +74,9 @@ void main() {
       }
       if (_printCall.hasMatch(l)) {
         out.add(Violation('no-print', path, i + 1, l));
+      }
+      if (!inTheme && _rawHaptic.hasMatch(l)) {
+        out.add(Violation('haptics-helper-only', path, i + 1, l));
       }
       if (!inTheme && _literalStyle.hasMatch(l)) {
         out.add(Violation('ui-tokens-only', path, i + 1, l));

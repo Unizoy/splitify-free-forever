@@ -103,11 +103,20 @@ class _ActivityScreenState extends ConsumerState<ActivityScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // F14 (W2-Y): last month's summary in the first days of a month.
-            if (month != null) ...[
-              MonthlySummaryCard(summary: month),
-              const SizedBox(height: AppSpacing.s4),
-            ],
+            // F14 (W2-Y): last month's summary in the first days of a month; × folds it away (S-451).
+            MotionSwitcher(
+              grow: true,
+              child: month == null
+                  ? const SizedBox(key: ValueKey('motion-month-none'), width: double.infinity)
+                  : Column(
+                      key: ValueKey('motion-month-${month.key}'),
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        MonthlySummaryCard(summary: month),
+                        const SizedBox(height: AppSpacing.s4),
+                      ],
+                    ),
+            ),
             // The hero says "Activity": the filters come first (D-033).
             if (items != null && items.isNotEmpty) ...[
               ActivityFilters(value: _filter, onChanged: (f) => setState(() => _filter = f)),

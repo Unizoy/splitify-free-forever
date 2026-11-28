@@ -8,9 +8,9 @@ import 'package:splitify/features/expenses/application/expense_draft.dart';
 import 'package:splitify/features/expenses/application/split_draft.dart';
 import 'package:splitify/features/expenses/application/two_person.dart';
 import 'package:splitify/features/expenses/presentation/editor/items_editor.dart';
+import 'package:splitify/features/expenses/presentation/editor/step_body.dart';
 import 'package:splitify/features/expenses/presentation/editor/two_person_sheet.dart'
     show answerLine;
-import 'package:splitify/features/expenses/presentation/editor/step_body.dart';
 import 'package:splitify/features/expenses/presentation/expense_copy.dart';
 import 'package:splitify/features/expenses/presentation/split_editor.dart';
 import 'package:splitify/l10n/app_localizations.dart';
@@ -78,16 +78,23 @@ class PaidSplitPanel extends StatelessWidget {
             ),
           ],
         ),
-        if (several) ...[
-          const SizedBox(height: AppSpacing.s4),
-          PayerAmounts(draft: d, people: people, onChanged: onPayerText),
-          const SizedBox(height: AppSpacing.s3),
-          SplitFooterLine(
-            key: const Key('payers-footer'),
-            textKey: const Key('payers-footer-text'),
-            footer: payersFooter(l, d),
+        // "Multiple people" folds the amounts open under the chips (S-451).
+        AppExpand(
+          open: several,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const SizedBox(height: AppSpacing.s4),
+              PayerAmounts(draft: d, people: people, onChanged: onPayerText),
+              const SizedBox(height: AppSpacing.s3),
+              SplitFooterLine(
+                key: const Key('payers-footer'),
+                textKey: const Key('payers-footer-text'),
+                footer: payersFooter(l, d),
+              ),
+            ],
           ),
-        ],
+        ),
         const SizedBox(height: AppSpacing.s8),
         SectionLabel(l.expSplitSectionLabel),
         SplitKindPicker(
@@ -97,22 +104,32 @@ class PaidSplitPanel extends StatelessWidget {
           onChanged: (k) => onSplit(d.split.switchTo(k, total: d.total)),
         ),
         const SizedBox(height: AppSpacing.s4),
-        if (d.split.isItems)
-          ItemsEditor(
-            split: d.split,
-            members: d.members,
-            currency: d.currency,
-            total: d.total,
-            onChanged: onSplit,
-          )
-        else
-          SplitMemberRows(
-            split: d.split,
-            members: d.members,
-            currency: d.currency,
-            total: d.total,
-            onChanged: onSplit,
+        // A new split kind cross-fades its rows in place and the sheet's height follows (S-451).
+        AnimatedSize(
+          duration: context.motion.expand,
+          curve: AppMotion.standard,
+          alignment: Alignment.topCenter,
+          child: MotionSwitcher(
+            scale: false,
+            child: d.split.isItems
+                ? ItemsEditor(
+                    key: const ValueKey('motion-split-items'),
+                    split: d.split,
+                    members: d.members,
+                    currency: d.currency,
+                    total: d.total,
+                    onChanged: onSplit,
+                  )
+                : SplitMemberRows(
+                    key: ValueKey('motion-split-${d.split.kind.name}'),
+                    split: d.split,
+                    members: d.members,
+                    currency: d.currency,
+                    total: d.total,
+                    onChanged: onSplit,
+                  ),
           ),
+        ),
         const SizedBox(height: AppSpacing.s3),
         SplitFooterLine(footer: splitSheetFooter(l, d, payers: false)),
         if (_itemsTotal(d) case final int itemsTotal when onUseTotal != null) ...[
@@ -175,37 +192,43 @@ class PayerChip extends StatelessWidget {
       label: name,
       excludeSemantics: true,
       onTap: onTap,
-      child: Pressable(
-        onTap: onTap,
-        borderRadius: AppRadii.allPill,
-        scale: 0.95,
-        haptic: PressHaptic.selection,
-        child: Material(
-          color: selected ? c.ink : c.surface,
-          shape: StadiumBorder(side: BorderSide(color: selected ? c.ink : c.border, width: 1.2)),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(minHeight: AppSpacing.minTouch),
-            child: Padding(
-              padding: const EdgeInsetsDirectional.fromSTEB(
-                AppSpacing.s2,
-                AppSpacing.s1,
-                AppSpacing.s4,
-                AppSpacing.s1,
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Avatar(name: member.name, seed: member.id, size: AvatarSize.s32),
-                  const SizedBox(width: AppSpacing.s2),
-                  Flexible(
-                    child: Text(
-                      name,
-                      style: context.text.body
-                          .w(600)
-                          .copyWith(color: selected ? c.onInk : c.textPrimary),
+      // The pill moves between its resting and picked looks in 150 ms (S-451).
+      child: SelectionMotion(
+        selected: selected,
+        builder: (context, t, _) => Pressable(
+          onTap: onTap,
+          borderRadius: AppRadii.allPill,
+          scale: 0.95,
+          haptic: PressHaptic.selection,
+          child: Material(
+            color: Color.lerp(c.surface, c.ink, t),
+            shape: StadiumBorder(
+              side: BorderSide(color: Color.lerp(c.border, c.ink, t)!, width: 1.2),
+            ),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: AppSpacing.minTouch),
+              child: Padding(
+                padding: const EdgeInsetsDirectional.fromSTEB(
+                  AppSpacing.s2,
+                  AppSpacing.s1,
+                  AppSpacing.s4,
+                  AppSpacing.s1,
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Avatar(name: member.name, seed: member.id, size: AvatarSize.s32),
+                    const SizedBox(width: AppSpacing.s2),
+                    Flexible(
+                      child: Text(
+                        name,
+                        style: context.text.body
+                            .w(600)
+                            .copyWith(color: Color.lerp(c.textPrimary, c.onInk, t)),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),

@@ -79,6 +79,9 @@ class _RowsState extends State<_Rows> {
   /// The settled history is unfolded.
   bool _showSettled = false;
 
+  /// Ids of the rows [_entries] shows, for [InsertMotionScope].
+  List<String> _shownIds = const [];
+
   /// Ids of the records behind "Show settled expenses" (empty while any balance is open).
   Set<String> _settled() => settledHistoryIds([
     for (final v in widget.views)
@@ -106,7 +109,7 @@ class _RowsState extends State<_Rows> {
     // Expenses and payments by date, newest first (both lists already are; merge keeps that).
     final settled = _settled();
     final fold = settled.isNotEmpty && !_showSettled;
-    final items = <(String date, Widget Function(bool divider) row)>[];
+    final items = <(String date, String id, Widget Function(bool divider) row)>[];
     var e = 0;
     var p = 0;
     while (e < views.length || p < payments.length) {
@@ -116,15 +119,20 @@ class _RowsState extends State<_Rows> {
       if (takeExpense) {
         final v = views[e++];
         if (fold && settled.contains(v.expense.id)) continue;
-        items.add((v.expense.date, (d) => ExpenseRow(view: v, showDivider: d, hero: true)));
+        items.add((
+          v.expense.date,
+          v.expense.id,
+          (d) => ExpenseRow(view: v, showDivider: d, hero: true),
+        ));
       } else {
         final v = payments[p++];
         if (fold && settled.contains(v.payment.id)) continue;
-        items.add((v.payment.date, (d) => PaymentRow(view: v, showDivider: d)));
+        items.add((v.payment.date, v.payment.id, (d) => PaymentRow(view: v, showDivider: d)));
       }
     }
     final entries = <WidgetBuilder>[];
     final shown = items.length < _limit ? items.length : _limit;
+    _shownIds = [for (var i = 0; i < shown; i++) items[i].$2];
     final headers = [
       for (var i = 0; i < items.length && i <= shown; i++)
         monthHeader(context, parseIsoDate(items[i].$1)),
@@ -138,8 +146,9 @@ class _RowsState extends State<_Rows> {
         entries.add((_) => _MonthHeader(text: header, first: first));
       }
       final divider = i + 1 < shown && headers[i + 1] == header;
-      final row = items[i].$2;
-      entries.add((_) => row(divider));
+      final (_, id, row) = items[i];
+      // A record that arrives while the list is open (saved, synced, unfolded) grows in (S-451).
+      entries.add((_) => InsertMotion(id: id, child: row(divider)));
     }
     final hidden = items.length - shown;
     if (hidden > 0) {
@@ -176,16 +185,24 @@ class _RowsState extends State<_Rows> {
   Widget build(BuildContext context) {
     final entries = _entries(context);
     if (widget.sliver) {
-      return SliverList.builder(
-        itemCount: entries.length,
-        itemBuilder: (context, i) => Entrance(index: i, child: entries[i](context)),
+      return InsertMotionScope(
+        ids: _shownIds,
+        maxBatch: null,
+        child: SliverList.builder(
+          itemCount: entries.length,
+          itemBuilder: (context, i) => Entrance(index: i, child: entries[i](context)),
+        ),
       );
     }
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        for (final (i, build) in entries.indexed) Entrance(index: i, child: build(context)),
-      ],
+    return InsertMotionScope(
+      ids: _shownIds,
+      maxBatch: null,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          for (final (i, build) in entries.indexed) Entrance(index: i, child: build(context)),
+        ],
+      ),
     );
   }
 }

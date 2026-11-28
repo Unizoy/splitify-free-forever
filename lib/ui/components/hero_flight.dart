@@ -9,6 +9,27 @@ abstract final class AppHeroTags {
 
   /// Expense row icon → expense detail icon.
   static String expense(String id) => 'expense-icon-$id';
+
+  /// Attachment thumbnail → the full-screen photo (S-451).
+  static String attachment(String key) => 'attachment-$key';
+}
+
+/// The page under a photo that flies out of its thumbnail (S-451): the black viewer fades in over 240 ms
+/// (out in 200 ms) while the [Hero] carries the photo; instant when animations are removed.
+class FadeHeroRoute<T> extends PageRouteBuilder<T> {
+  FadeHeroRoute({required WidgetBuilder builder})
+    : super(
+        opaque: false,
+        transitionDuration: const AppMotion(reduced: false).base,
+        reverseTransitionDuration: const Duration(milliseconds: 200),
+        pageBuilder: (context, _, _) => builder(context),
+        transitionsBuilder: (context, animation, _, child) => AppMotion.of(context).reduced
+            ? child
+            : FadeTransition(
+                opacity: animation.drive(CurveTween(curve: Curves.easeOut)),
+                child: child,
+              ),
+      );
 }
 
 /// Container transform for a group card flying into a page hero: the page's background grows out of the

@@ -10,6 +10,7 @@ import 'package:splitify/core/config/env.dart';
 import 'package:splitify/core/config/preferences.dart';
 import 'package:splitify/core/logging/logger.dart';
 import 'package:splitify/core/platform/crash_reporting.dart';
+import 'package:splitify/core/platform/startup_gate.dart';
 import 'package:splitify/data/data_providers.dart';
 import 'package:splitify/data/fx_providers.dart';
 import 'package:splitify/data/media_providers.dart';
@@ -33,11 +34,16 @@ Future<Widget> bootstrap() async {
   try {
     final env = Env.load();
     final prefs = await SharedPreferences.getInstance();
+    // The first screen needs the saved session; push, crash reports and WorkManager start after its first
+    // frame is on screen (S-456), so the splash ends sooner. Their providers get proxies at once.
     final remote = await initRemote(env);
-    final push = await initPush();
-    // W2-Y (S-436): after Firebase started with push; off without google-services.json (S-144 pattern).
-    final crash = await initCrashReporting(prefs);
-    final background = await initBackgroundSync();
+    final push = DeferredPushMessaging();
+    final crash = DeferredCrashReporter();
+    final background = DeferredBackgroundSync();
+    StartupGate.arm();
+    StartupGate.run(
+      () => startDeferredServices(prefs, push: push, crash: crash, background: background),
+    );
     return ProviderScope(
       overrides: appOverrides(
         env: env,
@@ -53,6 +59,31 @@ Future<Widget> bootstrap() async {
   } on EnvException catch (e) {
     return ConfigErrorApp(message: e.message);
   }
+}
+
+/// Starts what [bootstrap] left for after the first frame (S-456): Firebase + push, then crash reports
+/// (W2-Y, S-436: after Firebase; off without google-services.json, S-144 pattern), then WorkManager. A
+/// failure leaves that service disabled, as before.
+Future<void> startDeferredServices(
+  SharedPreferences prefs, {
+  required DeferredPushMessaging push,
+  required DeferredCrashReporter crash,
+  required DeferredBackgroundSync background,
+  Future<PushMessaging> Function() initPush = initPush,
+  Future<CrashReporter> Function(SharedPreferences) initCrash = initCrashReporting,
+  Future<BackgroundSync> Function() initBackground = initBackgroundSync,
+}) async {
+  Future<T> safe<T>(Future<T> Function() start, T off) async {
+    try {
+      return await start();
+    } on Object {
+      return off;
+    }
+  }
+
+  push.complete(await safe(initPush, const DisabledPushMessaging()));
+  crash.complete(await safe(() => initCrash(prefs), const DisabledCrashReporter()));
+  background.complete(await safe(initBackground, const NoBackgroundSync()));
 }
 
 /// Provider overrides of a running app (bootstrap and the integration tests). [devLogin] defaults to the

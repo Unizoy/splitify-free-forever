@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:splitify/app/app_route.dart';
+import 'package:splitify/core/platform/startup_gate.dart';
 import 'package:splitify/data/data_providers.dart';
 import 'package:splitify/data/remote/push_messaging.dart';
 import 'package:splitify/features/notifications/application/notifications_providers.dart';
@@ -38,7 +39,10 @@ class _NotificationsBindingState extends ConsumerState<NotificationsBinding> {
   void initState() {
     super.initState();
     final actions = ref.read(notificationActionsProvider);
-    unawaited(actions.refresh());
+    // The bell refresh and push wait for the first frame (S-456).
+    StartupGate.run(() async {
+      if (mounted) await actions.refresh();
+    });
     // A request made while the shell was not on screen (joining from an invite link replaces the whole
     // stack, so this binding was gone): show the pre-prompt now (final QA; shown only once anyway).
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -46,8 +50,14 @@ class _NotificationsBindingState extends ConsumerState<NotificationsBinding> {
         unawaited(maybeShowPushPrePrompt(context, ref));
       }
     });
+    unawaited(_startPush());
+  }
+
+  Future<void> _startPush() async {
     final push = ref.read(pushMessagingProvider);
-    if (!push.available) return;
+    await whenPushReady(push);
+    if (!mounted || !push.available) return;
+    final actions = ref.read(notificationActionsProvider);
     unawaited(ref.read(pushRegistrationProvider).register());
     _subs
       ..add(

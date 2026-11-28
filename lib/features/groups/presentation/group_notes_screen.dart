@@ -56,6 +56,7 @@ class _GroupNotesScreenState extends ConsumerState<GroupNotesScreen> {
     if (_saving) return;
     if (_tooLong) {
       setState(() => _showError = true);
+      AppHaptics.error();
       _focus.requestFocus();
       return;
     }
@@ -66,7 +67,8 @@ class _GroupNotesScreenState extends ConsumerState<GroupNotesScreen> {
       await ref.read(groupActionsProvider).saveNotes(widget.groupId, _text.text);
       _saved = true;
       if (!mounted) return;
-      showGroupMessage(context, l.boardSaved);
+      AppHaptics.success();
+      showAppMessage(context, l.boardSaved, success: true);
       if (router.canPop()) {
         router.pop();
       } else {

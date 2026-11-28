@@ -2,9 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:splitify/core/platform/crash_reporting.dart';
 import 'package:go_router/go_router.dart';
 import 'package:splitify/core/config/app_info.dart';
+import 'package:splitify/core/platform/crash_reporting.dart';
 import 'package:splitify/data/data_providers.dart';
 import 'package:splitify/data/remote/push_messaging.dart' show PushPermission;
 import 'package:splitify/features/account/application/theme_mode_controller.dart';

@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 import 'package:splitify/data/local/app_database.dart';
+import 'package:splitify/data/local/stream_ext.dart';
 import 'package:splitify/data/repositories/repositories.dart';
 
 /// Extra reads for the expense screens (phase 08), kept beside [ExpensesRepository].
@@ -11,7 +12,9 @@ extension ExpenseReads on ExpensesRepository {
             ..where((m) => m.groupId.equals(groupId))
             ..orderBy([(m) => OrderingTerm.asc(m.position), (m) => OrderingTerm.asc(m.id)]))
           .watch()
-          .map(rememberTints);
+          .map(rememberTints)
+          // Writes to other groups' members send nothing new (S-455).
+          .distinctRows();
 
   /// Category of the group's newest live expense (loans left out), suggested first for the next one (#13).
   Future<String?> lastCategory(String groupId) async {

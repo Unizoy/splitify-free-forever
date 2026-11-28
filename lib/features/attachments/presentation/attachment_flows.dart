@@ -135,6 +135,7 @@ Future<void> openAttachment(
         title: l.w2yAttachPhotoTitle,
         bytes: file.image!.full,
         onRemove: onRemove,
+        heroTag: AppHeroTags.attachment(item.key),
       );
     case PickedAttachment(:final file):
       return PdfViewerScreen.open(
@@ -158,6 +159,7 @@ Future<void> openAttachment(
         path: row.path,
         placeholderPath: row.thumbPath,
         onRemove: onRemove,
+        heroTag: AppHeroTags.attachment(item.key),
       );
     case LegacyReceipt(:final path):
       return PhotoViewerScreen.open(
@@ -166,6 +168,7 @@ Future<void> openAttachment(
         bucket: MediaBuckets.receipts,
         path: path,
         onRemove: onRemove,
+        heroTag: AppHeroTags.attachment(item.key),
       );
   }
 }

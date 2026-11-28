@@ -1,5 +1,7 @@
 import 'package:drift/drift.dart';
+import 'package:flutter/foundation.dart' show listEquals;
 import 'package:splitify/data/local/app_database.dart';
+import 'package:splitify/data/local/stream_ext.dart';
 
 /// Everything the balances and totals of one group are computed from (05 §5, rule 3): the group, all of
 /// its members in fixed order (removed ones too: old records still name them), its live expenses and its
@@ -22,6 +24,18 @@ class GroupLedger {
 
   /// Live (not deleted) payments, newest first.
   final List<LocalPayment> payments;
+
+  // Value equality, so a re-run that read the same rows doesn't recompute balances (S-455).
+  @override
+  bool operator ==(Object other) =>
+      other is GroupLedger &&
+      other.group == group &&
+      listEquals(other.members, members) &&
+      listEquals(other.expenses, expenses) &&
+      listEquals(other.payments, payments);
+
+  @override
+  int get hashCode => Object.hash(group, members.length, expenses.length, payments.length);
 }
 
 /// Local reads for balances, totals and payments (phase 09). Streams re-run whenever one of the tables
@@ -38,17 +52,20 @@ class LedgerRepository {
     db.payments,
   };
 
-  /// Re-runs [load] after every change to [tables] (first value at once).
+  /// Re-runs [load] after every change to [tables] (first value at once). Changes that land while a load
+  /// runs (a sync's pull pages) collapse into one more load (S-455).
   Stream<T> _watch<T>(
     Set<ResultSetImplementation<dynamic, dynamic>> tables,
     Future<T> Function() load,
-  ) => db.customSelect('SELECT 1', readsFrom: tables).watch().asyncMap((_) => load());
+  ) => db.customSelect('SELECT 1', readsFrom: tables).watch().asyncMapLatest((_) => load());
 
-  /// The ledger of [groupId]; null while the group is not on this phone (or deleted).
-  Stream<GroupLedger?> watchGroup(String groupId) => _watch(_tables, () => loadGroup(groupId));
+  /// The ledger of [groupId]; null while the group is not on this phone (or deleted). A write to another
+  /// group re-reads it but sends nothing new (S-455).
+  Stream<GroupLedger?> watchGroup(String groupId) =>
+      _watch(_tables, () => loadGroup(groupId)).distinct();
 
   /// Ledgers of every live group (archived and friend groups too), oldest first.
-  Stream<List<GroupLedger>> watchAll() => _watch(_tables, loadAll);
+  Stream<List<GroupLedger>> watchAll() => _watch(_tables, loadAll).distinctRows();
 
   Future<GroupLedger?> loadGroup(String groupId) async {
     final group = await (db.select(
@@ -130,5 +147,5 @@ class LedgerRepository {
 
   /// One payment (deleted ones too, so the detail screen can say it is gone).
   Stream<LocalPayment?> watchPayment(String id) =>
-      (db.select(db.payments)..where((p) => p.id.equals(id))).watchSingleOrNull();
+      (db.select(db.payments)..where((p) => p.id.equals(id))).watchSingleOrNull().distinct();
 }

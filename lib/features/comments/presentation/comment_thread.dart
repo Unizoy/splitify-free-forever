@@ -73,7 +73,7 @@ class _Bubble extends ConsumerWidget {
     );
     if (!ok) return;
     await ref.read(commentActionsProvider).delete(view.comment);
-    unawaited(HapticFeedback.lightImpact());
+    AppHaptics.light();
     messenger
       ..hideCurrentSnackBar()
       ..showSnackBar(SnackBar(content: Text(l.cmtDeleted)));
@@ -206,7 +206,7 @@ class _CommentComposerState extends ConsumerState<CommentComposer> {
       final saved = await ref.read(commentActionsProvider).add(widget.target, _text.text);
       if (saved) {
         _text.clear();
-        unawaited(HapticFeedback.lightImpact());
+        AppHaptics.light();
       }
     } finally {
       if (mounted) setState(() => _sending = false);

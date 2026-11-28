@@ -76,31 +76,44 @@ class _BalancesTabState extends ConsumerState<BalancesTab> {
             onChanged: (v) => setState(() => _inMain = v),
           ),
         ],
-        if (inMain) ConvertedBalancesView(groupId: widget.groupId),
-        for (final c in inMain ? const <String>[] : b.currencies) ...[
-          const SizedBox(height: AppSpacing.s8),
-          if (multi) ...[
-            Semantics(
-              header: true,
-              child: Text(l.balCurrencySection(c), style: context.text.title.w(700)),
-            ),
-            const SizedBox(height: AppSpacing.s3),
-          ],
-          SectionLabel(
-            simplified ? l.balSuggestedPayments : l.balWhoOwesWhom,
-            trailing: b.simplify
-                ? _LinkButton(
-                    key: Key('balances-toggle-$c'),
-                    label: simplified ? l.balShowOriginal : l.balShowSimplified,
-                    onTap: () => setState(() => _original = !_original),
-                  )
-                : null,
-          ),
-          ..._transfers(context, b, c, simplified),
-          const SizedBox(height: AppSpacing.s6),
-          SectionLabel(l.balEveryone),
-          ..._nets(context, b, c),
-        ],
+        // "In INR" ↔ by currency and suggested ↔ original payments cross-fade in place (S-451).
+        MotionSwitcher(
+          child: inMain
+              ? ConvertedBalancesView(
+                  key: const ValueKey('motion-balances-in-main'),
+                  groupId: widget.groupId,
+                )
+              : Column(
+                  key: ValueKey('motion-balances-by-currency-$simplified'),
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    for (final c in b.currencies) ...[
+                      const SizedBox(height: AppSpacing.s8),
+                      if (multi) ...[
+                        Semantics(
+                          header: true,
+                          child: Text(l.balCurrencySection(c), style: context.text.title.w(700)),
+                        ),
+                        const SizedBox(height: AppSpacing.s3),
+                      ],
+                      SectionLabel(
+                        simplified ? l.balSuggestedPayments : l.balWhoOwesWhom,
+                        trailing: b.simplify
+                            ? _LinkButton(
+                                key: Key('balances-toggle-$c'),
+                                label: simplified ? l.balShowOriginal : l.balShowSimplified,
+                                onTap: () => setState(() => _original = !_original),
+                              )
+                            : null,
+                      ),
+                      ..._transfers(context, b, c, simplified),
+                      const SizedBox(height: AppSpacing.s6),
+                      SectionLabel(l.balEveryone),
+                      ..._nets(context, b, c),
+                    ],
+                  ],
+                ),
+        ),
       ],
     );
   }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:splitify/data/data_providers.dart';
 import 'package:splitify/domain/entities/prepared_image.dart' show MediaBuckets;
 import 'package:splitify/features/account/presentation/account_settings_sheet.dart';
@@ -9,7 +10,6 @@ import 'package:splitify/features/balances/application/account_stats.dart';
 import 'package:splitify/features/balances/application/balance_views.dart';
 import 'package:splitify/features/balances/application/balances_providers.dart';
 import 'package:splitify/features/balances/presentation/balance_copy.dart';
-import 'package:go_router/go_router.dart';
 import 'package:splitify/features/friends/application/friends_providers.dart' show friendsProvider;
 import 'package:splitify/features/friends/application/friends_view.dart' show Friend;
 import 'package:splitify/features/friends/presentation/friend_routes.dart' show FriendRoutes;

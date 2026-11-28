@@ -22,6 +22,7 @@ class PhotoViewerScreen extends StatefulWidget {
     this.placeholderPath,
     this.onReplace,
     this.onRemove,
+    this.heroTag,
     super.key,
   }) : assert(bytes != null || (bucket != null && path != null), 'a photo to show');
 
@@ -35,20 +36,25 @@ class PhotoViewerScreen extends StatefulWidget {
     String? placeholderPath,
     Future<bool> Function()? onReplace,
     Future<bool> Function()? onRemove,
-  }) => Navigator.of(context, rootNavigator: true).push(
-    MaterialPageRoute<void>(
-      fullscreenDialog: true,
-      builder: (_) => PhotoViewerScreen(
-        title: title,
-        bytes: bytes,
-        bucket: bucket,
-        path: path,
-        placeholderPath: placeholderPath,
-        onReplace: onReplace,
-        onRemove: onRemove,
-      ),
-    ),
-  );
+    Object? heroTag,
+  }) {
+    Widget page(BuildContext _) => PhotoViewerScreen(
+      title: title,
+      bytes: bytes,
+      bucket: bucket,
+      path: path,
+      placeholderPath: placeholderPath,
+      onReplace: onReplace,
+      onRemove: onRemove,
+      heroTag: heroTag,
+    );
+    // From a thumbnail: the photo flies into place over a fading black page (S-451).
+    return Navigator.of(context, rootNavigator: true).push(
+      heroTag != null
+          ? FadeHeroRoute<void>(builder: page)
+          : MaterialPageRoute<void>(fullscreenDialog: true, builder: page),
+    );
+  }
 
   final String title;
 
@@ -62,6 +68,9 @@ class PhotoViewerScreen extends StatefulWidget {
   final String? placeholderPath;
   final Future<bool> Function()? onReplace;
   final Future<bool> Function()? onRemove;
+
+  /// The thumbnail's [Hero] tag: the photo flies from it (S-451).
+  final Object? heroTag;
 
   @override
   State<PhotoViewerScreen> createState() => _PhotoViewerScreenState();
@@ -105,7 +114,7 @@ class _PhotoViewerScreenState extends State<PhotoViewerScreen> {
     final c = context.colors;
     final bytes = widget.bytes;
     final placeholder = widget.placeholderPath;
-    final photo = bytes != null
+    final Widget still = bytes != null
         ? MemoryPhoto(bytes: bytes, fit: BoxFit.contain)
         : placeholder != null
         ? _FullOverThumb(bucket: widget.bucket!, path: widget.path!, thumbPath: placeholder)
@@ -115,6 +124,8 @@ class _PhotoViewerScreenState extends State<PhotoViewerScreen> {
             thumb: false,
             fit: BoxFit.contain,
           );
+    final tag = widget.heroTag;
+    final photo = tag == null ? still : Hero(tag: tag, child: still);
     final actions = [
       if (widget.onReplace != null)
         PillButton(

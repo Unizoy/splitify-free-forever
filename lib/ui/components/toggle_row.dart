@@ -50,7 +50,7 @@ class ToggleRow extends StatelessWidget {
       child: Pressable(
         onTap: enabled
             ? () {
-                HapticFeedback.selectionClick();
+                AppHaptics.selection();
                 onChanged!(!value);
               }
             : null,

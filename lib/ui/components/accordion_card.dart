@@ -41,7 +41,7 @@ class _AccordionCardState extends State<AccordionCard> {
   late bool _open = widget.initiallyExpanded;
 
   void _toggle() {
-    HapticFeedback.selectionClick();
+    AppHaptics.selection();
     setState(() => _open = !_open);
   }
 

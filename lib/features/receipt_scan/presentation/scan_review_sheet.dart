@@ -183,7 +183,7 @@ class _ScanReviewPanelState extends State<ScanReviewPanel> {
           key: const Key('scan-use'),
           label: l.entryScanUse,
           onPressed: () {
-            HapticFeedback.selectionClick();
+            AppHaptics.selection();
             widget.onDone((choice: _choice, itemize: false));
           },
         ),
@@ -232,7 +232,7 @@ class _FoundRow extends StatelessWidget {
     final l = AppLocalizations.of(context);
     final c = context.colors;
     void tap() {
-      HapticFeedback.selectionClick();
+      AppHaptics.selection();
       onTap();
     }
 

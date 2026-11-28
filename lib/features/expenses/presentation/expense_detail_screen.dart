@@ -1,27 +1,26 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:splitify/core/money/currencies.dart';
 import 'package:splitify/core/money/money_formatter.dart';
+import 'package:splitify/core/money/scaled_input.dart';
 import 'package:splitify/data/local/app_database.dart';
+import 'package:splitify/features/comments/application/comments_providers.dart';
+import 'package:splitify/features/comments/presentation/comment_thread.dart';
 import 'package:splitify/features/currency/application/conversion_actions.dart'
     show savedFxOfExpense;
 import 'package:splitify/features/currency/presentation/conversion_tile.dart';
 import 'package:splitify/features/expenses/application/expense_draft.dart';
 import 'package:splitify/features/expenses/application/expense_providers.dart';
 import 'package:splitify/features/expenses/application/itemize_draft.dart';
-import 'package:splitify/core/money/currencies.dart';
-import 'package:splitify/core/money/scaled_input.dart';
 import 'package:splitify/features/expenses/presentation/category_trend_card.dart';
 import 'package:splitify/features/expenses/presentation/editor/step_body.dart';
 import 'package:splitify/features/expenses/presentation/expense_copy.dart';
 import 'package:splitify/features/expenses/presentation/expense_routes.dart';
 import 'package:splitify/features/expenses/presentation/receipt_card.dart';
 import 'package:splitify/features/groups/presentation/group_visuals.dart' show groupCoverImage;
-import 'package:splitify/features/comments/application/comments_providers.dart';
-import 'package:splitify/features/comments/presentation/comment_thread.dart';
 import 'package:splitify/features/history/presentation/history_routes.dart';
 import 'package:splitify/features/recurring/application/recurring_providers.dart';
 import 'package:splitify/features/recurring/presentation/recurring_tile.dart';
@@ -112,7 +111,7 @@ class _Hero extends ConsumerWidget {
     final stops = template != null && template.active && template.expenseId == e.id;
     await actions.delete(e);
     if (stops) await ref.read(recurringActionsProvider).stop(template);
-    unawaited(HapticFeedback.mediumImpact());
+    AppHaptics.success();
     await navigator.maybePop();
     messenger
       ..hideCurrentSnackBar()
@@ -210,15 +209,18 @@ class _Hero extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: AppSpacing.s4),
-          if (deleted)
-            StatusPill(
-              key: const Key('expense-deleted-pill'),
-              label: l.entryDeletedPill,
-              icon: AppIcons.trash,
-              tone: StatusPillTone.negative,
-            )
-          else
-            StatusPill(label: label, tone: tone),
+          // Deleted ↔ restored cross-fades (S-451).
+          MotionSwitcher(
+            alignment: Alignment.center,
+            child: deleted
+                ? StatusPill(
+                    key: const Key('expense-deleted-pill'),
+                    label: l.entryDeletedPill,
+                    icon: AppIcons.trash,
+                    tone: StatusPillTone.negative,
+                  )
+                : StatusPill(key: const ValueKey('expense-status-pill'), label: label, tone: tone),
+          ),
         ],
       ),
     );
@@ -265,10 +267,20 @@ class _Body extends StatelessWidget {
           const Center(child: SyncMarker()),
           const SizedBox(height: AppSpacing.s4),
         ],
-        if (view.deleted) ...[
-          _DeletedNote(expense: e, archived: archived),
-          const SizedBox(height: AppSpacing.s6),
-        ],
+        // Restore folds the note away in place (S-451).
+        MotionSwitcher(
+          grow: true,
+          child: view.deleted
+              ? Column(
+                  key: const ValueKey('motion-expense-deleted'),
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    _DeletedNote(expense: e, archived: archived),
+                    const SizedBox(height: AppSpacing.s6),
+                  ],
+                )
+              : const SizedBox(key: ValueKey('motion-expense-live'), width: double.infinity),
+        ),
         SectionLabel(view.isLoan ? l.loanLentBy : l.expPaidByLabel),
         for (var i = 0; i < payers.length; i++)
           _PersonRow(
@@ -420,10 +432,10 @@ Future<void> restoreExpense(BuildContext context, WidgetRef ref, LocalExpense e)
   final l = AppLocalizations.of(context);
   final messenger = ScaffoldMessenger.of(context);
   await ref.read(expenseActionsProvider).restore(e);
-  unawaited(HapticFeedback.mediumImpact());
+  AppHaptics.success();
   messenger
     ..hideCurrentSnackBar()
-    ..showSnackBar(SnackBar(content: Text(l.entryRestored), duration: const Duration(seconds: 3)));
+    ..showSnackBar(successSnackBar(l.entryRestored, duration: const Duration(seconds: 3)));
 }
 
 /// "This expense was deleted …" with the Restore button, at the top of a deleted expense's page.
