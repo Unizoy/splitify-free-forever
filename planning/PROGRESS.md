@@ -52,3 +52,8 @@ Current phase: _none in progress_ (05 + 06 leftovers finished 2026-11-22 on `pha
   Drift v10. S-390..S-398. Gates: format/analyze/guards clean, 3,979 tests (1 flake, WP-D's search test, green
   alone), coverage floors met, pgTAP 260 + 040/041/050/110/130/190 green. Device e2e written but stopped for low
   memory after install (done-with-blockers). [report](reports/d034-c.md)
+- 2026-11-28, D-034 final integration QA (`feat/simple-add-expense`, no PR): gates on the merged tree (format,
+  analyze, guards, 4,013 tests, coverage 95.5 %, pgTAP 28 files on DEV incl. new 0027, deno 53, debug APK), every
+  device test on the emulator (`.qa`, `--no-uninstall`) green, full screen walk light/dark/font 2.0, 8 leftovers +
+  5 defects fixed with tests, universal APK 45.8 → 39.2 MB. Migration 0027 applied on DEV. S-400..S-415.
+  [report](reports/final-qa-d034.md)
