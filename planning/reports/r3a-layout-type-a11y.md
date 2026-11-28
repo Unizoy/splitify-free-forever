@@ -33,7 +33,8 @@
 | `contrast_test.dart` | 83 pass (token pairs light/dark + avatar tints) |
 | `r3_responsive_test.dart`, `capsule_nav_bar_test.dart`, `r3_money_grouping_test.dart` | 23 pass |
 | `r3_a11y_test.dart` | 92 pass |
-| Full suite, chunked, `--concurrency=1` | see the final run below |
+| Full suite after merging R3-B, 3 chunks, `--concurrency=1`, coverage | 4,718 pass; 11 failed and were fixed and re-run green: the scrim test now scrolls the home's CustomScrollView (R3-B lazy grid), the code-screen test ignores the e-mail's break hints, the join carousel swipe covers a full page, the matrix group form uses the edit route (the new form's autofocus caret blinked) |
+| Gates | format clean, analyze 0 errors / 0 warnings, guards OK (incl. `type-scale-only` and R3-B's haptics rule), coverage 95.0 % overall (presentation 95.1 %, money 100 %, sync 99.5 %) |
 
 ## Device
 
