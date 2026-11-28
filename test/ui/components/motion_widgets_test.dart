@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:splitify/ui/components/motion_widgets.dart';
 import 'package:splitify/ui/theme/theme.dart';
 
-final _theme = AppTheme.light();
+final ThemeData _theme = AppTheme.light();
 
 Widget _app(Widget child, {bool reduced = false}) => MaterialApp(
   theme: _theme,

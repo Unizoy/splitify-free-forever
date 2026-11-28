@@ -169,7 +169,10 @@ class InsertMotionScope extends StatefulWidget {
 
 class _InsertMotionScopeState extends State<InsertMotionScope> {
   final _clock = Stopwatch()..start();
-  late Set<String> _known = widget.ids.toSet();
+
+  /// Ids of the last build (set in initState: a lazy field would first read the NEW ids in the first
+  /// didUpdateWidget, and the first arrival would never play).
+  late Set<String> _known;
 
   /// New ids → when they arrived (ms on [_clock]).
   final _fresh = <String, int>{};
@@ -197,6 +200,12 @@ class _InsertMotionScopeState extends State<InsertMotionScope> {
     );
     // An id that leaves and comes back (undo, restore) grows in again.
     _known = ids;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _known = widget.ids.toSet();
   }
 
   /// Whether the row for [id] should grow in now (once).

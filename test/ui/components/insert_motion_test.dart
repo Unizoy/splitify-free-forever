@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:splitify/ui/components/entrance.dart';
 import 'package:splitify/ui/theme/theme.dart';
 
-final _theme = AppTheme.light();
+final ThemeData _theme = AppTheme.light();
 
 /// A scope whose rows are the ids in [visible] (all of [ids] by default). A fresh list each call, so the
 /// scope sees the change.
@@ -88,20 +88,15 @@ void main() {
       expect(tester.hasRunningAnimations, isFalse);
     });
 
-    // lib/ui/components/entrance.dart: `late Set<String> _known = widget.ids.toSet()` is lazy, so it is first
-    // read inside the first didUpdateWidget, where widget.ids is already the NEW list: the first change after
-    // build never counts as an arrival.
-    testWidgets(
-      'the first change after the first build also grows the new row',
-      skip: true, // known bug: _known initialises lazily (see comment above)
-      (tester) async {
-        await tester.pumpWidget(_list(['a']));
-        await _realWait(tester, 450);
-        await tester.pumpWidget(_list(['a', 'b']));
-        expect(_in('b', SizeTransition), findsOneWidget);
-        await tester.pump(const Duration(milliseconds: 400));
-      },
-    );
+    // Regression: `_known` used to be a lazy field first read inside the first didUpdateWidget (already the
+    // NEW ids), so the first arrival after the list opened never grew in.
+    testWidgets('the first change after the first build also grows the new row', (tester) async {
+      await tester.pumpWidget(_list(['a']));
+      await _realWait(tester, 450);
+      await tester.pumpWidget(_list(['a', 'b']));
+      expect(_in('b', SizeTransition), findsOneWidget);
+      await tester.pump(const Duration(milliseconds: 400));
+    });
 
     testWidgets('the new row fades in too', (tester) async {
       await _settled(tester, () => _list(['a']));

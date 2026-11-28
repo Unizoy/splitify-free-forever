@@ -1,3 +1,5 @@
+import 'dart:isolate';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:splitify/data/data_providers.dart';
 import 'package:splitify/data/local/app_database.dart';
@@ -240,6 +242,10 @@ InsightsView insightsViewOf(
   );
 }
 
+/// From this many expenses on, the numbers are worked out on another isolate (S-455): ~5,000 expenses took
+/// ~300 ms of one frame on the emulator. Smaller phones' data stays on the UI isolate (no copy, no wait).
+const insightsIsolateMin = 1500;
+
 /// The Insights screen's data from the phone's database (works offline; rule 3).
 final insightsProvider = Provider.autoDispose.family<AsyncValue<InsightsView>, InsightsQuery>((
   ref,
@@ -249,9 +255,28 @@ final insightsProvider = Provider.autoDispose.family<AsyncValue<InsightsView>, I
   // Expense dates are local calendar dates, so the current month is the local one.
   final today = ref.watch(clockProvider).now().toLocal();
   final currency = ref.watch(profileProvider).value?.defaultCurrency ?? 'INR';
-  return ref
-      .watch(allLedgersProvider)
-      .whenData(
-        (ls) => insightsViewOf(ls, query, userId: uid, defaultCurrency: currency, today: today),
-      );
+  final ledgers = ref.watch(allLedgersProvider);
+  final ls = ledgers.value;
+  if (ls != null && ls.fold(0, (n, l) => n + l.expenses.length) >= insightsIsolateMin) {
+    return ref.watch(_insightsOffThreadProvider(query));
+  }
+  return ledgers.whenData(
+    (ls) => insightsViewOf(ls, query, userId: uid, defaultCurrency: currency, today: today),
+  );
+});
+
+/// [insightsViewOf] on another isolate for big ledgers; the screen keeps the last numbers while new ones
+/// come (`AsyncValue.value` during a reload).
+final _insightsOffThreadProvider = FutureProvider.autoDispose.family<InsightsView, InsightsQuery>((
+  ref,
+  query,
+) async {
+  final uid = ref.watch(currentUserIdProvider);
+  final today = ref.watch(clockProvider).now().toLocal();
+  final currency = ref.watch(profileProvider).value?.defaultCurrency ?? 'INR';
+  final ls = await ref.watch(allLedgersProvider.future);
+  return Isolate.run(
+    () => insightsViewOf(ls, query, userId: uid, defaultCurrency: currency, today: today),
+    debugName: 'insights',
+  );
 });

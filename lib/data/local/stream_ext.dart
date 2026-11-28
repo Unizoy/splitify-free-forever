@@ -21,6 +21,7 @@ extension LatestLoad<S> on Stream<S> {
     late final StreamController<T> out;
     StreamSubscription<S>? sub;
     var running = false;
+    var cancelled = false;
     var sourceDone = false;
     var hasPending = false;
     S? pending;
@@ -34,6 +35,7 @@ extension LatestLoad<S> on Stream<S> {
         if (!out.isClosed) out.addError(e, s);
       }
       running = false;
+      if (cancelled) return;
       if (hasPending) {
         hasPending = false;
         final next = pending as S;
@@ -64,7 +66,13 @@ extension LatestLoad<S> on Stream<S> {
       },
       onPause: () => sub?.pause(),
       onResume: () => sub?.resume(),
-      onCancel: () => sub?.cancel(),
+      onCancel: () {
+        // A queued reload after the listener left would be a wasted database read.
+        cancelled = true;
+        hasPending = false;
+        pending = null;
+        return sub?.cancel();
+      },
     );
     return out.stream;
   }

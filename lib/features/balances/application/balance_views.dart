@@ -32,9 +32,20 @@ List<String> orderCurrencies(Iterable<String> codes, String first) {
 
 /// `{"member": minor}` JSON of an expense's payers/shares.
 Map<String, int> decodeMinorMap(String json) {
+  final hit = _minorMaps[json];
+  if (hit != null) return hit;
   final m = jsonDecode(json) as Map<String, Object?>;
-  return {for (final e in m.entries) e.key: (e.value! as num).toInt()};
+  final out = Map<String, int>.unmodifiable({
+    for (final e in m.entries) e.key: (e.value! as num).toInt(),
+  });
+  if (_minorMaps.length >= 20000) _minorMaps.clear();
+  return _minorMaps[json] = out;
 }
+
+/// Decoded payer / share maps by their JSON text (S-455): balances, totals, Insights and the account card
+/// all read the same rows again after every change; the same text decodes once. Read-only maps; cleared
+/// when it gets big.
+final _minorMaps = <String, Map<String, int>>{};
 
 /// One group's balances as the screens show them (05 §5): per currency nets, original pairs and
 /// simplified transfers, plus who "me" is and whether the numbers include unsynced rows.
