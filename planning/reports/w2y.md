@@ -23,13 +23,31 @@
   messages), switch in Account → Settings (on in release, off in debug, not present without Firebase / in `.qa`
   builds), docs/PRIVACY.md "Crash reports".
 
-## Storage budget (free plan: 1 GB for the whole project)
+## Numbers
 
-See "Numbers" below (measured on the emulator with a 4032 × 3024 camera-size picture).
+- **Storage (free plan: 1 GB for the whole project):** a 4032 × 3024 camera-size picture (JPEG q95, 1,579,830 B)
+  was stored by the device's real encoder at 3072 × 2304 q85 = **707,321 B** plus a **39,060 B** thumbnail
+  (first ladder step; cap 1.5 MB, then q78 / 2560 px … 1280 px). So ≈ 0.75 MB per photo → roughly 1,300–1,400
+  photos per GB; PDFs as picked (≤ 5 MB); ≤ 10 files and 25 MB per expense (server-enforced). Uploads only to
+  paths a row registered, so the bucket can't be abused. DEV storage before this package: 2.5 MB in 10 objects.
+- **APK:** release arm64-v8a split with Firebase (Crashlytics plugin applied, mapping upload off):
+  **25,025,222 B** vs 24,814,802 B before (final QA) = **+210,420 B (+0.85 %)** — Crashlytics SDK + PdfBridge;
+  no PDF library is bundled (S-433).
 
 ## Tests
 
 TC-W2Y-01..07 in `planning/10-test-catalog.md`.
+
+- pgTAP on DEV: `280_expense_attachments` 47/47, `290_summary_batch_push` 32/32 (after apply), `001_schema`
+  32/32 (seq triggers 10 → 11).
+- Deno: fmt (LF copy) / lint clean, 56 tests passed (3 new in `send-push/push_test.ts`); `send-push` v4 deployed
+  on DEV (verify_jwt false).
+- Device (`integration_test/w2y_test.dart`, `.qa`, `--no-uninstall`, packages unchanged before/after, owner app
+  untouched): photo + PDF attached offline → 3 rows/outbox/3 uploads queued, nothing on the server → online:
+  rows + 3 objects in `expense-files` visible to the other member; full-size photo downloaded on tap; PDF pages
+  rendered by PdfRenderer; remove + Undo, delete + restore (server rows); monthly card "Your November" → Insights;
+  batch settle over 2 groups → friend's rows `batched` + one released push ("… settled up with you in 2 groups ·
+  ₹250"). Screenshots `splitify-artifacts\screenshots\w2y-*-{light,dark}.png` (9 screens).
 
 ## Owner actions
 
