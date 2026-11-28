@@ -140,7 +140,13 @@ void main() {
     await tester.tap(find.text('Send code'));
     await _settle(tester);
     expect(find.text('Enter the 6-digit code'), findsOneWidget);
-    expect(find.textContaining('asha@splitify.test'), findsOneWidget);
+    // The address may break only after "@" and "." (zero-width spaces there, R3-A S-446).
+    expect(
+      find.byWidgetPredicate(
+        (w) => w is Text && (w.data ?? '').replaceAll('\u200B', '').contains('asha@splitify.test'),
+      ),
+      findsOneWidget,
+    );
     expect(find.text('Resend code in 60\u00A0s'), findsOneWidget);
 
     await tester.enterText(find.byKey(const Key('code-input')), '000000');
