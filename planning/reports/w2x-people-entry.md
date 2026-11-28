@@ -21,12 +21,17 @@
 - Unit + glados: `w2x_adhoc_friends_test` (300 runs × 2 properties), `w2x_in_currency_test` (400 runs × 2),
   `w2x_adhoc_sync_test`; widget: `w2x_people_test`, `w2x_show_in_test`; goldens `w2x_golden_test` (30: 6 states ×
   light/dark × text 1.0/2.0 + 320×568, expectA11y).
+- Full suite on the merged tree (with W2-Y), `--concurrency=1`: core/data/domain/ui/app/a11y/tool 1,182 passed;
+  features a–f 1,152 passed; features g–z 907 passed; goldens: 964 passed + 35 updated for the intended changes
+  (Show in INR chip on the multi-currency Home card, "From contacts" in the pickers, the contacts icon in the group
+  form, the Paid by row in the Default split sheet) — 0 failures. Format, analyze (0 errors/warnings), guards: OK.
+  Coverage merge: SKIPPED (chunked runs, no time to merge lcov).
 - Device: see "Device run" below.
 
 ## Device run
 
 `tool/e2e/capture_w2x.ps1` → `integration_test/w2x_test.dart` on emulator-5554 (`com.unizoy.splitify.qa`,
-`--no-uninstall`, DEV, DNS pin): **PASS** (`W2X-E2E OK`, 2 min 19 s). e2e-a + a fresh second account (claims "Bina"
+`--no-uninstall`, DEV, DNS pin): **PASS** before the W2-Y merge (2 min 19 s) and again on the merged tree (2 min 14 s). e2e-a + a fresh second account (claims "Bina"
 in a test trip): + → Bina (her direct group made online once) → "+" → Rahul (name only) → one hidden ad-hoc group made
 offline, synced (type `other`, `is_adhoc` on the server), Bina's account linked by the server (the phone never sends
 user_id), she sees the group (RLS) and got the `expense_added` notification; the Groups grid hides it; Rahul's page
