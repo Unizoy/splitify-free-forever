@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
@@ -7,8 +8,13 @@ import 'package:share_plus/share_plus.dart';
 import 'package:splitify/core/config/app_info.dart';
 import 'package:splitify/data/data_providers.dart';
 import 'package:splitify/data/local/app_database.dart';
+import 'package:splitify/data/media_providers.dart';
 import 'package:splitify/data/repositories/export_reads.dart';
+import 'package:splitify/data/remote/media_remote.dart';
 import 'package:splitify/data/sync/sync_types.dart';
+import 'package:splitify/domain/entities/attachment.dart';
+import 'package:splitify/domain/entities/prepared_image.dart';
+import 'package:splitify/features/attachments/application/attachment_providers.dart';
 import 'package:splitify/features/balances/application/balances_providers.dart';
 import 'package:splitify/features/export/application/group_export.dart';
 import 'package:splitify/features/export/domain/zip_writer.dart';
@@ -32,6 +38,7 @@ Map<String, Object?> backupJson({
   required DateTime exportedAt,
   String? userId,
   LocalProfile? me,
+  BackupFiles files = const BackupFiles(),
 }) => {
   'format': backupFormat,
   'version': backupVersion,
@@ -43,10 +50,10 @@ Map<String, Object?> backupJson({
     'upi_id': me?.upiId,
     'default_currency': me?.defaultCurrency.trim(),
   },
-  'groups': [for (final g in groups) _group(g, userId)],
+  'groups': [for (final g in groups) _group(g, userId, files)],
 };
 
-Map<String, Object?> _group(BackupGroupRows x, String? userId) {
+Map<String, Object?> _group(BackupGroupRows x, String? userId, BackupFiles files) {
   final g = x.group;
   return {
     'group': {
@@ -114,6 +121,8 @@ Map<String, Object?> _group(BackupGroupRows x, String? userId) {
                   'owed': e.fxShares == null ? null : _minor(e.fxShares),
                 },
           'receipt_path': e.receiptPath,
+          // W2-Y: the photo itself inside the .zip, when it could be included.
+          'receipt_file': e.receiptPath == null ? null : files.receiptEntry(e.id),
           'recurring_id': e.recurringId,
           'source': e.source,
           'created_at': e.createdAt,
@@ -165,6 +174,26 @@ Map<String, Object?> _group(BackupGroupRows x, String? userId) {
           'deleted_at': c.deletedAt,
           'pending': _pending(c.syncState),
         },
+    ],
+    // W2-Y (0029): photos and PDFs of the expenses, removed ones too; `file` = their place in the .zip.
+    'attachments': [
+      for (final a in files.attachments)
+        if (a.groupId == x.group.id)
+          {
+            'id': a.id,
+            'expense_id': a.expenseId,
+            'kind': a.kind,
+            'name': a.name,
+            'size_bytes': a.sizeBytes,
+            'width': a.width,
+            'height': a.height,
+            'position': a.position,
+            'file': files.attachmentEntry(a),
+            'created_at': a.createdAt,
+            'created_by': a.createdBy,
+            'deleted_at': a.deletedAt,
+            'pending': _pending(a.syncState),
+          },
     ],
     'recurring': [
       for (final r in x.recurring)
@@ -238,8 +267,46 @@ const backupReadme =
     '                     payments, comments and repeating expenses (deleted ones too).\r\n'
     '                     Amounts are whole minor units (paise, cents) next to their currency code.\r\n'
     'csv/                 One spreadsheet per group, like "Export CSV" in the app.\r\n'
+    'attachments/         Photos and PDFs of the expenses, one folder per expense.\r\n'
+    'receipts/            Receipt photos saved by older versions of the app.\r\n'
     '\r\n'
     'The format: https://github.com/Unizoy/splitify-free-forever/blob/main/docs/backup-format.md\r\n';
+
+/// The files that go into the backup besides the JSON and CSVs (W2-Y): every attachment row, and the bytes
+/// of the files this phone has or could fetch, up to [BackupFiles.maxBytes] together.
+final class BackupFiles {
+  const BackupFiles({
+    this.attachments = const [],
+    this.attachmentBytes = const {},
+    this.receiptBytes = const {},
+  });
+
+  /// All of them together stay below this (the .zip is built in memory).
+  static const maxBytes = 64 * 1024 * 1024;
+
+  final List<LocalAttachment> attachments;
+
+  /// Attachment id → file bytes.
+  final Map<String, Uint8List> attachmentBytes;
+
+  /// Expense id → its old single receipt photo.
+  final Map<String, Uint8List> receiptBytes;
+
+  /// `attachments/<expense>/<id>.jpg|pdf` when the file is included.
+  String? attachmentEntry(LocalAttachment a) => attachmentBytes.containsKey(a.id)
+      ? 'attachments/${a.expenseId}/${a.id}.${a.kind == AttachmentKind.pdf.wire ? 'pdf' : 'jpg'}'
+      : null;
+
+  /// `receipts/<expense>.jpg` when the photo is included.
+  String? receiptEntry(String expenseId) =>
+      receiptBytes.containsKey(expenseId) ? 'receipts/$expenseId.jpg' : null;
+
+  List<ZipEntry> entries() => [
+    for (final a in attachments)
+      if (attachmentEntry(a) case final path?) ZipEntry(path, attachmentBytes[a.id]!),
+    for (final e in receiptBytes.entries) ZipEntry(receiptEntry(e.key)!, e.value),
+  ];
+}
 
 /// A finished backup.
 final class BackupFile {
@@ -260,8 +327,9 @@ BackupFile buildBackup({
   required String Function(String key) categoryLabel,
   String? userId,
   LocalProfile? me,
+  BackupFiles files = const BackupFiles(),
 }) {
-  final json = backupJson(groups: groups, exportedAt: now, userId: userId, me: me);
+  final json = backupJson(groups: groups, exportedAt: now, userId: userId, me: me, files: files);
   final used = <String>{};
   final entries = <ZipEntry>[
     ZipEntry.text(backupJsonName, const JsonEncoder.withIndent('  ').convert(json)),
@@ -281,6 +349,7 @@ BackupFile buildBackup({
             myUserId: userId,
           ),
         ),
+    ...files.entries(),
   ];
   return BackupFile(
     bytes: buildZip(entries, modified: now.toLocal()),
@@ -346,6 +415,51 @@ class BackupExporter {
       categoryLabel: categoryLabel,
       userId: uid,
       me: rows.me,
+      files: await _files(rows.groups),
+    );
+  }
+
+  /// Attachments and old receipt photos: this phone's copies, else downloaded once (online); a file that
+  /// can't be had (offline, refused) or doesn't fit [BackupFiles.maxBytes] is listed without its bytes.
+  Future<BackupFiles> _files(List<BackupGroupRows> groups) async {
+    final attachments = await _ref.read(attachmentsRepositoryProvider).forGroups([
+      for (final g in groups) g.group.id,
+    ]);
+    final media = _ref.read(mediaRepositoryProvider);
+    var budget = BackupFiles.maxBytes;
+    Future<Uint8List?> fetch(String bucket, String path) async {
+      try {
+        final bytes = await (await media.file(bucket, path)).readAsBytes();
+        if (bytes.length > budget) return null;
+        budget -= bytes.length;
+        return bytes;
+      } on MediaOffline {
+        return null;
+      } on MediaRejected {
+        return null;
+      } on FileSystemException {
+        return null;
+      }
+    }
+
+    final attachmentBytes = <String, Uint8List>{};
+    for (final a in attachments) {
+      final bytes = await fetch(AttachmentPaths.bucket, a.path);
+      if (bytes != null) attachmentBytes[a.id] = bytes;
+    }
+    final receiptBytes = <String, Uint8List>{};
+    for (final g in groups) {
+      for (final e in g.expenses) {
+        final path = e.receiptPath;
+        if (path == null) continue;
+        final bytes = await fetch(MediaBuckets.receipts, path);
+        if (bytes != null) receiptBytes[e.id] = bytes;
+      }
+    }
+    return BackupFiles(
+      attachments: attachments,
+      attachmentBytes: attachmentBytes,
+      receiptBytes: receiptBytes,
     );
   }
 }

@@ -9,6 +9,7 @@ import 'package:splitify/app/background_sync_task.dart';
 import 'package:splitify/core/config/env.dart';
 import 'package:splitify/core/config/preferences.dart';
 import 'package:splitify/core/logging/logger.dart';
+import 'package:splitify/core/platform/crash_reporting.dart';
 import 'package:splitify/data/data_providers.dart';
 import 'package:splitify/data/fx_providers.dart';
 import 'package:splitify/data/media_providers.dart';
@@ -34,6 +35,8 @@ Future<Widget> bootstrap() async {
     final prefs = await SharedPreferences.getInstance();
     final remote = await initRemote(env);
     final push = await initPush();
+    // W2-Y (S-436): after Firebase started with push; off without google-services.json (S-144 pattern).
+    final crash = await initCrashReporting(prefs);
     final background = await initBackgroundSync();
     return ProviderScope(
       overrides: appOverrides(
@@ -41,6 +44,7 @@ Future<Widget> bootstrap() async {
         prefs: prefs,
         remote: remote,
         push: push,
+        crash: crash,
         background: background,
         network: ConnectivityNetworkStatus(),
       ),
@@ -58,6 +62,7 @@ List<Override> appOverrides({
   required SharedPreferences prefs,
   required RemoteServices remote,
   PushMessaging push = const DisabledPushMessaging(),
+  CrashReporter crash = const DisabledCrashReporter(),
   BackgroundSync background = const NoBackgroundSync(),
   NetworkStatus network = const AssumeOnlineNetworkStatus(),
   bool? devLogin,
@@ -83,6 +88,7 @@ List<Override> appOverrides({
         () => ref.read(authRepositoryProvider).signOut(),
   ),
   pushMessagingProvider.overrideWithValue(push),
+  crashReporterProvider.overrideWithValue(crash),
   googleConfiguredProvider.overrideWithValue(env.hasGoogle),
   emailCodeLengthProvider.overrideWithValue(env.emailOtpLength),
   devLoginProvider.overrideWithValue(devLogin ?? env.devLoginAvailable(releaseMode: kReleaseMode)),

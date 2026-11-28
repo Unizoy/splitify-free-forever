@@ -31,6 +31,40 @@ void main() {
     expect(db.schemaVersion, 10);
   });
 
+  test('schema v11 matches the dumped schema', () async {
+    final connection = await verifier.startAt(11);
+    final db = AppDatabase(connection);
+    addTearDown(db.close);
+    await verifier.migrateAndValidate(db, 11);
+    expect(db.schemaVersion, 11);
+  });
+
+  test('v10 -> v11 adds expense attachments and pulls every group again (W2-Y, S-431)', () async {
+    final schema = await verifier.schemaAt(10);
+    schema.rawDatabase
+      ..execute(
+        "INSERT INTO sync_cursors (scope, seq) VALUES ('group:g1', 812), ('group:g2', 90), ('user', 77)",
+      )
+      ..execute(
+        "INSERT INTO expenses (id, group_id, description, date, currency, total, payers, shares, receipt_path) "
+        "VALUES ('e1', 'g1', 'Dinner', '2026-11-20', 'INR', 1000, '{}', '{}', 'g1/e1/r.jpg')",
+      );
+    final db = AppDatabase(schema.newConnection());
+    addTearDown(db.close);
+    await verifier.migrateAndValidate(db, 11);
+    expect(await _has(db, 'expense_attachments'), isTrue);
+    expect(await _has(db, 'expense_attachments_expense'), isTrue);
+    final cursors = {for (final c in await db.select(db.syncCursors).get()) c.scope: c.seq};
+    expect(cursors, {'group:g1': 0, 'group:g2': 0, 'user': 77});
+    expect((await db.select(db.expenses).get()).single.receiptPath, 'g1/e1/r.jpg');
+    await db.customStatement(
+      "INSERT INTO expense_attachments (id, group_id, expense_id, kind, path, size_bytes) "
+      "VALUES ('a1', 'g1', 'e1', 'pdf', 'g1/e1/a1.pdf', 2048)",
+    );
+    final a = (await db.select(db.expenseAttachments).get()).single;
+    expect((a.kind, a.position, a.syncState, a.deletedAt), ('pdf', 0, 'synced', null));
+  });
+
   test('v9 -> v10 adds trip dates, settle-up reminders and the group notes (D-034 WP-C)', () async {
     final schema = await verifier.schemaAt(9);
     schema.rawDatabase.execute(

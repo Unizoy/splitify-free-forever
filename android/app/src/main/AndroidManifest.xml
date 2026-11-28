@@ -49,6 +49,11 @@
                 <data android:mimeType="text/plain"/>
             </intent-filter>
         </activity>
+        <!-- Crash reports (W2-Y, S-436): nothing is collected until the app applies the person's choice (on by
+             default in release builds); Crashlytics then keeps that choice from the next start on. -->
+        <meta-data
+            android:name="firebase_crashlytics_collection_enabled"
+            android:value="false" />
         <!-- FCM pushes that arrive in the background: status-bar icon and the fallback channel (the server
              sets android.notification.channel_id to the kind; the app creates one channel per kind). -->
         <meta-data

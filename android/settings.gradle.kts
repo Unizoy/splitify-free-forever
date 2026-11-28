@@ -23,6 +23,8 @@ plugins {
     id("org.jetbrains.kotlin.android") version "2.4.20" apply false
     // Applied by app/build.gradle.kts only when secrets/google-services.json exists (push, phase 13).
     id("com.google.gms.google-services") version "4.4.4" apply false
+    // Crash reports (W2-Y, S-436): applied together with google-services; it stamps the build id Crashlytics needs.
+    id("com.google.firebase.crashlytics") version "3.0.8" apply false
 }
 
 include(":app")

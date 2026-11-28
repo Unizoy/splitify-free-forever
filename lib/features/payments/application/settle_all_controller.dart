@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:splitify/core/utils/uuid.dart';
 import 'package:splitify/core/money/amount_expression.dart';
 import 'package:splitify/core/money/currencies.dart';
 import 'package:splitify/core/money/scaled_input.dart';
@@ -255,6 +256,8 @@ class SettleAllController extends AsyncNotifier<SettleAllDraft> {
     final repo = ref.read(paymentsRepositoryProvider);
     final createdAt = ref.read(clockProvider).now().toUtc().toIso8601String();
     final note = d.note.trim();
+    // One push for the friend per batch, not one per group (W2-Y, 0030): the server only reads this id.
+    final batch = d.parts.length > 1 ? newId() : null;
     return repo.saveAll([
       for (final p in d.parts)
         if (d.groups.firstWhere((g) => g.groupId == p.groupId) case final g)
@@ -269,6 +272,7 @@ class SettleAllController extends AsyncNotifier<SettleAllDraft> {
               'method': d.method,
               'note': note.isEmpty ? null : note,
               'created_at': createdAt,
+              'batch_id': ?batch,
             },
           ),
     ]);
