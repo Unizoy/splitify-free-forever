@@ -207,27 +207,35 @@ class _NavButton extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: AppSpacing.s2),
               child: ClipRect(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    icon,
-                    if (active && showLabel) ...[
-                      const SizedBox(width: AppSpacing.s2),
-                      Flexible(
-                        child: MediaQuery.withClampedTextScaling(
-                          maxScaleFactor: CapsuleNavBar._labelMaxScale,
-                          child: Text(
-                            item.label,
-                            maxLines: 1,
-                            softWrap: false,
-                            overflow: TextOverflow.fade,
-                            style: context.text.button.copyWith(color: fg),
-                          ),
-                        ),
+                child: (active && showLabel)
+                    ? Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          icon,
+                          ...[
+                            const SizedBox(width: AppSpacing.s2),
+                            Flexible(
+                              child: MediaQuery.withClampedTextScaling(
+                                maxScaleFactor: CapsuleNavBar._labelMaxScale,
+                                child: Text(
+                                  item.label,
+                                  maxLines: 1,
+                                  softWrap: false,
+                                  overflow: TextOverflow.fade,
+                                  style: context.text.button.copyWith(color: fg),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ],
+                      )
+                    // Icon only: centred and clipped while the spring undershoots below 48 dp on a tab
+                    // switch, instead of overflowing (R3-A, S-447).
+                    : OverflowBox(
+                        maxWidth: double.infinity,
+                        fit: OverflowBoxFit.deferToChild,
+                        child: icon,
                       ),
-                    ],
-                  ],
-                ),
               ),
             ),
           ),

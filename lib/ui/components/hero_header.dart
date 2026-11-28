@@ -99,40 +99,46 @@ class HeroHeader extends StatelessWidget {
               AppSpacing.screen,
               overlap + gap,
             ),
-            // Full-bleed background; the buttons, title and card keep phone proportions on tablets (S-444).
-            child: ContentWidth(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  SizedBox(
-                    height: AppSpacing.minTouch,
-                    child: Row(
-                      children: [
-                        ?leading,
-                        const Spacer(),
-                        for (var i = 0; i < actions.length; i++) ...[
-                          if (i > 0) const SizedBox(width: AppSpacing.s1),
-                          actions[i],
-                        ],
+            // Full-bleed background; the round buttons stay at the screen edges like an app bar's, and the
+            // title and card keep phone proportions on tablets (S-444).
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                SizedBox(
+                  height: AppSpacing.minTouch,
+                  child: Row(
+                    children: [
+                      ?leading,
+                      const Spacer(),
+                      for (var i = 0; i < actions.length; i++) ...[
+                        if (i > 0) const SizedBox(width: AppSpacing.s1),
+                        actions[i],
                       ],
-                    ),
+                    ],
                   ),
-                  if (top != null) ...[const SizedBox(height: AppSpacing.s4), top!],
-                  if (headline != null && short && taglineTitle)
-                    Semantics(header: true, label: title, child: const SizedBox.shrink())
-                  else if (headline != null) ...[
-                    SizedBox(height: gap),
-                    Semantics(
-                      header: true,
-                      child: MediaQuery.withClampedTextScaling(
-                        maxScaleFactor: AppText.maxSerifScale,
-                        child: headline,
-                      ),
-                    ),
-                  ],
-                  if (child != null) ...[SizedBox(height: gap), child!],
-                ],
-              ),
+                ),
+                ContentWidth(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      if (top != null) ...[const SizedBox(height: AppSpacing.s4), top!],
+                      if (headline != null && short && taglineTitle)
+                        Semantics(header: true, label: title, child: const SizedBox.shrink())
+                      else if (headline != null) ...[
+                        SizedBox(height: gap),
+                        Semantics(
+                          header: true,
+                          child: MediaQuery.withClampedTextScaling(
+                            maxScaleFactor: AppText.maxSerifScale,
+                            child: headline,
+                          ),
+                        ),
+                      ],
+                      if (child != null) ...[SizedBox(height: gap), child!],
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
         ),

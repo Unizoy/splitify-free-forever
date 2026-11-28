@@ -513,7 +513,20 @@ class _PersonRow extends StatelessWidget {
       style: context.text.amount.w(emphasis ? 700 : 600).copyWith(color: c.textPrimary),
     );
     // Large text (phase 19 polish): the amount goes under the name, so names never break inside a word.
-    final stacked = context.stackRows;
+    // Also when a long amount (₹1,23,456.50 on a 320 dp phone) leaves the name less than 96 dp (S-446).
+    bool stackedFor(double width) {
+      if (context.stackRows) return true;
+      final painter = TextPainter(
+        text: TextSpan(text: trailing, style: amount.style),
+        textDirection: Directionality.of(context),
+        textScaler: MediaQuery.textScalerOf(context),
+        maxLines: 1,
+      )..layout();
+      final room = width - AvatarSize.s40.dp - 2 * AppSpacing.s3 - painter.width;
+      painter.dispose();
+      return room < 96;
+    }
+
     final line = caption;
     final title = line == null
         ? Text(name, style: context.text.body.w(600))
@@ -524,41 +537,46 @@ class _PersonRow extends StatelessWidget {
               Text(line, style: context.text.bodySmall.copyWith(color: c.textSecondary)),
             ],
           );
-    return MergeSemantics(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: AppSpacing.s3),
-            child: Row(
-              children: [
-                if (itemRow)
-                  TintedIcon(icon: AppIcons.receipt, color: c.primary)
-                else
-                  Avatar(name: avatarName, seed: seed),
-                const SizedBox(width: AppSpacing.s3),
-                if (stacked)
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        title,
-                        const SizedBox(height: AppSpacing.s1),
-                        amount,
-                      ],
-                    ),
-                  )
-                else ...[
-                  Expanded(child: title),
-                  const SizedBox(width: AppSpacing.s3),
-                  amount,
-                ],
-              ],
-            ),
+    return LayoutBuilder(
+      builder: (context, box) {
+        final stacked = stackedFor(box.maxWidth);
+        return MergeSemantics(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: AppSpacing.s3),
+                child: Row(
+                  children: [
+                    if (itemRow)
+                      TintedIcon(icon: AppIcons.receipt, color: c.primary)
+                    else
+                      Avatar(name: avatarName, seed: seed),
+                    const SizedBox(width: AppSpacing.s3),
+                    if (stacked)
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            title,
+                            const SizedBox(height: AppSpacing.s1),
+                            amount,
+                          ],
+                        ),
+                      )
+                    else ...[
+                      Expanded(child: title),
+                      const SizedBox(width: AppSpacing.s3),
+                      amount,
+                    ],
+                  ],
+                ),
+              ),
+              if (divider) const DashedDivider(),
+            ],
           ),
-          if (divider) const DashedDivider(),
-        ],
-      ),
+        );
+      },
     );
   }
 }

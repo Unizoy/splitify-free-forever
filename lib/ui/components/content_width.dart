@@ -18,7 +18,8 @@ class ContentWidth extends StatelessWidget {
     heightFactor: 1,
     child: ConstrainedBox(
       constraints: BoxConstraints(maxWidth: maxWidth),
-      child: child,
+      // As wide as allowed (like the layout without it), never narrower than the screen's column.
+      child: SizedBox(width: double.infinity, child: child),
     ),
   );
 }
@@ -67,7 +68,7 @@ class PageBody extends StatelessWidget {
     alignment: Alignment.topCenter,
     child: ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: AppSpacing.maxPage),
-      child: child,
+      child: SizedBox(width: double.infinity, child: child),
     ),
   );
 }

@@ -22,10 +22,18 @@ Rect _globalRect(SemanticsNode node) {
 }
 
 /// Fails when the traversal jumps back up the page (a node above the previous one, not on its row).
-void _expectReadingOrder(WidgetTester tester, String name) {
+/// Only what is on screen counts, above the floating nav / pinned bars: rows scrolled below the fold (or
+/// under the nav) come before the nav in TalkBack's order (it scrolls to them), which is right.
+void _expectReadingOrder(WidgetTester tester, String name, Size screen) {
   final nodes = tester.semantics
       .simulatedAccessibilityTraversal()
       .where((n) => !n.rect.isEmpty && (n.label.isNotEmpty || n.getSemanticsData().actions != 0))
+      .where((n) => !n.flagsCollection.isHidden)
+      .where((n) {
+        final r = _globalRect(n);
+        // Above the bottom 120 dp: the floating nav and pinned bars sit there, over scrolled content.
+        return r.bottom <= screen.height - 120 && r.bottom > 0;
+      })
       .toList();
   expect(nodes, isNotEmpty, reason: name);
   Rect? previous;
@@ -67,7 +75,7 @@ void main() {
         await tester.pump();
         await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 200)));
         await tester.pump(const Duration(milliseconds: 1500));
-        _expectReadingOrder(tester, '${screen.name} $label');
+        _expectReadingOrder(tester, '${screen.name} $label', size);
         handle.dispose();
         // Unmount inside the test, so the screen's timers end with it.
         await tester.pumpWidget(const SizedBox());

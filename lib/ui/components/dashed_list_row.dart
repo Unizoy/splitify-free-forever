@@ -35,7 +35,11 @@ class DashedListRow extends StatelessWidget {
     final stacked = value != null && context.stackRows;
     final valueText = value == null
         ? null
-        : Text(value!, style: context.text.amount.copyWith(color: valueColor ?? c.primary));
+        : Text(
+            value!,
+            textAlign: TextAlign.end,
+            style: context.text.amount.copyWith(color: valueColor ?? c.primary),
+          );
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -69,7 +73,8 @@ class DashedListRow extends StatelessWidget {
                     ),
                     if (valueText != null && !stacked) ...[
                       const SizedBox(width: AppSpacing.s3),
-                      valueText,
+                      // A long value wraps (right-aligned) instead of running off a 320 dp phone (S-446).
+                      Flexible(child: valueText),
                     ],
                     if (onTap != null) ...[
                       const SizedBox(width: AppSpacing.s3),

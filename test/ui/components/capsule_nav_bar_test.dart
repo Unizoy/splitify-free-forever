@@ -73,7 +73,7 @@ void main() {
     for (final width in [340.0, 360.0, 393.0, 412.0, 480.0]) {
       for (final index in [0, 1, 2, 3]) {
         await _pumpBar(tester, width, index: index);
-        expect(tester.takeException(), isNull);
+        expect(tester.takeException(), isNull, reason: '$width dp, tab $index');
         final label = find.text(_items[index].label);
         if (label.evaluate().isEmpty) continue;
         final p = tester.renderObject<RenderParagraph>(
