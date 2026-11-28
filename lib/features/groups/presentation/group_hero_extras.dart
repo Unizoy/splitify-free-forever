@@ -195,7 +195,7 @@ class _Line extends StatelessWidget {
             ),
           ],
         ),
-        semanticsLabel: '$words $amount',
+        semanticsLabel: [words, amount].join(' '),
         textAlign: TextAlign.center,
         style: context.text.body.copyWith(color: c.onHero),
       ),
