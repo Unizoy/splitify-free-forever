@@ -23,14 +23,6 @@ void main() {
 
   setUpAll(() => verifier = SchemaVerifier(GeneratedHelper()));
 
-  test('schema v10 matches the dumped schema', () async {
-    final connection = await verifier.startAt(10);
-    final db = AppDatabase(connection);
-    addTearDown(db.close);
-    await verifier.migrateAndValidate(db, 10);
-    expect(db.schemaVersion, 10);
-  });
-
   test('schema v11 matches the dumped schema', () async {
     final connection = await verifier.startAt(11);
     final db = AppDatabase(connection);
@@ -65,14 +57,14 @@ void main() {
     expect((a.kind, a.position, a.syncState, a.deletedAt), ('pdf', 0, 'synced', null));
   });
 
-  test('v9 -> v10 adds trip dates, settle-up reminders and the group notes (D-034 WP-C)', () async {
+  test('v9 -> v11 adds trip dates, settle-up reminders and the group notes (D-034 WP-C)', () async {
     final schema = await verifier.schemaAt(9);
     schema.rawDatabase.execute(
       "INSERT INTO \"groups\" (id, name, type, seq, sync_state) VALUES ('g1', 'Goa trip', 'trip', 4, 'synced')",
     );
     final db = AppDatabase(schema.newConnection());
     addTearDown(db.close);
-    await verifier.migrateAndValidate(db, 10);
+    await verifier.migrateAndValidate(db, 11);
     final g = (await db.select(db.groups).get()).single;
     expect((g.name, g.type, g.seq), ('Goa trip', 'trip', 4));
     expect(
@@ -90,7 +82,7 @@ void main() {
     );
   });
 
-  test('v8 -> v10 drops the payment bubble\'s local table and keeps the rest (D-030)', () async {
+  test('v8 -> v11 drops the payment bubble\'s local table and keeps the rest (D-030)', () async {
     final schema = await verifier.schemaAt(8);
     schema.rawDatabase
       ..execute("INSERT INTO \"groups\" (id, name) VALUES ('g1', 'Flat')")
@@ -100,26 +92,26 @@ void main() {
       );
     final db = AppDatabase(schema.newConnection());
     addTearDown(db.close);
-    await verifier.migrateAndValidate(db, 10);
+    await verifier.migrateAndValidate(db, 11);
     expect(await _has(db, 'payment_captures'), isFalse);
     expect(await _has(db, 'payment_captures_time'), isFalse);
     expect((await db.select(db.groups).get()).single.name, 'Flat');
   });
 
-  test('v7 -> v10 never leaves the payment bubble\'s table behind', () async {
+  test('v7 -> v11 never leaves the payment bubble\'s table behind', () async {
     final connection = await verifier.startAt(7);
     final db = AppDatabase(connection);
     addTearDown(db.close);
-    await verifier.migrateAndValidate(db, 10);
+    await verifier.migrateAndValidate(db, 11);
     expect(await _has(db, 'payment_captures'), isFalse);
     expect(await db.select(db.importBatches).get(), isEmpty);
   });
 
-  test('v6 -> v10 adds the import batches (phase 18)', () async {
+  test('v6 -> v11 adds the import batches (phase 18)', () async {
     final connection = await verifier.startAt(6);
     final db = AppDatabase(connection);
     addTearDown(db.close);
-    await verifier.migrateAndValidate(db, 10);
+    await verifier.migrateAndValidate(db, 11);
     expect(await db.select(db.importBatches).get(), isEmpty);
   });
 
@@ -139,7 +131,7 @@ void main() {
       final connection = schema.newConnection();
       final db = AppDatabase(connection);
       addTearDown(db.close);
-      await verifier.migrateAndValidate(db, 10);
+      await verifier.migrateAndValidate(db, 11);
       expect(await db.select(db.recurringTemplates).get(), isEmpty);
       final rows = await db.customSelect('SELECT * FROM expense_search').get();
       expect(rows, hasLength(1));
@@ -149,11 +141,11 @@ void main() {
     },
   );
 
-  test('v1 -> v10 adds the history (12), bell (13) and exchange-rate (14) caches', () async {
+  test('v1 -> v11 adds the history (12), bell (13) and exchange-rate (14) caches', () async {
     final connection = await verifier.startAt(1);
     final db = AppDatabase(connection);
     addTearDown(db.close);
-    await verifier.migrateAndValidate(db, 10);
+    await verifier.migrateAndValidate(db, 11);
     expect(await db.select(db.recordVersions).get(), isEmpty);
     expect(await db.select(db.notifications).get(), isEmpty);
     expect(await db.select(db.fxRates).get(), isEmpty);
@@ -165,17 +157,17 @@ void main() {
       final connection = await verifier.startAt(2);
       final db = AppDatabase(connection);
       addTearDown(db.close);
-      await verifier.migrateAndValidate(db, 10);
+      await verifier.migrateAndValidate(db, 11);
       expect(await db.select(db.notificationSettings).get(), isEmpty);
       expect(await db.select(db.fxRates).get(), isEmpty);
     },
   );
 
-  test('v4 -> v10 adds the exchange-rate cache (phase 14)', () async {
+  test('v4 -> v11 adds the exchange-rate cache (phase 14)', () async {
     final connection = await verifier.startAt(4);
     final db = AppDatabase(connection);
     addTearDown(db.close);
-    await verifier.migrateAndValidate(db, 10);
+    await verifier.migrateAndValidate(db, 11);
     expect(await db.select(db.fxRates).get(), isEmpty);
   });
 }

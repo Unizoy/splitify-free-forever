@@ -60,7 +60,7 @@ void main() {
     expect(syncRowValue(l, st(SyncPhase.idle, waiting: 3, failed: 1)), '1 problem');
     expect(syncIssueReason(l, sampleIssue()), 'You are no longer in this group.');
     expect(syncIssueReason(l, sampleIssue(code: 'INVALID_SHARES')), l.syncErrorRejected);
-    expect({for (final e in SyncEntity.values) syncEntityIcon(e)}, hasLength(6));
+    expect({for (final e in SyncEntity.values) syncEntityIcon(e)}, hasLength(7));
     expect(l.syncIssueEntity('payment'), 'Payment');
     expect(l.syncIssueOp('delete'), 'Delete');
     expect(l.syncIssueTries(1), 'Tried once');
@@ -155,5 +155,27 @@ void main() {
     expect(syncUploadTitle(l, u(0)), 'Receipt photo');
     expect(syncUploadTitle(l, u(0, 'group-covers')), 'Group cover');
     expect(syncUploadTitle(l, u(0, 'zzz')), 'Photo');
+    // W2-Y: an attachment's three kinds of upload.
+    SyncUpload f(String path) =>
+        SyncUpload(id: 'a', bucket: 'expense-files', recordId: 'r', attempts: 0, path: path);
+    expect(syncUploadTitle(l, f('g/e/a.pdf')), 'PDF');
+    expect(syncUploadTitle(l, f('g/e/a-thumb.jpg')), 'Photo preview');
+    expect(syncUploadTitle(l, f('g/e/a.jpg')), 'Photo');
+  });
+
+  test('a refused attachment opens its expense (W2-Y)', () {
+    SyncIssue at({String? targetId}) => SyncIssue(
+      seq: 1,
+      entity: SyncEntity.attachment,
+      op: SyncOp.upsert,
+      recordId: 'a1',
+      groupId: 'g1',
+      code: 'TOO_MANY_ATTACHMENTS',
+      attempts: 1,
+      createdAt: null,
+      targetId: targetId,
+    );
+    expect(syncIssueRoute(at(targetId: 'e1')), '/expense/e1');
+    expect(syncIssueRoute(at()), isNull);
   });
 }

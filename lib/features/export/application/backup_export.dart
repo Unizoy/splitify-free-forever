@@ -1,16 +1,15 @@
 import 'dart:convert';
-import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:logging/logging.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:splitify/core/config/app_info.dart';
 import 'package:splitify/data/data_providers.dart';
 import 'package:splitify/data/local/app_database.dart';
 import 'package:splitify/data/media_providers.dart';
 import 'package:splitify/data/repositories/export_reads.dart';
-import 'package:splitify/data/remote/media_remote.dart';
 import 'package:splitify/data/sync/sync_types.dart';
 import 'package:splitify/domain/entities/attachment.dart';
 import 'package:splitify/domain/entities/prepared_image.dart';
@@ -19,6 +18,8 @@ import 'package:splitify/features/balances/application/balances_providers.dart';
 import 'package:splitify/features/export/application/group_export.dart';
 import 'package:splitify/features/export/domain/zip_writer.dart';
 import 'package:splitify/features/groups/application/groups_providers.dart';
+
+final _log = Logger('backup');
 
 /// `format` of the backup JSON (docs/backup-format.md).
 const backupFormat = 'splitify-backup';
@@ -433,11 +434,9 @@ class BackupExporter {
         if (bytes.length > budget) return null;
         budget -= bytes.length;
         return bytes;
-      } on MediaOffline {
-        return null;
-      } on MediaRejected {
-        return null;
-      } on FileSystemException {
+      } on Exception catch (e) {
+        // Offline, refused, gone from the phone: listed without its bytes.
+        _log.info('backup: ${bucket == AttachmentPaths.bucket ? 'attachment' : 'receipt'} left out (${e.runtimeType})');
         return null;
       }
     }

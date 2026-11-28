@@ -31,6 +31,8 @@ class UploadQueue {
 
   Future<int>? _running;
 
+  static const _rowid = CustomExpression<int>('rowid');
+
   /// Uploads what is ready; returns how many photos went up. Joins a run in progress.
   Future<int> run() => _running ??= _run().whenComplete(() => _running = null);
 
@@ -40,7 +42,9 @@ class UploadQueue {
         await (db.select(db.pendingUploads)
               ..where((u) => u.attempts.isSmallerThanValue(maxAttempts))
               ..where((u) => u.recordId.isNotInQuery(waiting))
-              ..orderBy([(u) => OrderingTerm.asc(u.id)]))
+              // Queued order (an attachment's thumbnail before its photo, W2-Y): ids made in the same
+              // millisecond are not ordered.
+              ..orderBy([(u) => OrderingTerm.asc(_rowid), (u) => OrderingTerm.asc(u.id)]))
             .get();
     var done = 0;
     for (final row in rows) {

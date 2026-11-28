@@ -128,6 +128,7 @@ void main() {
       'expenses',
       'payments',
       'comments',
+      'attachments',
       'recurring',
     ]);
     expect(goa['me_member_id'], w.m['Mohit']);
