@@ -350,7 +350,8 @@ void main() {
     testWidgets('TC-4-03 swiping the carousel changes who you claim', (tester) async {
       final remote = _remoteWith(samplePreview(unclaimed: [_ravi, _neha, _dev]));
       await openPicker(tester, remote);
-      await tester.drag(find.byType(PageView), const Offset(-70, 0));
+      // One person per page since R3-A (S-446): swipe a whole page (the ring's inner circle).
+      await tester.drag(find.byType(PageView), const Offset(-150, 0));
       await settle(tester);
       expect(find.text("I'm Neha"), findsOneWidget);
       // Swiping counts as a choice.
