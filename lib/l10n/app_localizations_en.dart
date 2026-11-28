@@ -5537,4 +5537,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String w2xNothingConverted(String currency) {
     return 'No saved $currency rates for these yet';
   }
+
+  @override
+  String get w2xSearchPeopleHint => 'Search friends or type a name';
 }

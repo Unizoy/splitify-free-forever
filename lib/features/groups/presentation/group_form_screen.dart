@@ -554,11 +554,23 @@ class _GroupFormScreenState extends ConsumerState<GroupFormScreen> {
                       }
                     },
                     onSubmitted: (_) => _addPerson(),
-                    suffix: AppIconButton(
-                      key: const Key('group-add-person-button'),
-                      tooltip: l.groupFormAddPerson,
-                      icon: Icon(AppIcons.plus, color: c.primary),
-                      onPressed: _addPerson,
+                    suffix: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // W2-X F15: a name from the phone's contacts (system picker, no permission).
+                        AppIconButton(
+                          key: const Key('group-from-contacts'),
+                          tooltip: l.w2xFromContacts,
+                          icon: Icon(AppIcons.contacts, color: c.textSecondary),
+                          onPressed: () => unawaited(_fromContacts()),
+                        ),
+                        AppIconButton(
+                          key: const Key('group-add-person-button'),
+                          tooltip: l.groupFormAddPerson,
+                          icon: Icon(AppIcons.plus, color: c.primary),
+                          onPressed: _addPerson,
+                        ),
+                      ],
                     ),
                   ),
                   const SizedBox(height: AppSpacing.s2),
@@ -567,12 +579,6 @@ class _GroupFormScreenState extends ConsumerState<GroupFormScreen> {
                     style: context.text.bodySmall.copyWith(color: c.textSecondary),
                   ),
                   const SizedBox(height: AppSpacing.s4),
-                  DashedListRow(
-                    key: const Key('group-from-contacts'),
-                    icon: AppIcons.contacts,
-                    label: l.w2xFromContacts,
-                    onTap: () => unawaited(_fromContacts()),
-                  ),
                   DashedListRow(
                     key: const Key('group-invite'),
                     icon: AppIcons.qr,

@@ -1888,5 +1888,6 @@
   "w2xNotConverted": "Also {amounts} not converted",
   "@w2xNotConverted": {"placeholders": {"amounts": {"type": "String"}}},
   "w2xNothingConverted": "No saved {currency} rates for these yet",
-  "@w2xNothingConverted": {"placeholders": {"currency": {"type": "String"}}}
+  "@w2xNothingConverted": {"placeholders": {"currency": {"type": "String"}}},
+  "w2xSearchPeopleHint": "Search friends or type a name"
 }

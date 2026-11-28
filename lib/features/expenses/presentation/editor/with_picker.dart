@@ -156,10 +156,11 @@ Future<PersonPick?> showAddPersonPicker(BuildContext context, {required Set<Stri
 
 /// A friend named exactly [name] (any case) among [friends] when there is exactly one; else null.
 Friend? friendNamed(List<Friend> friends, String name, {Set<String> exclude = const {}}) {
-  final q = name.trim().toLowerCase();
+  String fold(String s) => s.trim().toLowerCase().replaceAll(RegExp(r'\s+'), ' ');
+  final q = fold(name);
   final hits = [
     for (final f in friends)
-      if (!exclude.contains(f.key) && f.name.trim().toLowerCase() == q) f,
+      if (!exclude.contains(f.key) && fold(f.name) == q) f,
   ];
   return hits.length == 1 ? hits.single : null;
 }
@@ -248,10 +249,12 @@ class _WithPickerState extends ConsumerState<WithPicker> {
       return;
     }
     if (name == null || !mounted) return;
+    final clean = cleanContactName(name);
+    if (clean.isEmpty) return;
     final friends = ref.read(friendsProvider).value ?? const <Friend>[];
-    final f = friendNamed(friends, name, exclude: widget.exclude);
+    final f = friendNamed(friends, clean, exclude: widget.exclude);
     if (f != null) return _pickFriend(f);
-    await _newFriend(name);
+    await _newFriend(clean);
   }
 
   @override
@@ -288,7 +291,11 @@ class _WithPickerState extends ConsumerState<WithPicker> {
         key: const Key('with-picker'),
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _SearchBox(controller: _query, onChanged: (_) => setState(() {})),
+          _SearchBox(
+            controller: _query,
+            onChanged: (_) => setState(() {}),
+            hint: add ? l.w2xSearchPeopleHint : null,
+          ),
           const SizedBox(height: AppSpacing.s3),
           _Row(
             key: const Key('with-contacts'),
@@ -363,10 +370,11 @@ class _WithPickerState extends ConsumerState<WithPicker> {
 }
 
 class _SearchBox extends StatelessWidget {
-  const _SearchBox({required this.controller, required this.onChanged});
+  const _SearchBox({required this.controller, required this.onChanged, this.hint});
 
   final TextEditingController controller;
   final ValueChanged<String> onChanged;
+  final String? hint;
 
   @override
   Widget build(BuildContext context) {
@@ -394,7 +402,7 @@ class _SearchBox extends StatelessWidget {
               cursorColor: c.primary,
               decoration: pillInputDecoration(
                 context: context,
-                hint: l.expWithSearchHint,
+                hint: hint ?? l.expWithSearchHint,
                 style: context.text.body,
                 hintStyle: context.text.body.copyWith(color: c.textTertiary),
               ),

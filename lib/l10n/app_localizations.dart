@@ -8809,6 +8809,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No saved {currency} rates for these yet'**
   String w2xNothingConverted(String currency);
+
+  /// No description provided for @w2xSearchPeopleHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search friends or type a name'**
+  String get w2xSearchPeopleHint;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
